@@ -25,7 +25,7 @@ library("RColorBrewer")
 
 
 ############################
-## Civex Rep 1 data
+## Cimex Rep 1 data
 ############################
 
 # Load in csv download of life tables for cimex Rep 1
@@ -536,10 +536,14 @@ ggplot(cb_re_all, aes(x = time, y = Proportion, color = groupName, fill = groupN
 ############################
 ## Triatoma Pilot data
 ############################
+#this part was done from a unclean data CSV file. 
+#I updated the CSV and changed the spreadsheet format as the spreadsheet for "base datos piloto - cimex. csv" 
+#to run this part I used the same code developed above for "Cimex pilot data"
+#Aditional I disable the code to run the uncean data. Renzo
 
 
 # Load in csv download of life tables
-raw_tb_csv <- read.csv(file = 'base datos piloto - triatoma.csv',skip=3)
+#raw_tb_csv <- read.csv(file = 'base datos piloto - triatoma.csv',skip=3)
 # Remove Recorded date column (will use week column)
 
 
@@ -550,102 +554,180 @@ raw_tb_csv <- read.csv(file = 'base datos piloto - triatoma.csv',skip=3)
 
 ############ 
 ## Set How many bugs were used for each group (e.g. 40 in Infected A)
-tb_bug_num = 20
+#tb_bug_num = 20
 
 
-raw_tb_csv[35] <- NULL
-raw_tb_csv[18] <- NULL
+#raw_tb_csv[35] <- NULL
+#raw_tb_csv[18] <- NULL
 
 
 # Replace blank cells with 0
-raw_tb_csv[is.na(raw_tb_csv)] <- 0
+#raw_tb_csv[is.na(raw_tb_csv)] <- 0
 
 # Setting up groups, group1 = control, group2 = infected
-tb_group1 <- raw_tb_csv
-tb_group2 <- raw_tb_csv
-tb_group3 <- raw_tb_csv
+#tb_group1 <- raw_tb_csv
+#tb_group2 <- raw_tb_csv
+#tb_group3 <- raw_tb_csv
 
 ######## THIS MAY CHANGE IF THE SPREADSHEET IS ALTERED,
 # Assumes pilot study won't change
-tb_group1 <- head(tb_group1, 221)
-tb_group2 <- head(tb_group2, 221)
-tb_group3 <- head(tb_group2, 221)
+#tb_group1 <- head(tb_group1, 221)
+#tb_group2 <- head(tb_group2, 221)
+#tb_group3 <- head(tb_group2, 221)
 
 # Remove group 2 observations from group1
-for(i in seq (2:33)){
-  tb_group1[2] <- NULL
-}
+#for(i in seq (2:33)){
+#  tb_group1[2] <- NULL
+#}
 
 # Remove group 1 and...  observations from group2
-for(i in seq (18:49)){
-  tb_group2[18] <- NULL
-}
+#for(i in seq (18:49)){
+#  tb_group2[18] <- NULL
+#}
 
 # Remove
-for(i in seq (2:17)){
-  tb_group3[2] <- NULL
-}
-for(i in seq (18:33)){
-  tb_group3[18] <- NULL
-}
+#for(i in seq (2:17)){
+#  tb_group3[2] <- NULL
+#}
+#for(i in seq (18:33)){
+#  tb_group3[18] <- NULL
+#}
 
 
 # Uninfected Controls, Total life and death counts per week
-tb_alive_control_totals <- tb_group1[16]/tb_bug_num
+#tb_alive_control_totals <- tb_group1[16]/tb_bug_num
 
 # Infected Cimex, Total life and death counts per week
-tb_alive_inf1_totals <- tb_group2[16]/tb_bug_num
+#tb_alive_inf1_totals <- tb_group2[16]/tb_bug_num
 
-tb_alive_inf2_totals <- tb_group3[16]/tb_bug_num
+#tb_alive_inf2_totals <- tb_group3[16]/tb_bug_num
 
 # Create data frame with vectors of life totals for the 4 groups, A and B of control and infected
-tb_raw_total_survival <- cbind(tb_alive_control_totals,tb_alive_inf1_totals,tb_alive_inf2_totals)
+#tb_raw_total_survival <- cbind(tb_alive_control_totals,tb_alive_inf1_totals,tb_alive_inf2_totals)
 # Remove Rows with only zeros
-temp_tb_ALL <- tb_raw_total_survival[rowSums(tb_raw_total_survival)!=0, ]
-numWeeks <- nrow(temp_tb_ALL)
+#temp_tb_ALL <- tb_raw_total_survival[rowSums(tb_raw_total_survival)!=0, ]
+#numWeeks <- nrow(temp_tb_ALL)
 
-b_even_indices <- seq (2,numWeeks,2)
-b_odd_indices <- seq (1,numWeeks,2)
+#b_even_indices <- seq (2,numWeeks,2)
+#b_odd_indices <- seq (1,numWeeks,2)
 
-tb_ALL <- cbind(temp_tb_ALL[b_odd_indices,1],temp_tb_ALL[b_even_indices,1],temp_tb_ALL[b_odd_indices,2],
-                temp_tb_ALL[b_even_indices,2],temp_tb_ALL[b_odd_indices,3],temp_tb_ALL[b_even_indices,3])
+#tb_ALL <- cbind(temp_tb_ALL[b_odd_indices,1],temp_tb_ALL[b_even_indices,1],temp_tb_ALL[b_odd_indices,2],
+#                temp_tb_ALL[b_even_indices,2],temp_tb_ALL[b_odd_indices,3],temp_tb_ALL[b_even_indices,3])
 
-tb_ALL_comb <- cbind((temp_tb_ALL[b_odd_indices,1]+temp_tb_ALL[b_even_indices,1])*.5,(temp_tb_ALL[b_odd_indices,2]+
-                temp_tb_ALL[b_even_indices,2])*.5,(temp_tb_ALL[b_odd_indices,3]+temp_tb_ALL[b_even_indices,3])*.5)
+#tb_ALL_comb <- cbind((temp_tb_ALL[b_odd_indices,1]+temp_tb_ALL[b_even_indices,1])*.5,(temp_tb_ALL[b_odd_indices,2]+
+#                temp_tb_ALL[b_even_indices,2])*.5,(temp_tb_ALL[b_odd_indices,3]+temp_tb_ALL[b_even_indices,3])*.5)
 
-tb_All_total_survival <- as.data.frame(t(tb_ALL))
-tb_All_total_surv_comb <- as.data.frame(t(tb_ALL_comb))
+#tb_All_total_survival <- as.data.frame(t(tb_ALL))
+#tb_All_total_surv_comb <- as.data.frame(t(tb_ALL_comb))
 
 
 # Create column names for the weeks of recording, and row names for group
-colnames(tb_All_total_survival) <- c(1:ncol(tb_All_total_survival))
-colnames(tb_All_total_surv_comb) <- c(1:ncol(tb_All_total_surv_comb))
-tb_All_total_survival$groupName <-  c("Control A","Control B","Infected_1 A",
-                                      "Infected_1 B","Infected_2 A","Infected_2 B")
-tb_All_total_surv_comb$groupName <-  c("Control","Infected_1","Infected_2")
+#colnames(tb_All_total_survival) <- c(1:ncol(tb_All_total_survival))
+#colnames(tb_All_total_surv_comb) <- c(1:ncol(tb_All_total_surv_comb))
+#tb_All_total_survival$groupName <-  c("Control A","Control B","Infected_1 A",
+#                                      "Infected_1 B","Infected_2 A","Infected_2 B")
+#tb_All_total_surv_comb$groupName <-  c("Control","Infected_1","Infected_2")
 
 
 # Reshape data frame into "re_all" so that all values are recorded as a 1-dimensional list
 # Reshaping allows for easy manipulation of data into graphs
-tb_re_all <- reshape(tb_All_total_survival, varying=c(1:(ncol(tb_All_total_survival)-1)), v.names='Proportion',
-                     direction='long', idvar='groupName')
+#tb_re_all <- reshape(tb_All_total_survival, varying=c(1:(ncol(tb_All_total_survival)-1)), v.names='Proportion',
+#                     direction='long', idvar='groupName')
 
-tb_comb_re_all <- reshape(tb_All_total_surv_comb, varying=c(1:(ncol(tb_All_total_surv_comb)-1)), v.names='Proportion',
-                     direction='long', idvar='groupName')
+#tb_comb_re_all <- reshape(tb_All_total_surv_comb, varying=c(1:(ncol(tb_All_total_surv_comb)-1)), v.names='Proportion',
+#                     direction='long', idvar='groupName')
 
 # Plot graph of percentage alive
 
-ggplot(tb_re_all, aes(x = time, y = Proportion, color = groupName, fill = groupName)) +
-  geom_line() + scale_color_manual(values = c("#1F78B4","#1F78B4","#FB9A99","#FB9A99","#E31A1C","#E31A1C")) +
-  ggtitle("Triatoma Pilot Proportion Alive") + xlab("Week") + ylab("Proportion Alive") +
-  theme(text = element_text(size=16),axis.text.x=element_text(size=14),axis.text.x=element_text(size=14))
+#ggplot(tb_re_all, aes(x = time, y = Proportion, color = groupName, fill = groupName)) +
+#  geom_line() + scale_color_manual(values = c("#1F78B4","#1F78B4","#FB9A99","#FB9A99","#E31A1C","#E31A1C")) +
+#  ggtitle("Triatoma Pilot Proportion Alive") + xlab("Week") + ylab("Proportion Alive") +
+#  theme(text = element_text(size=16),axis.text.x=element_text(size=14),axis.text.x=element_text(size=14))
 
 
 # Graph plotting percentage alive (Combined)
-ggplot(tb_comb_re_all, aes(x = time, y = Proportion, color = groupName, fill = groupName)) +
-  geom_line() + scale_color_manual(values = c("#1F78B4","#FB9A99","#E31A1C")) +
-  ggtitle("Triatoma Pilot Proportion Alive (Combined)") + xlab("Week") + ylab("Proportion Alive") +
+#ggplot(tb_comb_re_all, aes(x = time, y = Proportion, color = groupName, fill = groupName)) +
+#  geom_line() + scale_color_manual(values = c("#1F78B4","#FB9A99","#E31A1C")) +
+#  ggtitle("Triatoma Pilot Proportion Alive (Combined)") + xlab("Week") + ylab("Proportion Alive") +
+#  theme(text = element_text(size=16),axis.text.x=element_text(size=14),axis.text.x=element_text(size=14))
+
+
+#############################################
+## triatoma Base Pilot Data fixed by Renzo ##
+#############################################
+
+
+
+# Load in csv download of life tables
+raw_cb_csv <- read.csv(file = 'base datos piloto - triatoma.csv')
+
+
+
+############
+## Set Week number below
+## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
+cb_week_num = 63
+# Current up to "week 46", so 47 weeks
+
+############ 
+## Set How many bugs were used for each group (e.g. 40 in Infected A)
+cb_bug_num = 40
+
+
+
+# Remove Recorded date column (will use week column)
+raw_cb_csv[5] <- NULL
+raw_cb_csv[1] <- NULL
+raw_cb_csv[1] <- NULL
+raw_cb_csv[1] <- NULL
+# ONLY RUN THESE ONCE
+
+# Replace blank cells with 0
+raw_cb_csv[is.na(raw_cb_csv)] <- 0
+
+#### CHANGE THESE TO DYNAMIC VAR
+# Setting up groups, group1 = control, group2 = infected
+# Control
+cb_group1 <- raw_cb_csv[1:63,]
+# Rat 1
+cb_group2 <- raw_cb_csv[64:126,]
+# Rat 2
+cb_group3 <- raw_cb_csv[127:189,]
+
+
+### FOR CONTROL NEED LINES 1-63
+### FOR INFECTED ONE NEED LINES 57-126
+### FOR INFECTED TWO NEED LINES 127-189
+
+
+# Uninfected Controls, Total life and death counts per week
+cb_alive_control_totals <- cb_group1[16]/cb_bug_num
+
+# Infected Cimex, Total life and death counts per week
+cb_alive_inf1_totals <- cb_group2[16]/cb_bug_num
+
+cb_alive_inf2_totals <- cb_group3[16]/cb_bug_num
+
+# Create data frame with vectors of life totals for the 4 groups, A and B of control and infected
+cb_All_total_survival <- cbind(cb_alive_control_totals,cb_alive_inf1_totals,cb_alive_inf2_totals)
+cb_All_total_survival <- as.data.frame(t(cb_All_total_survival))
+
+# Create column names for the weeks of recording, and row names for group
+colnames(cb_All_total_survival) <- c(1:cb_week_num)
+cb_All_total_survival$groupName <-  c("Control","Infected_1","Infected_2")
+
+# Reshape data frame into "re_all" so that all values are recorded as a 1-dimensional list
+# Reshaping allows for easy manipulation of data into graphs
+cb_re_all <- reshape(cb_All_total_survival, varying=c(1:cb_week_num), v.names='Proportion',
+                     direction='long', idvar='groupName')
+
+# Plot graph of percentage alive
+ggplot(cb_re_all, aes(x = time, y = Proportion, color = groupName, fill = groupName)) +
+  geom_line() + scale_color_manual(values = c("#1F78B4", "#FB9A99", "#E31A1C")) +
+  ggtitle("triatoma Pilot Proportion Alive") + xlab("Week") + ylab("Proportion Alive") +
   theme(text = element_text(size=16),axis.text.x=element_text(size=14),axis.text.x=element_text(size=14))
+
+
 
 
 ###
