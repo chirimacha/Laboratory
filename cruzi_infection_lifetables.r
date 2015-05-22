@@ -471,7 +471,7 @@ raw_cb_csv <- read.csv(file = 'base datos piloto - cimex.csv')
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-cb_week_num = 55
+cb_week_num = 56
 # Current up to "week 46", so 47 weeks
 
 ############ 
@@ -493,16 +493,16 @@ raw_cb_csv[is.na(raw_cb_csv)] <- 0
 #### CHANGE THESE TO DYNAMIC VAR
 # Setting up groups, group1 = control, group2 = infected
 # Control
-cb_group1 <- raw_cb_csv[1:47,]
+cb_group1 <- raw_cb_csv[1:56,]
 # Rat 1
-cb_group2 <- raw_cb_csv[51:97,]
+cb_group2 <- raw_cb_csv[57:112,]
 # Rat 2
-cb_group3 <- raw_cb_csv[101:147,]
+cb_group3 <- raw_cb_csv[113:168,]
 
 
-### FOR CONTROL NEED LINES 1-47
-### FOR INFECTED ONE NEED LINES 51-97
-### FOR INFECTED TWO NEED LINES 101-147
+### FOR CONTROL NEED LINES 1-56
+### FOR INFECTED ONE NEED LINES 57-112
+### FOR INFECTED TWO NEED LINES 113-168
 
 
 # Uninfected Controls, Total life and death counts per week
