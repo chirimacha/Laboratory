@@ -1,13 +1,23 @@
+#libraries needed
+library(plyr)
+library(lubridate)
+
 #set directory and bring in files to be analyzed.
 setwd("c:\\Users\\tradylan\\Documents\\GitHub\\Laboratory\\chagasycimexhuevos")
 #setwd("/Users/mzlevy/Laboratory/chagasycimexhuevos")
 #bring in hatching data
+
 cimfertpilot <- read.csv("Cimex_FertP.csv")
+#https://docs.google.com/spreadsheets/d/1E-GRO1_Ybrgqj0wjgz5s9YHY1KwJUVPov0I2PwgC2CQ/edit
 cimfert1 <- read.csv("Cimex_FertR1.csv")
+##https://docs.google.com/spreadsheets/d/1iDBITasgMrbmwGJJSwsPkcal1b7b3kdfmviRtw8wbqA/edit#gid=709304485
 cimfert2 <- read.csv("Cimex_FertR2.csv")
+#https://docs.google.com/spreadsheets/d/13RvsL-uZaKgJPN3RBf8nTlsR8BQ6U-BrEQ_7BmxYgsI/edit
+
 #bring in temperature and humidity data.
 #the pilot has the temp and RH data for all sections
 tempRH <- read.csv("TEMP_Y_RH_PIL.csv")
+#from same table as above.
 
 
 ##Create a master table with all the insects.
@@ -113,7 +123,7 @@ blank <- (1:(30*length(cimfert$Procedencia))*0)
 #
 Compile <- data.frame(blank,0,0,0,0,0,0, 0, 0, 0, 0)
 
-library(plyr)
+
 Compile <- rename(Compile, replace = c("blank"="id", "X0"="parents","X0.1"="infected","X0.2"="start",
        "X0.3"="week", "X0.4"="date", "X0.5"="eggs", "X0.6"="hatch", "X0.7"="rh",
        "X0.8"="temp", "X0.9"="procedencia"))
@@ -137,7 +147,6 @@ for (d in 1:30) {
  }
 
 #Now that table is made, make date so that humidity and temperature data can be easily entered.
-library(lubridate)
 Compile$start <- parse_date_time(Compile$start, "dmy", tz="EST")
 Compile$start <- as.Date(Compile$start)
 Compile$date <- (Compile$start+(Compile$week*7))
