@@ -21,7 +21,7 @@ library("RColorBrewer")
 # Uncomment the line below to create a pdf with all of the graphics in the current directory of this file
 # Make sure to uncomment the last line of this script, "dev.off()", to finish writing to the file
 ######
- pdf(file = "R_lifetables_graphics_may2015.pdf")
+ pdf(file = "R_lifetables_graphics_jun2015.pdf")
 
 
 ############################
@@ -34,7 +34,7 @@ raw_c1_csv <- read.csv(file = "ciclo vida cimex Rep 1 - cimex.csv",skip=2)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-c1_week_num = 37
+c1_week_num = 42
 # Current up to week 25, so 26 weeks
 
 ############ 
@@ -135,7 +135,7 @@ raw_t1_csv <- read.csv(file = 'ciclo vida cimex Rep 1 - triatoma.csv',skip=3)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-t1_week_num = 37
+t1_week_num = 42
 # Current up to week 25, so 26 weeks
 
 ############ 
@@ -244,7 +244,7 @@ raw_c2_csv <- read.csv(file = 'ciclo vida cimex Rep 2 - cimex.csv',skip=2)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-c2_week_num = 30
+c2_week_num = 36
 # Current up to "week 11", so 12 weeks
 
 ############ 
@@ -347,7 +347,7 @@ raw_t2_csv <- read.csv(file = 'ciclo vida cimex Rep 2 - triatoma.csv',skip=3)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-t2_week_num = 30
+t2_week_num = 36
 # Current up to "week 11", so 12 weeks
 
 ############ 
@@ -458,7 +458,7 @@ ggplot(t2_re_comb, aes(x = time, y = Proportion, color = groupName, fill = group
 
 
 ############################
-## Civex Base Pilot Data
+## Cimex Base Pilot Data
 ############################
 
 
@@ -666,7 +666,7 @@ raw_cb_csv <- read.csv(file = 'base datos piloto - triatoma.csv')
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-cb_week_num = 63
+cb_week_num = 67
 # Current up to "week 46", so 47 weeks
 
 ############ 
@@ -688,16 +688,16 @@ raw_cb_csv[is.na(raw_cb_csv)] <- 0
 #### CHANGE THESE TO DYNAMIC VAR
 # Setting up groups, group1 = control, group2 = infected
 # Control
-cb_group1 <- raw_cb_csv[1:63,]
+cb_group1 <- raw_cb_csv[1:67,]
 # Rat 1
-cb_group2 <- raw_cb_csv[64:126,]
+cb_group2 <- raw_cb_csv[68:134,]
 # Rat 2
-cb_group3 <- raw_cb_csv[127:189,]
+cb_group3 <- raw_cb_csv[135:201,]
 
 
-### FOR CONTROL NEED LINES 1-63
-### FOR INFECTED ONE NEED LINES 57-126
-### FOR INFECTED TWO NEED LINES 127-189
+### FOR CONTROL NEED LINES 1-67
+### FOR INFECTED ONE NEED LINES 68-134
+### FOR INFECTED TWO NEED LINES 135-201
 
 
 # Uninfected Controls, Total life and death counts per week
@@ -725,7 +725,7 @@ cb_re_all <- reshape(cb_All_total_survival, varying=c(1:cb_week_num), v.names='P
 ggplot(cb_re_all, aes(x = time, y = Proportion, color = groupName, fill = groupName)) +
   geom_line() + scale_color_manual(values = c("#1F78B4", "#FB9A99", "#E31A1C")) +
   ggtitle("triatoma Pilot Proportion Alive") + xlab("Week") + ylab("Proportion Alive") +
-  theme(text = element_text(size=16),axis.text.x=element_text(size=14),axis.text.x=element_text(size=14))
+  theme(text = element_text(size=16),axis.text.x=element_text(size=15),axis.text.x=element_text(size=14))
 
 
 
