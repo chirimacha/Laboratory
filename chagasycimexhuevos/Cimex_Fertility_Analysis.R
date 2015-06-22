@@ -3,7 +3,8 @@ library(plyr)
 library(lubridate)
 
 #set directory and bring in files to be analyzed.
-setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
+#setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
+setwd("/Users/ricardocasney/Laboratory/chagasycimexhuevos")
 #setwd("/Users/mzlevy/Laboratory/chagasycimexhuevos")
 #bring in hatching data
 
@@ -47,7 +48,7 @@ cimfert<-rbind(cimfertpilot, cimfert1, cimfert2)
 cimfert$ID <- paste(cimfert$Nro_.pareja, cimfert$trial, sep="-")
 
 #clear na and replace with 0
-cimfert[is.na(cimfert)]<-0
+cimfert[is.na(cimfert)] <- 0
 
 ####The Goal of this analysis is to see how bed bugs fertility may change 
 ####based on infection with chagas disease.
@@ -110,9 +111,9 @@ for(i in 1:30){
 
 #Now we're ready to do some plotting
 plot(AvPostI, type="o", main="Average Eggs Laid Between Infected and Control Insects",
-    ylab="Number of Bugs", xlab="Day in Study", col="darkorange1", pch=18)
+    ylab="Number of Bugs", xlab="Week in Study", col="darkorange1", pch=18)
   lines(AvPostC, type="o", pch=16, col="dodgerblue1")
-
+legend(20, 5, legend = c("Control", "Infected"), col = c("dodgerblue1", "darkorange1"), lty = 1)
 
 ##for violin plots and lme4 analysis we need to make data frame by entry
 #entry meaning every line represents week of egg and hatch from normal jar.
@@ -161,7 +162,7 @@ tempRH$FECHA <- as.Date(tempRH$FECHA)
 infected<-which(Compile$infected==1)
 controled<-which(Compile$infected==0)
 uniquebugs<-unique(Compile$id)
-plot(Compile$week[infected], Compile$eggs[infected], col="red")
+plot(Compile$week[infected], Compile$eggs[infected]+rnorm(length(Compile$eggs[infected]), 0.5, 1), col="red")
      
 
 # #loop to get average temperature throughout the week.
@@ -169,9 +170,9 @@ plot(Compile$week[infected], Compile$eggs[infected], col="red")
 #  for(i in 1:length(Compile$id)){
 #    fechai<- which(tempRH$FECHA==Compile$date[i])
 #    fechaSi<-which(tempRH$FECHA==(Compile$date[i]-6))
-#    Compile$temp[i] <- ((sum(tempRH$TEMP.MAX..Â.C.[fechaSi:fechai], na.rm=TRUE) +
-#      sum(tempRH$TEMP.MAX..Â.C.[fechaSi:fechai], na.rm=TRUE))) / 
-#      (2*length(which(is.na(tempRH$TEMP.MAX..Â.C[fechaSi:fechai])==FALSE)))
+#    Compile$temp[i] <- ((sum(tempRH$TEMP.MAX..?.C.[fechaSi:fechai], na.rm=TRUE) +
+#      sum(tempRH$TEMP.MAX..?.C.[fechaSi:fechai], na.rm=TRUE))) / 
+#      (2*length(which(is.na(tempRH$TEMP.MAX..?.C[fechaSi:fechai])==FALSE)))
 #  }
 #   
 
