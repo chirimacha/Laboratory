@@ -3,7 +3,7 @@ library(plyr)
 library(lubridate)
 
 #set directory and bring in files to be analyzed.
-setwd("c:\\Users\\tradylan\\Documents\\GitHub\\Laboratory\\chagasycimexhuevos")
+setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
 #setwd("/Users/mzlevy/Laboratory/chagasycimexhuevos")
 #bring in hatching data
 
@@ -16,9 +16,8 @@ cimfert2 <- read.csv("Cimex_FertR2.csv")
 
 #bring in temperature and humidity data.
 #the pilot has the temp and RH data for all sections
-tempRH <- read.csv("TEMP_Y_RH_PIL.csv")
+tempRH <- read.csv("TEMP_Y_RH.csv")
 #from same table as above.
-
 
 ##Create a master table with all the insects.
 #first create marker so we can identify each trial.
