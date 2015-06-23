@@ -22,6 +22,7 @@ tempRH <- read.csv("TEMP_Y_RH.csv")
 
 ##Create a master table with all the insects.
 #first create marker so we can identify each trial.
+
 cimfertpilot$trial <- 0
 cimfert1$trial <- 1
 cimfert2$trial <- 2
@@ -142,7 +143,7 @@ iRAviamean <- colMeans(cimfert[InfectRA,viabilidad], na.rm= TRUE, dims=1)
 cRBviamean <- colMeans(cimfert[ControlRB,viabilidad], na.rm= TRUE, dims=1)
 iRBviamean <- colMeans(cimfert[InfectRB,viabilidad], na.rm= TRUE, dims=1)
 
-##We can now plot this data
+##We can now plot this data for eggs
 #all the repetitions pooled togehter.
 plot(infeggmean, type="o", main="Average Eggs Laid Between Infected and Control Insects",
     ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
@@ -177,7 +178,45 @@ lines(iRBeggmean, type="o", pch=3, col=2, lty=3)
 lines(cRBeggmean, type="o", pch=3, col=4, lty=3)
 legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
                     "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
-       col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3)
+       col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
+
+##Do the same analysis por hatching
+#all the repetitions pooled togehter.
+plot(infviamean, type="o", main="Average Hatched Eggs Between Infected and Control Insects",
+     ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18)
+lines(conviamean, type="o", pch=16, col="dodgerblue1")
+legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+
+#Por Pilot
+plot(iPLviamean, type="o", main="Average Hatched Eggs Between Infected and Control Insects in Pilot",
+     ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18)
+lines(cPLviamean, type="o", pch=16, col="dodgerblue1")
+legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+
+#Por Rep1
+plot(iRviamean, type="o", main="Average Hatched Eggs Between Infected and Control Insects in Rep 1",
+     ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18)
+lines(cRAviamean, type="o", pch=16, col="dodgerblue1")
+legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+
+#Por Rep2
+plot(iRBviamean, type="o", main="Average Hatched Eggs Between Infected and Control Insects in Rep 2",
+     ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(1,9))
+lines(cRBviamean, type="o", pch=16, col="dodgerblue1")
+legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+
+#Put them al on one graph
+plot(iPLeggmean, type="o", main="Average Hatched Eggs Between Infected and Control Insects in Pilot",
+     ylab="Number of Hatched Insects", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
+lines(cPLeggmean, type="o", pch=1, col=4, lty=1)
+lines(iRAeggmean, type="o", pch=2, col=2, lty=2)
+lines(cRAeggmean, type="o", pch=2, col=4, lty=2)
+lines(iRBeggmean, type="o", pch=3, col=2, lty=3)
+lines(cRBeggmean, type="o", pch=3, col=4, lty=3)
+legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
+                     "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
+       col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
+
 
 ##for violin plots and lme4 analysis we need to make data frame by entry
 #entry meaning every line represents week of egg)) and hatch from normal jar.
