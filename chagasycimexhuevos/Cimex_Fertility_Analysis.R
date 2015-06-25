@@ -183,12 +183,13 @@ legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected",
 
 #We need to create outputs for the data.
 blank <- (1:(length(postura)*length(cimfert$Procedencia))*0)
-Compile <- data.frame(blank,0,0,0,0,0,0, 0, 0, 0, 0)
-
+Compile <- data.frame(blank,0,0,0,0,0,0, 0, 0, 0, 0, 0)
 
 Compile <- rename(Compile, replace = c("blank"="id", "X0"="parents","X0.1"="infected","X0.2"="start",
        "X0.3"="week", "X0.4"="date", "X0.5"="eggs", "X0.6"="hatch", "X0.7"="rh",
-       "X0.8"="temp", "X0.9"="procedencia"))
+       "X0.8"="temp", "X0.9"="procedencia", "X0.10"="trial"))
+#if adding colums, be sure that you capitalize the Xx
+
 #make sure the cimfert columns are characters or they will not transfer.
 cimfert$Nro_.pareja <- as.character(cimfert$Nro_.pareja)
 cimfert$Procedencia <- as.character(cimfert$Procedencia)
@@ -198,6 +199,7 @@ cimfert$Fecha_Inicio_.Pareja <-as.character(cimfert$Fecha_Inicio_.Pareja)
 for (d in 1:(length(postura))){
   for (i in 1:(length(cimfert$s1_p))){ #i for each insect
      Compile$week[i+((d-1)*length(cimfert$ID))] <- d
+     Compile$trial[i+((d-1)*length(cimfert$ID))] <- cimfert$trial[i]
      Compile$id[i+((d-1)*length(cimfert$ID))] <- cimfert$ID[i]
      Compile$parents[i+((d-1)*length(cimfert$ID))] <- cimfert$Nro_.pareja[i]
      Compile$procedencia[i+((d-1)*length(cimfert$ID))] <- cimfert$Procedencia[i]
@@ -218,50 +220,183 @@ Compile$date <- (Compile$start+(Compile$week*7))
 tempRH$FECHA <- parse_date_time(tempRH$FECHA, "dmy", tz="EST")
 tempRH$FECHA <- as.Date(tempRH$FECHA)
 
+###############################################################################
+#From here one I will reduce the data table to include only data from the pilot
+###############################################################################
+#Once we have ful data, we justneed to comment out the following line.
+pilot<-which(Compile$trial==0)
+Compile<-Compile[pilot,]
+#-----------------------------
+
+#Make function to calculate avg high temperature of week.
+avtemphigh<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+ mean(tempRH$TEMP.MAX..Â.C.[a:b], na.rm=TRUE)
+}
+date<-Compile$date
+Compile$avtemphigh <-lapply(date, avtemphigh)
+
+#Make function to calculate avg low temperature of week.
+avtemplow<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+  mean(tempRH$TEMP.MIN..Â.C.[a:b], na.rm=TRUE)
+}
+Compile$avtemplow <-lapply(date, avtemplow)
+
+#tot average temp
+avtemp <- function(rdate){
+    rdate <- as.Date(rdate)
+    fday <- (rdate-6)
+    a <- which(tempRH$FECHA==fday)
+    b <- which(tempRH$FECHA==rdate)
+    c <- sum(tempRH$TEMP.MAX..Â.C.[a:b], na.rm=TRUE)
+    d <- sum(tempRH$TEMP.MIN..Â.C.[a:b], na.rm=TRUE)
+    ((c+d)/(2*((length(tempRH$TEMP.MAX..Â.C.[a:b]))-(length(which(is.na(tempRH$TEMP.MAX..Â.C.[a:b])==TRUE))))))
+}
+
+Compile$avtemp <- lapply(date, avtemp)
+#week max
+tempmax<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+  max(tempRH$TEMP.MAX..Â.C.[a:b], na.rm=TRUE)
+}
+Compile$tempmax <-lapply(date, tempmax)
+
+#week min
+tempmin<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+  min(tempRH$TEMP.MIN..Â.C.[a:b], na.rm=TRUE)
+}
+Compile$tempmin <-lapply(date, tempmin)
+
+#greatest difference(heat shock)
+tempRH$tempdiff<- tempRH$TEMP.MAX..Â.C.-(tempRH$TEMP.MIN..Â.C.)
+
+tempdiff<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+  max(tempRH$tempdiff[a:b], na.rm=TRUE)
+}
+Compile$tempdiff<-lapply(date, tempdiff)
 
 
-#Now lets make somoe pretty pictures.
-infected<-which(Compile$infected==1)
-controled<-which(Compile$infected==0)
-uniquebugs<-unique(Compile$id)
-plot(Compile$week[infected], Compile$eggs[infected], col="red")
-plot(Compile$date[infected], Compile$eggs[infected], col="red")     
+#==============================================================
+#Do the same for humidity
+avhumhigh<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+  mean(tempRH$HR.MAX....[a:b], na.rm=TRUE)
+}
+date<-Compile$date
+Compile$avhumhigh <-lapply(date, avhumhigh)
 
-# #loop to get average temperature throughout the week.
-# #its broken for now bc we don't have the data past 2015-01-31
-#  for(i in 1:length(Compile$id)){
-#    fechai<- which(tempRH$FECHA==Compile$date[i])
-#    fechaSi<-which(tempRH$FECHA==(Compile$date[i]-6))
-#    Compile$temp[i] <- ((sum(tempRH$TEMP.MAX..Â.C.[fechaSi:fechai], na.rm=TRUE) +
-#      sum(tempRH$TEMP.MAX..Â.C.[fechaSi:fechai], na.rm=TRUE))) / 
-#      (2*length(which(is.na(tempRH$TEMP.MAX..Â.C[fechaSi:fechai])==FALSE)))
-#  }
-#   
+#Make function to calculate avg low temperature of week.
+avhumlow<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+  mean(tempRH$HR.MIN....[a:b], na.rm=TRUE)
+}
+Compile$avhumlow <-lapply(date, avhumlow)
 
-# #-----------------------------------------------------
-# ###Figure out let us start by finding the base stats
-# ###Longevity
-# #identify groups
-# controls <- which(cimfertpilot$Procedencia=="CO")
-# infectA <- which(cimfertpilot$Procedencia=="I-R1")
-# infectB <- which(cimfertpilot$Procedencia=="I-R2")
-# infect <-c:(infectA, infectB)
-# 
-# c
-# 
-# 
-# #find number in each cohort
-# nmcontrols <- length(controls)
-# nminfectA <- length(infectA)
-# nminfectB <- length(infectB)
-# nminfect <- length(infect)
-# 
-# #find the average 
-# longcont <- sum(cimfertpilot$Longevidad[controls])/nmcontrols #16.78571
-# longinfA <- sum(cimfertpilot$Longevidad[infectA])/nminfectA  #18.5
-# longinfB <- sum(cimfertpilot$Longevidad[infectB])/nminfectB  #15.90909
-# longinf <-sum(cimfertpilot$Longevidad[infect])/nminfect  #17.51724
-# ------------------------------------------------------------------------------------
+#tot average temp
+avhum <- function(rdate){
+  rdate <- as.Date(rdate)
+  fday <- (rdate-6)
+  a <- which(tempRH$FECHA==fday)
+  b <- which(tempRH$FECHA==rdate)
+  c <- sum(tempRH$HR.MAX....[a:b], na.rm=TRUE)
+  d <- sum(tempRH$HR.MIN....[a:b], na.rm=TRUE)
+  ((c+d)/(2*((length(tempRH$HR.MAX....[a:b]))-(length(which(is.na(tempRH$HR.MAX....[a:b])==TRUE))))))
+}
+
+Compile$avhum <- lapply(date, avhum)
+
+#week max
+hummax<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+  max(tempRH$HR.MAX....[a:b], na.rm=TRUE)
+}
+Compile$hummax <-lapply(date, hummax)
+
+#week min
+hummin<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+  min(tempRH$HR.MIN....[a:b], na.rm=TRUE)
+}
+Compile$hummin <-lapply(date, hummin)
+
+#greatest difference(humidity shock?  I figured we had it for temp so why not)
+tempRH$humdiff<- (tempRH$HR.MAX....)-(tempRH$HR.MIN....)
+
+humdiff<-function(rdate){
+  rdate<-as.Date(rdate)
+  fday<- (rdate-6)
+  a<-which(tempRH$FECHA==fday)
+  b<-which(tempRH$FECHA==rdate)
+  max(tempRH$humdiff[a:b], na.rm=TRUE)
+}
+Compile$humdiff<-lapply(date, humdiff)
+#===========================================
+#Now all the data should be in place.  We can plot some more.
+#plot humidity and temperature over time
+plot(Compile$date, Compile$avhum,col="dodgerblue", ylim=c(24,60),
+     main="Temperature and Humidity", ylab="Relative Humidity(%) and Temperature(C)",
+     xlab="Date")
+ points(Compile$date, Compile$avtemp, col="tomato")
+ legend("topleft", c("Humidity", "Temperature"), text.col=c("dodgerblue","tomato"))
+#see how eggs and hatching vary by date and week
+boxplot(Compile$eggs ~Compile$week)
+boxplot(Compile$hatch ~Compile$week)
+
+boxplot(Compile$eggs ~Compile$date)
+boxplot(Compile$hatch ~Compile$date)
+#hatching by humidity
+plot(Compile$avhum, Compile$eggs,
+     main="Eggs by Humidity", ylab="Number of Eggs",
+     xlab="Humidity(%)")
+
+#plot temperature by eggs
+plot(Compile$avtemp, Compile$eggs,
+     main="Eggs by Temperature", ylab="Number of Eggs",
+     xlab="Temperature(C)")
+
+#hatch by humidity
+plot(Compile$avhum, Compile$hatch,
+     main="Hatching by Humidity", ylab="Number of Eggs",
+     xlab="Humidity(%)")
+
+#hatch by temp
+plot(Compile$avtemp, Compile$hatch,
+     main="Hatching by Temperature", ylab="Number of Eggs",
+     xlab="Temperature(C)")
+
+
+
+
 # ##For each time line
 # glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, 
 #subset=28:36, family=poisson())
@@ -273,4 +408,10 @@ controled<-which(Compile$infected==0)
 uniquebugs<-unique(Compile$id)
 plot(Compile$week[infected], Compile$eggs[infected]+rnorm(length(Compile$eggs[infected]), 0.5, 1), col="red")
      
+#Now lets make somoe pretty pictures.
+infected<-which(Compile$infected==1)
+controled<-which(Compile$infected==0)
+uniquebugs<-unique(Compile$id)
+plot(Compile$week[infected], Compile$eggs[infected], col="red")
+plot(Compile$date[infected], Compile$eggs[infected], col="red")     
 
