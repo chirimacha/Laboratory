@@ -175,7 +175,6 @@ legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected",
                      "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
        col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
 
-
 ##for violin plots and lme4 analysis we need to make data frame by entry
 #entry meaning every line represents week of egg)) and hatch from normal jar.
 #try using the reshape function
@@ -187,7 +186,7 @@ Compile <- data.frame(blank,0,0,0,0,0,0, 0, 0, 0, 0, 0)
 
 Compile <- rename(Compile, replace = c("blank"="id", "X0"="parents","X0.1"="infected","X0.2"="start",
        "X0.3"="week", "X0.4"="date", "X0.5"="eggs", "X0.6"="hatch", "X0.7"="rh",
-       "X0.8"="temp", "X0.9"="procedencia", "X0.10"="trial"))
+       "X0.8"="mouse", "X0.9"="procedencia", "X0.10"="trial"))
 #if adding colums, be sure that you capitalize the Xx
 
 #make sure the cimfert columns are characters or they will not transfer.
@@ -200,6 +199,7 @@ for (d in 1:(length(postura))){
   for (i in 1:(length(cimfert$s1_p))){ #i for each insect
      Compile$week[i+((d-1)*length(cimfert$ID))] <- d
      Compile$trial[i+((d-1)*length(cimfert$ID))] <- cimfert$trial[i]
+     Compile$mouse[i+((d-1)*length(cimfert$ID))] <- cimfert$raton[i]
      Compile$id[i+((d-1)*length(cimfert$ID))] <- cimfert$ID[i]
      Compile$parents[i+((d-1)*length(cimfert$ID))] <- cimfert$Nro_.pareja[i]
      Compile$procedencia[i+((d-1)*length(cimfert$ID))] <- cimfert$Procedencia[i]
@@ -293,7 +293,6 @@ tempdiff<-function(rdate){
 }
 Compile$tempdiff<-lapply(date, tempdiff)
 
-
 #==============================================================
 #Do the same for humidity
 avhumhigh<-function(rdate){
@@ -360,6 +359,25 @@ humdiff<-function(rdate){
   max(tempRH$humdiff[a:b], na.rm=TRUE)
 }
 Compile$humdiff<-lapply(date, humdiff)
+
+#Now lets not look at the number of eggs but the number of leg laying events.
+events <- function(x){
+  if(x >= 1){
+    event <-1
+  } else if(x ==0){ 
+    event <-0
+  }
+  event
+}
+#egg events
+Compile$eggevent<- (1:length(Compile$eggs))*NA
+Compile$eggevent<-sapply(events, Compile$eggs)
+Compile$eggevent <- as.numeric(Compile$eggevent)
+
+#hatch events
+Compile$eggevent<- (1:length(Compile$eggs))*NA
+Compile$hatchevent <-lapply(events, Compilet$hatch)
+Compile$hatchevent <- as.numeric(Compile$hatchevent)
 #===========================================
 #Now all the data should be in place.  We can plot some more.
 #plot humidity and temperature over time
@@ -369,11 +387,26 @@ plot(Compile$date, Compile$avhum,col="dodgerblue", ylim=c(24,60),
  points(Compile$date, Compile$avtemp, col="tomato")
  legend("topleft", c("Humidity", "Temperature"), text.col=c("dodgerblue","tomato"))
 #see how eggs and hatching vary by date and week
-boxplot(Compile$eggs ~Compile$week)
-boxplot(Compile$hatch ~Compile$week)
+par(mfrow=c(2,2))
+plot(Compile$week, Compile$eggs, main="Eggs by Week")
+boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
+plot(Compile$week, Compile$hatch, main="Hatching by Week")
+boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
 
-boxplot(Compile$eggs ~Compile$date)
-boxplot(Compile$hatch ~Compile$date)
+par(mfrow=c(2,4))
+plot(Compile$week, Compile$eggs, main="Eggs by Week")
+boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
+plot(Compile$week, Compile$hatch, main="Hatching by Week")
+boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
+plot(Compile$week, Compile$eggs, main="Eggs by Week")
+boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
+plot(Compile$week, Compile$hatch, main="Hatching by Week")
+boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
+
+par(mfrow=c(1,1))
+boxplot(Compile$eggs ~Compile$date, main="Eggs by Date")
+boxplot(Compile$hatch ~Compile$date, main="Hatching by Date")
+
 #hatching by humidity
 plot(Compile$avhum, Compile$eggs,
      main="Eggs by Humidity", ylab="Number of Eggs",
@@ -414,4 +447,17 @@ controled<-which(Compile$infected==0)
 uniquebugs<-unique(Compile$id)
 plot(Compile$week[infected], Compile$eggs[infected], col="red")
 plot(Compile$date[infected], Compile$eggs[infected], col="red")     
+
+#Compare infected hatch and by week.
+par(mfrow=c(2,4))
+#infected
+plot(Compile$week[infected], Compile$eggs[infected], main="Eggs by Week")
+boxplot(Compile$eggs[infected] ~Compile$week[infected], main="Eggs by Week")
+plot(Compile$week[infected], Compile$hatch[infected], main="Hatching by Week")
+boxplot(Compile$hatch[infected] ~Compile$week[infected], main="Hatching by Week")
+#not infected
+plot(Compile$week[controled], Compile$eggs[controled], main="Eggs by Week")
+boxplot(Compile$eggs[controled] ~Compile$week[controled], main="Eggs by Week")
+plot(Compile$week[controled], Compile$hatch[controled], main="Hatching by Week")
+boxplot(Compile$hatch[controled] ~Compile$week[controled], main="Hatching by Week")
 
