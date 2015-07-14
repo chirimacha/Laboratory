@@ -583,7 +583,7 @@ plot(eggetotweek)
   plot(proeggeinfweek, type="o", col="red", xlab="Week", ylab="Proportion of Alive Insects that Laid Eggs", 
        main="Proportion of Alive Insects that Laid in Infected and Controls by Week")
   lines(proeggeconweek, col="steelblue")
-  legend("topright", c("infected","controls"), 
+  legend("bottomleft", c("infected","controls"), 
          col=c("red", "steelblue"), pch=c(1,1))
   
 #now to do that with the total number of eggs.  
@@ -618,13 +618,15 @@ plot(eggetotweek)
   #now we need to see proportion of alive insects    
   proeggsinfweek<-eggsinfweek/aliveinfweek
   proeggsconweek<-eggsconweek/aliveconweek 
-  
+  par(mfrow=c(1,1))
   plot(proeggsinfweek, type="o", col="red", xlab="Week", ylab="Num Eggs Per Alive Insect", 
        main="Number of Eggs Per Alive Insect by Week and Treatment Group")
   lines(proeggsconweek, col="steelblue")
   legend("topright", c("infected","controls"), 
          col=c("red", "steelblue"), pch=c(1,1))
   
+  
+######################################################################  
 #plot humidity and temperature over time
 Compile$avhum <- as.numeric(Compile$avhum)
 plot(Compile$date, Compile$avhum,col="dodgerblue", ylim=c(24,60),
@@ -634,13 +636,19 @@ points(Compile$date, Compile$avtemp, col="tomato")
 legend("topleft", c("Humidity", "Temperature"), text.col=c("dodgerblue","tomato"))
 
 
-#hatching by humidity
+#eggs laid by humidity
 humeggs<-lm(Compile$eggs ~Compile$avhum)
 plot(Compile$avhum, Compile$eggs+rnorm(length(Compile$eggs), 0, 0.5),
      main="Eggs by Humidity", ylab="Number of Eggs",
      xlab="Humidity(%)")
 abline(humeggs)
 summary(humeggs)
+
+egghum<-ggplot(aes( y= eggs, x= avhum, na.rm=TRUE), 
+               data=Compile[enona,])+geom_point(data=Compile[enona,])
+egghum<-egghum+ggtitle("Number of Eggs Laid by Humidity and Infection Status") 
+egghum<-egghum+facet_grid(. ~infected)+geom_smooth(method= "lm")
+egghum
 
 #plot temperature by eggs
 Compile$avtemp <- as.character(Compile$avtemp)
@@ -649,6 +657,18 @@ plot(Compile$avtemp, Compile$eggs,
      main="Eggs by Temperature", ylab="Number of Eggs",
      xlab="Temperature(C)")
 
+Compile$avtemp <- as.numeric(Compile$avtemp)
+eggtem<-ggplot(aes( y= eggs, x= avtemp, na.rm=TRUE), 
+               data=Compile[enona,])+geom_point(data=Compile[enona,])
+eggtem<-eggtem+ggtitle("Number of Eggs Laid by Temperature and Infection Status") 
+eggtem<-eggtem+facet_grid(. ~infected)+geom_smooth(method= "lm")
+eggtem
+
+eggtembx<-ggplot(aes( y= eggs, x= avtemp, na.rm=TRUE), 
+               data=Compile[enona,])+geom_(data=Compile[enona,])
+eggtembx<-eggtem+ggtitle("Number of Eggs Laid by Temperature and Infection Status") 
+eggtembx<-eggtem+facet_grid(. ~infected)
+eggtembx
 #hatch by humidity
 humhatch<-lm(Compile$hatch ~Compile$avhum)
 plot(Compile$avhum, Compile$hatch,
