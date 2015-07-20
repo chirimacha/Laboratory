@@ -10,7 +10,6 @@ library(plyr)  #para rbind.fill function
 setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
 #setwd("/Users/mzlevy/Laboratory/chagasycimexhuevos")
 
-
 #bring in hatching data
 cimfertpilot <- read.csv("Cimex_FertP.csv")
 #https://docs.google.com/spreadsheets/d/1E-GRO1_Ybrgqj0wjgz5s9YHY1KwJUVPov0I2PwgC2CQ/edit
@@ -635,7 +634,6 @@ plot(Compile$date, Compile$avhum,col="dodgerblue", ylim=c(24,60),
 points(Compile$date, Compile$avtemp, col="tomato")
 legend("topleft", c("Humidity", "Temperature"), text.col=c("dodgerblue","tomato"))
 
-
 #eggs laid by humidity
 humeggs<-lm(Compile$eggs ~Compile$avhum)
 plot(Compile$avhum, Compile$eggs+rnorm(length(Compile$eggs), 0, 0.5),
@@ -644,18 +642,90 @@ plot(Compile$avhum, Compile$eggs+rnorm(length(Compile$eggs), 0, 0.5),
 abline(humeggs)
 summary(humeggs)
 
+#eggs by average hum
 egghum<-ggplot(aes( y= eggs, x= avhum, na.rm=TRUE), 
                data=Compile[enona,])+geom_point(data=Compile[enona,])
 egghum<-egghum+ggtitle("Number of Eggs Laid by Humidity and Infection Status") 
 egghum<-egghum+facet_grid(. ~infected)+geom_smooth(method= "lm")
 egghum
 
+#eggs by average high hum
+egghumavhigh<-ggplot(aes( y= eggs, x= avhumhigh, na.rm=TRUE), 
+               data=Compile[enona,])+geom_point(data=Compile[enona,])
+egghumavhigh<-egghumavhigh+ggtitle("Number of Eggs Laid by Max Humidity and Infection Status") 
+egghumavhigh<-egghumavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+egghumavhigh
+#eggs by average low hum
+egghumavlow<-ggplot(aes( y= eggs, x= avhumlow, na.rm=TRUE), 
+                   data=Compile[enona,])+geom_point(data=Compile[enona,])
+egghumavlow<-egghumavlow+ggtitle("Number of Eggs Laid by Average Low Humidity and Infection Status") 
+egghumavlow<-egghumavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+egghumavlow
+
+#eggs by week max high
+egghumhigh<-ggplot(aes( y= eggs, x= hummax, na.rm=TRUE), 
+                     data=Compile[enona,])+geom_point(data=Compile[enona,])
+egghumhigh<-egghumhigh+ggtitle("Number of Eggs Laid by Max Humidity and Infection Status") 
+egghumhigh<-egghumhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+egghumhigh
+#eggs by week low high
+egghumlow<-ggplot(aes( y= eggs, x= hummin, na.rm=TRUE), 
+                   data=Compile[enona,])+geom_point(data=Compile[enona,])
+egghumlow<-egghumlow+ggtitle("Number of Eggs Laid by Low Humidity and Infection Status") 
+egghumlow<-egghumlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+egghumlow
+#eggs by hum diff
+egghumdiff<-ggplot(aes( y= eggs, x= humdiff, na.rm=TRUE),
+  data=Compile[enona,])+geom_point(data=Compile[enona,])
+egghumdiff<-egghumdiff+ggtitle("Number of Eggs Laid by Largest Humidity Difference and Infection Status") 
+egghumdiff<-egghumdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
+egghumdiff
+################################################
+#same for temp
 #plot temperature by eggs
 Compile$avtemp <- as.character(Compile$avtemp)
 tempeggs<-lm(Compile$eggs ~Compile$avtemp)
 plot(Compile$avtemp, Compile$eggs,
      main="Eggs by Temperature", ylab="Number of Eggs",
      xlab="Temperature(C)")
+#eggs by average temp
+eggtemp<-ggplot(aes( y= eggs, x= avtemp, na.rm=TRUE), 
+               data=Compile[enona,])+geom_point(data=Compile[enona,])
+eggtemp<-eggtemp+ggtitle("Number of Eggs Laid by Average Temperature and Infection Status") 
+eggtemp<-eggtemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
+eggtemp
+
+#eggs by average high hum
+eggtempavhigh<-ggplot(aes( y= eggs, x= avtemphigh, na.rm=TRUE), 
+                     data=Compile[enona,])+geom_point(data=Compile[enona,])
+eggtempavhigh<-eggtempavhigh+ggtitle("Number of Eggs Laid by Avg High Temp and Infection Status") 
+eggtempavhigh<-eggtempavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+eggtempavhigh
+#eggs by average low hum
+eggtempavlow<-ggplot(aes( y= eggs, x= avtemplow, na.rm=TRUE), 
+                    data=Compile[enona,])+geom_point(data=Compile[enona,])
+eggtempavlow<-eggtempavlow+ggtitle("Number of Eggs Laid by Avg Low Temperature and Infection Status") 
+eggtempavlow<-eggtempavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+eggtempavlow
+
+#eggs by week max high
+eggtemphigh<-ggplot(aes( y= eggs, x= tempmax, na.rm=TRUE), 
+                   data=Compile[enona,])+geom_point(data=Compile[enona,])
+eggtemphigh<-eggtemphigh+ggtitle("Number of Eggs Laid by Max Temperature and Infection Status") 
+eggtemphigh<-eggtemphigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+eggtemphigh
+#eggs by week low high
+eggtemplow<-ggplot(aes( y= eggs, x= tempmin, na.rm=TRUE), 
+                  data=Compile[enona,])+geom_point(data=Compile[enona,])
+eggtemplow<-egghumlow+ggtitle("Number of Eggs Laid by Low Temperature and Infection Status") 
+eggtemplow<-egghumlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+eggtemplow
+#eggs by temp diff
+eggtempdiff<-ggplot(aes( y= eggs, x= tempdiff, na.rm=TRUE),
+                   data=Compile[enona,])+geom_point(data=Compile[enona,])
+eggtempdiff<-eggtempdiff+ggtitle("Number of Eggs Laid by Largest Temperature Difference and Infection Status") 
+eggtempdiff<-eggtempdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
+eggtempdiff
 
 Compile$avtemp <- as.numeric(Compile$avtemp)
 eggtem<-ggplot(aes( y= eggs, x= avtemp, na.rm=TRUE), 
@@ -664,35 +734,109 @@ eggtem<-eggtem+ggtitle("Number of Eggs Laid by Temperature and Infection Status"
 eggtem<-eggtem+facet_grid(. ~infected)+geom_smooth(method= "lm")
 eggtem
 
-eggtembx<-ggplot(aes( y= eggs, x= avtemp, na.rm=TRUE), 
-               data=Compile[enona,])+geom_(data=Compile[enona,])
-eggtembx<-eggtem+ggtitle("Number of Eggs Laid by Temperature and Infection Status") 
-eggtembx<-eggtem+facet_grid(. ~infected)
-eggtembx
+###################
+#Now for hatching
 #hatch by humidity
 humhatch<-lm(Compile$hatch ~Compile$avhum)
 plot(Compile$avhum, Compile$hatch,
      main="Hatching by Humidity", ylab="Number of Eggs",
      xlab="Humidity(%)")
 
+#hatch by average hum
+hchhum<-ggplot(aes( y= hatch, x= avhum, na.rm=TRUE), 
+               data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchhum<-hchhum+ggtitle("Number of Eggs Hatched by Humidity and Infection Status") 
+hchhum<-hchhum+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchhum
+
+#hatch average high hum
+hchhumavhigh<-ggplot(aes( y= hatch, x= avhumhigh, na.rm=TRUE), 
+                     data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchhumavhigh<-hchhumavhigh+ggtitle("Number of Eggs Hatched by Max Humidity and Infection Status") 
+hchhumavhigh<-hchhumavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchhumavhigh
+#hatch by average low hum
+hchhumavlow<-ggplot(aes( y= hatch, x= avhumlow, na.rm=TRUE), 
+                    data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchhumavlow<-hchhumavlow+ggtitle("Number of Eggs Hatched by Average Low Humidity and Infection Status") 
+hchhumavlow<-hchhumavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchhumavlow
+
+#hatch by week max high
+hchhumhigh<-ggplot(aes( y= hatch, x= hummax, na.rm=TRUE), 
+                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchhumhigh<-hchhumhigh+ggtitle("Number of Eggs Hatched by Max Humidity and Infection Status") 
+hchhumhigh<-hchhumhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchhumhigh
+#hatch by week low high
+hchhumlow<-ggplot(aes( y= hatch, x= hummin, na.rm=TRUE), 
+                  data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchhumlow<-hchhumlow+ggtitle("Number of Eggs Hatched by Low Humidity and Infection Status") 
+hchhumlow<-hchhumlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchhumlow
+#hatch by hum diff
+hchhumdiff<-ggplot(aes( y= hatch, x= humdiff, na.rm=TRUE),
+                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchhumdiff<-hchhumdiff+ggtitle("Number of Eggs Hatced by Largest Humidity Difference and Infection Status") 
+hchhumdiff<-hchhumdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchhumdiff
+############################
 #hatch by temp
 temphatch<-lm(Compile$hatch ~Compile$avtemp)
 plot(Compile$avtemp, Compile$hatch,
      main="Hatching by Temperature", ylab="Number of Eggs",
      xlab="Temperature(C)")
 
+#hatch by average temp
+hchtemp<-ggplot(aes( y= hatch, x= avtemp, na.rm=TRUE), 
+               data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchtemp<-hchtemp+ggtitle("Number of Eggs Hatched by Temp and Infection Status") 
+hchtemp<-hchtemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchtemp
+
+#hatch average high temp
+hchtempavhigh<-ggplot(aes( y= hatch, x= avtemphigh, na.rm=TRUE), 
+                     data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchtempavhigh<-hchtempavhigh+ggtitle("Number of Eggs Hatched by Max Temp and Infection Status") 
+hchtempavhigh<-hchtempavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchtempavhigh
+#hatch by average low temp
+hchtempavlow<-ggplot(aes( y= hatch, x= avtemplow, na.rm=TRUE), 
+                    data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchtempavlow<-hchtempavlow+ggtitle("Number of Eggs Hatched by Average Low Temp and Infection Status") 
+hchtempavlow<-hchtempavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchtempavlow
+
+#hatch by week max high
+hchtemphigh<-ggplot(aes( y= hatch, x= tempmax, na.rm=TRUE), 
+                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchtemphigh<-hchtemphigh+ggtitle("Number of Eggs Hatched by Max Temp and Infection Status") 
+hchtemphigh<-hchtemphigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchtemphigh
+#hatch by week min low 
+hchtemplow<-ggplot(aes( y= hatch, x= tempmin, na.rm=TRUE), 
+                  data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchtemplow<-hchtemplow+ggtitle("Number of Eggs Hatched by Low Temp and Infection Status") 
+hchtemplow<-hchtemplow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchtemplow
+#hatch by hum diff
+hchtempdiff<-ggplot(aes( y= hatch, x= tempdiff, na.rm=TRUE),
+                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+hchtempdiff<-hchtempdiff+ggtitle("Number of Eggs Hatced by Largest Temp Difference and Infection Status") 
+hchtempdiff<-hchtempdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
+hchtempdiff
+################################
 # ##For each time line
 # glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, 
 #subset=28:36, family=poisson())
 
-
-#Now lets make somoe pretty pictures.
+#Now lets make a graph of Eggs by week
 infected<-which(Compile$infected==1)
 controled<-which(Compile$infected==0)
 uniquebugs<-unique(Compile$id)
 plot(Compile$week[infected], Compile$eggs[infected]+rnorm(length(Compile$eggs[infected]), 0.5, 1), col="red")
 
-#Now lets make some pretty pictures.
+#Now lets make a graphs o week and date by eggs of infected insects
 infected<-which(Compile$infected==1)
 controled<-which(Compile$infected==0)
 uniquebugs<-unique(Compile$id)
