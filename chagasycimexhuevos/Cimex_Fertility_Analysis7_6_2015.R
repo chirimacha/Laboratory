@@ -126,7 +126,8 @@ tempRH$FECHA <- as.Date(tempRH$FECHA)
 
 #Once we have full data, we justneed to comment out the following line.
 pilot<-which(Compile$trial==0)
-Compile<-Compile[pilot,]
+which(Compile$)
+PCompile<-Compile[pilot,]
  
 #-----------------------------
 #Make function to calculate avg high temperature of week.
@@ -160,8 +161,8 @@ avtemp <- function(rdate){
   d <- sum(tempRH$TEMP.MIN..Â.C.[a:b], na.rm=TRUE)
   ((c+d)/(2*((length(tempRH$TEMP.MAX..Â.C.[a:b]))-(length(which(is.na(tempRH$TEMP.MAX..Â.C.[a:b])==TRUE))))))
 }
-
 Compile$avtemp <- sapply(date, avtemp)
+
 #week max
 tempmax<-function(rdate){
   rdate<-as.Date(rdate)
@@ -345,31 +346,40 @@ viabilidad <-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cim
 ##We can now plot this data for eggs
 #all the repetitions pooled togehter.
 par(mfrow=c(1,1))
-plot(infeggmean, type="o", main="Average Eggs Laid Between Infected and Control Insects",
+#pdf(file="AverageEggsLaidBtwnAliveInfyContInsects")
+plot(infeggmean, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects",
      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
 lines(coneggmean, type="o", pch=16, col="dodgerblue1")
 legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+#dev.off()
 
 #Por Pilot
-plot(iPLeggmean, type="o", main="Average Eggs Laid Between Infected and Control Insects in Pilot",
+#pdf(file="pilotAvgEggsLaidBtwnAliveInfyCntrl")
+plot(iPLeggmean, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects in Pilot",
      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
 lines(cPLeggmean, type="o", pch=16, col="dodgerblue1")
 legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+#dev.off
 
 #Por Rep1
-plot(iRAeggmean, type="o", main="Average Eggs Laid Between Infected and Control Insects in Rep 1",
+#pdf(file="graphs/R1AvgEggsLaidBtwnAlvInfyCntrl.pdf")
+plot(iRAeggmean, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects in Rep 1",
      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
 lines(cRAeggmean, type="o", pch=16, col="dodgerblue1")
 legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+#dev.off()
 
 #Por Rep2
+#pdf("graphs/R2AvgEggsLaidBtwnAlvInfyCntrl.pdf")
 plot(iRBeggmean, type="o", main="Average Eggs Laid Between Infected and Control Insects in Rep 2",
      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(1,9))
 lines(cRBeggmean, type="o", pch=16, col="dodgerblue1")
 legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+#dev.off()
 
 #Put them al on one graph
-plot(iPLeggmean, type="o", main="Average Eggs Laid Between Infected and Control Insects",
+#pdf(file="graphs/AllRepsAvgEggLaidbtwnAlvbtwnInfCont.pdf")
+plot(iPLeggmean, type="o", main="Average Eggs Laid Alive Between Infected and Control Insects",
      ylab="Number of eggs", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
 lines(cPLeggmean, type="o", pch=1, col=4, lty=1)
 lines(iRAeggmean, type="o", pch=2, col=2, lty=2)
@@ -379,33 +389,43 @@ lines(cRBeggmean, type="o", pch=3, col=4, lty=3)
 legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
                      "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
        col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
+#dev.off()
 
 ##Do the same analysis por hatching
 #all the repetitions pooled togehter.
-plot(infviamean, type="o", main="Average Hatched Eggs Between Infected and Control Insects",
+#pdf(file="graphs/AvgHtchBtwnAlvInfCntrl.pdf")
+plot(infviamean, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects",
      ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18)
 lines(conviamean, type="o", pch=16, col="dodgerblue1")
 legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+dev.off()
 
 #Por Pilot
-plot(iPLviamean, type="o", main="Average Hatched Eggs Between Infected and Control Insects in Pilot",
+#pdf(files="graphs/PltAvgHtchBtwnAlvInfCntrl.pdf")
+plot(iPLviamean, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects in Pilot",
      ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18)
 lines(cPLviamean, type="o", pch=16, col="dodgerblue1")
 legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+#dev.off()
 
 #Por Rep1
-plot(iRAviamean, type="o", main="Average Hatched Eggs Between Infected and Control Insects in Rep 1",
+#pdf(files="graphs/R1AvgHtchBtwn.pdf")
+plot(iRAviamean, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects in Rep 1",
      ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(0,9))
 lines(cRAviamean, type="o", pch=16, col="dodgerblue1")
 legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+#dev.off()
 
 #Por Rep2
-plot(iRBviamean, type="o", main="Average Hatched Eggs Between Infected and Control Insects in Rep 2",
+#pdf(files="graphs/R2AvgHtchBtwnAlvInfCntrl.pdf")
+plot(iRBviamean, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects in Rep 2",
      ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(0,9))
 lines(cRBviamean, type="o", pch=16, col="dodgerblue1")
 legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+#dev.off()
 
-#Put them al on one graph
+#Put them all on one graph
+#pdf(file="graphs/AllAvgHtchBtwnInfCntrl.pdf")
 plot(iPLeggmean, type="o", main="Average Hatched Eggs Between Infected and Control Insects",
      ylab="Number of Hatched Insects", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
 lines(cPLviamean, type="o", pch=1, col=4, lty=1)
@@ -416,15 +436,19 @@ lines(cRBviamean, type="o", pch=3, col=4, lty=3)
 legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
                      "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
        col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
+#dev.off()
 
 ###plotting the medians
 ##lets make the table with the total medians and then medians with the mean
 #Lets start with the median plots for eggs and such
 par(mfrow=c(1,1))
+#pdf()
 plot(infeggmedians, type="o", main="Median Eggs Laid Between Infected and Control Insects",
      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
 lines(coneggmedians, type="o", pch=16, col="dodgerblue1")
 legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+plotCI(infeggmedians)
+#dev.off()
 
 plot(infviamedians, type="o", main="Median Eggs Hatched Between Infected and Control Insects",
      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
@@ -476,6 +500,7 @@ plot(Compile$week, Compile$hatch+rnorm(length(Compile$hatch), 0, 0.5), main="Hat
 abline(hatchweek)
 boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
 
+#pdf("")
 par(mfrow=c(2,4))
 plot(Compile$week, Compile$eggs, main="Eggs by Week")
 boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
@@ -485,10 +510,13 @@ plot(Compile$week, Compile$eggs, main="Eggs by Week")
 boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
 plot(Compile$week, Compile$hatch, main="Hatching by Week")
 boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
+#dev.off()
 
+#pdf("")
 par(mfrow=c(1,1))
 boxplot(Compile$eggs ~Compile$date, main="Eggs by Date")
 boxplot(Compile$hatch ~Compile$date, main="Hatching by Date")
+#dev.off
 
 ##lets makle a combined plot of the two groups together
 enona<-which(is.na(Compile$eggs)==FALSE)
@@ -497,16 +525,20 @@ Compile$infected<-as.factor(Compile$infected)
 Compile$week<-as.factor(Compile$week)
 
 #the box plot for eggs laid
+#pdf("")
 g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
        data= Compile[enona,]) +geom_boxplot(data=Compile[enona,])
 g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status")
 g
+dev.off()
 
 #hatch plot
+#pdf("")
 h<-ggplot(aes( y= hatch, x= week, fill = infected, na.rm=TRUE), 
        data= Compile[hnona,])+geom_boxplot(data=Compile[hnona,])
 h<-h+ggtitle("Distribution of Number of Eggs Hatched by Infection Status")
 h
+#dev.off()
 
 #Other parts of this study show that life span changes depending on inf
 #lets look at the number alive by week
@@ -525,11 +557,14 @@ for (i in 1:length(unique(Compile$week))){
   aliveconweek[i]<-sum(Compile$alive[con])
 }
 
+#pdf("")
 plot(alivetotweek)
   points(aliveinfweek, col="red")
   points(aliveconweek, col="steelblue")
   legend("topright", c("All Bugs","infected","controls"), 
         col=c("black","red", "steelblue"), pch=c(1,1,1))
+dev.off()
+
 #a quick check seeing if alivetotweek is the sum of the other two.  
 #test<-aliveinfweek+aliveconweek
 #testing<-data.frame(test, alivetotweek, aliveinfweek, aliveconweek)
@@ -540,12 +575,15 @@ plot(alivetotweek)
   peralinfweek <-aliveinfweek/(length(which(cimfert$infected==1)))
   peralconweek <-aliveconweek/(length(which(cimfert$infected==0)))
 
+pdf("")
 plot(peraltotweek, col="black", xlab="Proportion Alive", ylab="Week", 
      main="Proportion Alive in Infected and Controls by Week")
   points(peralconweek, col="steelblue")
   points(peralinfweek, col="red")  
   legend("topright", c("All Bugs","infected","controls"), 
          col=c("black","red", "steelblue"), pch=c(1,1,1))
+dev.off("")
+
 #lets do something similar to see the number of egg events   
   eggetotweek <- c(1:length(unique(Compile$week))*NA)
   eggeinfweek <- c(1:length(unique(Compile$week))*NA)
