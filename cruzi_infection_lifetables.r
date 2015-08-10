@@ -21,7 +21,7 @@ library("RColorBrewer")
 # Uncomment the line below to create a pdf with all of the graphics in the current directory of this file
 # Make sure to uncomment the last line of this script, "dev.off()", to finish writing to the file
 ######
- pdf(file = "R_lifetables_graphics_jun2015.pdf")
+ pdf(file = "R_lifetables_graphics_ago2015.pdf")
 
 
 ############################
@@ -34,7 +34,7 @@ raw_c1_csv <- read.csv(file = "ciclo vida cimex Rep 1 - cimex.csv",skip=2)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-c1_week_num = 42
+c1_week_num = 50
 # Current up to week 25, so 26 weeks
 
 ############ 
@@ -244,7 +244,7 @@ raw_c2_csv <- read.csv(file = 'ciclo vida cimex Rep 2 - cimex.csv',skip=2)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-c2_week_num = 36
+c2_week_num = 43
 # Current up to "week 11", so 12 weeks
 
 ############ 
