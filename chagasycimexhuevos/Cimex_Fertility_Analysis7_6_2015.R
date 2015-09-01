@@ -5,6 +5,8 @@ library(vioplot)
 library(matrixStats)
 library(ggplot2)
 library(plyr)  #para rbind.fill function
+library(geeM)
+library(MASS)
 
 #set directory and bring in files to be analyzed.
 setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
@@ -80,13 +82,16 @@ cimfert$infected[controls]<-0
 postura<-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="p")
 viabilidad <-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="v")
 
+#make id numbers for analysis(character string doesn't play friendly with other pkgs)
+cimfert$idnum<-c(1:length(cimfert$ID))
+
 #We need to create outputs for the data.
 blank <- (1:(length(postura)*length(cimfert$Procedencia))*0)
-Compile <- data.frame(blank,0,0,0,0,0,0, 0, 0, 0, 0, 0)
+Compile <- data.frame(blank,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0)
 
 Compile <- rename(Compile, replace = c("blank"="id", "X0"="parents","X0.1"="infected","X0.2"="start",
                                        "X0.3"="week", "X0.4"="date", "X0.5"="eggs", "X0.6"="hatch", "X0.7"="alive",
-                                       "X0.8"="mouse", "X0.9"="procedencia", "X0.10"="trial"))
+                                       "X0.8"="mouse", "X0.9"="procedencia", "X0.10"="trial", "X0.11"="idnum"))
 #if adding colums, be sure that you capitalize the Xx
 
 #make sure the cimfert columns are characters or they will not transfer.
@@ -107,6 +112,7 @@ for (d in 1:(length(postura))){
     Compile$start[i+((d-1)*length(cimfert$ID))] <- cimfert$Fecha_Inicio_.Pareja[i]
     Compile$hatch[i+((d-1)*length(cimfert$ID))] <-cimfert[i,(2*d+3)]
     Compile$eggs[i+((d-1)*length(cimfert$ID))]<-cimfert[i,(2*d+2)]
+    Compile$idnum[i+((d-1)*length(cimfert$ID))] <- cimfert$idnum[i]
   }
 }
 
@@ -740,7 +746,7 @@ plot(eggetotweek)
   
   
 #Now lets observe percentage of insects hatching
-  plot(Compile$week, Compile$perferc)
+  plot(Compile$week, Compile$perferc, na.rm=TRUE)
   
 ######################################################################  
 #plot humidity and temperature over time
@@ -990,5 +996,26 @@ boxplot(Compile$hatch[controled] ~Compile$week[controled], main="Control Eggs Ha
 
 #el ejemplo de Ricardo
 #glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, subset=28:36, family=poisson())
+#fake code template
+
+mod1<-gee(eggs ~infected, id=id, data=Compile, family=poisson, corstr="exchangeable", Mv=1)
+
+Compile$weeknum<-as.numeric(Compile$week)
+mod2a <- glm(eggs ~ infected + (1|idnum), data = Compile, family = poisson)
+mod2b <- glm(eggs ~ infected+weeknum + (1|idnum), data = Compile, family = poisson)
+mod2c <- glm(eggs ~ infected+weeknum+ avtemp + (1|idnum), data = Compile, family = poisson)
+mod2d<- glm(eggs ~ infected+weeknum+ avtemp + avhum+ (1|idnum), data = Compile, family = poisson)
+mod2e<- glm(eggs ~ infected+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family = poisson)
+mod2f<- glm(eggs ~ infected+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family = neg.bin())
 
 
+aveggweek<-mean(totegg$xbar, na.rm=T)  #2.61
+var(totegg$xbar, na.rm=T)   #3.48
+upperlimmean<-aveggweek+(1.96*(sd(totegg$xbar, na.rm=T)/sqrt(length(totegg$xbar)))) #3.21
+lowlimvar<-(length(totegg$xbar)-1)*(var(totegg$xbar, na.rm=T))/41.923 #2.98
+#because the means is likely not equal to the variance, poisson is not appropriate
+
+#using MASS package, use the glm.nb for a negative binomial model
+nbmod1<-glm.nb(eggs ~ infected+weeknum+avtemp+avhum + (1|idnum), data=Compile)
+nbmod2<-glm.nb(eggs ~ infected+weeknum+avhum+ (1|idnum), data=Compile)
+nbmod3<-glm.nb(eggs ~ infected+weeknum+avhum+ (1|idnum), data=Compile)
