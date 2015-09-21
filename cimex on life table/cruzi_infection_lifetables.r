@@ -21,7 +21,7 @@ library("RColorBrewer")
 # Uncomment the line below to create a pdf with all of the graphics in the current directory of this file
 # Make sure to uncomment the last line of this script, "dev.off()", to finish writing to the file
 ######
- pdf(file = "R_lifetables_graphics_ago2015.pdf")
+ pdf(file = "R_lifetables_graphics_SEP2015.pdf")
 
 
 ############################
@@ -34,7 +34,7 @@ raw_c1_csv <- read.csv(file = "ciclo vida cimex Rep 1 - cimex.csv",skip=2)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-c1_week_num = 50
+c1_week_num = 53
 # Current up to week 25, so 26 weeks
 
 ############ 
@@ -135,7 +135,7 @@ raw_t1_csv <- read.csv(file = 'ciclo vida cimex Rep 1 - triatoma.csv',skip=3)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-t1_week_num = 50
+t1_week_num = 56
 # Current up to week 25, so 26 weeks
 
 ############ 
@@ -244,7 +244,7 @@ raw_c2_csv <- read.csv(file = 'ciclo vida cimex Rep 2 - cimex.csv',skip=2)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-c2_week_num = 43
+c2_week_num = 49
 # Current up to "week 11", so 12 weeks
 
 ############ 
@@ -347,7 +347,7 @@ raw_t2_csv <- read.csv(file = 'ciclo vida cimex Rep 2 - triatoma.csv',skip=3)
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-t2_week_num = 43
+t2_week_num = 49
 # Current up to "week 11", so 12 weeks
 
 ############ 
@@ -666,7 +666,7 @@ raw_cb_csv <- read.csv(file = 'base datos piloto - triatoma.csv')
 ############
 ## Set Week number below
 ## How many weeks (including week zero, e.g. weeks (0,1, and 2) would be 3 weeks)
-cb_week_num = 74
+cb_week_num = 80
 # Current up to "week 46", so 47 weeks
 
 ############ 
@@ -688,16 +688,16 @@ raw_cb_csv[is.na(raw_cb_csv)] <- 0
 #### CHANGE THESE TO DYNAMIC VAR
 # Setting up groups, group1 = control, group2 = infected
 # Control
-cb_group1 <- raw_cb_csv[1:74,]
+cb_group1 <- raw_cb_csv[1:80,]
 # Rat 1
-cb_group2 <- raw_cb_csv[75:148,]
+cb_group2 <- raw_cb_csv[81:160,]
 # Rat 2
-cb_group3 <- raw_cb_csv[149:222,]
+cb_group3 <- raw_cb_csv[161:240,]
 
 
-### FOR CONTROL NEED LINES 1-74
-### FOR INFECTED ONE NEED LINES 75-148
-### FOR INFECTED TWO NEED LINES 149-222
+### FOR CONTROL NEED LINES 1-80
+### FOR INFECTED ONE NEED LINES 81-160
+### FOR INFECTED TWO NEED LINES 161-240
 
 
 # Uninfected Controls, Total life and death counts per week
