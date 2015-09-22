@@ -7,6 +7,7 @@ library(ggplot2)
 library(plyr)  #para rbind.fill function
 library(geeM)
 library(MASS)
+library(lmtest)
 
 #set directory and bring in files to be analyzed.
 setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
@@ -129,7 +130,7 @@ dead<-which(is.na(Compile$eggs)==TRUE)
 alive<-which(is.na(Compile$eggs)==FALSE)
 Compile$alive[dead]<-0
 Compile$alive[alive]<-1
-  
+
 #make a column with the percent viability
 Compile$perferc<-(Compile$hatch/Compile$eggs)
 
@@ -1001,12 +1002,16 @@ boxplot(Compile$hatch[controled] ~Compile$week[controled], main="Control Eggs Ha
 mod1<-gee(eggs ~infected, id=id, data=Compile, family=poisson, corstr="exchangeable", Mv=1)
 
 Compile$weeknum<-as.numeric(Compile$week)
-mod2a <- glm(eggs ~ infected + (1|idnum), data = Compile, family = poisson)
-mod2b <- glm(eggs ~ infected+weeknum + (1|idnum), data = Compile, family = poisson)
-mod2c <- glm(eggs ~ infected+weeknum+ avtemp + (1|idnum), data = Compile, family = poisson)
-mod2d<- glm(eggs ~ infected+weeknum+ avtemp + avhum+ (1|idnum), data = Compile, family = poisson)
-mod2e<- glm(eggs ~ infected+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family = poisson)
+mod2a <- glm(eggs ~ infected + (1|idnum), data = Compile, family = poisson) #17383 
+mod2am <- glm(eggs ~ mouse + (1|idnum), data = Compile, family = poisson) #17113
+mod2both <- glm(eggs ~ mouse + infected+ (1|idnum), data = Compile, family = poisson) #17113
+mod2b <- glm(eggs ~ infected+weeknum + (1|idnum), data = Compile, family = poisson) #16713
+mod2c <- glm(eggs ~ infected+weeknum+ avtemp + (1|idnum), data = Compile, family = poisson)#16545
+mod2d<- glm(eggs ~ infected+weeknum+ avtemp + avhum+ (1|idnum), data = Compile, family = poisson)#1647416
+mod2e<- glm(eggs ~ infected+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family = poisson)#
 mod2f<- glm(eggs ~ infected+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family = neg.bin())
+mod2fboth<- glm(eggs ~ infected+mouse+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family =poisson)#16075
+
 
 
 aveggweek<-mean(totegg$xbar, na.rm=T)  #2.61
@@ -1016,6 +1021,93 @@ lowlimvar<-(length(totegg$xbar)-1)*(var(totegg$xbar, na.rm=T))/41.923 #2.98
 #because the means is likely not equal to the variance, poisson is not appropriate
 
 #using MASS package, use the glm.nb for a negative binomial model
-nbmod1<-glm.nb(eggs ~ infected+weeknum+avtemp+avhum + (1|idnum), data=Compile)
-nbmod2<-glm.nb(eggs ~ infected+weeknum+avhum+ (1|idnum), data=Compile)
-nbmod3<-glm.nb(eggs ~ infected+weeknum+avhum+ (1|idnum), data=Compile)
+#run model and look at AICs, below there is a formula to interpret. But basically if AIC is >3
+nbmod0<-glm.nb(eggs ~ infected+weeknum+ (1|idnum), data=Compile) #AIC 11917
+nbmod1<-glm.nb(eggs ~ infected+weeknum+avhum+ (1|idnum), data=Compile) #AIC 11867
+nbmod2<-glm.nb(eggs ~ infected+weeknum+avtemp+ (1|idnum), data=Compile) #AIC 11858
+nbmod3<-glm.nb(eggs ~ infected+weeknum+avhum+avtemp + (1|idnum), data=Compile) #AIC 11852
+nbmod3a<-glm.nb(eggs ~ infected+weeknum+avhum*avtemp + (1|idnum) , data=Compile) #AIC 11852
+nbmod4<-glm.nb(eggs ~ infected+weeknum+avhum+avtemphigh+(1|idnum), data=Compile)#11855
+nbmod5<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+ (1|idnum), data=Compile) #11824
+nbmod6<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+infected*mouse+ (1|idnum), data=Compile) #11824
+#6 was the same as 5 because there interactions are themselves linearly related adding no new information.
+nbmod7<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+alive+ (1|idnum), data=Compile)#11824
+nbmod8<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+(1|idnum), data=Compile) #11789
+#now letsa add the difference.
+nbmod9<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+humdiff+(1|idnum), data=Compile) #11791
+nbmod10<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempdiff+(1|idnum), data=Compile) #11791
+#adding temp/hum diff does not add significantly to the model
+nbmod11<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+hummax+(1|idnum), data=Compile) #11791
+nbmod12<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempmax+(1|idnum), data=Compile) #11791
+#as seen in graphs above an infected insect may be affected differently by temp/hum affects.
+#thus lets add an interaction term.
+nbmod13<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempmax+infected*avhum+(1|idnum), data=Compile)#11741
+nbmod14<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempmax+infected*avtemp+(1|idnum), data=Compile)#11777
+nbmod15<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempmax+infected*avhum+infected*avtemp+(1|idnum), data=Compile)#11750
+#hence an interaction with humidity plays a bigger role than temperature or both interactions.
+nbmod16<-glm.nb(eggs ~ infected+weeknum+avhum+avtemp+infected*avhum+(1|idnum), data=Compile)
+#lets look at humidity variations keeping all else constant.  ()
+#lets see if they are some better predictor for hum other than avhum
+nbmod13<-glm.nb(eggs ~ infected+weeknum+mouse+hummax+avtemp+(1|idnum), data=Compile)#11794
+nbmmin+avtemp+(1|idnumod14<-glm.nb(eggs ~ infected+weeknum+mouse+hum), data=Compile)#
+
+
+#alive is not helpful because NA's are already removed.
+#lets plot to get a sense of where we're at
+par(mfrow=c(1,1))
+plot(nbmod13)
+summary()
+
+#####MODEL FOR HATCH
+
+#exp((AICmin-AICi)/2)=Probablity that i minimalizes information loss just as well as min.
+#ln(prob)=AICmin-AICi/2
+#2e^prob=difference between AICs.  
+#if sign prob is 0.05 then
+2*(log(0.05))
+# thus a difference in AIC of 6 o greater is a significant similar probablity for now.
+test1<-exp((11824-11852)/2)
+
+plot(Compile$weeknum, Compile$eggs)
+
+#the mouse data drives the analysis thus far.
+lrtest(nbmod1, nbmod2)
+lrtest(nbmod2,nbmod3)
+
+
+#attemp ggem
+geem1<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile)
+geem2<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279))
+geem2<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=poisson
+geem3<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, corstr="ar1")
+geem4<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar1")
+geem5<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar2")
+geem6<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar3")
+
+#--------------
+#--------------------------------------------------------------------------
+# Code to extract coeff., 95CIs, and define final estimates with p-values
+#--------------------------------------------------------------------------
+
+# # use following commands for confident intervals and coefficients:
+# confint()
+# exp(coef())
+# exp(confint())
+
+# Disabling scientific notation
+## Enable at the end with options(scipen = 0)!!! 
+# 
+# options(scipen = 999)
+# library(lme4)
+# 
+# # Defining function to get the final estimates:
+# # IRR, 95%CI, and p-value
+# 
+# estimates<-function(x, print = TRUE){
+#   ul<-coef(summary(x))[,1] + qnorm(0.975)*coef(summary(x))[,2]
+#   ll<-coef(summary(x))[,1] + qnorm(0.025)*coef(summary(x))[,2]
+#   logIRR.x<-cbind(coef(summary(x))[,1], ll, ul)
+#   result<-IRR.x<-cbind(exp(logIRR.x), coef(summary(x))[,4])
+#   return(result)
+# }  
+
