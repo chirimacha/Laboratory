@@ -367,8 +367,15 @@ Compile$humdiff<-sapply(date, humdiff)
 # resegmentcompile(3)
 
 #Use the Collapse to break into smaller groups
-C2week<-summaryBy(~id)
-C3week<-summaryBy()
+6549/(177*2)
+div2 <- round(177, digits=0)
+div3 <- round(177*3, digits=0)
+
+Compile$twoperiod<-c(rep(1:18, each=177*2),rep(19, each=177))
+Compile$threeperiod<-c(rep(1:12, each=177*3),rep(19, each=177))
+
+
+
 
 #Now lets not look at the number of eggs but the number of leg laying events.
 events <- function(x){
@@ -1050,9 +1057,9 @@ Compile$hatchevent <- as.numeric(Compile$hatchevent)
 # boxplot(Compile$hatch[controled] ~Compile$week[controled], main="Control Eggs Hatched by Week",
 #         ylab="Weeks", xlab="Eggs")
 # #dev.off()
-# #
-# #write.csv(Compile,"CompiledFertilityData.csv")
-# #
+
+write.csv(Compile,"CompiledFertilityData.csv")
+
 ###############################################################################
 #==============================================================================
 #ahora tenomos muchas graficas, podemos empezar haciendo el modelo
@@ -1068,27 +1075,13 @@ Compile<-read.csv("CompiledFertilityData.csv")
 #for box plots week was categorical.  This makes a numeric column.
 Compile$weeknum<-as.numeric(Compile$week)
 
-
-#we found that we need to conduct a cox proportional hazaard test for time until first egg
-#thus we need to first reverse the binary of egg event.
-Compile$reveggevent<-1-Compile$eggevent
-#http://socserv.socsci.mcmaster.ca/jfox/Books/Companion/appendix/Appendix-Cox-Regression.pdf
-sevent<-Surv(time=CompileRD$weeknum, event=CompileRD$eggevent)
-CoxEggLaid<-coxph(sevent~infected+cluster(idnum), data=CompileRD)
-summary(survfit(CoxEggLaid, newdata =))
-
-
 #I am also going to make a table with all egg and hatch are no longer NA but 0 
-
 Compile$hatchdiff<-Compile$eggs-Compile$hatch
 CompileNoNA<-Compile
 eggna <- which(is.na(CompileNoNA$eggs)==TRUE)
 hatchna <- which(is.na(CompileNoNA$hatch)==TRUE)
 CompileNoNA$eggs[eggna]<-0
 CompileNoNA$hatch[hatchna]<-0
-
-
-
 
 #Make Compile where NA's eggs are removed. 
 CompileRD<-Compile[-eggna,]
@@ -1101,7 +1094,15 @@ startDate<-julian.Date(CompileRD$start)
 mindate<-min(startDate)
 CompileRD$juliandate<-dateRD-startDate
 
-
+#we found that we need to conduct a cox proportional hazaard test for time until first egg
+#thus we need to first reverse the binary of egg event.
+Compile$reveggevent<-1-Compile$eggevent
+#http://socserv.socsci.mcmaster.ca/jfox/Books/Companion/appendix/Appendix-Cox-Regression.pdf
+sevent<-Surv(time=CompileRD$weeknum, event=CompileRD$eggevent)
+CoxEggLaid<-coxph(sevent~infected+cluster(idnum), data=CompileRD)
+summary(survfit(CoxEggLaid, newdata =))
+#because events occur more than once its a mess because "+" are added.
+hist(CoxEggLaid)
 
 #The models remove the NA's so lets use CompileRD to make two simple graphs
 hist(CompileRD$eggs, breaks=21)
@@ -1110,6 +1111,27 @@ var(CompileRD$eggs) 17.5
 #This shows that poisson assumptions are not met. 
 #earlier(under the poisson models) I took the variance of a mean by week...which gave me a smaller value of course.
 #But yes, poisson values are not the same.
+
+#lets combine the data to remove 0 inflation
+sums<-function(row){
+  sum(row, na.rm=TRUE)
+}
+C2week<-summaryBy(eggs+hatch+alive~idnum+twoperiod, FUN=c(sums), data=CompileRD)
+C3week<-summaryBy(eggs+hatch+alive~idnum+threeperiod+infected, FUN=c(sums), data=CompileRD)
+
+living2<-which(C2week$alive>=1)
+living3<-which(C3week$alive>=1)
+C2weeklive<-C2week[living2,]
+C3weeklive<-C3week[living3,]
+twomax<-max(C2weeklive$eggs)
+threemax<-max(C3weeklive$eggs)
+hist(C2weeklive$eggs, breaks=twomax)
+hist(C3weeklive$eggs, breaks=threemax)
+
+
+
+write.csv( C2weeklive, "2weekGroupedFertilityData_simple.csv")
+write.csv(C3weeklive, "3weekGroupedFertilityData_simple.csv")
 
 plot(CompileRD$week, CompileRD$eggs)
 plot(log(CompileRD$week+1+rnorm(length(CompileRD$eggs), 0, 0.5)), CompileRD$eggs+rnorm(length(CompileRD$eggs), 0, 0.5))
