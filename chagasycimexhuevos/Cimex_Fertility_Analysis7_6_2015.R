@@ -372,7 +372,7 @@ div2 <- round(177, digits=0)
 div3 <- round(177*3, digits=0)
 
 Compile$twoperiod<-c(rep(1:18, each=177*2),rep(19, each=177))
-Compile$threeperiod<-c(rep(1:12, each=177*3),rep(19, each=177))
+Compile$threeperiod<-c(rep(1:12, each=177*3),rep(13, each=177))
 
 
 
