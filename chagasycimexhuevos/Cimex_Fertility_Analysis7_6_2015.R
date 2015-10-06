@@ -366,16 +366,12 @@ Compile$humdiff<-sapply(date, humdiff)
 # 
 # resegmentcompile(3)
 
-#Use the Collapse to break into smaller groups
-6549/(177*2)
-div2 <- round(177, digits=0)
-div3 <- round(177*3, digits=0)
-
-Compile$twoperiod<-c(rep(1:18, each=177*2),rep(19, each=177))
-Compile$threeperiod<-c(rep(1:12, each=177*3),rep(13, each=177))
-
-
-
+# 6549/(177*2)
+# div2 <- round(177, digits=0)
+# div3 <- round(177*3, digits=0)
+# 
+# Compile$twoperiod<-c(rep(1:18, each=177*2),rep(19, each=177))
+# Compile$threeperiod<-c(rep(1:12, each=177*3),rep(13, each=177))
 
 #Now lets not look at the number of eggs but the number of leg laying events.
 events <- function(x){
@@ -1113,25 +1109,73 @@ var(CompileRD$eggs) 17.5
 #But yes, poisson values are not the same.
 
 #lets combine the data to remove 0 inflation
-sums<-function(row){
-  sum(row, na.rm=TRUE)
+#Use the Collapse to break into smaller groups
+
+#function that takes in the desired number of weeks per periood
+SummaryCompileRD<-function(segl){
+  #Create an emty output vector
+  CompileRD$period<-CompileRD$week*0
+  #Calculate the appropriate variables: total number of weeks and the number of segments
+  maxw<-max(Compile$week)
+  nseg<-maxw/segl
+  nseg<-ceiling(nseg)
+  
+  #assign each week into one of the segments. This starts with all the sets and 
+  #adds 1 to the period vector
+  #then it removes the first segment( or period) and adds another 1 to the remaining segments until
+  #each week has the corresponding period designation.
+  for(i in 1:nseg){
+    adding<-which(CompileRD$week>((segl*i)-segl))
+    CompileRD$period[adding]<-CompileRD$period[adding]+1
+  }
+  
+  #create unicode to merge tables later.
+  CompileRD$periodid<-paste(CompileRD$idnum, CompileRD$period, sep="-")
+  
+  #redefine functions so na.rm is fed into the function
+  #be aware that this can introduce 0's, but it is on CompileRD so that
+  #should only happen for hatch when egg is already 0.
+  sums<-function(row){
+    sum(row, na.rm=TRUE)
+  }
+  maxs<-function(row){
+    max(row, na.rm=TRUE)
+  }
+  mins<-function(row){
+    min(row, na.rm=TRUE)
+  }
+  means<-function(row){
+    mean(row, na.rm=TRUE)
+  }
+  
+  #These functions perform a function on the desired outputs as it reduces the data from weeks to the desired period. 
+  CompileRDsum<-summaryBy(eggs+hatch+alive~idnum+period+infected+mouse+trial+periodid, FUN=c(sums), data=CompileRD, keep.names = TRUE) 
+  CompileRDmax<-summaryBy(tempmax+tempdiff+hummax+humdiff~periodid, FUN=c(maxs), data=CompileRD, keep.names = TRUE) 
+  CompileRDmin<-summaryBy(tempmin+hummin~periodid, FUN=c(mins), data=CompileRD, keep.names = TRUE) 
+  CompileRDmean<-summaryBy(avtemphigh+avtemplow+avtemp+avhumhigh+avhumlow+avhum
+                          ~periodid, FUN=c(means), data=CompileRD, keep.names = TRUE) 
+
+ a<-merge(CompileRDmax, CompileRDmean, by="periodid")
+ b<-merge(a, CompileRDmin, by="periodid")
+ final<-merge(b, CompileRDsum, by="periodid")
+ final
 }
-C2week<-summaryBy(eggs+hatch+alive~idnum+twoperiod, FUN=c(sums), data=CompileRD)
-C3week<-summaryBy(eggs+hatch+alive~idnum+threeperiod+infected, FUN=c(sums), data=CompileRD)
 
-living2<-which(C2week$alive>=1)
-living3<-which(C3week$alive>=1)
-C2weeklive<-C2week[living2,]
-C3weeklive<-C3week[living3,]
-twomax<-max(C2weeklive$eggs)
-threemax<-max(C3weeklive$eggs)
-hist(C2weeklive$eggs, breaks=twomax)
-hist(C3weeklive$eggs, breaks=threemax)
+#lets look at 2 and 3
+C2week<-SummaryCompileRD(2)
+C3week<-SummaryCompileRD(3)
+C8week<-SummaryCompileRD(8)
+
+# pdf("compacted_egg_hist.pdf")
+# par(mfrow=c(3,1))
+# hist(CompileRD$eggs, breaks=compmax)
+# hist(C2weeklive$eggs, breaks=twomax)
+# hist(C3weeklive$eggs, breaks=threemax)
+# dev.off()
 
 
-
-write.csv( C2weeklive, "2weekGroupedFertilityData_simple.csv")
-write.csv(C3weeklive, "3weekGroupedFertilityData_simple.csv")
+#write.csv( C2weeklive, "2weekGroupedFertilityData_simple.csv")
+#write.csv(C3weeklive, "3weekGroupedFertilityData_simple.csv")
 
 plot(CompileRD$week, CompileRD$eggs)
 plot(log(CompileRD$week+1+rnorm(length(CompileRD$eggs), 0, 0.5)), CompileRD$eggs+rnorm(length(CompileRD$eggs), 0, 0.5))
@@ -1316,6 +1360,10 @@ geem3<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, corstr="ar1")
 geem4<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar1")
 geem5<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar2")
 geem6<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar3")
+
+
+geemnb<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(1))
+geemp<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=poisson)
 
 
 # Zero Inflated Negative Binomial
