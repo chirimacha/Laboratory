@@ -1,4 +1,4 @@
-#packages needed
+#packages needed/experimented with
 library(lubridate) #para extracting dates 
 library(reshape2) #para make the wide data into long data
 library(vioplot)
@@ -7,11 +7,24 @@ library(ggplot2)
 library(plyr)  #para rbind.fill function
 library(geeM)
 library(MASS)
+library(lmtest)
+library(nlme)
+library(psc1)
+library(survival)
+library(doBy)
 
 #set directory and bring in files to be analyzed.
 setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
 #setwd("/Users/mzlevy/Laboratory/chagasycimexhuevos")
 
+# ###############################################################################
+# #==============================================================================
+# #Data Formatting. The file "CompiledFertilityData.csv" was created
+# #Do not run this part of code to save time unless corrections are necessary
+# #Graphs may be helpful, many of which are already in github.
+# #Modeling begins at line 1000.  
+# #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# 
 #bring in hatching data
 cimfertpilot <- read.csv("Cimex_FertP.csv")
 #Original Found https://docs.google.com/spreadsheets/d/1E-GRO1_Ybrgqj0wjgz5s9YHY1KwJUVPov0I2PwgC2CQ/edit
@@ -129,7 +142,7 @@ dead<-which(is.na(Compile$eggs)==TRUE)
 alive<-which(is.na(Compile$eggs)==FALSE)
 Compile$alive[dead]<-0
 Compile$alive[alive]<-1
-  
+
 #make a column with the percent viability
 Compile$perferc<-(Compile$hatch/Compile$eggs)
 
@@ -308,6 +321,62 @@ humdiff<-function(rdate){
 }
 Compile$humdiff<-sapply(date, humdiff)
 
+##############################################
+#after initial analysis we need to combine the data from the first two or three weeks.
+#
+
+# resegmentcompile<-function(segl){
+#   maxn<-max(Compile$week)/segl
+#   maxn<-round(maxn, digits=0)
+#   topin<-(segl*c(1:maxn))
+#   lowin<-topin-(segl-1)   
+#   ids<-unique(Compile$idnum)
+#   blanki <- (1:(maxn*max(ids))*NA)
+#   Compilesegl <- data.frame(blanki, 0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+#   Compilesegl <- rename(Compile, replace = c("blank"="idnum", "X0"="eggs","X0.1"="hatch",
+#                                              "X0.2"="period"))
+#   for(i in 1:max(ids)){
+#     observationsi<-which(Compile$idnum==i)
+#     obtablei<-Compile[observationsi]
+#       for(j in 1:maxn){
+#         Compilesegl$eggs[maxn*(i-1)+j] <- sum(Compile$eggs[topin[j]:lowin[j]], na.rm=TRUE)
+#         Compilesegl$hatch[maxn*(i-1)+j] <- sum(Compile$hatch[topin[j]:lowin[j]], na.rm=TRUE)
+#         Compilesegl$idnum[maxn*(i-1)+j] <- Compile$idnum[topin[j]]
+#         Compilesegl$period[maxn*(i-1)+j] <- j
+#         Compilesegl$infected[maxn*(i-1)+j] <- Compile$infected[lowin[j]]
+#         Compilesegl$alive[maxn*(i-1)+j] <- Compile$alive[lowin[j]] 
+#         Compilesegl$mouse[maxn*(i-1)+j] <- Compile$mouse[lowin[j]]
+#         Compilesegl$trial[maxn*(i-1)+j] <- Compile$trial[lowin[j]]
+#         Compilesegl$avtemp[maxn*(i-1)+j] <-mean(Compile$avtemp[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$avtemphigh[maxn*(i-1)+j]<-mean(obtabli$avtemphigh[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$avtemplow[maxn*(i-1)+j]<-mean(obtabli$avtemplow[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$tempmax[maxn*(i-1)+j]<-max(obtabli$tempmax[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$tempmin[maxn*(i-1)+j]<-min(obtabli$tempmin[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$tempdiff[maxn*(i-1)+j]<-max(obtabli$tempdiff[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$avhum[maxn*(i-1)+j]<-mean(Compile$avhum[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$avhumhigh[maxn*(i-1)+j]<-mean(Compile$avhumhigh[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$avhumlow[maxn*(i-1)+j]<-mean(Compile$avhumlow[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$hummax[maxn*(i-1)+j]<-max(obtabli$hummax[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$hummin[maxn*(i-1)+j]<-min(obtabli$hummin[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#         Compilesegl$humdiff[maxn*(i-1)+j]<-max(obtabli$humdiff[((segl*j)-segl+1):(segl*j)], na.rm=TRUE)
+#     }
+#   }
+#   Compilesegl
+# }
+# 
+# resegmentcompile(3)
+
+#Use the Collapse to break into smaller groups
+6549/(177*2)
+div2 <- round(177, digits=0)
+div3 <- round(177*3, digits=0)
+
+Compile$twoperiod<-c(rep(1:18, each=177*2),rep(19, each=177))
+Compile$threeperiod<-c(rep(1:12, each=177*3),rep(13, each=177))
+
+
+
+
 #Now lets not look at the number of eggs but the number of leg laying events.
 events <- function(x){
   if(is.na(x)==TRUE){
@@ -329,665 +398,667 @@ Compile$hatchevent<- (1:length(Compile$hatch))*NA
 hatch <- as.list(Compile$hatch)
 Compile$hatchevent <-sapply(hatch, events)
 Compile$hatchevent <- as.numeric(Compile$hatchevent)
-
-
-########################################################################
-#=======================================================================
-#We now have all the data together and can now do some analysis.
-#=======================================================================
-
-###Using Cimfert
-#solution: use "p" and "v" from substring of names to identify which are postura y viability columns
-#be sure to check that no other columns of new data contain these letters at the end.
-postura<-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="p")
-viabilidad <-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="v")
-
-###Calculating Confidence Intervals
-#na's make this difficult
-sdcim<-function(dataframe, rowin){
-  sd(dataframe[,rowin], na.rm=TRUE)
-}
-
-findn<-function(dataframe, rowin){
-  real<-which(is.na(dataframe[,rowin])==FALSE)
-  length(real)
-}
-
-#put these functions into giant looping function for each infection status
-colSummary<-function(treatment, dependentvariable){
-    df<-cimfert[treatment,]
-    sds<-sapply(X=dependentvariable, sdcim, dataframe=df)
-    ns<-sapply(X=dependentvariable, findn, dataframe=df)
-    xbar<-colMeans(df[,dependentvariable], na.rm= TRUE, dims=1)
-    uCI<-xbar+(1.96*(sds/sqrt(ns)))
-    lCI<-xbar-(1.96*(sds/sqrt(ns)))
-    mtxdep <- as.matrix(cimfert[, dependentvariable])
-    medians <- colMedians(mtxdep[treatment,], na.rm=TRUE)
-    data.frame(sds, ns, xbar, medians, uCI, lCI)
-} 
-  
-#now assemble tables accordingly
-#assemble tables for the eggs laid
-totegg<-colSummary(tot, postura)
-infegg<-colSummary(infect, postura)
-conegg<-colSummary(controls, postura)
-cPLegg<-colSummary(ControlP, postura )
-iPLegg<-colSummary(InfectP, postura)
-cRAegg<-colSummary(ControlRA, postura)
-iRAegg<-colSummary(InfectRA, postura)
-cRBegg<-colSummary(ControlRB, postura)
-iRBegg<-colSummary(InfectRB, postura)
-#assemble tables fo the eggs hatched.
-totvia<-colSummary(tot, viabilidad)
-infvia<-colSummary(infect, viabilidad)
-convia<-colSummary(controls, viabilidad)
-cPLvia<-colSummary(ControlP, viabilidad)
-iPLvia<-colSummary(InfectP, viabilidad)
-cRAvia<-colSummary(ControlRA, viabilidad)
-iRAvia<-colSummary(InfectRA, viabilidad)
-cRBvia<-colSummary(ControlRB, viabilidad)
-iRBvia<-colSummary(InfectRB, viabilidad)
-#assemble tables for percent viability
-
-###====================================================================================
-##We can now plot this data for eggs
-#all the repetitions pooled togehter.
-par(mfrow=c(1,1))
-#pdf(file="graphs/AvgEggsLaidBtwnAlvInfyContRepsCombobyWeek.pdf")
-plot(infegg$xbar, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects in all Replicates Combined",
-     ylab="Number of eggs", xlab="Week in Study", ylim=c(0,8), col="darkorange1", pch=18)
-      lines(conegg$xbar, type="o", pch=16, col="dodgerblue1")
-      points(infegg$uCI, col="darkorange1") 
-      points(infegg$lCI, col="darkorange1")
-      points(conegg$uCI, col="dodgerblue1") 
-      points(conegg$lCI, col="dodgerblue1")
-legend("topright", c("infected","controls", "95% CI"), col=c("darkorange1", "dodgerblue1","black"), pch=c(18,16,1))
-#dev.off()
-
-#Por Pilot
-#pdf(file="graphs/AvgEggsLaidBtwnAlvInfyCntrlPlbyWeek.pdf")
-plot(iPLegg$xbar, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects in Pilot",
-     ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
-  lines(cPLegg$xbar, type="o", pch=16, col="dodgerblue1")
-  points(iPLegg$uCI, col="darkorange1") 
-  points(iPLegg$lCI, col="darkorange1")
-  points(cPLegg$uCI, col="dodgerblue1") 
-  points(cPLegg$lCI, col="dodgerblue1")
-legend("topright", c("infected","controls", "95% CI"), col=c("darkorange1", "dodgerblue1", "black"),
-       pch=c(18,16))
-#dev.off()
-
-#Por Rep1
-#pdf(file="graphs/AvgEggsLaidBtwnAlvInfyCntrlR1byWeek.pdf")
-plot(iRAegg$xbar, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects in Rep 1",
-     ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
-lines(cRAegg$xbar, type="o", pch=16, col="dodgerblue1")
-  points(iRAegg$uCI, col="darkorange1") 
-  points(iRAegg$lCI, col="darkorange1")
-  points(cRAegg$uCI, col="dodgerblue1") 
-  points(cRAegg$lCI, col="dodgerblue1")
-legend("topright", c("infected","controls","95% CI"), col=c("darkorange1", "dodgerblue1", "black"), pch=c(18,16,1))
-#dev.off()
-
-#Por Rep2
-pdf("graphs/AvgEggsLaidBtwnAlvInfyCntrlR2byWeek.pdf")
-plot(iRBegg$xbar, type="o", main="Average Eggs Laid Between Infected and Control Insects in Rep 2",
-     ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(1,9))
-  points(iRBegg$uCI, col="darkorange1") 
-  points(iRBegg$lCI, col="darkorange1")
-  points(cRBegg$uCI, col="dodgerblue1") 
-  points(cRBegg$lCI, col="dodgerblue1")
-  lines(cRBegg$xbar, type="o", pch=16, col="dodgerblue1")
- legend("topright", c("infected","controls","95% CI"), col=c("darkorange1", "dodgerblue1","black"), pch=c(18,16,1))
-dev.off()
-
-#Put them al on one graph
-#pdf(file="graphs/AllRepsAvgEggLaidbtwnAlvbtwnInfContbyWeek.pdf")
-plot(iPLegg$xbar, type="o", main="Average Eggs Laid Alive Between Infected and Control Insects",
-     ylab="Number of eggs", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
-lines(cPLegg$xbar, type="o", pch=1, col=4, lty=1)
-lines(iRAegg$xbar, type="o", pch=2, col=2, lty=2)
-lines(cRAegg$xbar, type="o", pch=2, col=4, lty=2)
-lines(iRBegg$xbar, type="o", pch=3, col=2, lty=3)
-lines(cRBegg$xbar, type="o", pch=3, col=4, lty=3)
-legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
-                     "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
-       col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
-#dev.off()
-
-##Do the same analysis por hatching
-#all the repetitions pooled togehter.
-#pdf(file="graphs/AvgHtchBtwnAlvInfCntrlbyWeek.pdf")
-plot(infvia$xbar, type="o", main="Average Eggs Hatched by Week Between Alive Infected and Control Insects With All Reps Combined",
-     ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18)
-points(infvia$uCI, col="darkorange1") 
-points(infvia$lCI, col="darkorange1")
-points(convia$uCI, col="dodgerblue1") 
-points(convia$lCI, col="dodgerblue1")
-lines(convia$xbar, type="o", pch=16, col="dodgerblue1")
-legend("topright", c("infected","controls", "95% CI"), 
-       col=c("darkorange1", "dodgerblue1","black"), pch=c(18,16,1))
-#dev.off()
-
-#Por Pilot
-#pdf(files="graphs/AvgHtchBtwnAlvInfyCntrlbyWeekPL.pdf")
-plot(iPLvia$xbar, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects in Pilot",
-     ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(0,8))
-lines(cPLvia$xbar, type="o", pch=16, col="dodgerblue1")
-points(iPLvia$uCI, col="darkorange1") 
-points(iPLvia$lCI, col="darkorange1")
-points(cPLvia$uCI, col="dodgerblue1") 
-points(cPLvia$lCI, col="dodgerblue1")
-legend("topright", c("infected","controls","95% CI"), col=c("darkorange1", "dodgerblue1", "black"), pch=c(18,16,1))
-#dev.off()
-
-#Por Rep1
-#pdf(files="graphs/R1AvgHtchBtwn.pdf")
-plot(iRAvia$xbar, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects in Rep 1",
-     ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(0,9))
-lines(cRAvia$xbar, type="o", pch=16, col="dodgerblue1")
-legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
-#dev.off()
-
-#Por Rep2
-#pdf(files="graphs/R2AvgHtchBtwnAlvInfCntrl.pdf")
-plot(iRBvia$xbar, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects in Rep 2",
-     ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(0,9))
-lines(cRBvia$xbar, type="o", pch=16, col="dodgerblue1")
-legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
-#dev.off()
-
-#Put them all on one graph
-#pdf(file="graphs/AllAvgHtchBtwnInfCntrl.pdf")
-plot(iPLegg$xbar, type="o", main="Average Hatched Eggs Between Infected and Control Insects",
-     ylab="Number of Hatched Insects", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
-lines(cPLvia$xbar, type="o", pch=1, col=4, lty=1)
-lines(iRAvia$xbar, type="o", pch=2, col=2, lty=2)
-lines(cRAvia$xbar, type="o", pch=2, col=4, lty=2)
-lines(iRBvia$xbar, type="o", pch=3, col=2, lty=3)
-lines(cRBvia$xbar, type="o", pch=3, col=4, lty=3)
-legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
-                     "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
-       col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
-#dev.off()
-
-###plotting the medians
-##lets make the table with the total medians and then medians with the mean
-#Lets start with the median plots for eggs and such
-par(mfrow=c(1,1))
-#pdf()
-plot(infegg$medians, type="o", main="Median Eggs Laid Between Infected and Control Insects",
-     ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
-lines(conegg$medians, type="o", pch=16, col="dodgerblue1")
-legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
-
-#dev.off()
-
-plot(infvia$medians, type="o", main="Median Eggs Hatched Between Infected and Control Insects",
-     ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
-lines(convia$medians, type="o", pch=16, col="dodgerblue1")
-legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
-
-#Put them al on one graph
-plot(iPLegg$medians, type="o", main="Median Eggs Laid Between Infected and Control Insects",
-     ylab="Number of eggs", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
-lines(cPLegg$medians, type="o", pch=1, col=4, lty=1)
-lines(iRAegg$medians, type="o", pch=2, col=2, lty=2)
-lines(cRAegg$medians, type="o", pch=2, col=4, lty=2)
-lines(iRBegg$medians, type="o", pch=3, col=2, lty=3)
-lines(cRBegg$medians, type="o", pch=3, col=4, lty=3)
-legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
-                     "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
-       col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
-
-plot(iPLvia$medians, type="o", main="Median Eggs Hatched Between Infected and Control Insects",
-     ylab="Number of eggs", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
-lines(cPLvia$medians, type="o", pch=1, col=4, lty=1)
-lines(iRAvia$medians, type="o", pch=2, col=2, lty=2)
-lines(cRAvia$medians, type="o", pch=2, col=4, lty=2)
-lines(iRBvia$medians, type="o", pch=3, col=2, lty=3)
-lines(cRBvia$medians, type="o", pch=3, col=4, lty=3)
-legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
-                     "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
-       col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
-
-######################################################################
-#=====================================================================
-#Using Compile
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#Now all the data should be in place.  We can plot some more.
-#Lets begin to make the box plots over time
-#sete how eggs and hatching vary by date and week
-#first limit cimfert to the pilot
-#cimpilot<-which(cimfert$trial==0)
-#cimfert <- cimfert[cimpilot,]
-#rowna<-which(is.na(cimfert$ID)==TRUE)
-#cimfert<-cimfert[-rowna,]
-
-#par(mfrow=c(2,2))
-eggweek<-lm(Compile$eggs ~Compile$week)
-hatchweek<-lm(Compile$hatch ~Compile$week)
-plot(Compile$week, Compile$eggs+rnorm(length(Compile$eggs), 0, 0.5), main="Eggs by Week")
-abline(eggweek)
-boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
-plot(Compile$week, Compile$hatch+rnorm(length(Compile$hatch), 0, 0.5), main="Hatching by Week")
-abline(hatchweek)
-boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
-
-#is this attempting to look at infection status at all>?
-#pdf("")
-#par(mfrow=c(2,4))
-# plot(Compile$week, Compile$eggs, main="Eggs by Week")
-# boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
-# plot(Compile$week, Compile$hatch, main="Hatching by Week")
-# boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
-# plot(Compile$week, Compile$eggs, main="Eggs by Week")
-# boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
-# plot(Compile$week, Compile$hatch, main="Hatching by Week")
-# boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
-# #dev.off()
-par(mfrow=c(1,1))
-#pdf("graphs/NmbEggsByDateBox.pdf")
-boxplot(Compile$eggs ~Compile$date, main="Eggs by Date")
-#dev.off()
-
-#pdf("graphs/NmbHtchByDateBox.pdf")
-boxplot(Compile$hatch ~Compile$date, main="Hatching by Date")
-#dev.off()
-
-##lets makle a combined plot of the two groups together
-enona<-which(is.na(Compile$eggs)==FALSE)
-hnona<-which(is.na(Compile$hatch)==FALSE)
-Compile$infected<-as.factor(Compile$infected)
-Compile$week<-as.factor(Compile$week)
-
-#the box plot for eggs laid
-#pdf("graphs/NumEggsLaidByWeekYInfyCntlBox.pdf")
-g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
-       data= Compile[enona,]) +geom_boxplot(data=Compile[enona,])
-g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status")
-g
-#dev.off()
-
-#hatch plot
-#pdf("graphs/NumEggsHtchByWeekyInfyCntrlBox.pdf")
-h<-ggplot(aes( y= hatch, x= week, fill = infected, na.rm=TRUE), 
-       data= Compile[hnona,])+geom_boxplot(data=Compile[hnona,])
-h<-h+ggtitle("Distribution of Number of Eggs Hatched by Infection Status")
-h
-#dev.off()
-
-#Other parts of this study show that life span changes depending on inf
-#lets look at the number alive by week
-alivetotweek <- c(1:length(unique(Compile$week))*NA)
-aliveinfweek <- c(1:length(unique(Compile$week))*NA)
-aliveconweek <- c(1:length(unique(Compile$week))*NA)
-infected <- which(Compile$infected==1)
-controlled <- which(Compile$infected==0)
-#loop counts the number alive in each week (total, infected, and controls)
-for (i in 1:length(unique(Compile$week))){
-  week<-which(Compile$week==i)
-  alivetotweek[i]<-sum(Compile$alive[week])
-  inf<-intersect(week, infected)
-  con<-intersect(week, controlled)
-  aliveinfweek[i]<-sum(Compile$alive[inf])
-  aliveconweek[i]<-sum(Compile$alive[con])
-}
-
-#pdf("graphs/NumInctsAlvByWeek.pdf")
-plot(alivetotweek)
-  points(aliveinfweek, col="red")
-  points(aliveconweek, col="steelblue")
-  legend("topright", c("All Bugs","infected","controls"), 
-        col=c("black","red", "steelblue"), pch=c(1,1,1))
-#dev.off()
-
-#a quick check seeing if alivetotweek is the sum of the other two.  
-#test<-aliveinfweek+aliveconweek
-#testing<-data.frame(test, alivetotweek, aliveinfweek, aliveconweek)
-
-#lets get a better view by looking at (percents)
- which(cimfert$infected==1)
- peraltotweek<-alivetotweek/(length(cimfert$ID))
-  peralinfweek <-aliveinfweek/(length(which(cimfert$infected==1)))
-  peralconweek <-aliveconweek/(length(which(cimfert$infected==0)))
-
-#pdf("graphs/PerAlvInsctsByWeek.pdf")
-plot(peraltotweek, col="black", xlab="Proportion Alive", ylab="Week", 
-     main="Proportion Alive in Infected and Controls by Week")
-  points(peralconweek, col="steelblue")
-  points(peralinfweek, col="red")  
-  legend("topright", c("All Bugs","infected","controls"), 
-         col=c("black","red", "steelblue"), pch=c(1,1,1))
-#dev.off()
-
-#lets do something similar to see the number of egg events   
-  eggetotweek <- c(1:length(unique(Compile$week))*NA)
-  eggeinfweek <- c(1:length(unique(Compile$week))*NA)
-  eggeconweek <- c(1:length(unique(Compile$week))*NA)
-  for (i in 1:length(unique(Compile$week))){
-    week<-which(Compile$week==i)
-    eggetotweek[i]<-sum(Compile$eggevent[week], na.rm=TRUE)
-    inf<-intersect(week, infected)
-    con<-intersect(week, controlled)
-    eggeinfweek[i]<-sum(Compile$eggevent[inf], na.rm=TRUE)
-    eggeconweek[i]<-sum(Compile$eggevent[con], na.rm=TRUE)
-  }
-  
-plot(eggetotweek)
-  points(eggeinfweek, col="red")
-  points(eggeconweek, col="steelblue")
-  legend("topright", c("infected","controls"), 
-         col=c("red", "steelblue"), pch=c(1,1))
-  
-  #lets get a better view by looking at percents
-  peregeinfweek<-eggeinfweek/length(infect)
-  peregeconweek<-eggeconweek/length(controls)
-  
-  plot(peregeinfweek, type="o", col="red", xlab="Week", ylab="Proportion of Insects that Laid Eggs", 
-       main="Proportion Insects that Laid in Infected and Controls by Week")
-  lines(peregeconweek, col="steelblue", type="o")
-  legend("topright", c("infected","controls"), 
-         col=c("red", "steelblue"), pch=c(1,1))
-
-#now we need to see proportion of alive insects    
-  proeggeinfweek<-eggeinfweek/aliveinfweek
-  proeggeconweek<-eggeconweek/aliveconweek 
-  
-##see if we can add Confidence Intervals below
-#pdf("PerAlvInsctsLaidEggsbyWeek")
-  plot(proeggeinfweek, type="o", col="red", xlab="Week", ylab="Proportion of Alive Insects that Laid Eggs", 
-       main="Proportion of Alive Insects that Laid in Infected and Controls by Week")
-  lines(proeggeconweek, col="steelblue")
-  legend("bottomleft", c("infected","controls"), 
-         col=c("red", "steelblue"), pch=c(1,1))
-# dev.off()
-#now to do that with the total number of eggs.  
-  eggstotweek <- c(1:length(unique(Compile$week))*NA)
-  eggsinfweek <- c(1:length(unique(Compile$week))*NA)
-  eggsconweek <- c(1:length(unique(Compile$week))*NA)
-  for (i in 1:length(unique(Compile$week))){
-    week<-which(Compile$week==i)
-    eggstotweek[i]<-sum(Compile$eggs[week], na.rm=TRUE)
-    inf<-intersect(week, infected)
-    con<-intersect(week, controlled)
-    eggsinfweek[i]<-sum(Compile$eggs[inf], na.rm=TRUE)
-    eggsconweek[i]<-sum(Compile$eggs[con], na.rm=TRUE)
-  }
-  
-  plot(eggstotweek)
-  points(eggsinfweek, col="red")
-  points(eggsconweek, col="steelblue")
-  legend("topright", c("infected","controls"), 
-         col=c("red", "steelblue"), pch=c(1,1))
-  
-  #lets get a better view by looking at percents
-  peregsinfweek<-eggsinfweek/length(infect)
-  peregsconweek<-eggsconweek/length(controls)
-  
-  plot(peregsinfweek, type="o", col="red", xlab="Week", ylab="Number of Eggs Laid Per Insect", 
-       main="Eggs Laid Per Insect by Week")
-  lines(peregsconweek, col="steelblue")
-  legend("topright", c("infected","controls"), 
-         col=c("red", "steelblue"), pch=c(1,1))
-  
-  #now we need to see proportion of alive insects    
-  proeggsinfweek<-eggsinfweek/aliveinfweek
-  proeggsconweek<-eggsconweek/aliveconweek 
-  par(mfrow=c(1,1))
-#  pdf(graphs/NmbEggsByAlvInsctbyWeekYInfyCont.pdf)
-  #consider how to add CI's
-  plot(proeggsinfweek, type="o", col="red", xlab="Week", ylab="Num Eggs Per Alive Insect", 
-       main="Number of Eggs Per Alive Insect by Week and Treatment Group")
-  lines(proeggsconweek, col="steelblue", type="o")
-  legend("topright", c("infected","controls"), 
-         col=c("red", "steelblue"), pch=c(1,1))
-#  dev.off()
-  
-  
-#Now lets observe percentage of insects hatching
-  plot(Compile$week, Compile$perferc, na.rm=TRUE)
-  
-######################################################################  
-#plot humidity and temperature over time
-Compile$avhum <- as.numeric(Compile$avhum)
-plot(Compile$date, Compile$avhum,col="dodgerblue", ylim=c(24,60),
-     main="Temperature and Humidity", ylab="Relative Humidity(%) and Temperature(C)",
-     xlab="Date")
-points(Compile$date, Compile$avtemp, col="tomato")
-legend("topleft", c("Humidity", "Temperature"), text.col=c("dodgerblue","tomato"))
-
-#eggs laid by humidity
-humeggs<-lm(Compile$eggs ~Compile$avhum)
-plot(Compile$avhum, Compile$eggs+rnorm(length(Compile$eggs), 0, 0.5),
-     main="Eggs by Humidity", ylab="Number of Eggs",
-     xlab="Humidity(%)")
-abline(humeggs)
-#summary(humeggs)
-
-#eggs by average hum
-egghum<-ggplot(aes( y= eggs, x= avhum, na.rm=TRUE), 
-               data=Compile[enona,])+geom_point(data=Compile[enona,])
-egghum<-egghum+ggtitle("Number of Eggs Laid by Humidity and Infection Status") 
-egghum<-egghum+facet_grid(. ~infected)+geom_smooth(method= "lm")
-egghum
-
-#eggs by average high hum
-egghumavhigh<-ggplot(aes( y= eggs, x= avhumhigh, na.rm=TRUE), 
-               data=Compile[enona,])+geom_point(data=Compile[enona,])
-egghumavhigh<-egghumavhigh+ggtitle("Number of Eggs Laid by Max Humidity and Infection Status") 
-egghumavhigh<-egghumavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
-egghumavhigh
-#eggs by average low hum
-egghumavlow<-ggplot(aes( y= eggs, x= avhumlow, na.rm=TRUE), 
-                   data=Compile[enona,])+geom_point(data=Compile[enona,])
-egghumavlow<-egghumavlow+ggtitle("Number of Eggs Laid by Average Low Humidity and Infection Status") 
-egghumavlow<-egghumavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
-egghumavlow
-
-#eggs by week max high
-egghumhigh<-ggplot(aes( y= eggs, x= hummax, na.rm=TRUE), 
-                     data=Compile[enona,])+geom_point(data=Compile[enona,])
-egghumhigh<-egghumhigh+ggtitle("Number of Eggs Laid by Max Humidity and Infection Status") 
-egghumhigh<-egghumhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
-egghumhigh
-#eggs by week low high
-egghumlow<-ggplot(aes( y= eggs, x= hummin, na.rm=TRUE), 
-                   data=Compile[enona,])+geom_point(data=Compile[enona,])
-egghumlow<-egghumlow+ggtitle("Number of Eggs Laid by Low Humidity and Infection Status") 
-egghumlow<-egghumlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
-egghumlow
-#eggs by hum diff
-egghumdiff<-ggplot(aes( y= eggs, x= humdiff, na.rm=TRUE),
-  data=Compile[enona,])+geom_point(data=Compile[enona,])
-egghumdiff<-egghumdiff+ggtitle("Number of Eggs Laid by Largest Humidity Difference and Infection Status") 
-egghumdiff<-egghumdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
-egghumdiff
-################################################
-#same for temp
-#plot temperature by eggs
-Compile$avtemp <- as.character(Compile$avtemp)
-tempeggs<-lm(Compile$eggs ~Compile$avtemp)
-plot(Compile$avtemp, Compile$eggs,
-     main="Eggs by Temperature", ylab="Number of Eggs",
-     xlab="Temperature(C)")
-#eggs by average temp
-eggtemp<-ggplot(aes( y= eggs, x= avtemp, na.rm=TRUE), 
-               data=Compile[enona,])+geom_point(data=Compile[enona,])
-eggtemp<-eggtemp+ggtitle("Number of Eggs Laid by Average Temperature and Infection Status") 
-eggtemp<-eggtemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
-eggtemp
-
-#eggs by average high hum
-eggtempavhigh<-ggplot(aes( y= eggs, x= avtemphigh, na.rm=TRUE), 
-                     data=Compile[enona,])+geom_point(data=Compile[enona,])
-eggtempavhigh<-eggtempavhigh+ggtitle("Number of Eggs Laid by Avg High Temp and Infection Status") 
-eggtempavhigh<-eggtempavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
-eggtempavhigh
-#eggs by average low hum
-eggtempavlow<-ggplot(aes( y= eggs, x= avtemplow, na.rm=TRUE), 
-                    data=Compile[enona,])+geom_point(data=Compile[enona,])
-eggtempavlow<-eggtempavlow+ggtitle("Number of Eggs Laid by Avg Low Temperature and Infection Status") 
-eggtempavlow<-eggtempavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
-eggtempavlow
-
-#eggs by week max high
-eggtemphigh<-ggplot(aes( y= eggs, x= tempmax, na.rm=TRUE), 
-                   data=Compile[enona,])+geom_point(data=Compile[enona,])
-eggtemphigh<-eggtemphigh+ggtitle("Number of Eggs Laid by Max Temperature and Infection Status") 
-eggtemphigh<-eggtemphigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
-eggtemphigh
-#eggs by week low high
-eggtemplow<-ggplot(aes( y= eggs, x= tempmin, na.rm=TRUE), 
-                  data=Compile[enona,])+geom_point(data=Compile[enona,])
-eggtemplow<-egghumlow+ggtitle("Number of Eggs Laid by Low Temperature and Infection Status") 
-eggtemplow<-egghumlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
-eggtemplow
-#eggs by temp diff
-eggtempdiff<-ggplot(aes( y= eggs, x= tempdiff, na.rm=TRUE),
-                   data=Compile[enona,])+geom_point(data=Compile[enona,])
-eggtempdiff<-eggtempdiff+ggtitle("Number of Eggs Laid by Largest Temperature Difference and Infection Status") 
-eggtempdiff<-eggtempdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
-eggtempdiff
-
-Compile$avtemp <- as.numeric(Compile$avtemp)
-eggtem<-ggplot(aes( y= eggs, x= avtemp, na.rm=TRUE), 
-               data=Compile[enona,])+geom_point(data=Compile[enona,])
-eggtem<-eggtem+ggtitle("Number of Eggs Laid by Temperature and Infection Status") 
-eggtem<-eggtem+facet_grid(. ~infected)+geom_smooth(method= "lm")
-eggtem
-
-###################
-#Now for hatching
-#hatch by humidity
-humhatch<-lm(Compile$hatch ~Compile$avhum)
-plot(Compile$avhum, Compile$hatch,
-     main="Hatching by Humidity", ylab="Number of Eggs",
-     xlab="Humidity(%)")
-
-#hatch by average hum
-hchhum<-ggplot(aes( y= hatch, x= avhum, na.rm=TRUE), 
-               data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchhum<-hchhum+ggtitle("Number of Eggs Hatched by Humidity and Infection Status") 
-hchhum<-hchhum+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchhum
-
-#hatch average high hum
-hchhumavhigh<-ggplot(aes( y= hatch, x= avhumhigh, na.rm=TRUE), 
-                     data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchhumavhigh<-hchhumavhigh+ggtitle("Number of Eggs Hatched by Max Humidity and Infection Status") 
-hchhumavhigh<-hchhumavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchhumavhigh
-#hatch by average low hum
-hchhumavlow<-ggplot(aes( y= hatch, x= avhumlow, na.rm=TRUE), 
-                    data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchhumavlow<-hchhumavlow+ggtitle("Number of Eggs Hatched by Average Low Humidity and Infection Status") 
-hchhumavlow<-hchhumavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchhumavlow
-
-#hatch by week max high
-hchhumhigh<-ggplot(aes( y= hatch, x= hummax, na.rm=TRUE), 
-                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchhumhigh<-hchhumhigh+ggtitle("Number of Eggs Hatched by Max Humidity and Infection Status") 
-hchhumhigh<-hchhumhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchhumhigh
-#hatch by week low high
-hchhumlow<-ggplot(aes( y= hatch, x= hummin, na.rm=TRUE), 
-                  data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchhumlow<-hchhumlow+ggtitle("Number of Eggs Hatched by Low Humidity and Infection Status") 
-hchhumlow<-hchhumlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchhumlow
-#hatch by hum diff
-hchhumdiff<-ggplot(aes( y= hatch, x= humdiff, na.rm=TRUE),
-                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchhumdiff<-hchhumdiff+ggtitle("Number of Eggs Hatced by Largest Humidity Difference and Infection Status") 
-hchhumdiff<-hchhumdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchhumdiff
-############################
-#hatch by temp
-temphatch<-lm(Compile$hatch ~Compile$avtemp)
-plot(Compile$avtemp, Compile$hatch,
-     main="Hatching by Temperature", ylab="Number of Eggs",
-     xlab="Temperature(C)")
-
-#hatch by average temp
-hchtemp<-ggplot(aes( y= hatch, x= avtemp, na.rm=TRUE), 
-               data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchtemp<-hchtemp+ggtitle("Number of Eggs Hatched by Temp and Infection Status") 
-hchtemp<-hchtemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchtemp
-
-#hatch average high temp
-hchtempavhigh<-ggplot(aes( y= hatch, x= avtemphigh, na.rm=TRUE), 
-                     data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchtempavhigh<-hchtempavhigh+ggtitle("Number of Eggs Hatched by Max Temp and Infection Status") 
-hchtempavhigh<-hchtempavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchtempavhigh
-#hatch by average low temp
-hchtempavlow<-ggplot(aes( y= hatch, x= avtemplow, na.rm=TRUE), 
-                    data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchtempavlow<-hchtempavlow+ggtitle("Number of Eggs Hatched by Average Low Temp and Infection Status") 
-hchtempavlow<-hchtempavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchtempavlow
-
-#hatch by week max high
-hchtemphigh<-ggplot(aes( y= hatch, x= tempmax, na.rm=TRUE), 
-                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchtemphigh<-hchtemphigh+ggtitle("Number of Eggs Hatched by Max Temp and Infection Status") 
-hchtemphigh<-hchtemphigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchtemphigh
-#hatch by week min low 
-hchtemplow<-ggplot(aes( y= hatch, x= tempmin, na.rm=TRUE), 
-                  data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchtemplow<-hchtemplow+ggtitle("Number of Eggs Hatched by Low Temp and Infection Status") 
-hchtemplow<-hchtemplow+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchtemplow
-#hatch by hum diff
-hchtempdiff<-ggplot(aes( y= hatch, x= tempdiff, na.rm=TRUE),
-                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
-hchtempdiff<-hchtempdiff+ggtitle("Number of Eggs Hatced by Largest Temp Difference and Infection Status") 
-hchtempdiff<-hchtempdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
-hchtempdiff
-################################
-# ##For each time line
-# glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, 
-#subset=28:36, family=poisson())
-
-# #Now lets make a graph of Eggs by week
-# infected<-which(Compile$infected==1)
-# controled<-which(Compile$infected==0)
-# uniquebugs<-unique(Compile$id)
-# plot(Compile$week[infected], Compile$eggs[infected]+rnorm(length(Compile$eggs[infected]), 0.5, 1), col="red")
 # 
-# #Now lets make a graphs o week and date by eggs of infected insects
-# infected<-which(Compile$infected==1)
-# controled<-which(Compile$infected==0)
-# uniquebugs<-unique(Compile$id)
-# plot(Compile$week[infected], Compile$eggs[infected], col="red")
-# plot(Compile$date[infected], Compile$eggs[infected], col="red")     
+# 
+# ########################################################################
+# #=======================================================================
+# #We now have all the data together and can now do some analysis.
+# #=======================================================================
+# 
+# ###Using Cimfert
+# #solution: use "p" and "v" from substring of names to identify which are postura y viability columns
+# #be sure to check that no other columns of new data contain these letters at the end.
+# postura<-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="p")
+# viabilidad <-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="v")
+# 
+# ###Calculating Confidence Intervals
+# #na's make this difficult
+# sdcim<-function(dataframe, rowin){
+#   sd(dataframe[,rowin], na.rm=TRUE)
+# }
+# 
+# findn<-function(dataframe, rowin){
+#   real<-which(is.na(dataframe[,rowin])==FALSE)
+#   length(real)
+# }
+# 
+# #put these functions into giant looping function for each infection status
+# colSummary<-function(treatment, dependentvariable){
+#     df<-cimfert[treatment,]
+#     sds<-sapply(X=dependentvariable, sdcim, dataframe=df)
+#     ns<-sapply(X=dependentvariable, findn, dataframe=df)
+#     xbar<-colMeans(df[,dependentvariable], na.rm= TRUE, dims=1)
+#     uCI<-xbar+(1.96*(sds/sqrt(ns)))
+#     lCI<-xbar-(1.96*(sds/sqrt(ns)))
+#     mtxdep <- as.matrix(cimfert[, dependentvariable])
+#     medians <- colMedians(mtxdep[treatment,], na.rm=TRUE)
+#     data.frame(sds, ns, xbar, medians, uCI, lCI)
+# } 
+#   
+# #now assemble tables accordingly
+# #assemble tables for the eggs laid
+# totegg<-colSummary(tot, postura)
+# infegg<-colSummary(infect, postura)
+# conegg<-colSummary(controls, postura)
+# cPLegg<-colSummary(ControlP, postura )
+# iPLegg<-colSummary(InfectP, postura)
+# cRAegg<-colSummary(ControlRA, postura)
+# iRAegg<-colSummary(InfectRA, postura)
+# cRBegg<-colSummary(ControlRB, postura)
+# iRBegg<-colSummary(InfectRB, postura)
+# #assemble tables fo the eggs hatched.
+# totvia<-colSummary(tot, viabilidad)
+# infvia<-colSummary(infect, viabilidad)
+# convia<-colSummary(controls, viabilidad)
+# cPLvia<-colSummary(ControlP, viabilidad)
+# iPLvia<-colSummary(InfectP, viabilidad)
+# cRAvia<-colSummary(ControlRA, viabilidad)
+# iRAvia<-colSummary(InfectRA, viabilidad)
+# cRBvia<-colSummary(ControlRB, viabilidad)
+# iRBvia<-colSummary(InfectRB, viabilidad)
+# #assemble tables for percent viability
+# 
+# ###====================================================================================
+# ##We can now plot this data for eggs
+# #all the repetitions pooled togehter.
+# par(mfrow=c(1,1))
+# #pdf(file="graphs/AvgEggsLaidBtwnAlvInfyContRepsCombobyWeek.pdf")
+# plot(infegg$xbar, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects in all Replicates Combined",
+#      ylab="Number of eggs", xlab="Week in Study", ylim=c(0,8), col="darkorange1", pch=18)
+#       lines(conegg$xbar, type="o", pch=16, col="dodgerblue1")
+#       points(infegg$uCI, col="darkorange1") 
+#       points(infegg$lCI, col="darkorange1")
+#       points(conegg$uCI, col="dodgerblue1") 
+#       points(conegg$lCI, col="dodgerblue1")
+# legend("topright", c("infected","controls", "95% CI"), col=c("darkorange1", "dodgerblue1","black"), pch=c(18,16,1))
+# #dev.off()
+# 
+# #Por Pilot
+# #pdf(file="graphs/AvgEggsLaidBtwnAlvInfyCntrlPlbyWeek.pdf")
+# plot(iPLegg$xbar, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects in Pilot",
+#      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
+#   lines(cPLegg$xbar, type="o", pch=16, col="dodgerblue1")
+#   points(iPLegg$uCI, col="darkorange1") 
+#   points(iPLegg$lCI, col="darkorange1")
+#   points(cPLegg$uCI, col="dodgerblue1") 
+#   points(cPLegg$lCI, col="dodgerblue1")
+# legend("topright", c("infected","controls", "95% CI"), col=c("darkorange1", "dodgerblue1", "black"),
+#        pch=c(18,16))
+# #dev.off()
+# 
+# #Por Rep1
+# #pdf(file="graphs/AvgEggsLaidBtwnAlvInfyCntrlR1byWeek.pdf")
+# plot(iRAegg$xbar, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects in Rep 1",
+#      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
+# lines(cRAegg$xbar, type="o", pch=16, col="dodgerblue1")
+#   points(iRAegg$uCI, col="darkorange1") 
+#   points(iRAegg$lCI, col="darkorange1")
+#   points(cRAegg$uCI, col="dodgerblue1") 
+#   points(cRAegg$lCI, col="dodgerblue1")
+# legend("topright", c("infected","controls","95% CI"), col=c("darkorange1", "dodgerblue1", "black"), pch=c(18,16,1))
+# #dev.off()
+# 
+# #Por Rep2
+# pdf("graphs/AvgEggsLaidBtwnAlvInfyCntrlR2byWeek.pdf")
+# plot(iRBegg$xbar, type="o", main="Average Eggs Laid Between Infected and Control Insects in Rep 2",
+#      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(1,9))
+#   points(iRBegg$uCI, col="darkorange1") 
+#   points(iRBegg$lCI, col="darkorange1")
+#   points(cRBegg$uCI, col="dodgerblue1") 
+#   points(cRBegg$lCI, col="dodgerblue1")
+#   lines(cRBegg$xbar, type="o", pch=16, col="dodgerblue1")
+#  legend("topright", c("infected","controls","95% CI"), col=c("darkorange1", "dodgerblue1","black"), pch=c(18,16,1))
+# dev.off()
+# 
+# #Put them al on one graph
+# #pdf(file="graphs/AllRepsAvgEggLaidbtwnAlvbtwnInfContbyWeek.pdf")
+# plot(iPLegg$xbar, type="o", main="Average Eggs Laid Alive Between Infected and Control Insects",
+#      ylab="Number of eggs", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
+# lines(cPLegg$xbar, type="o", pch=1, col=4, lty=1)
+# lines(iRAegg$xbar, type="o", pch=2, col=2, lty=2)
+# lines(cRAegg$xbar, type="o", pch=2, col=4, lty=2)
+# lines(iRBegg$xbar, type="o", pch=3, col=2, lty=3)
+# lines(cRBegg$xbar, type="o", pch=3, col=4, lty=3)
+# legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
+#                      "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
+#        col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
+# #dev.off()
+# 
+# ##Do the same analysis por hatching
+# #all the repetitions pooled togehter.
+# #pdf(file="graphs/AvgHtchBtwnAlvInfCntrlbyWeek.pdf")
+# plot(infvia$xbar, type="o", main="Average Eggs Hatched by Week Between Alive Infected and Control Insects With All Reps Combined",
+#      ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18)
+# points(infvia$uCI, col="darkorange1") 
+# points(infvia$lCI, col="darkorange1")
+# points(convia$uCI, col="dodgerblue1") 
+# points(convia$lCI, col="dodgerblue1")
+# lines(convia$xbar, type="o", pch=16, col="dodgerblue1")
+# legend("topright", c("infected","controls", "95% CI"), 
+#        col=c("darkorange1", "dodgerblue1","black"), pch=c(18,16,1))
+# #dev.off()
+# 
+# #Por Pilot
+# #pdf(files="graphs/AvgHtchBtwnAlvInfyCntrlbyWeekPL.pdf")
+# plot(iPLvia$xbar, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects in Pilot",
+#      ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(0,8))
+# lines(cPLvia$xbar, type="o", pch=16, col="dodgerblue1")
+# points(iPLvia$uCI, col="darkorange1") 
+# points(iPLvia$lCI, col="darkorange1")
+# points(cPLvia$uCI, col="dodgerblue1") 
+# points(cPLvia$lCI, col="dodgerblue1")
+# legend("topright", c("infected","controls","95% CI"), col=c("darkorange1", "dodgerblue1", "black"), pch=c(18,16,1))
+# #dev.off()
+# 
+# #Por Rep1
+# #pdf(files="graphs/R1AvgHtchBtwn.pdf")
+# plot(iRAvia$xbar, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects in Rep 1",
+#      ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(0,9))
+# lines(cRAvia$xbar, type="o", pch=16, col="dodgerblue1")
+# legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+# #dev.off()
+# 
+# #Por Rep2
+# #pdf(files="graphs/R2AvgHtchBtwnAlvInfCntrl.pdf")
+# plot(iRBvia$xbar, type="o", main="Average Hatched Eggs Between Alive Infected and Control Insects in Rep 2",
+#      ylab="Number of Hatched Insects", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(0,9))
+# lines(cRBvia$xbar, type="o", pch=16, col="dodgerblue1")
+# legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+# #dev.off()
+# 
+# #Put them all on one graph
+# #pdf(file="graphs/AllAvgHtchBtwnInfCntrl.pdf")
+# plot(iPLegg$xbar, type="o", main="Average Hatched Eggs Between Infected and Control Insects",
+#      ylab="Number of Hatched Insects", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
+# lines(cPLvia$xbar, type="o", pch=1, col=4, lty=1)
+# lines(iRAvia$xbar, type="o", pch=2, col=2, lty=2)
+# lines(cRAvia$xbar, type="o", pch=2, col=4, lty=2)
+# lines(iRBvia$xbar, type="o", pch=3, col=2, lty=3)
+# lines(cRBvia$xbar, type="o", pch=3, col=4, lty=3)
+# legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
+#                      "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
+#        col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
+# #dev.off()
+# 
+# ###plotting the medians
+# ##lets make the table with the total medians and then medians with the mean
+# #Lets start with the median plots for eggs and such
+# par(mfrow=c(1,1))
+# #pdf()
+# plot(infegg$medians, type="o", main="Median Eggs Laid Between Infected and Control Insects",
+#      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
+# lines(conegg$medians, type="o", pch=16, col="dodgerblue1")
+# legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+# 
+# #dev.off()
+# 
+# plot(infvia$medians, type="o", main="Median Eggs Hatched Between Infected and Control Insects",
+#      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18)
+# lines(convia$medians, type="o", pch=16, col="dodgerblue1")
+# legend("topright", c("infected","controls"), col=c("darkorange1", "dodgerblue1"), pch=c(18,16))
+# 
+# #Put them al on one graph
+# plot(iPLegg$medians, type="o", main="Median Eggs Laid Between Infected and Control Insects",
+#      ylab="Number of eggs", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
+# lines(cPLegg$medians, type="o", pch=1, col=4, lty=1)
+# lines(iRAegg$medians, type="o", pch=2, col=2, lty=2)
+# lines(cRAegg$medians, type="o", pch=2, col=4, lty=2)
+# lines(iRBegg$medians, type="o", pch=3, col=2, lty=3)
+# lines(cRBegg$medians, type="o", pch=3, col=4, lty=3)
+# legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
+#                      "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
+#        col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
+# 
+# plot(iPLvia$medians, type="o", main="Median Eggs Hatched Between Infected and Control Insects",
+#      ylab="Number of eggs", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
+# lines(cPLvia$medians, type="o", pch=1, col=4, lty=1)
+# lines(iRAvia$medians, type="o", pch=2, col=2, lty=2)
+# lines(cRAvia$medians, type="o", pch=2, col=4, lty=2)
+# lines(iRBvia$medians, type="o", pch=3, col=2, lty=3)
+# lines(cRBvia$medians, type="o", pch=3, col=4, lty=3)
+# legend("topright", c("Pilot Infected","Pilot Controls", "Rep1 Infected", 
+#                      "Rep1 Controls", "Rep2 Infected", "Rep2 Controls"),
+#        col=c(2,4,2,4,2,4), pch=c(1,1,2,2,3,3), lty=c(1,1,2,2,3,3))
+# 
+# ######################################################################
+# #=====================================================================
+# #Using Compile
+# #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# #Now all the data should be in place.  We can plot some more.
+# #Lets begin to make the box plots over time
+# #sete how eggs and hatching vary by date and week
+# #first limit cimfert to the pilot
+# #cimpilot<-which(cimfert$trial==0)
+# #cimfert <- cimfert[cimpilot,]
+# #rowna<-which(is.na(cimfert$ID)==TRUE)
+# #cimfert<-cimfert[-rowna,]
+# 
+# #par(mfrow=c(2,2))
+# eggweek<-lm(Compile$eggs ~Compile$week)
+# hatchweek<-lm(Compile$hatch ~Compile$week)
+# plot(Compile$week, Compile$eggs+rnorm(length(Compile$eggs), 0, 0.5), main="Eggs by Week")
+# abline(eggweek)
+# boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
+# plot(Compile$week, Compile$hatch+rnorm(length(Compile$hatch), 0, 0.5), main="Hatching by Week")
+# abline(hatchweek)
+# boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
+# 
+# #is this attempting to look at infection status at all>?
+# #pdf("")
+# #par(mfrow=c(2,4))
+# # plot(Compile$week, Compile$eggs, main="Eggs by Week")
+# # boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
+# # plot(Compile$week, Compile$hatch, main="Hatching by Week")
+# # boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
+# # plot(Compile$week, Compile$eggs, main="Eggs by Week")
+# # boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
+# # plot(Compile$week, Compile$hatch, main="Hatching by Week")
+# # boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
+# # #dev.off()
+# par(mfrow=c(1,1))
+# #pdf("graphs/NmbEggsByDateBox.pdf")
+# boxplot(Compile$eggs ~Compile$date, main="Eggs by Date")
+# #dev.off()
+# 
+# #pdf("graphs/NmbHtchByDateBox.pdf")
+# boxplot(Compile$hatch ~Compile$date, main="Hatching by Date")
+# #dev.off()
+# 
+# ##lets makle a combined plot of the two groups together
+# enona<-which(is.na(Compile$eggs)==FALSE)
+# hnona<-which(is.na(Compile$hatch)==FALSE)
+# Compile$infected<-as.factor(Compile$infected)
+# Compile$week<-as.factor(Compile$week)
+# 
+# #the box plot for eggs laid
+# #pdf("graphs/NumEggsLaidByWeekYInfyCntlBox.pdf")
+# g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
+#        data= Compile[enona,]) +geom_boxplot(data=Compile[enona,])
+# g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status")
+# g
+# #dev.off()
+# 
+# #hatch plot
+# #pdf("graphs/NumEggsHtchByWeekyInfyCntrlBox.pdf")
+# h<-ggplot(aes( y= hatch, x= week, fill = infected, na.rm=TRUE), 
+#        data= Compile[hnona,])+geom_boxplot(data=Compile[hnona,])
+# h<-h+ggtitle("Distribution of Number of Eggs Hatched by Infection Status")
+# h
+# #dev.off()
+# 
+# #Other parts of this study show that life span changes depending on inf
+# #lets look at the number alive by week
+# alivetotweek <- c(1:length(unique(Compile$week))*NA)
+# aliveinfweek <- c(1:length(unique(Compile$week))*NA)
+# aliveconweek <- c(1:length(unique(Compile$week))*NA)
+# infected <- which(Compile$infected==1)
+# controlled <- which(Compile$infected==0)
+# #loop counts the number alive in each week (total, infected, and controls)
+# for (i in 1:length(unique(Compile$week))){
+#   week<-which(Compile$week==i)
+#   alivetotweek[i]<-sum(Compile$alive[week])
+#   inf<-intersect(week, infected)
+#   con<-intersect(week, controlled)
+#   aliveinfweek[i]<-sum(Compile$alive[inf])
+#   aliveconweek[i]<-sum(Compile$alive[con])
+# }
+# 
+# #pdf("graphs/NumInctsAlvByWeek.pdf")
+# plot(alivetotweek)
+#   points(aliveinfweek, col="red")
+#   points(aliveconweek, col="steelblue")
+#   legend("topright", c("All Bugs","infected","controls"), 
+#         col=c("black","red", "steelblue"), pch=c(1,1,1))
+# #dev.off()
+# 
+# #a quick check seeing if alivetotweek is the sum of the other two.  
+# #test<-aliveinfweek+aliveconweek
+# #testing<-data.frame(test, alivetotweek, aliveinfweek, aliveconweek)
+# 
+# #lets get a better view by looking at (percents)
+#  which(cimfert$infected==1)
+#  peraltotweek<-alivetotweek/(length(cimfert$ID))
+#   peralinfweek <-aliveinfweek/(length(which(cimfert$infected==1)))
+#   peralconweek <-aliveconweek/(length(which(cimfert$infected==0)))
+# 
+# #pdf("graphs/PerAlvInsctsByWeek.pdf")
+# plot(peraltotweek, col="black", xlab="Proportion Alive", ylab="Week", 
+#      main="Proportion Alive in Infected and Controls by Week")
+#   points(peralconweek, col="steelblue")
+#   points(peralinfweek, col="red")  
+#   legend("topright", c("All Bugs","infected","controls"), 
+#          col=c("black","red", "steelblue"), pch=c(1,1,1))
+# #dev.off()
+# 
+# #lets do something similar to see the number of egg events   
+#   eggetotweek <- c(1:length(unique(Compile$week))*NA)
+#   eggeinfweek <- c(1:length(unique(Compile$week))*NA)
+#   eggeconweek <- c(1:length(unique(Compile$week))*NA)
+#   for (i in 1:length(unique(Compile$week))){
+#     week<-which(Compile$week==i)
+#     eggetotweek[i]<-sum(Compile$eggevent[week], na.rm=TRUE)
+#     inf<-intersect(week, infected)
+#     con<-intersect(week, controlled)
+#     eggeinfweek[i]<-sum(Compile$eggevent[inf], na.rm=TRUE)
+#     eggeconweek[i]<-sum(Compile$eggevent[con], na.rm=TRUE)
+#   }
+#   
+# plot(eggetotweek)
+#   points(eggeinfweek, col="red")
+#   points(eggeconweek, col="steelblue")
+#   legend("topright", c("infected","controls"), 
+#          col=c("red", "steelblue"), pch=c(1,1))
+#   
+#   #lets get a better view by looking at percents
+#   peregeinfweek<-eggeinfweek/length(infect)
+#   peregeconweek<-eggeconweek/length(controls)
+#   
+#   plot(peregeinfweek, type="o", col="red", xlab="Week", ylab="Proportion of Insects that Laid Eggs", 
+#        main="Proportion Insects that Laid in Infected and Controls by Week")
+#   lines(peregeconweek, col="steelblue", type="o")
+#   legend("topright", c("infected","controls"), 
+#          col=c("red", "steelblue"), pch=c(1,1))
+# 
+# #now we need to see proportion of alive insects    
+#   proeggeinfweek<-eggeinfweek/aliveinfweek
+#   proeggeconweek<-eggeconweek/aliveconweek 
+#   
+# ##see if we can add Confidence Intervals below
+# #pdf("PerAlvInsctsLaidEggsbyWeek")
+#   plot(proeggeinfweek, type="o", col="red", xlab="Week", ylab="Proportion of Alive Insects that Laid Eggs", 
+#        main="Proportion of Alive Insects that Laid in Infected and Controls by Week")
+#   lines(proeggeconweek, col="steelblue")
+#   legend("bottomleft", c("infected","controls"), 
+#          col=c("red", "steelblue"), pch=c(1,1))
+# # dev.off()
+# #now to do that with the total number of eggs.  
+#   eggstotweek <- c(1:length(unique(Compile$week))*NA)
+#   eggsinfweek <- c(1:length(unique(Compile$week))*NA)
+#   eggsconweek <- c(1:length(unique(Compile$week))*NA)
+#   for (i in 1:length(unique(Compile$week))){
+#     week<-which(Compile$week==i)
+#     eggstotweek[i]<-sum(Compile$eggs[week], na.rm=TRUE)
+#     inf<-intersect(week, infected)
+#     con<-intersect(week, controlled)
+#     eggsinfweek[i]<-sum(Compile$eggs[inf], na.rm=TRUE)
+#     eggsconweek[i]<-sum(Compile$eggs[con], na.rm=TRUE)
+#   }
+#   
+#   plot(eggstotweek)
+#   points(eggsinfweek, col="red")
+#   points(eggsconweek, col="steelblue")
+#   legend("topright", c("infected","controls"), 
+#          col=c("red", "steelblue"), pch=c(1,1))
+#   
+#   #lets get a better view by looking at percents
+#   peregsinfweek<-eggsinfweek/length(infect)
+#   peregsconweek<-eggsconweek/length(controls)
+#   
+#   plot(peregsinfweek, type="o", col="red", xlab="Week", ylab="Number of Eggs Laid Per Insect", 
+#        main="Eggs Laid Per Insect by Week")
+#   lines(peregsconweek, col="steelblue")
+#   legend("topright", c("infected","controls"), 
+#          col=c("red", "steelblue"), pch=c(1,1))
+#   
+#   #now we need to see proportion of alive insects    
+#   proeggsinfweek<-eggsinfweek/aliveinfweek
+#   proeggsconweek<-eggsconweek/aliveconweek 
+#   par(mfrow=c(1,1))
+# #  pdf(graphs/NmbEggsByAlvInsctbyWeekYInfyCont.pdf)
+#   #consider how to add CI's
+#   plot(proeggsinfweek, type="o", col="red", xlab="Week", ylab="Num Eggs Per Alive Insect", 
+#        main="Number of Eggs Per Alive Insect by Week and Treatment Group")
+#   lines(proeggsconweek, col="steelblue", type="o")
+#   legend("topright", c("infected","controls"), 
+#          col=c("red", "steelblue"), pch=c(1,1))
+# #  dev.off()
+#   
+#   
+# #Now lets observe percentage of insects hatching
+#   plot(Compile$week, Compile$perferc, na.rm=TRUE)
+#   
+# ######################################################################  
+# #plot humidity and temperature over time
+# Compile$avhum <- as.numeric(Compile$avhum)
+# plot(Compile$date, Compile$avhum,col="dodgerblue", ylim=c(24,60),
+#      main="Temperature and Humidity", ylab="Relative Humidity(%) and Temperature(C)",
+#      xlab="Date")
+# points(Compile$date, Compile$avtemp, col="tomato")
+# legend("topleft", c("Humidity", "Temperature"), text.col=c("dodgerblue","tomato"))
+# 
+# #eggs laid by humidity
+# humeggs<-lm(Compile$eggs ~Compile$avhum)
+# plot(Compile$avhum, Compile$eggs+rnorm(length(Compile$eggs), 0, 0.5),
+#      main="Eggs by Humidity", ylab="Number of Eggs",
+#      xlab="Humidity(%)")
+# abline(humeggs)
+# #summary(humeggs)
+# 
+# #eggs by average hum
+# egghum<-ggplot(aes( y= eggs, x= avhum, na.rm=TRUE), 
+#                data=Compile[enona,])+geom_point(data=Compile[enona,])
+# egghum<-egghum+ggtitle("Number of Eggs Laid by Humidity and Infection Status") 
+# egghum<-egghum+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# egghum
+# 
+# #eggs by average high hum
+# egghumavhigh<-ggplot(aes( y= eggs, x= avhumhigh, na.rm=TRUE), 
+#                data=Compile[enona,])+geom_point(data=Compile[enona,])
+# egghumavhigh<-egghumavhigh+ggtitle("Number of Eggs Laid by Max Humidity and Infection Status") 
+# egghumavhigh<-egghumavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# egghumavhigh
+# #eggs by average low hum
+# egghumavlow<-ggplot(aes( y= eggs, x= avhumlow, na.rm=TRUE), 
+#                    data=Compile[enona,])+geom_point(data=Compile[enona,])
+# egghumavlow<-egghumavlow+ggtitle("Number of Eggs Laid by Average Low Humidity and Infection Status") 
+# egghumavlow<-egghumavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# egghumavlow
+# 
+# #eggs by week max high
+# egghumhigh<-ggplot(aes( y= eggs, x= hummax, na.rm=TRUE), 
+#                      data=Compile[enona,])+geom_point(data=Compile[enona,])
+# egghumhigh<-egghumhigh+ggtitle("Number of Eggs Laid by Max Humidity and Infection Status") 
+# egghumhigh<-egghumhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# egghumhigh
+# #eggs by week low high
+# egghumlow<-ggplot(aes( y= eggs, x= hummin, na.rm=TRUE), 
+#                    data=Compile[enona,])+geom_point(data=Compile[enona,])
+# egghumlow<-egghumlow+ggtitle("Number of Eggs Laid by Low Humidity and Infection Status") 
+# egghumlow<-egghumlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# egghumlow
+# #eggs by hum diff
+# egghumdiff<-ggplot(aes( y= eggs, x= humdiff, na.rm=TRUE),
+#   data=Compile[enona,])+geom_point(data=Compile[enona,])
+# egghumdiff<-egghumdiff+ggtitle("Number of Eggs Laid by Largest Humidity Difference and Infection Status") 
+# egghumdiff<-egghumdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# egghumdiff
+# ################################################
+# #same for temp
+# #plot temperature by eggs
+# Compile$avtemp <- as.character(Compile$avtemp)
+# tempeggs<-lm(Compile$eggs ~Compile$avtemp)
+# plot(Compile$avtemp, Compile$eggs,
+#      main="Eggs by Temperature", ylab="Number of Eggs",
+#      xlab="Temperature(C)")
+# #eggs by average temp
+# eggtemp<-ggplot(aes( y= eggs, x= avtemp, na.rm=TRUE), 
+#                data=Compile[enona,])+geom_point(data=Compile[enona,])
+# eggtemp<-eggtemp+ggtitle("Number of Eggs Laid by Average Temperature and Infection Status") 
+# eggtemp<-eggtemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# eggtemp
+# 
+# #eggs by average high hum
+# eggtempavhigh<-ggplot(aes( y= eggs, x= avtemphigh, na.rm=TRUE), 
+#                      data=Compile[enona,])+geom_point(data=Compile[enona,])
+# eggtempavhigh<-eggtempavhigh+ggtitle("Number of Eggs Laid by Avg High Temp and Infection Status") 
+# eggtempavhigh<-eggtempavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# eggtempavhigh
+# #eggs by average low hum
+# eggtempavlow<-ggplot(aes( y= eggs, x= avtemplow, na.rm=TRUE), 
+#                     data=Compile[enona,])+geom_point(data=Compile[enona,])
+# eggtempavlow<-eggtempavlow+ggtitle("Number of Eggs Laid by Avg Low Temperature and Infection Status") 
+# eggtempavlow<-eggtempavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# eggtempavlow
+# 
+# #eggs by week max high
+# eggtemphigh<-ggplot(aes( y= eggs, x= tempmax, na.rm=TRUE), 
+#                    data=Compile[enona,])+geom_point(data=Compile[enona,])
+# eggtemphigh<-eggtemphigh+ggtitle("Number of Eggs Laid by Max Temperature and Infection Status") 
+# eggtemphigh<-eggtemphigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# eggtemphigh
+# #eggs by week low high
+# eggtemplow<-ggplot(aes( y= eggs, x= tempmin, na.rm=TRUE), 
+#                   data=Compile[enona,])+geom_point(data=Compile[enona,])
+# eggtemplow<-egghumlow+ggtitle("Number of Eggs Laid by Low Temperature and Infection Status") 
+# eggtemplow<-egghumlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# eggtemplow
+# #eggs by temp diff
+# eggtempdiff<-ggplot(aes( y= eggs, x= tempdiff, na.rm=TRUE),
+#                    data=Compile[enona,])+geom_point(data=Compile[enona,])
+# eggtempdiff<-eggtempdiff+ggtitle("Number of Eggs Laid by Largest Temperature Difference and Infection Status") 
+# eggtempdiff<-eggtempdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# eggtempdiff
+# 
+# Compile$avtemp <- as.numeric(Compile$avtemp)
+# eggtem<-ggplot(aes( y= eggs, x= avtemp, na.rm=TRUE), 
+#                data=Compile[enona,])+geom_point(data=Compile[enona,])
+# eggtem<-eggtem+ggtitle("Number of Eggs Laid by Temperature and Infection Status") 
+# eggtem<-eggtem+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# eggtem
+# 
+# ###################
+# #Now for hatching
+# #hatch by humidity
+# humhatch<-lm(Compile$hatch ~Compile$avhum)
+# plot(Compile$avhum, Compile$hatch,
+#      main="Hatching by Humidity", ylab="Number of Eggs",
+#      xlab="Humidity(%)")
+# 
+# #hatch by average hum
+# hchhum<-ggplot(aes( y= hatch, x= avhum, na.rm=TRUE), 
+#                data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchhum<-hchhum+ggtitle("Number of Eggs Hatched by Humidity and Infection Status") 
+# hchhum<-hchhum+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchhum
+# 
+# #hatch average high hum
+# hchhumavhigh<-ggplot(aes( y= hatch, x= avhumhigh, na.rm=TRUE), 
+#                      data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchhumavhigh<-hchhumavhigh+ggtitle("Number of Eggs Hatched by Max Humidity and Infection Status") 
+# hchhumavhigh<-hchhumavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchhumavhigh
+# #hatch by average low hum
+# hchhumavlow<-ggplot(aes( y= hatch, x= avhumlow, na.rm=TRUE), 
+#                     data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchhumavlow<-hchhumavlow+ggtitle("Number of Eggs Hatched by Average Low Humidity and Infection Status") 
+# hchhumavlow<-hchhumavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchhumavlow
+# 
+# #hatch by week max high
+# hchhumhigh<-ggplot(aes( y= hatch, x= hummax, na.rm=TRUE), 
+#                    data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchhumhigh<-hchhumhigh+ggtitle("Number of Eggs Hatched by Max Humidity and Infection Status") 
+# hchhumhigh<-hchhumhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchhumhigh
+# #hatch by week low high
+# hchhumlow<-ggplot(aes( y= hatch, x= hummin, na.rm=TRUE), 
+#                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchhumlow<-hchhumlow+ggtitle("Number of Eggs Hatched by Low Humidity and Infection Status") 
+# hchhumlow<-hchhumlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchhumlow
+# #hatch by hum diff
+# hchhumdiff<-ggplot(aes( y= hatch, x= humdiff, na.rm=TRUE),
+#                    data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchhumdiff<-hchhumdiff+ggtitle("Number of Eggs Hatced by Largest Humidity Difference and Infection Status") 
+# hchhumdiff<-hchhumdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchhumdiff
+# ############################
+# #hatch by temp
+# temphatch<-lm(Compile$hatch ~Compile$avtemp)
+# plot(Compile$avtemp, Compile$hatch,
+#      main="Hatching by Temperature", ylab="Number of Eggs",
+#      xlab="Temperature(C)")
+# 
+# #hatch by average temp
+# hchtemp<-ggplot(aes( y= hatch, x= avtemp, na.rm=TRUE), 
+#                data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchtemp<-hchtemp+ggtitle("Number of Eggs Hatched by Temp and Infection Status") 
+# hchtemp<-hchtemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchtemp
+# 
+# #hatch average high temp
+# hchtempavhigh<-ggplot(aes( y= hatch, x= avtemphigh, na.rm=TRUE), 
+#                      data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchtempavhigh<-hchtempavhigh+ggtitle("Number of Eggs Hatched by Max Temp and Infection Status") 
+# hchtempavhigh<-hchtempavhigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchtempavhigh
+# #hatch by average low temp
+# hchtempavlow<-ggplot(aes( y= hatch, x= avtemplow, na.rm=TRUE), 
+#                     data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchtempavlow<-hchtempavlow+ggtitle("Number of Eggs Hatched by Average Low Temp and Infection Status") 
+# hchtempavlow<-hchtempavlow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchtempavlow
+# 
+# #hatch by week max high
+# hchtemphigh<-ggplot(aes( y= hatch, x= tempmax, na.rm=TRUE), 
+#                    data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchtemphigh<-hchtemphigh+ggtitle("Number of Eggs Hatched by Max Temp and Infection Status") 
+# hchtemphigh<-hchtemphigh+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchtemphigh
+# #hatch by week min low 
+# hchtemplow<-ggplot(aes( y= hatch, x= tempmin, na.rm=TRUE), 
+#                   data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchtemplow<-hchtemplow+ggtitle("Number of Eggs Hatched by Low Temp and Infection Status") 
+# hchtemplow<-hchtemplow+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchtemplow
+# #hatch by hum diff
+# hchtempdiff<-ggplot(aes( y= hatch, x= tempdiff, na.rm=TRUE),
+#                    data=Compile[hnona,])+geom_point(data=Compile[hnona,])
+# hchtempdiff<-hchtempdiff+ggtitle("Number of Eggs Hatced by Largest Temp Difference and Infection Status") 
+# hchtempdiff<-hchtempdiff+facet_grid(. ~infected)+geom_smooth(method= "lm")
+# hchtempdiff
+# ################################
+# # ##For each time line
+# # glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, 
+# #subset=28:36, family=poisson())
+# 
+# # #Now lets make a graph of Eggs by week
+# # infected<-which(Compile$infected==1)
+# # controled<-which(Compile$infected==0)
+# # uniquebugs<-unique(Compile$id)
+# # plot(Compile$week[infected], Compile$eggs[infected]+rnorm(length(Compile$eggs[infected]), 0.5, 1), col="red")
+# # 
+# # #Now lets make a graphs o week and date by eggs of infected insects
+# # infected<-which(Compile$infected==1)
+# # controled<-which(Compile$infected==0)
+# # uniquebugs<-unique(Compile$id)
+# # plot(Compile$week[infected], Compile$eggs[infected], col="red")
+# # plot(Compile$date[infected], Compile$eggs[infected], col="red")     
+# 
+# #Compare infected hatch and by week.
+# par(mfrow=c(2,4))
+# #infected
+# #pdf(file="graphs/EggsandHatchvsWeekboxanddotplots.pdf")
+# plot(Compile$week[infected], Compile$eggs[infected], main="Infected Eggs Laid by Week",
+#      ylab="Weeks", xlab="Eggs")
+# boxplot(Compile$eggs[infected] ~c(Compile$week[infected]), main="Infected Eggs Laid by Week",
+#         ylab="Weeks", xlab="Eggs")
+# plot(Compile$week[infected], Compile$hatch[infected], main="Infected Eggs Hatched by Week",
+#      ylab="Weeks", xlab="Eggs")
+# boxplot(Compile$hatch[infected] ~Compile$week[infected], main="Infected Eggs Hatched by Week",
+#         ylab="Weeks", xlab="Eggs")
+# #not infected
+# plot(Compile$week[controled], Compile$eggs[controled], main="Control Eggs Laid by Week",
+#      ylab="Weeks", xlab="Eggs")
+# boxplot(Compile$eggs[controled] ~Compile$week[controled], main="Control Eggs Laid by Week",
+#         ylab="Weeks", xlab="Eggs")
+# plot(Compile$week[controled], Compile$hatch[controled], main="Control Eggs Hatched by Week",
+#      ylab="Weeks", xlab="Eggs")
+# boxplot(Compile$hatch[controled] ~Compile$week[controled], main="Control Eggs Hatched by Week",
+#         ylab="Weeks", xlab="Eggs")
+# #dev.off()
 
-#Compare infected hatch and by week.
-par(mfrow=c(2,4))
-#infected
-#pdf(file="graphs/EggsandHatchvsWeekboxanddotplots.pdf")
-plot(Compile$week[infected], Compile$eggs[infected], main="Infected Eggs Laid by Week",
-     ylab="Weeks", xlab="Eggs")
-boxplot(Compile$eggs[infected] ~c(Compile$week[infected]), main="Infected Eggs Laid by Week",
-        ylab="Weeks", xlab="Eggs")
-plot(Compile$week[infected], Compile$hatch[infected], main="Infected Eggs Hatched by Week",
-     ylab="Weeks", xlab="Eggs")
-boxplot(Compile$hatch[infected] ~Compile$week[infected], main="Infected Eggs Hatched by Week",
-        ylab="Weeks", xlab="Eggs")
-#not infected
-plot(Compile$week[controled], Compile$eggs[controled], main="Control Eggs Laid by Week",
-     ylab="Weeks", xlab="Eggs")
-boxplot(Compile$eggs[controled] ~Compile$week[controled], main="Control Eggs Laid by Week",
-        ylab="Weeks", xlab="Eggs")
-plot(Compile$week[controled], Compile$hatch[controled], main="Control Eggs Hatched by Week",
-     ylab="Weeks", xlab="Eggs")
-boxplot(Compile$hatch[controled] ~Compile$week[controled], main="Control Eggs Hatched by Week",
-        ylab="Weeks", xlab="Eggs")
-#dev.off()
+write.csv(Compile,"CompiledFertilityData.csv")
 
 ###############################################################################
 #==============================================================================
@@ -998,24 +1069,285 @@ boxplot(Compile$hatch[controled] ~Compile$week[controled], main="Control Eggs Ha
 #glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, subset=28:36, family=poisson())
 #fake code template
 
-mod1<-gee(eggs ~infected, id=id, data=Compile, family=poisson, corstr="exchangeable", Mv=1)
+#Bring in Compiled data exported from code above.
+Compile<-read.csv("CompiledFertilityData.csv")
 
+#for box plots week was categorical.  This makes a numeric column.
 Compile$weeknum<-as.numeric(Compile$week)
-mod2a <- glm(eggs ~ infected + (1|idnum), data = Compile, family = poisson)
-mod2b <- glm(eggs ~ infected+weeknum + (1|idnum), data = Compile, family = poisson)
-mod2c <- glm(eggs ~ infected+weeknum+ avtemp + (1|idnum), data = Compile, family = poisson)
-mod2d<- glm(eggs ~ infected+weeknum+ avtemp + avhum+ (1|idnum), data = Compile, family = poisson)
-mod2e<- glm(eggs ~ infected+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family = poisson)
-mod2f<- glm(eggs ~ infected+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family = neg.bin())
+
+#I am also going to make a table with all egg and hatch are no longer NA but 0 
+Compile$hatchdiff<-Compile$eggs-Compile$hatch
+CompileNoNA<-Compile
+eggna <- which(is.na(CompileNoNA$eggs)==TRUE)
+hatchna <- which(is.na(CompileNoNA$hatch)==TRUE)
+CompileNoNA$eggs[eggna]<-0
+CompileNoNA$hatch[hatchna]<-0
+
+#Make Compile where NA's eggs are removed. 
+CompileRD<-Compile[-eggna,]
+
+#One final change to the data frames, I would like to make a julian day vector.
+#provides numeric value for possible seasonaility analysis from the initial observation. 
+#careful this is not necessesary
+dateRD<-julian.Date(CompileRD$date)
+startDate<-julian.Date(CompileRD$start)
+mindate<-min(startDate)
+CompileRD$juliandate<-dateRD-startDate
+
+#we found that we need to conduct a cox proportional hazaard test for time until first egg
+#thus we need to first reverse the binary of egg event.
+Compile$reveggevent<-1-Compile$eggevent
+#http://socserv.socsci.mcmaster.ca/jfox/Books/Companion/appendix/Appendix-Cox-Regression.pdf
+sevent<-Surv(time=CompileRD$weeknum, event=CompileRD$eggevent)
+CoxEggLaid<-coxph(sevent~infected+cluster(idnum), data=CompileRD)
+summary(survfit(CoxEggLaid, newdata =))
+#because events occur more than once its a mess because "+" are added.
+hist(CoxEggLaid)
+
+#The models remove the NA's so lets use CompileRD to make two simple graphs
+hist(CompileRD$eggs, breaks=21)
+mean(CompileRD$eggs)3.94
+var(CompileRD$eggs) 17.5
+#This shows that poisson assumptions are not met. 
+#earlier(under the poisson models) I took the variance of a mean by week...which gave me a smaller value of course.
+#But yes, poisson values are not the same.
+
+#lets combine the data to remove 0 inflation
+sums<-function(row){
+  sum(row, na.rm=TRUE)
+}
+C2week<-summaryBy(eggs+hatch+alive~idnum+twoperiod, FUN=c(sums), data=CompileRD)
+C3week<-summaryBy(eggs+hatch+alive~idnum+threeperiod+infected, FUN=c(sums), data=CompileRD)
+
+living2<-which(C2week$alive>=1)
+living3<-which(C3week$alive>=1)
+C2weeklive<-C2week[living2,]
+C3weeklive<-C3week[living3,]
+twomax<-max(C2weeklive$eggs)
+threemax<-max(C3weeklive$eggs)
+hist(C2weeklive$eggs, breaks=twomax)
+hist(C3weeklive$eggs, breaks=threemax)
 
 
-aveggweek<-mean(totegg$xbar, na.rm=T)  #2.61
-var(totegg$xbar, na.rm=T)   #3.48
-upperlimmean<-aveggweek+(1.96*(sd(totegg$xbar, na.rm=T)/sqrt(length(totegg$xbar)))) #3.21
-lowlimvar<-(length(totegg$xbar)-1)*(var(totegg$xbar, na.rm=T))/41.923 #2.98
-#because the means is likely not equal to the variance, poisson is not appropriate
+
+write.csv( C2weeklive, "2weekGroupedFertilityData_simple.csv")
+write.csv(C3weeklive, "3weekGroupedFertilityData_simple.csv")
+
+plot(CompileRD$week, CompileRD$eggs)
+plot(log(CompileRD$week+1+rnorm(length(CompileRD$eggs), 0, 0.5)), CompileRD$eggs+rnorm(length(CompileRD$eggs), 0, 0.5))
+
+#for box plots week was categorical.  This makes a numeric column.
+Compile$weeknum<-as.numeric(Compile$week)
+
+gmod1<-geem(eggs ~infected, id=idnum, data=Compile, family=poisson, corstr="exchangeable", Mv=1)
+
+pmod1a<-glm(eggs ~ +(1|idnum), offset=log(visits+1), data = Compile, family ="poisson") 
+
+pmod1b<-glm(eggs ~ infected, data = Compile, family = poisson) #17383
+pmod1c<-glm(eggs ~ weeknum, data = Compile, family = poisson) #17187
+pmod1d<-glm(eggs ~ mouse, data = Compile, family = poisson) #17113
+pmod1e<-glm(eggs ~ trial, data = Compile, family = poisson) #17695
+pmod1f<-glm(eggs ~ avtemphigh, data = Compile, family = poisson) #17695
+pmod1g<-glm(eggs ~ avtemplow, data = Compile, family = poisson) #17322
+pmod1h<-glm(eggs ~ avtemp, data = Compile, family = poisson) #17417
+pmod1i<-glm(eggs ~ tempmax, data = Compile, family = poisson) #17356
+pmod1j<-glm(eggs ~ tempmin, data = Compile, family = poisson) #17284
+pmod1k<-glm(eggs ~ tempdiff, data = Compile, family = poisson) #17413
+pmod1l<-glm(eggs ~ avhumhigh, data = Compile, family = poisson) #17419
+pmod1m<-glm(eggs ~ avhumlow, data = Compile, family = poisson) #17440
+pmod1n<-glm(eggs ~ avhum, data = Compile, family = poisson) #17450
+pmod1o<-glm(eggs ~ hummax, data = Compile, family = poisson) #17442
+pmod1p<-glm(eggs ~ hummin, data = Compile, family = poisson) #17482
+pmod1q<-glm(eggs ~ humdiff, data = Compile, family = poisson) #17452
+
+
+pmod2a2 <- glm(eggs ~ week + (1|idnum), data = Compile, family = poisson) #17383
+
+pmod2a <- glm(eggs ~ infected + (1|idnum), data = Compile, family = poisson) #17383
+pmod2al <- glm(eggs ~ infected+weeknum, data = Compile, family = poisson) 
+pmod2am <- glm(eggs ~ mouse + (1|idnum), data = Compile, family = poisson) #17113
+pmod2both <- glm(eggs ~ mouse + infected+ (1|idnum), data = Compile, family = poisson) #17113
+pmod2b <- glm(eggs ~ infected+weeknum + (1|idnum), data = Compile, family = poisson) #16713
+pmod2c <- glm(eggs ~ infected+weeknum+ avtemp + (1|idnum), data = Compile, family = poisson)#16545
+pmod2d<- glm(eggs ~ infected+weeknum+ avtemp + avhum+ (1|idnum), data = Compile, family = poisson)#1647416
+pmod2e<- glm(eggs ~ infected+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family = poisson)#
+#mod2f<- glm(eggs ~ infected+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family = neg.bin())
+pmod2fboth<- glm(eggs ~ infected+mouse+weeknum+ avtemp + avhum+alive+ (1|idnum), data = Compile, family =poisson)#16075
+
+
+#plotting models onto the original data. use model$fitted on the NA removed dataframe
+plot(CompileRD$week, CompileRD$eggs)
+lines(CompileRD$week, pmod2a2$fitted)
+
+
+
+#check assumptions for poisson.  This uses values from above so disregard.
+#aveggweek<-mean(totegg$xbar, na.rm=T)  #2.61
+#var(totegg$xbar, na.rm=T)   #3.48
+#upperlimmean<-aveggweek+(1.96*(sd(totegg$xbar, na.rm=T)/sqrt(length(totegg$xbar)))) #3.21
+#lowlimvar<-(length(totegg$xbar)-1)*(var(totegg$xbar, na.rm=T))/41.923 #2.98
+#does not survive hypothesis test that they are 
 
 #using MASS package, use the glm.nb for a negative binomial model
-nbmod1<-glm.nb(eggs ~ infected+weeknum+avtemp+avhum + (1|idnum), data=Compile)
-nbmod2<-glm.nb(eggs ~ infected+weeknum+avhum+ (1|idnum), data=Compile)
-nbmod3<-glm.nb(eggs ~ infected+weeknum+avhum+ (1|idnum), data=Compile)
+#run model and look at AICs, below there is a formula to interpret. But basically if AIC is >3
+
+#############Negative Binomial###################
+#at the end of the day we want to know if infection is responsible for change eggs
+#when other envir. factors excluded and the change in lifespan.
+#how I understand, not having interaction will only change intercept, not slope
+nbmod1a<-glm.nb(eggs ~ weeknum+ (1|idnum), data=Compile) #AIC= 11999 (much better than any poisson)
+nbmod1b<-glm.nb(eggs ~ infected+weeknum+ (1|idnum), data=Compile) #AIC 11917
+nbmod1c<-glm.nb(eggs ~ infected*weeknum+ (1|idnum), data=Compile) #AIC 11911 (AIC of >=6 is sign.)
+
+#now we have a base model, lets look at how humidity and temperature affect
+nbmod2a<-glm.nb(eggs ~ infected*weeknum+avhum+ (1|idnum), data=Compile) #AIC=11858
+nbmod2b<-glm.nb(eggs ~ infected*weeknum+avhum+avhum*infected+(1|idnum), data=Compile)# 11816
+nbmod2c<-glm.nb(eggs ~ infected*weeknum+avhumhigh+(1|idnum), data=Compile)#11858
+nbmod2d<-glm.nb(eggs ~ infected*weeknum+avhumhigh+avhumhigh*infected+(1|idnum), data=Compile)#11821
+nbmod2e<-glm.nb(eggs ~ infected*weeknum+avhumlow+ (1|idnum), data=Compile)#11851
+nbmod2f<-glm.nb(eggs ~ infected*weeknum+avhumlow+avhumlow*infected+(1|idnum), data=Compile)#11813
+nbmod2g<-glm.nb(eggs ~ infected*weeknum+avtemp+(1|idnum), data=Compile)#11850
+nbmod2h<-glm.nb(eggs ~ infected*weeknum+avtemp+avtemp*infected+(1|idnum), data=Compile)# 11846
+nbmod2i<-glm.nb(eggs ~ infected*weeknum+avtemphigh+(1|idnum), data=Compile)# 11853
+nbmod2j<-glm.nb(eggs ~ infected*weeknum+avtemphigh+avtemphigh*infected+(1|idnum), data=Compile)#11848
+nbmod2k<-glm.nb(eggs ~ infected*weeknum+avtemplow+(1|idnum), data=Compile)#11850
+nbmod2l<-glm.nb(eggs ~ infected*weeknum+avtemplow+avtemplow*infected+(1|idnum), data=Compile)#11848
+nbmod2m<-glm.nb(eggs ~ infected*weeknum+hummax+(1|idnum), data=Compile)#11857
+nbmod2n<-glm.nb(eggs ~ infected*weeknum+hummax+hummax*infected+(1|idnum), data=Compile)#11830
+nbmod2o<-glm.nb(eggs ~ infected*weeknum+hummin+ (1|idnum), data=Compile) #11858
+nbmod2p<-glm.nb(eggs ~ infected*weeknum+hummin+hummin*infected+(1|idnum), data=Compile) #11810
+nbmod2q<-glm.nb(eggs ~ infected*weeknum+humdiff+(1|idnum), data=Compile)# 11859
+nbmod2r<-glm.nb(eggs ~ infected*weeknum+humdiff+humdiff*infected+(1|idnum), data=Compile)#11860
+nbmod2s<-glm.nb(eggs ~ infected*weeknum+tempmax+ (1|idnum), data=Compile)#11853
+nbmod2t<-glm.nb(eggs ~ infected*weeknum+tempmax+tempmax*infected+(1|idnum), data=Compile)#11854
+nbmod2u<-glm.nb(eggs ~ infected*weeknum+tempmin+(1|idnum), data=Compile)#11847
+nbmod2v<-glm.nb(eggs ~ infected*weeknum+avhum+tempmin*infected+(1|idnum), data=Compile)#11841
+nbmod2w<-glm.nb(eggs ~ infected*weeknum+avhum+(1|idnum), data=Compile)#11858
+nbmod2z<-glm.nb(eggs ~ infected*weeknum+avhum+avhum*infected+(1|idnum), data=Compile)#11816
+
+#Now we have strongest hum temp.  Lets add the missing pieces.
+
+###OLD stuf
+nbmod1<-glm.nb(eggs ~ infected+weeknum+avhum+ (1|idnum), data=Compile) #AIC 11867
+nbmod2<-glm.nb(eggs ~ infected+weeknum+avtemp+ (1|idnum), data=Compile) #AIC 11858
+nbmod3<-glm.nb(eggs ~ infected+weeknum+avhum+avtemp + (1|idnum), data=Compile) #AIC 11852
+nbmod3a<-glm.nb(eggs ~ infected+weeknum+avhum*avtemp + (1|idnum) , data=Compile) #AIC 11852
+nbmod4<-glm.nb(eggs ~ infected+weeknum+avhum+avtemphigh+(1|idnum), data=Compile)#11855
+nbmod5<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+ (1|idnum), data=Compile) #11824
+nbmod6<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+infected*mouse+ (1|idnum), data=Compile) #11824
+#6 was the same as 5 because there interactions are themselves linearly related adding no new information.
+nbmod7<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+alive+ (1|idnum), data=Compile)#11824
+nbmod8<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+(1|idnum), data=Compile) #11789
+#now letsa add the difference.
+nbmod9<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+humdiff+(1|idnum), data=Compile) #11791
+nbmod10<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempdiff+(1|idnum), data=Compile) #11791
+#adding temp/hum diff does not add significantly to the model
+nbmod11<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+hummax+(1|idnum), data=Compile) #11791
+nbmod12<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempmax+(1|idnum), data=Compile) #11791
+#as seen in graphs above an infected insect may be affected differently by temp/hum affects.
+#thus lets add an interaction term.
+nbmod13<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempmax+infected*avhum+(1|idnum), data=Compile)#11741
+nbmod14<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempmax+infected*avtemp+(1|idnum), data=Compile)#11777
+nbmod15<-glm.nb(eggs ~ infected+weeknum+avhum+mouse+avtemp+tempmax+infected*avhum+infected*avtemp+(1|idnum), data=Compile)#11750
+#hence an interaction with humidity plays a bigger role than temperature or both interactions.
+nbmod16<-glm.nb(eggs ~ infected+weeknum+avhum+avtemp+infected*avhum+(1|idnum), data=Compile)
+#lets look at humidity variations keeping all else constant.  ()
+#lets see if they are some better predictor for hum other than avhum
+nbmod13<-glm.nb(eggs ~ infected+weeknum+mouse+hummax+avtemp+(1|idnum), data=Compile)#11794
+
+#lets look at the plot for the negative binomial version of the simplest model.
+plot(CompileRD$week, CompileRD$eggs)
+lines(CompileRD$week, nbmod0$fitted)
+mean(nbmod0$fitted)
+mean(CompileRD$eggs)
+
+
+#Plotting Residuals and predicted values.
+par(mfrow=c(2,4))
+pdf(file="Poisson vs Negative Binomial Model of eggs by infected+weeknum+ (1 idnum).pdf")
+plot(nbmod0, ylim=4)
+title(main="Negative Binomial")
+plot(mod2b)
+title(main="Poisson")
+
+#http://www.ats.ucla.edu/stat/r/dae/zinbreg.htm Describes a 0 inflated negative binomial
+zinbmod1 <- zeroinfl(eggs ~ weeknum + infected | persons,
+data = zinb, dist = "negbin", EM = TRUE)
+summary(m1)
+
+
+#alive is not helpful because NA's are already removed.
+#lets plot to get a sense of where we're at
+par(mfrow=c(1,1))
+plot(nbmod13)
+summary()
+
+testplot<-ggplot(aes( y= eggs, x= weeknum, na.rm=TRUE), 
+               data=Compile)+geom_point(data=Compile)
+testplot<-testplot+ggtitle("Number of Eggs Laid by Week and Infection Status") 
+testplot<-testplot+facet_grid(. ~infected)+geom_smooth(method= "lm")
+testplot
+
+plot(residuals(nbmod13))
+
+
+#####MODEL FOR HATCH
+
+#exp((AICmin-AICi)/2)=Probablity that i minimalizes information loss just as well as min.
+#ln(prob)=AICmin-AICi/2
+#2e^prob=difference between AICs.  
+#if sign prob is 0.05 then
+2*(log(0.05))
+# thus a difference in AIC of 6 o greater is a significant similar probablity for now.
+test1<-exp((11824-11852)/2)
+
+plot(Compile$weeknum, Compile$eggs)
+
+
+lrtest(nbmod1, nbmod2)
+lrtest(nbmod2,nbmod3)
+
+
+#attemp ggem
+geem1<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile)
+geem2<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279))
+geem2<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=poisson)
+geem3<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, corstr="ar1")
+geem4<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar1")
+geem5<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar2")
+geem6<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar3")
+
+
+# Zero Inflated Negative Binomial
+
+
+
+#maybe try "nlme" package
+
+#--------------
+#--------------------------------------------------------------------------
+# Code to extract coeff., 95CIs, and define final estimates with p-values
+#--------------------------------------------------------------------------
+
+# # use following commands for confident intervals and coefficients:
+# confint()
+# exp(coef())
+# exp(confint())
+
+# Disabling scientific notation
+## Enable at the end with options(scipen = 0)!!! 
+# 
+# options(scipen = 999)
+# library(lme4)
+# 
+# # Defining function to get the final estimates:
+# # IRR, 95%CI, and p-value
+# 
+# estimates<-function(x, print = TRUE){
+#   ul<-coef(summary(x))[,1] + qnorm(0.975)*coef(summary(x))[,2]
+#   ll<-coef(summary(x))[,1] + qnorm(0.025)*coef(summary(x))[,2]
+#   logIRR.x<-cbind(coef(summary(x))[,1], ll, ul)
+#   result<-IRR.x<-cbind(exp(logIRR.x), coef(summary(x))[,4])
+#   return(result)
+# }  
+
