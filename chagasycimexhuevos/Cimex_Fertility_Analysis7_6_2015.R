@@ -508,7 +508,7 @@ dev.off()
 
 #Put them al on one graph
 #pdf(file="graphs/AllRepsAvgEggLaidbtwnAlvbtwnInfContbyWeek.pdf")
-plot(iPLegg$xbar, type="o", main="Average Eggs Laid Alive Between Infected and Control Insects",
+plot(iPLegg$xbar, type="o", main="Average Eggs Laid Amoung Alive Insects by Infection Status",
      ylab="Number of eggs", xlab="Week in Study", col=2, pch=18, lty=1, ylim=c(0,10))
 lines(cPLegg$xbar, type="o", pch=1, col=4, lty=1)
 lines(iRAegg$xbar, type="o", pch=2, col=2, lty=2)
@@ -671,6 +671,7 @@ Compile$week<-as.factor(Compile$week)
 g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
        data= Compile[enona,]) +geom_boxplot(data=Compile[enona,])
 g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status Each Week")
+g+scale_fill_manual(values=c("blue", "red"))
 g
 #dev.off()
 
@@ -1445,6 +1446,10 @@ geem6<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.bin
 
 
 geemnb<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(1))
+geemnb1<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(1))
+
+
+
 geemp<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=poisson)
 
 # QIC in R custom http://www.r-bloggers.com/r-script-to-calculate-qic-for-generalized-estimating-equation-gee-model-selection/
