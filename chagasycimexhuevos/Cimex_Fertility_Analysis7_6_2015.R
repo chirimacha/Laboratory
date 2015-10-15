@@ -497,7 +497,7 @@ legend("topright", c("infected","controls","95% CI"), col=c("darkorange1", "dodg
 #dev.off()
 
 #Por Rep2
-pdf("graphs/AvgEggsLaidBtwnAlvInfyCntrlR2byWeek.pdf")
+#pdf("graphs/AvgEggsLaidBtwnAlvInfyCntrlR2byWeek.pdf")
 plot(iRBegg$xbar, type="o", main="Average Eggs Laid Between Infected and Control Insects in Rep 2",
      ylab="Number of eggs", xlab="Week in Study", col="darkorange1", pch=18, ylim=c(1,9))
   points(iRBegg$uCI, col="darkorange1") 
@@ -506,7 +506,7 @@ plot(iRBegg$xbar, type="o", main="Average Eggs Laid Between Infected and Control
   points(cRBegg$lCI, col="dodgerblue1")
   lines(cRBegg$xbar, type="o", pch=16, col="dodgerblue1")
  legend("topright", c("infected","controls","95% CI"), col=c("darkorange1", "dodgerblue1","black"), pch=c(18,16,1))
-dev.off()
+#dev.off()
 
 #Put them al on one graph
 #pdf(file="graphs/AllRepsAvgEggLaidbtwnAlvbtwnInfContbyWeek.pdf")
@@ -676,10 +676,11 @@ g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
 g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status Each Week")
 g<-g+scale_fill_manual(values=c("blue", "red"))
 #g<-g+scale_x_continuous(breaks=seq(0, 38, 2))
+#g<-g+scale_x_discrete(labels=c("", seq())
 g
 
-ggsave(g, file="BoxPlotDistNumEggLaidbyInfectionStatusbyWeek.jpeg", units= "cm",
-      width = 26.4, height= 15.875)
+#ggsave(g, file="BoxPlotDistNumEggLaidbyInfectionStatusbyWeek.jpeg", units= "cm",
+#   width = 26.4, height= 15.875)
       
 #dev.off()
 
@@ -688,7 +689,11 @@ ggsave(g, file="BoxPlotDistNumEggLaidbyInfectionStatusbyWeek.jpeg", units= "cm",
 h<-ggplot(aes( y= hatch, x= week, fill = infected, na.rm=TRUE), 
        data= Compile[hnona,])+geom_boxplot(data=Compile[hnona,])
 h<-h+ggtitle("Distribution of Number of Eggs Hatched by Infection Status")
+h<-h+scale_fill_manual(values=c("blue", "red"))
 h
+
+ggsave(h, file="BoxPlotDistNumEggHtvhbyInfectionStatusbyWeek.jpeg", units= "cm",
+       width = 26.4, height= 15.875)
 #dev.off()
 
 #Other parts of this study show that life span changes depending on inf
@@ -1151,6 +1156,7 @@ var(CompileRD$eggs) #17.5
 #earlier(under the poisson models) I took the variance of a mean by week...which gave me a smaller value of course.
 #But yes, poisson values are not the same.
 #create a factor for mice so that 
+
 mice<-unique(Compile$mouse)
 mouseidnums<-c(1:length(mice))
 mousetable<-data.frame(mice,mouseidnum)
@@ -1282,8 +1288,7 @@ plot()
 # dev.off()
 
 
-
-
+#write.csv(CompileRD,"ReducedCompiledFertility Data")
 #write.csv( C2weeklive, "2weekGroupedFertilityData_simple.csv")
 #write.csv(C3weeklive, "3weekGroupedFertilityData_simple.csv")
 
@@ -1418,12 +1423,12 @@ mean(CompileRD$eggs)
 
 #Plotting Residuals and predicted values.
 par(mfrow=c(2,4))
-pdf(file="Poisson vs Negative Binomial Model of eggs by infected+weeknum+ (1 idnum).pdf")
+#pdf(file="Poisson vs Negative Binomial Model of eggs by infected+weeknum+ (1 idnum).pdf")
 plot(nbmod0, ylim=4)
 title(main="Negative Binomial")
 plot(mod2b)
 title(main="Poisson")
-
+#dev.off()
 #http://www.ats.ucla.edu/stat/r/dae/zinbreg.htm Describes a 0 inflated negative binomial
 zinbmod1 <- zeroinfl(eggs ~ weeknum + infected | persons,
 data = zinb, dist = "negbin", EM = TRUE)
