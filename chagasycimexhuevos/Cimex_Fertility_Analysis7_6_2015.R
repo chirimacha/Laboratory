@@ -1,4 +1,7 @@
 #packages needed/experimented with
+#install.packages(c("lubridate","reshape2","vioplot", "matrixStats","ggplot",
+     "plyr", "geeM", "MASS", "lmtest", "survval", "doBy"))
+
 library(lubridate) #para extracting dates 
 library(reshape2) #para make the wide data into long data
 library(vioplot)
@@ -8,7 +11,6 @@ library(plyr)  #para rbind.fill function
 library(geeM)
 library(MASS)
 library(lmtest)
-library(nlme)
 #library(pscl)
 library(survival)
 library(doBy)
@@ -667,12 +669,18 @@ Compile$infected<-as.factor(Compile$infected)
 Compile$week<-as.factor(Compile$week)
 
 #the box plot for eggs laid
+par(mfrow=c(1,1))
 #pdf("graphs/NumEggsLaidByWeekYInfyCntlBox.pdf")
 g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
        data= Compile[enona,]) +geom_boxplot(data=Compile[enona,])
 g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status Each Week")
-g+scale_fill_manual(values=c("blue", "red"))
+g<-g+scale_fill_manual(values=c("blue", "red"))
+#g<-g+scale_x_continuous(breaks=seq(0, 38, 2))
 g
+
+ggsave(g, file="BoxPlotDistNumEggLaidbyInfectionStatusbyWeek.jpeg", units= "cm",
+      width = 26.4, height= 15.875)
+      
 #dev.off()
 
 #hatch plot
@@ -1142,6 +1150,19 @@ var(CompileRD$eggs) #17.5
 #This shows that poisson assumptions are not met. 
 #earlier(under the poisson models) I took the variance of a mean by week...which gave me a smaller value of course.
 #But yes, poisson values are not the same.
+#create a factor for mice so that 
+mice<-unique(Compile$mouse)
+mouseidnums<-c(1:length(mice))
+mousetable<-data.frame(mice,mouseidnum)
+mousetable$mouseidnum<-as.factor(mousetable$mouseidnum)
+CompileRD$mouseidnum<-CompileRD$trial*0
+
+for(i in 1:length(mice)){
+  micenumi<-which(mousetable$mouseidnum==i)
+  micematch<-which(CompileRD$mouse==mousetable$mice[micenumi])
+  CompileRD$mouseidnum[micematch]<-i      
+}
+    
 
 #lets combine the data to remove 0 inflation
 #Use the Collapse to break into smaller groups
@@ -1208,7 +1229,11 @@ SummaryCompileRD<-function(segl){
 #lets look at 2 and 3
 C2week<-SummaryCompileRD(2)
 C3week<-SummaryCompileRD(3)
+C5week<-SummaryCompileRD(5)
 C8week<-SummaryCompileRD(8)
+
+#
+fivedead<-which(C5week$alive<5)
 
 #checking code
 zeroeight<-which(C8week$eggs==0)
@@ -1255,6 +1280,8 @@ plot()
 # hist(C2weeklive$eggs, breaks=twomax)
 # hist(C3weeklive$eggs, breaks=threemax)
 # dev.off()
+
+
 
 
 #write.csv( C2weeklive, "2weekGroupedFertilityData_simple.csv")
@@ -1443,12 +1470,21 @@ geem3<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, corstr="ar1")
 geem4<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar1")
 geem5<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar2")
 geem6<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(0.7279),corstr="ar3")
+#starting with most complex model
+CompileRD$mouseidnum<-as.factor(CompileRD$mouseidnum)
+geem7<-geem(eggs ~infected+weeknum+trial+mouseidnum+avhumhigh+avtemphigh, id=idnum, data=CompileRD, family=negative.binomial(0.7279), corstr="exchangeable")
+geem8<-geem(eggs ~infected+weeknum+trial+avhumhigh+avtemphigh, id=idnum, data=CompileRD, family=negative.binomial(0.7279), corstr="exchangeable")
+geem9<-geem(eggs ~infected+weeknum+avhumhigh+avtemphigh, id=idnum, data=CompileRD, family=negative.binomial(0.7279), corstr="exchangeable")
+geem10<-geem(eggs ~infected+weeknum+avtemphigh, id=idnum, data=CompileRD, family=negative.binomial(0.7279), corstr="exchangeable")
+geem11<-geem(eggs ~infected+weeknum, id=idnum, data=CompileRD, family=negative.binomial(0.7279), corstr="exchangeable")
+geem12<-geem(eggs ~infected+weeknum+avtemphigh+avtemphigh*infected, id=idnum, data=CompileRD, family=negative.binomial(0.7279), corstr="exchangeable")
+
+geemp10<-geem(eggs ~infected+weeknum+avtemphigh, id=idnum, data=CompileRD, poisson, corstr="exchangeable")
+geemp12<-geem(eggs ~infected+weeknum+avtemphigh+avtemphigh*infected, id=idnum, data=CompileRD, family=poisson, corstr="exchangeable")
 
 
 geemnb<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(1))
 geemnb1<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=negative.binomial(1))
-
-
 
 geemp<-geem(eggs ~ infected+weeknum, id=idnum, data=Compile, family=poisson)
 
