@@ -1,6 +1,6 @@
 #packages needed/experimented with
 #install.packages(c("lubridate","reshape2","vioplot", "matrixStats","ggplot",
-     "plyr", "geeM", "MASS", "lmtest", "survval", "doBy"))
+#     "plyr", "geeM", "MASS", "lmtest", "survval", "doBy"))
 
 library(lubridate) #para extracting dates 
 library(reshape2) #para make the wide data into long data
@@ -1119,6 +1119,19 @@ Compile$weeknum<-as.numeric(Compile$week)
 
 #I am also going to make a table with all egg and hatch are no longer NA but 0 
 Compile$hatchdiff<-Compile$eggs-Compile$hatch
+Compile$infectedf<-as.factor(Compile$infected)
+Compile$hatchdiff<-as.numeric(Compile$hatchdiff)
+hatchbox<-ggplot(aes( x= hatchdiff, fill = infectedf, na.rm=TRUE),
+          data= Compile[enona,]) +geom_density(alpha=0.5, na.rm=TRUE)#geom_histogram(aes(y="..density.."),position="dodge")
+hatchbox<-hatchbox+ggtitle("Relative denisty of differences between hatched and laid eggs by infection status")
+hatchbox<-hatchbox+scale_fill_manual(values=c("blue", "red"))
+ggsave(g, file="HatchDiffDensity.jpeg", units= "cm", width = 26.4, height= 15.875)
+#g<-g+scale_x_continuous(breaks=seq(0, 38, 2))
+#g<-g+scale_x_discrete(labels=c("", seq())
+hatchbox
+
+#Eggsave(hatchbox, file="HatchDiffDensityByInf.jpeg", units= "cm", width = 26.4, height= 15.875)
+
 CompileNoNA<-Compile
 eggna <- which(is.na(CompileNoNA$eggs)==TRUE)
 hatchna <- which(is.na(CompileNoNA$hatch)==TRUE)
@@ -1144,7 +1157,7 @@ sevent<-Surv(time=CompileRD$weeknum, event=CompileRD$eggevent)
 #need to get rid of the "+"
 
 CoxEggLaid<-coxph(sevent~infected+cluster(idnum), data=CompileRD)
-summary(survfit(CoxEggLaid, newdata =))
+#summary(survfit(CoxEggLaid, newdata =))
 #because events occur more than once its a mess because "+" are added.
 hist(CoxEggLaid)
 
@@ -1483,6 +1496,11 @@ geem9<-geem(eggs ~infected+weeknum+avhumhigh+avtemphigh, id=idnum, data=CompileR
 geem10<-geem(eggs ~infected+weeknum+avtemphigh, id=idnum, data=CompileRD, family=negative.binomial(0.7279), corstr="exchangeable")
 geem11<-geem(eggs ~infected+weeknum, id=idnum, data=CompileRD, family=negative.binomial(0.7279), corstr="exchangeable")
 geem12<-geem(eggs ~infected+weeknum+avtemphigh+avtemphigh*infected, id=idnum, data=CompileRD, family=negative.binomial(0.7279), corstr="exchangeable")
+
+
+
+
+
 
 geemp10<-geem(eggs ~infected+weeknum+avtemphigh, id=idnum, data=CompileRD, poisson, corstr="exchangeable")
 geemp12<-geem(eggs ~infected+weeknum+avtemphigh+avtemphigh*infected, id=idnum, data=CompileRD, family=poisson, corstr="exchangeable")
