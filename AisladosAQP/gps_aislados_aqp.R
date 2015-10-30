@@ -1,5 +1,9 @@
 ## Codigo para la generacion de aislados 
 ## obtenidos por laboratorio en la ciudad de Arequipa
+setwd("~/Laboratory/AisladosAQP")
+
+#installar zoom
+install.packages("zoom")
 
 library(zoom)
 ## Primero abrimos los archivos correspondientes a los
@@ -14,7 +18,7 @@ gps<-read.csv("AREQUIPA_GPS_GOOGLE.csv")
 ais<-read.csv("Base_Aislados_Arequipa_27oct2015.csv")
 
 ## hacemos el merge para juntar las dos bases
-gpsais<-merge(gps,ais,by.x="UNICODE",by.y"unicode",all.x=T)
+gpsais<-merge(gps, ais, by.x="UNICODE", by.y="unicode", all.x=T)
 
 ## enseguida ploteamos el mapa de los gps
 with(gpsais,plot(gpsais$LONGITUDE,gpsais$LATITUDE,asp=1,pch=".",main="AISLADOS AREQUIPA",xlab="Longitude",ylab="Latitude"))
@@ -24,7 +28,7 @@ lines(gpsais$LONGITUDE,gpsais$LATITUDE,cex=sqrt(gpsais$No >0), asp=1,type="p",co
 
 ## para poder realizar el zoom y poder salvar
 ## las imagenes realizamos un zoom
-## zm()
+zm()
 
 ## despues grabamos con
 ## dev.print(device=pdf,"nombre de archivo.pdf")
