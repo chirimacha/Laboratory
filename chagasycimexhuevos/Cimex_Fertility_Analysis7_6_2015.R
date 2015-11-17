@@ -1502,7 +1502,7 @@ geem12<-geem(eggs ~infected+weeknum+avtemphigh+avtemphigh*infected, id=idnum, da
 
 
 
-geemp10<-geem(eggs ~infected+weeknum+avtemphigh, id=idnum, data=CompileRD, poisson, corstr="exchangeable")
+geemp10<-geem(eggs ~infected+weeknum+avtemphigh, id=idnum, data=CompileRD, negative.binomial(theta=2, link="log"), corstr="exchangeable")
 geemp12<-geem(eggs ~infected+weeknum+avtemphigh+avtemphigh*infected, id=idnum, data=CompileRD, family=poisson, corstr="exchangeable")
 
 
