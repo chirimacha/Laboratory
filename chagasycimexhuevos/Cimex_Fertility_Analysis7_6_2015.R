@@ -1064,18 +1064,18 @@ hchtempdiff
 # glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, 
 #subset=28:36, family=poisson())
 
-# #Now lets make a graph of Eggs by week
-# infected<-which(Compile$infected==1)
-# controled<-which(Compile$infected==0)
-# uniquebugs<-unique(Compile$id)
-# plot(Compile$week[infected], Compile$eggs[infected]+rnorm(length(Compile$eggs[infected]), 0.5, 1), col="red")
-# 
-# #Now lets make a graphs o week and date by eggs of infected insects
-# infected<-which(Compile$infected==1)
-# controled<-which(Compile$infected==0)
-# uniquebugs<-unique(Compile$id)
-# plot(Compile$week[infected], Compile$eggs[infected], col="red")
-# plot(Compile$date[infected], Compile$eggs[infected], col="red")     
+#Now lets make a graph of Eggs by week
+infected<-which(Compile$infected==1)
+controled<-which(Compile$infected==0)
+uniquebugs<-unique(Compile$id)
+plot(Compile$week[infected], Compile$eggs[infected]+rnorm(length(Compile$eggs[infected]), 0.5, 1), col="red")
+
+#Now lets make a graphs o week and date by eggs of infected insects
+infected<-which(Compile$infected==1)
+controled<-which(Compile$infected==0)
+uniquebugs<-unique(Compile$id)
+plot(Compile$week[infected], Compile$eggs[infected], col="red")
+plot(Compile$date[infected], Compile$eggs[infected], col="red")     
 
 #Compare infected hatch and by week.
 par(mfrow=c(2,4))
@@ -1098,6 +1098,27 @@ plot(Compile$week[controled], Compile$hatch[controled], main="Control Eggs Hatch
      ylab="Weeks", xlab="Eggs")
 boxplot(Compile$hatch[controled] ~Compile$week[controled], main="Control Eggs Hatched by Week",
         ylab="Weeks", xlab="Eggs")
+
+##create a table for total eggs and hatch for each female.
+#make two rows to fil(l
+Compile$eggs<-as.numeric(Compile$eggs)
+Compile$egg_total<-Compile$eggs*NA
+Compile$hatch_total<-Compile$eggs*NA
+
+#create loop that does calculation
+for (i in 1:max(Compile$idnum)){
+  is<-which(Compile$idnum==i)
+  toteggs<-sum(Compile$eggs[is], na.rm=TRUE)
+  tothatches<-sum(Compile$hatch[is], na.rm=TRUE)
+  Compile$egg_total[is]<-toteggs
+  Compile$hatch_total[is]<-tothatches
+}
+
+# pdf("egg_total_hist.pdf")
+# hist(Compile$egg_total, breaks=max(Compile$egg_total))
+# dev.off()
+
+
 #dev.off()
 
 #write.csv(Compile,"CompiledFertilityData.csv")
@@ -1171,7 +1192,7 @@ var(CompileRD$eggs) #17.5
 #create a factor for mice so that 
 
 mice<-unique(Compile$mouse)
-mouseidnums<-c(1:length(mice))
+mouseidnum<-c(1:length(mice))
 mousetable<-data.frame(mice,mouseidnum)
 mousetable$mouseidnum<-as.factor(mousetable$mouseidnum)
 CompileRD$mouseidnum<-CompileRD$trial*0
@@ -1292,13 +1313,15 @@ tentable<-Compile[tens,]
     zer<-which(Compile$idnum==zeroids[i])
     lines(Compile$week[zer], Compile$eggs[zer], col=i)
   }    
-plot()
+
 # pdf("compacted_egg_hist.pdf")
 # par(mfrow=c(3,1))
 # hist(CompileRD$eggs, breaks=compmax)
 # hist(C2weeklive$eggs, breaks=twomax)
 # hist(C3weeklive$eggs, breaks=threemax)
 # dev.off()
+
+
 
 
 #write.csv(CompileRD,"ReducedCompiledFertility Data")
