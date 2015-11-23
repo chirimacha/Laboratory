@@ -1114,14 +1114,18 @@ for (i in 1:max(Compile$idnum)){
   Compile$hatch_total[is]<-tothatches
 }
 
-# pdf("egg_total_hist.pdf")
-# hist(Compile$egg_total, breaks=max(Compile$egg_total))
-# dev.off()
+#for histogram create unique
+dayone <- which(Compile$week==1)
+
+#par(mfrow=c(1,1))
+ pdf("egg_total_hist.pdf")
+hist(Compile$egg_total[dayone], breaks=max(Compile$egg_total[dayone]))
+#dev.off()
 
 
 #dev.off()
 
-#write.csv(Compile,"CompiledFertilityData.csv")
+write.csv(Compile,"CompiledFertilityData.csv")
 
 ###############################################################################
 #==============================================================================
@@ -1324,7 +1328,7 @@ tentable<-Compile[tens,]
 
 
 
-#write.csv(CompileRD,"ReducedCompiledFertility Data")
+write.csv(CompileRD,"ReducedCompiledFertility Data.csv")
 #write.csv( C2weeklive, "2weekGroupedFertilityData_simple.csv")
 #write.csv(C3weeklive, "3weekGroupedFertilityData_simple.csv")
 

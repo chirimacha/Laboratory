@@ -40,27 +40,27 @@ D1Ind$EXPOSE<-substr(D1Ind$INSECT, 1, 6)
 igr <- grep("5A",D1Jar$Exposure)
 cloro <- grep("CF", D1Jar$Exposure )
 control <- grep("CO", D1Jar$Exposure )
-D1Jar$paint<-(c(1:length(D1Jar$Exposure))*0)
-D1Jar$paint[igr]<- "5A"
-D1Jar$paint[cloro]<- "CF"
-D1Jar$paint[control]<- "CO"
+D1Jar$paint <- (c(1:length(D1Jar$Exposure))*0)
+D1Jar$paint[igr] <- "5A"
+D1Jar$paint[cloro] <- "CF"
+D1Jar$paint[control] <- "CO"
 #and by length of time
 #make vector of indecies for each time
 oneh <- grep("1",D1Jar$Exposure)
 threeh <- grep("3", D1Jar$Exposure )
 sixh <- grep("6", D1Jar$Exposure )
-oned<- grep("24", D1Jar$Exposure )
+oned <- grep("24", D1Jar$Exposure )
 #make a blank table
-D1Jar$time<-c(1:length(D1Jar$Exposure))*0
+D1Jar$time <- c(1:length(D1Jar$Exposure))*0
 #Insert the corresponding time into the table
-D1Jar$time[oneh]<- 1
-D1Jar$time[threeh]<- 3
-D1Jar$time[sixh]<- 6
+D1Jar$time[oneh] <- 1
+D1Jar$time[threeh] <- 3
+D1Jar$time[sixh] <- 6
 D1Jar$time[oned] <- 24
 
 #Remove blank column
-chop<-which(names(D1Ind)=="X")
-D1Ind<-D1Ind[,-chop]
+chop <- which(names(D1Ind)=="X")
+D1Ind <- D1Ind[,-chop]
 
 #In order to get to cox test, reshape the data.
 
@@ -135,7 +135,7 @@ treatmentsum<-treatmentsum[-nobug,]
 
 ##add rows for total on each treatment and the total for each day
 #treatment
-sumpaint <- summaryBy(alive+dead+knockdown+unviable+living+totalbug~TREATMENT,
+sumpaint <- summaryBy(alive+dead+knockdown+unviable+living+totalbug~TREATMENT+DATE,
                       data=treatmentsum, FUN=sum,na.rm=TRUE, keep.names=TRUE)
 #day
 sumtdate <-summaryBy(alive+dead+knockdown+unviable+living+totalbug~DATE,
@@ -143,8 +143,8 @@ sumtdate <-summaryBy(alive+dead+knockdown+unviable+living+totalbug~DATE,
 ##now add empty rows so you can join both tables together.
 #treatment
 sumpaint$EXPOSE<-sumpaint$alive*NA
-sumpaint$DATE<-sumpaint$alive*NA
-sumpaint$DATE<-as.Date(sumpaint$DATE, origin="1970-01-01")
+#sumpaint$DATE<-sumpaint$alive*NA
+#sumpaint$DATE<-as.Date(sumpaint$DATE, origin="1970-01-01")
 sumpaint$TIME<-sumpaint$alive*NA
 #DATE
 sumtdate$EXPOSE<-sumtdate$alive*NA
@@ -153,10 +153,10 @@ sumtdate$TIME<-sumtdate$alive*NA
 
 ##join the three tables together
 joined<-rbind(treatmentsum, sumtdate)
-treatmentsum<-rbind(joined, sumpaint)
+sumtab<-rbind(joined, sumpaint)
 
 #make proportionality
-treatmentsum$palive<treatmentsum$alive/treatmentsum$totalbug
+treatmentsum$palive<-treatmentsum$alive/treatmentsum$totalbug
 treatmentsum$pdead<-treatmentsum$dead/treatmentsum$totalbug
 treatmentsum$pKD<-treatmentsum$knockdown/treatmentsum$totalbug
 treatmentsum$pUV<- treatmentsum$unviable/treatmentsum$totalbug
@@ -165,18 +165,48 @@ treatmentsum$pliving<-treatmentsum$living/treatmentsum$totalbug
 #==============================================================================
 #Create Nice table with summary 
 
-
-
 #==============================================================================
 ###Lets create curves showing the proportion of status seperated by treatment.
-#Control
+#Create indecies for each paint
+fiveA <-which(treatmentsum$TREATMENT=="5A")
+cnt <- which(treatmentsum$TREATMENT=="CO")
+Clf <- which(treatmentsum$TREATMENT=="CF")
 
-#5A-IGR
-g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
-          data= Compile[enona,]) +geom_boxplot(data=Compile[enona,])
-g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status Each Week")
-g<-g+scale_fill_manual(values=c("blue", "red"))
+##Make plots
+#pdf()
+#5a
+par(mfrow=c(1,3))
+a<-ggplot(data= treatmentsum[fiveA,], aes( y=pdead , x= DATE, group= TIME, color=TIME, 
+                                   na.rm=TRUE))+geom_line()+geom_point()
+a<-a+ggtitle("5A-IGR")
+a<-a+scale_fill_manual(values=c("blue", "red"))
+a
+#control
+b<-ggplot(data= treatmentsum[cnt,], aes( y=pdead , x= DATE, group= TIME, color=TIME, 
+                                   na.rm=TRUE))+geom_line()+geom_point()
+b<-b+ggtitle("Control")
+b<-b+scale_fill_manual(values=c("blue", "red"))
+b
+#cf
+c<-ggplot(data= treatmentsum[Clf,], aes( y=pdead , x= DATE, group= TIME, color=TIME, 
+                                   na.rm=TRUE))+geom_line()+geom_point()
+c<-c+ggtitle("Clorofenapyr")
+c<-c+scale_fill_manual(values=c("blue", "red"))
+c
+#dev.off()
 #Clorofenapyr
-
+par(mfrwo=c(1,1))
 ##Lets plot death and unviable by time on each data set 
-
+#DEATH
+g<-ggplot(data= treatmentsum, aes( y=pdead , x= DATE, group= EXPOSE, color=EXPOSE, 
+                                   na.rm=TRUE))+geom_line()+geom_point()
+g<-g+ggtitle("idk")
+g<-g+scale_fill_manual(values=c("blue", "red"))
+g
+#dev.off()
+#Unviable
+h<-ggplot(data= treatmentsum, aes( y=pUV , x= DATE, group= EXPOSE, color=EXPOSE, 
+                                   na.rm=TRUE))+geom_line()+geom_point()
+h<-h+ggtitle("idk")
+h<-h+scale_fill_manual(values=c("blue", "red"))
+h
