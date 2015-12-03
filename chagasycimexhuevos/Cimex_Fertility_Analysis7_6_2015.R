@@ -176,6 +176,7 @@ avtemphigh<-function(rdate){
   mean(tempRH$TEMP.MAX..Â.C.[a:b], na.rm=TRUE)
   } else{NA}
 }
+
 date<-Compile$date
 Compile$avtemphigh <-sapply(date, avtemphigh)
 
@@ -1100,7 +1101,7 @@ boxplot(Compile$hatch[controled] ~Compile$week[controled], main="Control Eggs Ha
         ylab="Weeks", xlab="Eggs")
 
 ##create a table for total eggs and hatch for each female.
-#make two rows to fil(l
+#make two rows to fill
 Compile$eggs<-as.numeric(Compile$eggs)
 Compile$egg_total<-Compile$eggs*NA
 Compile$hatch_total<-Compile$eggs*NA
@@ -1124,7 +1125,79 @@ hist(Compile$egg_total[dayone], breaks=max(Compile$egg_total[dayone]))
 
 
 #dev.off()
+#create a factor for mice so that 
 
+mice<-unique(Compile$mouse)
+mouseidnum<-c(1:length(mice))
+mousetable<-data.frame(mice,mouseidnum)
+mousetable$mouseidnum<-as.factor(mousetable$mouseidnum)
+Compile$mouseidnum<-Compile$trial*0
+
+for(i in 1:length(mice)){
+  micenumi<-which(mousetable$mouseidnum==i)
+  micematch<-which(Compile$mouse==mousetable$mice[micenumi])
+  Compile$mouseidnum[micematch]<-i   
+}
+
+##create total values for each insect
+#create rows to fill by loop
+#make two rows to fil(l
+Compile$lifespan<-Compile$eggs*NA
+Compile$avtemp_total<-Compile$eggs*NA
+Compile$avlowtemp_total<-Compile$eggs*NA
+Compile$avhightemp_total<-Compile$eggs*NA
+Compile$avhum_total<-Compile$eggs*NA
+Compile$avlowhum_total<-Compile$eggs*NA
+Compile$avhighhum_total<-Compile$eggs*NA
+Compile$hightemp_total<-Compile$eggs*NA
+Compile$highhum_total<-Compile$eggs*NA
+Compile$lowtemp_total<-Compile$eggs*NA
+Compile$lowtemp_total<-Compile$eggs*NA
+
+
+#create loop that does calculation
+#first correct week one observation that reports dead insect
+firstweek <- which(Compile$week==1)
+deadbug <- which(Compile$alive==0)                   
+correction<- intersect(firstweek, deadbug)
+Compile$alive[correction]<-1
+
+
+lives <- which(Compile$alive==1) 
+for (i in 1:max(Compile$idnum)) {
+  ids<-which(Compile$idnum==i)
+  is <- intersect(ids, lives)#that way you don't add dead times to observations
+  #average temperatures
+  avgt<-mean(Compile$avtemp[is], na.rm=TRUE)
+  avght<-mean(Compile$avtemphigh[is], na.rm=TRUE)
+  avglt<-mean(Compile$avtemplow[is], na.rm=TRUE)
+  #average humidity
+  avgh<-mean(Compile$avhum[is], na.rm=TRUE)
+  avghh<-mean(Compile$avhumhigh[is], na.rm=TRUE)
+  avglh<-mean(Compile$avhumlow[is], na.rm=TRUE)
+  #Max and min Temp
+  maxt <- max(Compile$tempmax[is], na.rm=TRUE)
+  mint <- min(Compile$tempmin[is], na.rm=TRUE)
+  #Max and min hum
+  maxh <- max(Compile$hummax[is], na.rm=TRUE)
+  minh <- min(Compile$tempmin[is], na.rm=TRUE)
+  
+  #Longevity (The weeks alive)
+  ls<-length(is)
+ 
+  #Put the calculated items into the appropriate vectors of data frame
+  Compile$lifespan[is]<-ls
+  Compile$avtemp_total[is]<-avgt
+  Compile$avlowtemp_total[is]<-avglt
+  Compile$avhightemp_total[is]<-avght
+  Compile$avhum_total[is]<-avgh
+  Compile$avlowhum_total[is]<-avglh
+  Compile$avhighhum_total[is]<-avghh
+  Compile$hightemp_total[is]<-maxt
+  Compile$highhum_total[is]<-maxh
+  Compile$lowtemp_total[is]<-mint
+  Compile$lowtemp_total[is]<-minh
+}
 write.csv(Compile,"CompiledFertilityData.csv")
 
 ###############################################################################
@@ -1193,19 +1266,7 @@ var(CompileRD$eggs) #17.5
 #This shows that poisson assumptions are not met. 
 #earlier(under the poisson models) I took the variance of a mean by week...which gave me a smaller value of course.
 #But yes, poisson values are not the same.
-#create a factor for mice so that 
 
-mice<-unique(Compile$mouse)
-mouseidnum<-c(1:length(mice))
-mousetable<-data.frame(mice,mouseidnum)
-mousetable$mouseidnum<-as.factor(mousetable$mouseidnum)
-CompileRD$mouseidnum<-CompileRD$trial*0
-
-for(i in 1:length(mice)){
-  micenumi<-which(mousetable$mouseidnum==i)
-  micematch<-which(CompileRD$mouse==mousetable$mice[micenumi])
-  CompileRD$mouseidnum[micematch]<-i      
-}
     
 
 #lets combine the data to remove 0 inflation
@@ -1257,12 +1318,17 @@ SummaryCompileRD<-function(segl){
     mean(row, na.rm=TRUE)
   }
   
-  #These functions perform a function on the desired outputs as it reduces the data from weeks to the desired period. 
-  CompileRDsum<-summaryBy(eggs+hatch+alive~idnum+period+infected+mouse+trial+periodid, FUN=c(sums), data=CompileRD, keep.names = TRUE) 
-  CompileRDmax<-summaryBy(tempmax+tempdiff+hummax+humdiff~periodid, FUN=c(maxs), data=CompileRD, keep.names = TRUE) 
-  CompileRDmin<-summaryBy(tempmin+hummin~periodid, FUN=c(mins), data=CompileRD, keep.names = TRUE) 
+  #These functions perform a function on the desired outputs as it reduces the 
+  #data from weeks to the desired period. 
+  CompileRDsum<-summaryBy(eggs+hatch+alive~idnum+period+infected+
+                mouse+trial+periodid, FUN=c(sums), 
+                data=CompileRD, keep.names = TRUE) 
+  CompileRDmax<-summaryBy(tempmax+tempdiff+hummax+humdiff~periodid, 
+                FUN=c(maxs), data=CompileRD, keep.names = TRUE) 
+  CompileRDmin<-summaryBy(tempmin+hummin~periodid, FUN=c(mins), data=CompileRD,
+                          keep.names = TRUE) 
   CompileRDmean<-summaryBy(avtemphigh+avtemplow+avtemp+avhumhigh+avhumlow+avhum
-                          ~periodid, FUN=c(means), data=CompileRD, keep.names = TRUE) 
+                ~periodid, FUN=c(means), data=CompileRD, keep.names = TRUE) 
 
  a<-merge(CompileRDmax, CompileRDmean, by="periodid")
  b<-merge(a, CompileRDmin, by="periodid")

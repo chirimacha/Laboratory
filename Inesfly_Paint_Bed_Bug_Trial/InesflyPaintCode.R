@@ -198,15 +198,18 @@ c
 par(mfrwo=c(1,1))
 ##Lets plot death and unviable by time on each data set 
 #DEATH
+pdf("TABLES_GRAPHS/DeathCurve_1DAY_PostPaint.pdf")
 g<-ggplot(data= treatmentsum, aes( y=pdead , x= DATE, group= EXPOSE, color=EXPOSE, 
                                    na.rm=TRUE))+geom_line()+geom_point()
-g<-g+ggtitle("idk")
+g<-g+ggtitle("Percentage Dead Over Time")+ylab("Percent Dead")
 g<-g+scale_fill_manual(values=c("blue", "red"))
 g
 #dev.off()
 #Unviable
+#pdf("PerUV.pdf")
 h<-ggplot(data= treatmentsum, aes( y=pUV , x= DATE, group= EXPOSE, color=EXPOSE, 
                                    na.rm=TRUE))+geom_line()+geom_point()
-h<-h+ggtitle("idk")
+h<-h+ggtitle("Percentage Unviable Over Time")+ylab("Percentage Dead or Knockdown")
 h<-h+scale_fill_manual(values=c("blue", "red"))
 h
+dev.off()
