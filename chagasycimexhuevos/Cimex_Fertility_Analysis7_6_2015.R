@@ -28,7 +28,9 @@ setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
 # #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 
 #bring in hatching data
-cimfertpilot <- read.csv("Cimex_FertP.csv")
+#cimfertpilot <- read.csv("Cimex_FertP.csv")
+cimfertpilot <- read.csv("Cimex_FertP_update12_3.csv")
+
 #Original Found https://docs.google.com/spreadsheets/d/1E-GRO1_Ybrgqj0wjgz5s9YHY1KwJUVPov0I2PwgC2CQ/edit
 cimfert1 <- read.csv("Cimex_FertR1_8_12.csv")
 ##https://docs.google.com/spreadsheets/d/1iDBITasgMrbmwGJJSwsPkcal1b7b3kdfmviRtw8wbqA/edit#gid=709304485
@@ -1125,8 +1127,7 @@ hist(Compile$egg_total[dayone], breaks=max(Compile$egg_total[dayone]))
 
 
 #dev.off()
-#create a factor for mice so that 
-
+#create a factor id for mice for STATA
 mice<-unique(Compile$mouse)
 mouseidnum<-c(1:length(mice))
 mousetable<-data.frame(mice,mouseidnum)
@@ -1141,7 +1142,7 @@ for(i in 1:length(mice)){
 
 ##create total values for each insect
 #create rows to fill by loop
-#make two rows to fil(l
+#make two rows to fill
 Compile$lifespan<-Compile$eggs*NA
 Compile$avtemp_total<-Compile$eggs*NA
 Compile$avlowtemp_total<-Compile$eggs*NA
@@ -1152,18 +1153,15 @@ Compile$avhighhum_total<-Compile$eggs*NA
 Compile$hightemp_total<-Compile$eggs*NA
 Compile$highhum_total<-Compile$eggs*NA
 Compile$lowtemp_total<-Compile$eggs*NA
-Compile$lowtemp_total<-Compile$eggs*NA
+Compile$lowhum_total<-Compile$eggs*NA
 
 
-#create loop that does calculation
-#first correct week one observation that reports dead insect
-firstweek <- which(Compile$week==1)
-deadbug <- which(Compile$alive==0)                   
-correction<- intersect(firstweek, deadbug)
-Compile$alive[correction]<-1
-
-
+#identify living observations so temperatures while the
+#insect is dead does not have affect
 lives <- which(Compile$alive==1) 
+
+#loop over each insect and calculate average and max/min/diff
+#add dfference
 for (i in 1:max(Compile$idnum)) {
   ids<-which(Compile$idnum==i)
   is <- intersect(ids, lives)#that way you don't add dead times to observations
@@ -1186,24 +1184,125 @@ for (i in 1:max(Compile$idnum)) {
   ls<-length(is)
  
   #Put the calculated items into the appropriate vectors of data frame
-  Compile$lifespan[is]<-ls
-  Compile$avtemp_total[is]<-avgt
-  Compile$avlowtemp_total[is]<-avglt
-  Compile$avhightemp_total[is]<-avght
-  Compile$avhum_total[is]<-avgh
-  Compile$avlowhum_total[is]<-avglh
-  Compile$avhighhum_total[is]<-avghh
-  Compile$hightemp_total[is]<-maxt
-  Compile$highhum_total[is]<-maxh
-  Compile$lowtemp_total[is]<-mint
-  Compile$lowtemp_total[is]<-minh
+  Compile$lifespan[ids]<-ls
+  Compile$avtemp_total[ids]<-avgt
+  Compile$avlowtemp_total[ids]<-avglt
+  Compile$avhightemp_total[ids]<-avght
+  Compile$avhum_total[ids]<-avgh
+  Compile$avlowhum_total[ids]<-avglh
+  Compile$avhighhum_total[ids]<-avghh
+  Compile$hightemp_total[ids]<-maxt
+  Compile$highhum_total[ids]<-maxh
+  Compile$lowtemp_total[ids]<-mint
+  Compile$lowhum_total[ids]<-minh
 }
-write.csv(Compile,"CompiledFertilityData.csv")
+#write.csv(Compile,"CompiledFertilityData.csv")
 
 ###############################################################################
 #==============================================================================
 #ahora tenomos muchas graficas, podemos empezar haciendo el modelo
 #########################################################
+#reduce the data to just the first week
+weekone<-which(Compile$week==1)
+single<-Compile[weekone,]
+
+##Now go through each temperature and humidity covariate by graphing
+#see which variables will be used for temperature and humidity
+pdf("Hum_Temp_covariates.pdf")
+par(mfrow=(c(2,5)))
+#eggs by average humidity
+segghum<-ggplot(aes( y= eggs, x= avhum_total, na.rm=TRUE), 
+               data=single)+geom_point(data=single)
+segghum<-segghum+ggtitle("Number of Eggs Laid by Average Humidity and Infection Status") 
+segghum<-segghum+facet_grid(. ~infected)+geom_smooth(method= "lm")
+segghum
+seghum<-glm(eggs ~infected*avhum_total, data=single)
+seghum 
+
+#egg avg high humidity
+segghighhum <- ggplot(aes( y= eggs, x= avhighhum_total, na.rm=TRUE), 
+                data=single)+geom_point(data=single)
+segghighhum <- segghighhum+ggtitle("Number of Eggs Laid by Average High Humidity and Infection Status") 
+segghighhum <- segghighhum+facet_grid(. ~infected)+geom_smooth(method= "lm")
+segghighhum
+seghighhum <- glm(eggs ~infected*avhighhum_total, data=single)
+seghighhum 
+
+#egg avg low humidity
+segglowhum <- ggplot(aes( y= eggs, x= avlowhum_total, na.rm=TRUE), 
+                      data=single)+geom_point(data=single)
+segglowhum <- segglowhum+ggtitle("Number of Eggs Laid by Average Low Humidity and Infection Status") 
+segglowhum <- segglowhum+facet_grid(. ~infected)+geom_smooth(method= "lm")
+segglowhum
+seglowhum <- glm(eggs ~infected*avlowhum_total, data=single)
+seglowhum 
+
+#egg max humidity
+seggmaxhum <- ggplot(aes( y= eggs, x= highhum_total, na.rm=TRUE), 
+                     data=single)+geom_point(data=single)
+seggmaxhum <- seggmaxhum+ggtitle("Number of Eggs Laid by Maximum Humidity and Infection Status") 
+seggmaxhum <- seggmaxhum+facet_grid(. ~infected)+geom_smooth(method= "lm")
+seggmaxhum
+segmaxhum <- glm(eggs ~infected*highhum_total, data=single)
+segmaxhum 
+
+#egg min humidity
+segglowhum <- ggplot(aes( y= eggs, x= lowhum_total, na.rm=TRUE), 
+                     data=single)+geom_point(data=single)
+segglowhum <- segglowhum+ggtitle("Number of Eggs Laid by Minimum Humidity and Infection Status") 
+segglowhum <- segglowhum+facet_grid(. ~infected)+geom_smooth(method= "lm")
+segglowhum
+seglowhum <- glm(eggs ~infected*lowhum_total, data=single)
+seglowhum 
+
+##Temperature
+#eggs by average temperature
+seggtemp<-ggplot(aes( y= eggs, x= avtemp_total, na.rm=TRUE), 
+                data=single)+geom_point(data=single)
+seggtemp<-seggtemp+ggtitle("Number of Eggs Laid by Average Temperature and Infection Status") 
+seggtemp<-seggtemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
+seggtemp
+segtemp<-glm(eggs ~infected*avtemp_total, data=single)
+segtemp
+
+#egg avg high temperature
+segghightemp<-ggplot(aes( y= eggs, x= avhightemp_total, na.rm=TRUE), 
+                data=single)+geom_point(data=single)
+segghightemp<-segghightemp+ggtitle("Number of Eggs Laid by Average High Temperature and Infection Status") 
+segghightemp<-segghightemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
+segghightemp
+seghightemp<-glm(eggs ~infected*avhightemp_total, data=single)
+seghightemp 
+
+#egg avg low termperatuer
+segglowtemp<-ggplot(aes( y= eggs, x= avlowtemp_total, na.rm=TRUE), 
+                 data=single)+geom_point(data=single)
+segglowtemp<-segglowtemp+ggtitle("Number of Eggs Laid by Average Low Temperature and Infection Status") 
+segglowtemp<-segglowtemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
+segglowtemp
+seglowtemp<-glm(eggs ~infected*avlowtemp_total, data=single)
+seglowtemp 
+
+#egg max temperature
+seggmaxtemp<-ggplot(aes( y= eggs, x= hightemp_total, na.rm=TRUE), 
+                 data=single)+geom_point(data=single)
+seggmaxtemp<-seggmaxtemp+ggtitle("Number of Eggs Laid by Maximum Temperature and Infection Status") 
+seggmaxtemp<-seggmaxtemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
+seggmaxtemp
+segmaxtemp<-glm(eggs ~infected*hightemp_total, data=single)
+segmaxtemp 
+
+#egg min temperature
+seggmintemp<-ggplot(aes( y= eggs, x= lowtemp_total, na.rm=TRUE), 
+                 data=single)+geom_point(data=single)
+seggmintemp<-seggmintemp+ggtitle("Number of Eggs Laid by Minimum Temperature and Infection Status") 
+seggmintemp<-seggmintemp+facet_grid(. ~infected)+geom_smooth(method= "lm")
+seggmintemp
+segmintemp<-glm(eggs ~infected*lowtemp_total, data=single)
+segmintemp 
+
+par(mfrow=c(1,1))
+dev.off()
 
 #el ejemplo de Ricardo
 #glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, subset=28:36, family=poisson())
