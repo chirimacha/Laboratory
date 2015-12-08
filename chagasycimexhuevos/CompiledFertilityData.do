@@ -23,6 +23,9 @@ tab firstweekind
 tab infected
 tab infected if firstweekind==1
 
+*how many bugs feed on each mouse
+tab mouseidnum if firstweekind==1
+
 *summarize continuous variables
 summ avlowtemp_total, detail
 summ lowhum_total, detail
@@ -36,7 +39,7 @@ scalar m1 = e(ll)
 
 *take out one variable (avtemphigh has lowest p-value from model w/o mouse)
 *remove lifespan
-zinb egg_total infected mouseidnum lowhum_total avlowtemp_total if firstweekind==1, inflate(lifespan) vuong 
+zinb egg_total infected i.mouseidnum lowhum_total avlowtemp_total if firstweekind==1, inflate(lifespan) vuong 
 scalar m2a = e(ll)
 *remove temperature
 zinb egg_total infected lifespan i.mouseidnum lowhum_total if firstweekind==1, inflate(lifespan) vuong 
@@ -84,7 +87,7 @@ scalar m3a = e(ll)
 zinb egg_total infected i.mouseidnum lifespan if firstweekind==1, inflate(lifespan) vuong 
 scalar m3b = e(ll)
 *remove mouse
-zinb egg_total infected lifespan avlowtemp_total if firstweekind==1, inflate(lifespan) vuong 
+zinb egg_total infected lifespan avlowtemp_total   if firstweekind==1, inflate(lifespan) vuong 
 scalar m3c = e(ll)
 
 *for longevity
@@ -109,7 +112,7 @@ scalar m3 = e(ll)
 zinb egg_total infected lifespan if firstweekind==1, inflate(lifespan) vuong 
 scalar m4a = e(ll)
 *remove lifespan
-zinb egg_total i.infected i.mouseidnum if firstweekind==1, inflate(lifespan) vuong 
+
 scalar m4b = e(ll)
 
 *for longevity
@@ -130,20 +133,31 @@ scalar p_mode4b = chi2tail(2, 2*(m3-m4b))
 *save that p-value
 *scalar p_mode2c = chi2tail(2, 2*(m1-m2))
 
-
-
-
-
-
-
 *this will give you the difference between the two models
 *if this p-value is >.05, the variable you removed is NOT significant in the model
 *this means that you SHOULD remove it
 
 *****create the models recommended by Mike and Ricardo
-***Simple model with covariates***
+***Simple model without covariates***
 
 zinb egg_total infected if firstweekind==1, inflate(week) vuong 
 
 *save dataset as .dta
 save "C:\Users\student\Laboratory\chagasycimexhuevos\CompiledFertilityData.dta"
+
+
+nbreg egg_total infected if firstweekind==1, exposure(lifespan)
+
+
+nbreg egg_total infected avlowtemp_total if firstweekind==1, exposure(lifespan)
+
+*model with temperature and humidity in offset(exposure) model
+nbreg egg_total infected avlowtemp_total lowhum_total  if firstweekind==1, exposure(lifespan) irr
+
+*model with infection and lifespan interaction
+zinb egg_total i.infected##c.lifespan if firstweekind==1, inflate(lifespan) vuong 
+*model without inflation
+zinb egg_total i.infected##c.lifespan if firstweekind==1
+*model with other covarriates.
+zinb egg_total i.infected##c.lifespan avlowtemp_total lowhum_total if firstweekind==1, inflate(lifespan) vuong 
+
