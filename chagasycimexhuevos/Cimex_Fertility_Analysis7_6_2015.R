@@ -1196,7 +1196,7 @@ for (i in 1:max(Compile$idnum)) {
   Compile$lowtemp_total[ids]<-mint
   Compile$lowhum_total[ids]<-minh
 }
-#write.csv(Compile,"CompiledFertilityData.csv")
+write.csv(Compile,"CompiledFertilityData.csv")
 
 ###############################################################################
 #==============================================================================
@@ -1234,8 +1234,11 @@ segglowhum <- ggplot(aes( y= eggs, x= avlowhum_total, na.rm=TRUE),
 segglowhum <- segglowhum+ggtitle("Number of Eggs Laid by Average Low Humidity and Infection Status") 
 segglowhum <- segglowhum+facet_grid(. ~infected)+geom_smooth(method= "lm")
 segglowhum
-seglowhum <- glm(eggs ~infected*avlowhum_total, data=single)
+seglowhum <- glm.nb(eggs ~infected*avlowhum_total, data=single)
 seglowhum 
+seglowhum <- glm.nb(eggs ~avlowhum_total, data=single)
+seglowhum 
+summary(seglowhum)
 
 #egg max humidity
 seggmaxhum <- ggplot(aes( y= eggs, x= highhum_total, na.rm=TRUE), 
@@ -1303,6 +1306,9 @@ segmintemp
 
 par(mfrow=c(1,1))
 dev.off()
+
+# Instead of doing this all again,lets make a loop
+#varriates <- c("", "")
 
 #el ejemplo de Ricardo
 #glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, subset=28:36, family=poisson())
@@ -1493,7 +1499,7 @@ tentable<-Compile[tens,]
 
 
 
-write.csv(CompileRD,"ReducedCompiledFertility Data.csv")
+#write.csv(CompileRD,"ReducedCompiledFertility Data.csv")
 #write.csv( C2weeklive, "2weekGroupedFertilityData_simple.csv")
 #write.csv(C3weeklive, "3weekGroupedFertilityData_simple.csv")
 
