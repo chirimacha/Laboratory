@@ -1178,7 +1178,7 @@ for (i in 1:max(Compile$idnum)) {
   mint <- min(Compile$tempmin[is], na.rm=TRUE)
   #Max and min hum
   maxh <- max(Compile$hummax[is], na.rm=TRUE)
-  minh <- min(Compile$tempmin[is], na.rm=TRUE)
+  minh <- min(Compile$hummin[is], na.rm=TRUE)
   
   #Longevity (The weeks alive)
   ls<-length(is)
