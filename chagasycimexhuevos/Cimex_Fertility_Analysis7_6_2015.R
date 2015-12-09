@@ -1196,7 +1196,7 @@ for (i in 1:max(Compile$idnum)) {
   Compile$lowtemp_total[ids]<-mint
   Compile$lowhum_total[ids]<-minh
 }
-write.csv(Compile,"CompiledFertilityData.csv")
+#write.csv(Compile,"CompiledFertilityData.csv")
 
 ###############################################################################
 #==============================================================================
@@ -1306,9 +1306,40 @@ segmintemp
 
 par(mfrow=c(1,1))
 dev.off()
+###Now just do a univariate analysis
 
 # Instead of doing this all again,lets make a loop
-#varriates <- c("", "")
+#Create a data frame to output p-values
+#create vector of varriables to consider
+varriates <- c("avtemp_total", "avlowtemp_total", "avhightemp_total", 
+               "hightemp_total", "lowtemp_total", "avhum_total","avlowhum_total",
+               "avhighhum_total", "highhum_total","lowhum_total")
+varriates <- as.vector(varriates)
+uni_est <- c(1:length(varriates)*NA)
+uni_p <- c(1:length(varriates)*NA)
+interact_est <- c(1:length(varriates)*NA)
+interact_p <- c(1:length(varriates)*NA)
+thdf<- data.frame(varriates, uni_est, uni_p, interact_est, interact_p)
+
+for( i in 1:length(varriates)){
+  var_of_i<-which(names(single)==thdf$varriates[i])
+unitvars  <- glm.nb(single$eggs ~ single[, var_of_i])
+inter <- glm.nb(single$eggs ~ single$infected*single[, var_of_i])
+#estimate for only one variabel  
+  a <- summary(unitvars)$coef[,"Estimate"]
+  thdf$uni_est[i]<-a[2]
+#p value for that variable  
+  c <- summary(unitvars)$coef[,"Pr(>|z|)"]
+  thdf$uni_p[i]<-c[2]
+#estimate for possible interaction
+  e <- summary(inter)$coef[,"Estimate"]
+  thdf$interact_est[i]<-e[4]
+#p value for that interaction 
+  ga <- summary(inter)$coef[,"Pr(>|z|)"]
+  thdf$interact_p[i]<-ga[4]
+}
+
+# write.csv(thdf, "humtemp_ptable.csv")
 
 #el ejemplo de Ricardo
 #glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, subset=28:36, family=poisson())
