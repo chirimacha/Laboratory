@@ -1,9 +1,7 @@
 *Bring in data from R
-import delimited C:\Users\student\Laboratory\chagasycimexhuevos\CompiledFertilityData.csv
+import delimited C:\Users\student\Laboratory\chagasycimexhuevos\CompiledFertilityData.csv, clear
 
-*format the data frame for our analysis
-*Destring
-
+***format the data frame for our analysis
  *convert string variables to numeric
 replace avtemphigh="." if avtemphigh=="NA"
 destring(avtemphigh), gen(avtemphigh_n)
@@ -11,12 +9,12 @@ destring(avtemphigh), gen(avtemphigh_n)
 replace hummax="." if hummax=="NA"
 destring(hummax), gen(hummax_n)
 
-*create indicator of first day of each bug
+*create indicator of first day of each bug (to get one observation per insect)
 sort idnum week
 gen firstweekind=1 if week==1
 replace firstweekind=0 if week!=1
 
-*check to make sure number of indicators = number of bugs
+*check to make sure number of indicators = number of bugs (should be 177)
 tab firstweekind
 
 *summary statistics for discrete variables
@@ -30,6 +28,9 @@ tab mouseidnum if firstweekind==1
 summ avlowtemp_total, detail
 summ lowhum_total, detail
 
+*==============================================================================
+*Skit to line 139.  This section uses a formal reduction method to choose model.
+*******************************************************************************
 *model building
 *start with all the variables that might be of interest
 zinb egg_total infected lifespan i.mouseidnum lowhum_total avlowtemp_total if firstweekind==1, inflate(lifespan) vuong 
@@ -139,25 +140,43 @@ scalar p_mode4b = chi2tail(2, 2*(m3-m4b))
 
 *****create the models recommended by Mike and Ricardo
 ***Simple model without covariates***
-
+*zero-inflated negative binomial (no interaction)
 zinb egg_total infected if firstweekind==1, inflate(week) vuong 
+*negative binomial offset/exposure model
+nbreg egg_total infected if firstweekind==1, exposure(lifespan)
+*same model with temperature
+nbreg egg_total infected avlowtemp_total if firstweekind==1, exposure(lifespan)
+*model with temperature and humidity in offset(exposure) model
+
+*m1: Offset/exposure model with temperature and humidity covariates
+nbreg egg_total infected avlowtemp_total lowhum_total  if firstweekind==1, exposure(lifespan) irr
+predict p_egg_m1
+twoway scatter egg_total p_egg_m1
+
+*m2: negative binomial model with hum, temp, and lifespan
+nbreg egg_total infected avlowtemp_total lowhum_total lifespan if firstweekind==1, irr
+predict p_egg_m2
+twoway scatter egg_total p_egg_m2
+
+*m3: same as m2, but with zero-inflation on lifespan
+zinb egg_total infected avlowtemp_total lowhum_total lifespan if firstweekind==1, inflate(lifespan) vuong irr
+predict p_egg_m3
+twoway scatter egg_total p_egg_m3
+
+*m4a: same as m3 but removing lifespan as a parameter.
+zinb egg_total infected avlowtemp_total lowhum_total if firstweekind==1, inflate(lifespan) vuong irr
+predict p_egg_m4a
+twoway scatter egg_total p_egg_m4a
+
+
+
+*model with infection and lifespan interaction with zero inflation
+zinb egg_total i.infected##c.lifespan if firstweekind==1, inflate(lifespan) vuong 
+*model without inflation without zero inflation
+nbreg egg_total i.infected##c.lifespan if firstweekind==1
+*same models with other covarriates temperature and humidity
+zinb egg_total i.infected##c.lifespan avlowtemp_total lowhum_total if firstweekind==1, inflate(lifespan) vuong 
+nbreg egg_total i.infected##c.lifespan avlowtemp_total lowhum_total  if firstweekind==1
 
 *save dataset as .dta
 save "C:\Users\student\Laboratory\chagasycimexhuevos\CompiledFertilityData.dta"
-
-
-nbreg egg_total infected if firstweekind==1, exposure(lifespan)
-
-
-nbreg egg_total infected avlowtemp_total if firstweekind==1, exposure(lifespan)
-
-*model with temperature and humidity in offset(exposure) model
-nbreg egg_total infected avlowtemp_total lowhum_total  if firstweekind==1, exposure(lifespan) irr
-
-*model with infection and lifespan interaction
-zinb egg_total i.infected##c.lifespan if firstweekind==1, inflate(lifespan) vuong 
-*model without inflation
-zinb egg_total i.infected##c.lifespan if firstweekind==1
-*model with other covarriates.
-zinb egg_total i.infected##c.lifespan avlowtemp_total lowhum_total if firstweekind==1, inflate(lifespan) vuong 
-
