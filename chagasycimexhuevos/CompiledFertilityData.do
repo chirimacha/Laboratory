@@ -1,3 +1,7 @@
+*instal fitstat package
+*findit fitstat
+**do "C:\Users\student\AppData\Local\Temp\STD02000000.tmp"
+
 *Bring in data from R
 import delimited C:\Users\student\Laboratory\chagasycimexhuevos\CompiledFertilityData.csv, clear
 
@@ -150,16 +154,22 @@ nbreg egg_total infected avlowtemp_total if firstweekind==1, exposure(lifespan)
 
 *m1: Offset/exposure model with temperature and humidity covariates
 nbreg egg_total infected avlowtemp_total lowhum_total  if firstweekind==1, exposure(lifespan) irr
+fitstat 
+*AIC = 9.114 
 predict p_egg_m1
 twoway scatter egg_total p_egg_m1
 
 *m2: negative binomial model with hum, temp, and lifespan
 nbreg egg_total infected avlowtemp_total lowhum_total lifespan if firstweekind==1, irr
+fitstat
+*AIC =  9.245
 predict p_egg_m2
 twoway scatter egg_total p_egg_m2
 
 *m3: same as m2, but with zero-inflation on lifespan
 zinb egg_total infected avlowtemp_total lowhum_total lifespan if firstweekind==1, inflate(lifespan) vuong irr
+fitstat
+*AIC =  9.490
 predict p_egg_m3
 twoway scatter egg_total p_egg_m3
 
