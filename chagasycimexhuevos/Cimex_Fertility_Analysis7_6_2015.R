@@ -1,6 +1,6 @@
 #packages needed/experimented with
 #install.packages(c("lubridate","reshape2","vioplot", "matrixStats","ggplot",
-#     "plyr", "geeM", "MASS", "lmtest", "survval", "doBy"))
+#     "plyr", "geeM", "MASS", "lmtest", "survval", "doBy","stats"))
 
 library(lubridate) #para extracting dates 
 library(reshape2) #para make the wide data into long data
@@ -1338,12 +1338,26 @@ inter <- glm.nb(single$eggs ~ single$infected*single[, var_of_i])
   ga <- summary(inter)$coef[,"Pr(>|z|)"]
   thdf$interact_p[i]<-ga[4]
 }
-
 # write.csv(thdf, "humtemp_ptable.csv")
 
-#el ejemplo de Ricardo
-#glm(cases~rhs(data$year,2003)+lhs(data$year,2003)+ offset(log(population)), data=data, subset=28:36, family=poisson())
-#fake code template
+###############################################################################
+#Principle Component Analysis
+#------------------------------------------------------------------------------
+
+pcad<-data.frame(single$idnum, single$avhighhum_total, single$avhightemp_total, 
+                 single$avhum_total, single$avtemp_total,single$avlowhum_total, 
+                 single$avlowtemp_total, single$highhum_total, 
+                 single$hightemp_total)
+
+pcout<-princomp(pcad)
+#the sixth subset is the matrix of raw components
+pcm<-pcout[[6]]
+#We need to add these componenets to original data set.
+prince<-data.frame(pcm)
+prince$idnum<-c(1:length(prince$Comp.1))
+single2<-merge(single, prince, by="idnum")
+
+write.csv(single2, "singleweekdata.csv")
 
 #Bring in Compiled data exported from code above.
 Compile<-read.csv("CompiledFertilityData.csv")
