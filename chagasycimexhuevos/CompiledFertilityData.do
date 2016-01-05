@@ -270,14 +270,106 @@ lars egg_total lifespan infected avtemp_total avlowtemp_total avhightemp_total h
 lars egg_total lifespan avtemp_total avlowtemp_total avhightemp_total hightemp_total lowtemp_total avhum_total avlowhum_total avhighhum_total highhum_total lowhum_total infected, a(lasso) g
 
 *switching order has no effect
+
+
 *******************************************************************************
+*now lets look at hatching
+*Hatch Model 1: Negative Binomial with Lifespan Offset and Egg_total as parameter
+nbreg hatch_total egg_total infected avlowtemp_total avlowhum_total if zeroobva==0,exposure(lifespan)
+predict p_hatch_m1a
+twoway scatter hatch_total p_hatch_m1a
+fitstat
+*AIC==
+
+*This produces a logistic model, indicating that nbreg may not be appropriate or
+*at least without egg as exposure variable
+
+**For next model uses exposure on egg, but exposure variables cannot contain 0
+*generate egg_totalp1 eggtotal+1, this identifies 0 to remove in model
+gen zeroobva=1 if egg_total==0
+replace zeroobva=0 if egg_total!=0
+
+*Hatch Model 2: Negative Binomial with Egg Offset after removing 0's
+nbreg hatch_total infected lifespan avlowtemp_total avlowhum_total if zeroobva==0, exposure(egg_total) irr
+predict p_hatch_m2b
+twoway scatter hatch_total p_hatch_m2b
+fitstat
+*AIC==
+
+*Hatch Model 3: Zero Inflated Negative Binomial
+zinb hatch_total egg_total infected avlowtemp_total avlowhum_total if zeroobva==0, inflate(lifespan) vuong 
+predict p_egg_m3a
+twoway scatter hatch_total p_egg_m3a
+fitstat
+*AIC=
+
+*Hatch Model 4: Standard Multivariable Linear Regression
+mvreg hatch_total = egg_total lifespan infected avlowtemp_total avlowhum_total if zeroobva==0
+predict p_hatch_m4a
+twoway scatter hatch_total p_hatch_m4a
+fitstat
+
+*Hatch Model 5: Principle Component Model
+* 2 components
+nbreg hatch_total lifespan infected comp1 comp2 if zeroobva==0, exposure(egg_total) irr
+scalar hm1p2 = e(ll)
+predict p_hatch_m5
+twoway scatter hatch_total p_hatch_m5
+fitstat
+*AIC=
+*one component
+nbreg hatch_total lifespan infected comp1 if zeroobva==0, exposure(egg_total)
+scalar hm1p1 = e(ll)
+*no components (naive model)
+nbreg hatch_total lifespan infected if zeroobva==0, exposure(egg_total)
+scalar hm1p0 = e(ll)
+*all components *8 and 9 are null, so they can be removed.
+nbreg hatch_total lifespan infected comp1 comp2 comp3 comp4 comp5 comp6 comp7 if zeroobva==0, exposure(egg_total) irr
+scalar hm1p7 = e(ll)
+predict p_hatch_m5a
+twoway scatter hatch_total p_hatch_m5a
+
+nbreg hatch_total lifespan infected comp1 comp2 comp3 comp4 comp5 comp6 if zeroobva==0, exposure(egg_total)
+scalar hm1p6 = e(ll)
+
+
+
+
+*perform chi squared to test if Comp2 is benefician compared to Comp1
+di "chi2(2) = " 2*(hm1p2-hm1p1)
+di "Prob > chi2 = "chi2tail(2, 2*(hm1p2-hm1p1))
+scalar p_hmodelm1p2_1 = chi2tail(2, 2*(hm1p2-hm1p1))
+
+**perform chi squared to test if Comp2 is benefician compared to naive model
+di "chi2(2) = " 2*(hm1p2-hm1p0)
+di "Prob > chi2 = "chi2tail(2, 2*(hm1p2-hm1p0))
+scalar p_hmodelm1p2_0 = chi2tail(2, 2*(hm1p2-hm1p0))
+
+*lets compare comp 1 with the naive model
+di "chi2(2) = " 2*(hm1p1-hm1p0)
+di "Prob > chi2 = "chi2tail(2, 2*(hm1p1-hm1p0))
+scalar p_hmodelm1p1_0 = chi2tail(2, 2*(hm1p1-hm1p0))
+
+*lets compare comp 7 with the naive model
+di "chi2(2) = " 2*(hm1p7-hm1p0)
+di "Prob > chi2 = "chi2tail(2, 2*(hm1p7-hm1p0))
+scalar p_hmodelm1p7_0 = chi2tail(2, 2*(hm1p7-hm1p0))
+
+
+*Model 6X: Lasso Regression
+lars hatch_total egg_total lifespan avtemp_total avlowtemp_total avhightemp_total hightemp_total lowtemp_total avhum_total avlowhum_total avhighhum_total highhum_total lowhum_total infected, a(lasso) g
+
+
+
+*******************************************************************************
+***Old code, not-used, kept for reference
 *model with infection and lifespan interaction with zero inflation
-zinb egg_total i.infected##c.lifespan, inflate(lifespan) vuong 
+*zinb egg_total i.infected##c.lifespan, inflate(lifespan) vuong 
 *model without inflation without zero inflation
-nbreg egg_total i.infected##c.lifespan
+*nbreg egg_total i.infected##c.lifespan
 *same models with other covarriates temperature and humidity
-zinb egg_total i.infected##c.lifespan avlowtemp_total lowhum_total, inflate(lifespan) vuong 
-nbreg egg_total i.infected##c.lifespan avlowtemp_total lowhum_total
+*zinb egg_total i.infected##c.lifespan avlowtemp_total lowhum_total, inflate(lifespan) vuong 
+*nbreg egg_total i.infected##c.lifespan avlowtemp_total lowhum_total
 
 *save dataset as .dta
 *save "C:\Users\student\Laboratory\chagasycimexhuevos\singleweekdata.dta"
