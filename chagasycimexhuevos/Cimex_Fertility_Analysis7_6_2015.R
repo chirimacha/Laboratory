@@ -1154,11 +1154,23 @@ Compile$hightemp_total<-Compile$eggs*NA
 Compile$highhum_total<-Compile$eggs*NA
 Compile$lowtemp_total<-Compile$eggs*NA
 Compile$lowhum_total<-Compile$eggs*NA
-
+#Create blank columns for hatch temperature and humidity data
+Compile$Havtemp_total<-Compile$eggs*NA
+Compile$Havlowtemp_total<-Compile$eggs*NA
+Compile$Havhightemp_total<-Compile$eggs*NA
+Compile$Havhum_total<-Compile$eggs*NA
+Compile$Havlowhum_total<-Compile$eggs*NA
+Compile$Havhighhum_total<-Compile$eggs*NA
+Compile$Hhightemp_total<-Compile$eggs*NA
+Compile$Hhighhum_total<-Compile$eggs*NA
+Compile$Hlowtemp_total<-Compile$eggs*NA
+Compile$Hlowhum_total<-Compile$eggs*NA
 
 #identify living observations so temperatures while the
 #insect is dead does not have affect
 lives <- which(Compile$alive==1) 
+#identify observations that have eggs laid
+eggslaid <- which(Compile$eggevent==1)
 
 #loop over each insect and calculate average and max/min/diff
 #add dfference
@@ -1173,12 +1185,14 @@ for (i in 1:max(Compile$idnum)) {
   avgh<-mean(Compile$avhum[is], na.rm=TRUE)
   avghh<-mean(Compile$avhumhigh[is], na.rm=TRUE)
   avglh<-mean(Compile$avhumlow[is], na.rm=TRUE)
+  ##Max and Min Temp
   #Max and min Temp
   maxt <- max(Compile$tempmax[is], na.rm=TRUE)
   mint <- min(Compile$tempmin[is], na.rm=TRUE)
   #Max and min hum
   maxh <- max(Compile$hummax[is], na.rm=TRUE)
   minh <- min(Compile$hummin[is], na.rm=TRUE)
+  #replace Inf and -Inf values with NA
   
   #Longevity (The weeks alive)
   ls<-length(is)
@@ -1196,6 +1210,45 @@ for (i in 1:max(Compile$idnum)) {
   Compile$lowtemp_total[ids]<-mint
   Compile$lowhum_total[ids]<-minh
 }
+
+##Create a similar loop for hatch data, but redefine is with eggslaid
+for (i in 1:max(Compile$idnum)) {
+  ids<-which(Compile$idnum==i)
+  is <- intersect(ids, eggslaid)
+  #average temperatures
+  avgt<-mean(Compile$avtemp[is], na.rm=TRUE)
+  avght<-mean(Compile$avtemphigh[is], na.rm=TRUE)
+  avglt<-mean(Compile$avtemplow[is], na.rm=TRUE)
+  #average humidity
+  avgh<-mean(Compile$avhum[is], na.rm=TRUE)
+  avghh<-mean(Compile$avhumhigh[is], na.rm=TRUE)
+  avglh<-mean(Compile$avhumlow[is], na.rm=TRUE)
+  #Max and min Temp, Inf's are created
+  maxt <- max(Compile$tempmax[is], na.rm=TRUE)
+  mint <- min(Compile$tempmin[is], na.rm=TRUE)
+  #Max and min hum
+  maxh <- max(Compile$hummax[is], na.rm=TRUE)
+  minh <- min(Compile$hummin[is], na.rm=TRUE)
+  #remove Inf's
+  maxt[which(is.infinite(maxt)==TRUE)]<- NA
+  mint[which(is.infinite(mint)==TRUE)]<- NA
+  maxh[which(is.infinite(maxh)==TRUE)]<- NA
+  minh[which(is.infinite(minh)==TRUE)]<- NA
+  
+  #Put the calculated items into the appropriate vectors of data frame
+  Compile$Havtemp_total[ids]<-avgt
+  Compile$Havlowtemp_total[ids]<-avglt
+  Compile$Havhightemp_total[ids]<-avght
+  Compile$Havhum_total[ids]<-avgh
+  Compile$Havlowhum_total[ids]<-avglh
+  Compile$Havhighhum_total[ids]<-avghh
+  Compile$Hhightemp_total[ids]<-maxt
+  Compile$Hhighhum_total[ids]<-maxh
+  Compile$Hlowtemp_total[ids]<-mint
+  Compile$Hlowhum_total[ids]<-minh
+}
+
+
 #write.csv(Compile,"CompiledFertilityData.csv")
 
 ###############################################################################
@@ -1212,7 +1265,7 @@ pdf("Hum_Temp_covariates.pdf")
 par(mfrow=(c(2,5)))
 #eggs by average humidity
 segghum<-ggplot(aes( y= eggs, x= avhum_total, na.rm=TRUE), 
-               data=single)+geom_point(data=single)
+                data=single)+geom_point(data=single)
 segghum<-segghum+ggtitle("Number of Eggs Laid by Average Humidity and Infection Status") 
 segghum<-segghum+facet_grid(. ~infected)+geom_smooth(method= "lm")
 segghum
@@ -1221,7 +1274,7 @@ seghum
 
 #egg avg high humidity
 segghighhum <- ggplot(aes( y= eggs, x= avhighhum_total, na.rm=TRUE), 
-                data=single)+geom_point(data=single)
+                      data=single)+geom_point(data=single)
 segghighhum <- segghighhum+ggtitle("Number of Eggs Laid by Average High Humidity and Infection Status") 
 segghighhum <- segghighhum+facet_grid(. ~infected)+geom_smooth(method= "lm")
 segghighhum
@@ -1341,23 +1394,48 @@ inter <- glm.nb(single$eggs ~ single$infected*single[, var_of_i])
 # write.csv(thdf, "humtemp_ptable.csv")
 
 ###############################################################################
-#Principle Component Analysis
+#Principal Component Analysis
 #------------------------------------------------------------------------------
-
-pcad<-data.frame(single$idnum, single$avhighhum_total, single$avhightemp_total, 
+#find the principal components across the entire bugs lifespan
+pcad<-data.frame(single$avhighhum_total, single$avhightemp_total, 
                  single$avhum_total, single$avtemp_total,single$avlowhum_total, 
                  single$avlowtemp_total, single$highhum_total, 
                  single$hightemp_total)
 
-pcout<-princomp(pcad)
+pcout <- princomp(pcad)
 #the sixth subset is the matrix of raw components
-pcm<-pcout[[6]]
+pcm <- pcout[[6]]
 #We need to add these componenets to original data set.
+#create idnum variable to later merge.
 prince<-data.frame(pcm)
 prince$idnum<-c(1:length(prince$Comp.1))
-single2<-merge(single, prince, by="idnum")
 
-write.csv(single2, "singleweekdata.csv")
+##Repeat, but for weeks with eggs.  
+#first create a data set without NA's Measurements
+srnas<-which(is.na(single$Havhum_total)==FALSE)
+rsingle<-single[srnas,]
+
+Hpcad<-data.frame(rsingle$Havhighhum_total, rsingle$Havhightemp_total, 
+                 rsingle$Havhum_total, rsingle$Havtemp_total,rsingle$Havlowhum_total, 
+                 rsingle$Havlowtemp_total, rsingle$Hhighhum_total, 
+                 rsingle$Hhightemp_total)
+
+Hpcout<-princomp(Hpcad)
+#the sixth subset is the matrix of raw components
+Hpcm<-Hpcout[[6]]
+
+#We need to add these componenets to original data set.
+Hprince<-data.frame(Hpcm)
+Hprince$idnum<-rsingle$idnum
+# Columns need to be renamed to be firrent from prince
+names(Hprince)<-c("HComp.1", "HComp.2", "HComp.3", "HComp.4", "HComp.5",
+                  "HComp.6", "HComp.7", "HComp.8", "idnum") 
+
+
+#Merge the data sets
+  single2<-merge(single, prince, by="idnum")
+  single2a<-merge(single2, Hprince, by="idnum")
+write.csv(single2a, "singleweekdata.csv")
 
 #Bring in Compiled data exported from code above.
 Compile<-read.csv("CompiledFertilityData.csv")
