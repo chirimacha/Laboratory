@@ -1400,7 +1400,7 @@ inter <- glm.nb(single$eggs ~ single$infected*single[, var_of_i])
 pcad<-data.frame(single$avhighhum_total, single$avhightemp_total, 
                  single$avhum_total, single$avtemp_total,single$avlowhum_total, 
                  single$avlowtemp_total, single$highhum_total, 
-                 single$hightemp_total)
+                 single$hightemp_total, single$lowhum_total, single$lowtemp_total)
 
 pcout <- princomp(pcad)
 #the sixth subset is the matrix of raw components
@@ -1418,7 +1418,7 @@ rsingle<-single[srnas,]
 Hpcad<-data.frame(rsingle$Havhighhum_total, rsingle$Havhightemp_total, 
                  rsingle$Havhum_total, rsingle$Havtemp_total,rsingle$Havlowhum_total, 
                  rsingle$Havlowtemp_total, rsingle$Hhighhum_total, 
-                 rsingle$Hhightemp_total)
+                 rsingle$Hhightemp_total, rsingle$lowhum_total, rsingle$lowtemp_total)
 
 Hpcout<-princomp(Hpcad)
 #the sixth subset is the matrix of raw components
@@ -1427,18 +1427,17 @@ Hpcm<-Hpcout[[6]]
 #We need to add these componenets to original data set.
 Hprince<-data.frame(Hpcm)
 Hprince$idnum<-rsingle$idnum
-# Columns need to be renamed to be firrent from prince
+# Columns need to be renamed to be difirrent from prince
 names(Hprince)<-c("HComp.1", "HComp.2", "HComp.3", "HComp.4", "HComp.5",
-                  "HComp.6", "HComp.7", "HComp.8", "idnum") 
-
+                  "HComp.6", "HComp.7", "HComp.8", "HComp.9", "HComp.10", "idnum") 
 
 #Merge the data sets
   single2<-merge(single, prince, by="idnum")
-  single2a<-merge(single2, Hprince, by="idnum")
+  single2a<-merge(Hprince, single2, by="idnum", all.y= TRUE)
 write.csv(single2a, "singleweekdata.csv")
 
 #Bring in Compiled data exported from code above.
-Compile<-read.csv("CompiledFertilityData.csv")
+#Compile<-read.csv("CompiledFertilityData.csv")
 
 #for box plots week was categorical.  This makes a numeric column.
 Compile$weeknum<-as.numeric(Compile$week)
