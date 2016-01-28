@@ -14,6 +14,7 @@ library(lmtest)
 #library(pscl)
 library(survival)
 library(doBy)
+library(Rmisc) #summarySE command
 
 #set directory and bring in files to be analyzed.
 setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
@@ -487,6 +488,7 @@ legend("topright", c("infected","controls", "95% CI"), col=c("darkorange1", "dod
        pch=c(18,16))
 #dev.off()
 
+
 #Por Rep1
 #pdf(file="graphs/AvgEggsLaidBtwnAlvInfyCntrlR1byWeek.pdf")
 plot(iRAegg$xbar, type="o", main="Average Eggs Laid Between Alive Infected and Control Insects in Rep 1",
@@ -676,28 +678,192 @@ par(mfrow=c(1,1))
 #pdf("graphs/NumEggsLaidByWeekYInfyCntlBox.pdf")
 g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
        data= Compile[enona,]) +geom_boxplot(data=Compile[enona,])
-g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status Each Week")
-g<-g+scale_fill_manual(values=c("blue", "red"))
+g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status Each Week")+
+  xlab("Week") +
+  ylab("Number of Eggs Laid")
+g<-g+scale_fill_manual(values=c("#00CCFF", "#990000"),name="Infection Status", labels=c("Controls", "Infected"))
+#g<-g+ scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"))
 #g<-g+scale_x_continuous(breaks=seq(0, 38, 2))
 #g<-g+scale_x_discrete(labels=c("", seq())
 g
 
+
 #ggsave(g, file="BoxPlotDistNumEggLaidbyInfectionStatusbyWeek.jpeg", units= "cm",
 #   width = 26.4, height= 15.875)
-      
 #dev.off()
+
+
+#create graph that show average 
+weekinfsum<-summarySE(Compile, measurevar="eggs", groupvars=c("infected", "week"), na.rm=TRUE)
+
+#Change working directory for easy access to draft writers
+setwd("c:\\Users\\tradylan\\Dropbox\\cruzi_on_lifetables\\paper_draft\\Figuras\\figura_5_AverageEggsLaid")
+#setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos\\graphs")
+
+#save as csv so figure can easily be recreated on its own.
+write.csv(weekinfsum,"DataforFig5.csv")
+
+##to save as pdf
+#pdf("graphs/AvNumEggsLaidByWeekYInfyLineCI.pdf")
+pdf("AvNumEggsLaidByWeekYInfyLineCI.pdf")
+
+#Code to create figure in ggplot
+g2 <- ggplot(weekinfsum, aes(x=week, y=eggs, color=infected)) +
+  geom_errorbar(aes(ymin=eggs-ci, ymax=eggs+ci, group=infected, color=infected),
+                width=.1)+
+  geom_line(aes(group=infected)) +
+  ggtitle("Average Number of Eggs Laid from Living Insects By Week")+
+  xlab("Week") +
+  ylab("Average Number of Eggs Laid")+
+  scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"),h= c(250, 3))+
+  geom_point()+
+  theme(legend.position=c(0.9, 0.9))
+g2
+
+dev.off()
+##save as various file types
+#JPEG
+ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.jpeg", units= "cm",
+  width = 26.4, height= 15.875)
+
+#BMP
+ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.bmp", units= "cm",
+ width = 26.4, height= 15.875)
+
+#GIF
+#ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.gif", units= "cm",
+# width = 26.4, height= 15.875)
+
+#TIFF
+ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.tiff", units= "cm",
+ width = 26.4, height= 15.875)
+
+#EPS
+ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.eps", units= "cm",
+ width = 26.4, height= 15.875)
+
+#SVG
+ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.svg", units= "cm",
+ width = 26.4, height= 15.875)
+
+#png
+ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.png", units= "cm",
+ width = 26.4, height= 15.875)
+
+
 
 #hatch plot
 #pdf("graphs/NumEggsHtchByWeekyInfyCntrlBox.pdf")
 h<-ggplot(aes( y= hatch, x= week, fill = infected, na.rm=TRUE), 
        data= Compile[hnona,])+geom_boxplot(data=Compile[hnona,])
-h<-h+ggtitle("Distribution of Number of Eggs Hatched by Infection Status")
-h<-h+scale_fill_manual(values=c("blue", "red"))
+h<-h+ggtitle("Distribution of Number of Eggs Hatched by Infection Status in Bugs that Laid Eggs")
+h<-h+scale_fill_manual(values=c("#00CCFF", "#990000"))
 h
 
-ggsave(h, file="BoxPlotDistNumEggHtvhbyInfectionStatusbyWeek.jpeg", units= "cm",
-       width = 26.4, height= 15.875)
+#ggsave(h, file="BoxPlotDistNumEggHtvhbyInfectionStatusbyWeek.jpeg", units= "cm",
+       #width = 26.4, height= 15.875)
 #dev.off()
+
+#h2: Hatchrate Plot
+#make a hatch rate 
+Compile$hatchrate<-Compile$hatch/Compile$eggs
+#Make a summary table
+hatchratesum<-summarySE(Compile, measurevar="hatchrate", groupvars=c("infected", "week"), na.rm=TRUE)
+#replace the Inf'swith NA's
+hatchratesum$hatchrate[which(is.infinite(hatchratesum$hatchrate)==TRUE)]<-NA
+write.csv(hatchratesum,"DataforFig6.csv")
+
+#Plot the average and 95% Confidence Interval
+#change working directory
+setwd("c:\\Users\\tradylan\\Dropbox\\cruzi_on_lifetables\\paper_draft\\Figuras\\figura_6_AverageHatchRate")
+
+pdf("AvHatchrateByWeekYInfyLineCI.pdf")
+h2 <- ggplot(hatchratesum, aes(x=week, y=hatchrate, color=infected)) +
+  geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
+                width=.1)+
+  geom_line(aes(group=infected)) +
+  ggtitle("Average Percentage of Eggs that Hatched by Week")+
+  xlab("Week") +
+  ylab("Average Percentage of Eggs that Hatched")+
+  scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
+  geom_point()+
+  theme(legend.position=c(0.9, 0.9))+
+  scale_y_continuous(breaks=seq(-3, 3, 0.5))
+h2
+dev.off()
+##save as other various file types.
+#JPEG
+ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.jpeg", units= "cm",
+  width = 26.4, height= 15.875)
+
+#BMP
+ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.bmp", units= "cm",
+ width = 26.4, height= 15.875)
+
+#TIFF
+ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.tiff", units= "cm",
+ width = 26.4, height= 15.875)
+
+#EPS
+ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.eps", units= "cm",
+ width = 26.4, height= 15.875)
+
+#SVG
+ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.svg", units= "cm",
+ width = 26.4, height= 15.875)
+
+#png
+ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.png", units= "cm",
+ width = 26.4, height= 15.875)
+
+
+#h3: Hatchrate Plot by trial
+#Make a summary table
+hatchratetrial<-summarySE(Compile, measurevar="hatchrate", groupvars=c("infected", "week", "trial"), na.rm=TRUE)
+#replace the inf with NA
+hatchratetrial$hatchrate[which(is.infinite(hatchratetrial$hatchrate)==TRUE)]<-NA
+par(mfrow=c(3,1))
+pdf("graphs/AvHatchrateByWeekYInfyTrialLineCIReps.pdf")
+
+#rep Pilot
+h3a <- ggplot(hatchratetrial[which(hatchratetrial$trial==0),], aes(x=week, y=hatchrate, color=infected)) +
+  geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
+                width=.1)+
+  geom_line(aes(group=c(infected))) +
+  ggtitle("Average Hatch Rate Each Week By Insects that Laid in Pilot")+
+  xlab("Week") +
+  ylab("Average Percentage of Eggs that Hatched")+
+  scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
+  geom_point()
+h3a
+#Rep 1
+h3b <- ggplot(hatchratetrial[which(hatchratetrial$trial==1),], aes(x=week, y=hatchrate, color=infected)) +
+  geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
+                width=.1)+
+  geom_line(aes(group=c(infected))) +
+  ggtitle("Average Hatch Rate Each Week By Insects that Laid in Rep 1")+
+  xlab("Week") +
+  ylab("Average Percentage of Eggs that Hatched")+
+  scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
+  geom_point()
+h3b
+#Rep 2
+h3c <- ggplot(hatchratetrial[which(hatchratetrial$trial==2),], aes(x=week, y=hatchrate, color=infected)) +
+  geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
+                width=.1)+
+  geom_line(aes(group=c(infected))) +
+  ggtitle("Average Hatch Rate Each Week By Insects that Laid in Rep 2")+
+  xlab("Week") +
+  ylab("Average Percentage of Eggs that Hatched")+
+  scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
+  geom_point()
+h3c
+
+
+dev.off()
+
+par(mfrow=c(1,1))
+
 
 #Other parts of this study show that life span changes depending on inf
 #lets look at the number alive by week
@@ -898,8 +1064,6 @@ avhhumpdiff<-glm(eggs~avhum*+humdiff, data=Compile)#14020 (adding humdiff doesn'
 avhumlm<-lm(eggs~avhum, data=Compile)
 avhumhighlm<-lm(eggs~avhumhigh, data=Compile)
 humminlm<-lm(eggs~hummin, data=Compile) #
-
-
 
 ################################################
 #same for temp
