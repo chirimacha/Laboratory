@@ -63,7 +63,6 @@ chop <- which(names(D1Ind)=="X")
 D1Ind <- D1Ind[,-chop]
 
 #In order to get to cox test, reshape the data.
-
 LD1Ind<-melt(D1Ind, id=c("INSECT","STAGE","TIME","EXPOSE", "QUAD", "NOTES",
                          "TREATMENT"))
 
@@ -110,7 +109,45 @@ LD1Ind$living[living] <- 1
 
 #==============================================================================
 ##Lets clean up the data so that we get smooth transitions
+#lets make a copy of LD1Ind so that we have a clean and raw set
+Cl1Ind<-LD1Ind
 #If dead, then becomes knockdown mark as knock down.
+#create vector of unique days
+days<-unique(Cl1Ind$DAY)
+mday<-max(days)
+deadobs<-which(Cl1Ind$dead==1)
+nmax<-which(Cl1Ind$DAY < mday)
+testobs<-intersect(deadobs, nmax)
+Cl1Ind$CC<-Cl1Ind$STAGE*NA
+for(i in 1:length(testobs)){
+  d<-Cl1Ind$DAY[testobs[i]]
+  n<-which(days==d)
+  nx<-days[n+1]
+  ins<-Cl1Ind$INSECT[testobs[i]]
+  ains<-which(Cl1Ind$INSECT==ins)
+  anx<-which(Cl1Ind$DAY==nx)
+  nextobv<-intersect(ains, anx)
+  if(Cl1Ind$STATUS[testobs[i]] != Cl1Ind$STATUS[nextobv]){
+    Cl1Ind$STATUS[testobs[i]]<- Cl1Ind$STATUS[nextobv]
+    Cl1Ind$dead[testobs[i]]<- Cl1Ind$dead[nextobv]
+    Cl1Ind$alive[testobs[i]]<- Cl1Ind$alive[nextobv]
+    Cl1Ind$knockdown[testobs[i]]<- Cl1Ind$knockdown[nextobv]
+    Cl1Ind$unviable[testobs[i]]<- Cl1Ind$unviable[nextobv]
+    Cl1Ind$living[testobs[i]]<- Cl1Ind$living[nextobv]
+    Cl1Ind$CC[testobs[i]]<-"STATUS CHANGED IN CODE- Died later than originally recorded"
+  }
+}
+bug<-which(Cl1Ind$CC=="STATUS CHANGED IN CODE- Died later than originally recorded")
+Cl1Ind$INSECT[bug]
+#Check if these are data entry errors or other
+
+
+
+Cl1Ind$INSECT[deadobs]
+if(Cl1Ind$DAY[deadobs]>mday){
+  if(Cl1$Ind)
+}
+
 
 #also consider case where knock down went to alive.
 
@@ -119,6 +156,15 @@ LD1Ind$living[living] <- 1
 #also add back collective data to 1H-5A 2015-09-2015
 
 #==============================================================================
+
+#Survival Analysis
+#Create Kaplan Meier Curves
+#Put date into numeric format
+LD1Ind$julian<-julian(LD1Ind$DATE)
+LD1Ind$DAY<-as.numeric(LD1Ind$julian-min(LD1Ind$julian))
+#First create Survival object
+Surv(time=LD1Ind$DAY, event=LD1Ind$dead)
+
 #lets do simple calculations finding the number and proportion by group
 
 ##Use the summary By funciton on Expose and Date to get counts
@@ -195,7 +241,7 @@ c<-c+scale_fill_manual(values=c("blue", "red"))
 c
 #dev.off()
 #Clorofenapyr
-par(mfrwo=c(1,1))
+par(mfrow=c(1,1))
 ##Lets plot death and unviable by time on each data set 
 #DEATH
 #pdf("TABLES_GRAPHS/DeathCurve_1DAY_PostPaint.pdf")
@@ -214,10 +260,10 @@ h<-h+scale_fill_manual(values=c("blue", "red"))
 h
 #dev.off()
 
-#pdf("TABLES_GRAPHS/SurvivalCurve_1DAY_PostPaint.pdf")
+pdf("TABLES_GRAPHS/SurvivalCurve_1DAY_PostPaint.pdf")
 k<-ggplot(data= treatmentsum, aes( y=palive , x= DATE, group= EXPOSE, color=TREATMENT,linetype= TIME, 
                                    na.rm=TRUE))+geom_line() +geom_point(aes(shape = TIME))
-k<-k+ggtitle("Percentage Alive Over Time")+ylab("Percent Dead")
+k<-k+ggtitle("Percentage Alive Over Time")+ylab("Percent Alive")
 k<-k+scale_fill_manual(values=c("blue", "red"))
 k
 #dev.off()
@@ -228,7 +274,7 @@ l<-ggplot(data= treatmentsum, aes(y = pliving , x = DATE, group = EXPOSE, color 
 l<-l+ggtitle("Percentage Living Over Time")+ylab("Percentage Alive or Knockdown")
 l<-l+scale_fill_manual(values=c("blue", "red"))
 l
-#dev.off()
+dev.off()
 
 #==============================================================================
 #90 Day Replicate
@@ -239,7 +285,7 @@ D90Ind <- read.csv("DATA/Inesfly_Ind_90DA.csv")
 #D90Jar <- read.csv("DATA/Inesfly_Jar_1D.csv")
 
 #Split the unicode into relevant information for Individual observations
-D90Ind$INSECT <- as.character(D1Ind$INSECT)
+D90Ind$INSECT <- as.character(D90Ind$INSECT)
 D90Ind$TIME <- substr(D90Ind$INSECT, 1, 3)
 D90Ind$TREATMENT <- substr(D90Ind$INSECT, 5, 6)
 D90Ind$QUAD <- substr(D90Ind$INSECT, 8, 8)
@@ -421,9 +467,9 @@ h
 dev.off()
 
 pdf("TABLES_GRAPHS/SurvivalCurve_90DAY_PostPaint.pdf")
-s<-ggplot(data= treatmentsum1, aes( y=palive , x= DATE, group= EXPOSE, color=TREATMENT,linetype= TIME, 
+s<-ggplot(data= treatmentsum90, aes( y=palive , x= DATE, group= EXPOSE, color=TREATMENT,linetype= TIME, 
                                    na.rm=TRUE))+geom_line() +geom_point(aes(shape = TIME))
-s<-s+ggtitle("Percentage Alive Over Time")+ylab("Percent Dead")
+s<-s+ggtitle("Percentage Alive Over Time")+ylab("Percent Alive")
 s<-s+scale_fill_manual(values=c("blue", "red"))
 s
 #dev.off()
