@@ -1,6 +1,6 @@
 #packages needed/experimented with
 #install.packages(c("lubridate","reshape2","vioplot", "matrixStats","ggplot",
-#     "plyr", "geeM", "MASS", "lmtest", "survval", "doBy","stats"))
+#     "plyr", "geeM", "MASS", "lmtest", "survval", "doBy","stats", "stringi", "Rcpp"))
 
 library(lubridate) #para extracting dates 
 library(reshape2) #para make the wide data into long data
@@ -10,9 +10,10 @@ library(plyr)  #para rbind.fill function
 library(geeM)
 library(MASS)
 library(lmtest)
-#library(pscl)
+library(pscl)
 library(survival)
 library(doBy)
+library(missMDA)
 library(Rmisc) #summarySE command
 
 #set directory and bring in files to be analyzed.
@@ -499,6 +500,7 @@ FFdata$hatch<- NULL
 #save as a csv
 #write.csv("FertilityFecundityFinalData.csv")
 
+plot(FFdata$lifespan, FFdata$egg_total)
 ###############################################################################
 #==============================================================================
 #ahora tenomos muchas graficas, podemos empezar haciendo el modelo
@@ -514,56 +516,76 @@ FFdata$hatch<- NULL
 #[11]AIC
 #[14]Weights
 #Model with infection and infection as covariates.
-lifespanmod<-glm.nb(egg_total~infected+lifespan, data=FFdata)
-  summary(lifespanmod)
+lifespanmod<-glm.nb(egg_total~infected+lifespan, data=FFdata )
+  summary(lifespanmod )
   #AIC==1636.7 P(infected)==0.107
 #Null Model without any temperature or humidity variables.
-nullmodel<- glm.nb(egg_total~infected, data=FFdata, offset(lifespan))
- summary(nullmodel)  #AIC==26710   P=<2e-16 ***
+nullmodel<- glm.nb(egg_total~infected, data=FFdata, offset(log(lifespan)))
+ summary(nullmodel)  #AIC==26710   P=<2e-16 *** Theta is 1.13
+#Check if poisson would be better
+ poissonmod<-glm(egg_total~infected, offset(log(lifespan)), data=FFdata, family="poisson")
+ #test from http://www.ats.ucla.edu/stat/r/dae/nbreg.htm
+  X2 <- 2*(logLik(nullmodel)-logLik(poissonmod))
+  pchisq(X2, df=1, lower.tail=FALSE)  #is the df=1 because they are the same, except for theta?
+  lrtest(poissonmod, nullmodel) #this does the same thing, again shows that nb is better
+ #This rules out poisson
+#check for 0 inflation
+nullzmod<- zeroinfl(egg_total~infected+offset(log(lifespan)), data=FFdata)
+ vuong(nullmodel, nullzmod) #null model is better, so no zero inflation
+
  #AIC==
 ###Now just do a univariate analysis
-maxtempmodel<- glm.nb(egg_total~avmaxtemp, data=FFdata, offset(lifespan))
-mintempmodel<- glm.nb(egg_total~avmintemp, data=FFdata, offset(lifespan))
-maxhummodel<- glm.nb(egg_total~avmaxhum, data=FFdata, offset(lifespan))
-minhummodel<- glm.nb(egg_total~avminhum, data=FFdata, offset(lifespan))
+maxtempmodel<- glm.nb(egg_total~avmaxtemp, data=FFdata, offset(log(lifespan)))
+mintempmodel<- glm.nb(egg_total~avmintemp, data=FFdata, offset(log(lifespan)))
+maxhummodel<- glm.nb(egg_total~avmaxhum, data=FFdata, offset(log(lifespan)))
+minhummodel<- glm.nb(egg_total~avminhum, data=FFdata, (log(lifespan)))
 
 #look at summary to check AIC and P value
-summary(maxtempmodel)  #AIC==26605 
-summary(mintempmodel) #AIC==26781  (null model is a better model) 
-summary(maxhummodel) #AIC==26744  (null model is a better model)
-summary(minhummodel) #AIC==26812   
+summary(maxtempmodel)  #AIC==
+summary(mintempmodel) #AIC==
+summary(maxhummodel) #AIC==
+summary(minhummodel) #AIC==  
 
 #Model with Average Minimum Temperature and max humidity model
-selectedmodel<-glm.nb(egg_total~infected+avmaxtemp+avminhum, data=FFdata, offset(lifespan))
-summary(selectedmodel)  #AIC==26366   P(infection)==< 2e-16 *** (worse than full model)
+selectedmodel<-glm.nb(egg_total~infected+avmaxtemp+avminhum, data=FFdata, offset(log(lifespan)))
+summary(selectedmodel)  
 
 #full models
 fullmodel<-glm.nb(egg_total~infected+avmaxtemp+avminhum+avmaxhum+avmintemp, data=FFdata, offset(lifespan))
-summary(fullmodel) #AIC==26040
-
+summary(fullmodel) #AIC==
+plot(FFdata$avmaxhum, FFdata$avminhum)
 #Alternative models (2 variables)  #all of which the full model has a better AIC
-AltModelA<-glm.nb(egg_total~infected+avmintemp+avminhum, data=FFdata, offset(lifespan))
-  summary(AltModelA) #AIC==26440
-AltModelB<-glm.nb(egg_total~infected+avmaxtemp+avmaxhum, data=FFdata, offset(lifespan))
-  summary(AltModelB) #AIC==26355
-AltModelC<-glm.nb(egg_total~infected+avmintemp+avmaxhum, data=FFdata, offset(lifespan))
-  summary(AltModelC) #AIC==26417
-AltModelD<-glm.nb(egg_total~infected+avminhum+avmaxhum, data=FFdata, offset(lifespan))
-  summary(AltModelD) #AIC==26375 
-AltModelE<-glm.nb(egg_total~infected+avmintemp+avmaxtemp, data=FFdata, offset(lifespan))
-  summary(AltModelE) #AIC==26217
+AltModelA<-glm.nb(egg_total~infected+avmintemp+avminhum, data=FFdata, offset(log(lifespan)))
+  summary(AltModelA) #AIC==
+AltModelB<-glm.nb(egg_total~infected+avmaxtemp+avmaxhum, data=FFdata, offset(log(lifespan)))
+  summary(AltModelB) #AIC==
+AltModelC<-glm.nb(egg_total~infected+avmintemp+avmaxhum, data=FFdata, offset(log(lifespan)))
+  summary(AltModelC) #AIC==
+AltModelD<-glm.nb(egg_total~infected+avminhum+avmaxhum, data=FFdata, offset(log(lifespan)))
+  summary(AltModelD) #AIC== 
+AltModelE<-glm.nb(egg_total~infected+avmintemp+avmaxtemp, data=FFdata, offset(log(lifespan)))
+  summary(AltModelE) #AIC==
   
 #Alternative Models with 3 Variables
-  AltModelF<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdata, offset(lifespan))
-  summary(AltModelF) #AIC==26183
-  AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avmaxhum, data=FFdata, offset(lifespan))
-  summary(AltModelG) #AIC==26207
-  AltModelH<-glm.nb(egg_total~infected+avmintemp+avmaxhum+avminhum, data=FFdata, offset(lifespan))
-  summary(AltModelH) #AIC==26368
-  AltModelI<-glm.nb(egg_total~infected+avmaxhum+avmaxtemp+avminhum, data=FFdata, offset(lifespan))
-  summary(AltModelI) #AIC==26320
+  AltModelF<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdata, offset(log(lifespan)))
+  summary(AltModelF) #AIC==
+  AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avmaxhum, data=FFdata, offset(log(lifespan)))
+  summary(AltModelG) #AIC==
+  AltModelH<-glm.nb(egg_total~infected+avmintemp+avmaxhum+avminhum, data=FFdata, offset(log(lifespan)))
+  summary(AltModelH) #AIC==
+  AltModelI<-glm.nb(egg_total~infected+avmaxhum+avmaxtemp+avminhum, data=FFdata, offset(log(lifespan)))
+  summary(AltModelI) #AIC==
 
-
+#it is likely that colinearity is inflating the significance of eachy variable.
+  #thus try principle components
+  plot(FFdata$avmaxtemp, FFdata$avmintemp)
+  plot(FFdata$avmaxtemp, FFdata$avmaxhum)
+  plot(FFdata$avmaxtemp, FFdata$avminhum)
+  plot(FFdata$avmintemp, FFdata$avmaxhum)
+  plot(FFdata$avmintemp, FFdata$avminhum)
+  plot(FFdata$avmaxhum, FFdata$avminhum)
+  
+  
 ###############################################################################
   #Repeat for hatching models
 #==============================================================================
@@ -572,10 +594,19 @@ FFdata$hatchproportion<-FFdata$hatch_total/FFdata$egg_total
   var(FFdata$hatchproportion)
   mean(FFdata$hatchproportion)
   hist(FFdata$hatchproportion)
+
+#First Create data set without 0 values(can't divide by 0)
+  hasno<-which(FFdata$egg_total=="0")
+  FFnona<-FFdata[-hasno,] 
   
 #Null Model without any temperature or humidity variables.
-  nullhmodel<- glm(hatch_total~infected, data=FFdata, offset(egg_total),family="poisson")
-  summary(nullhmodel)  #AIC==340734   
+  pnullhmodel<- glm(hatch_total~infected, data=FFnona, offset(log(egg_total)),family="poisson")
+  nbnullhmodel<-glm.nb(hatch_total~infected, data=FFnona, offset(log(egg_total)))
+  lrtest(pnullhmodel, nbnullhmodel)
+   #This rules out poisson
+#now look at zero inflation  
+  playzero <- zeroinfl(hatch_total~infected +offset(log(egg_total)), data=FFnona, dist="negbin" )  
+    vuong(playzero, nbnullhmodel)  #significantly positive, implies zero inflation is better
   
 #add lifespan to model to see if it is helpful
   nullhmodelB<- glm(hatch_total~infected+lifespan, data=FFdata, offset(egg_total),family="poisson")
@@ -684,9 +715,9 @@ summary(completemodelni) #91904  <-best model thus far
 
 
 glm.nb(egg_total~infected+lifespan+avmaxhum+avmintemp+avminhum+avmaxtemp, data=FFdata, offset(lifespan))
-#aic==25058
+#AIC==25058
 glm.nb(egg_total~infected+lifespan+avmintemp+avminhum+avmaxtemp+trial, data=FFdata, offset(lifespan))
-#25018 
+#AIC==25018 
 
 glm.nb(egg_total~infected+lifespan+avmintemp+avminhum+avmaxtemp+trial, data=FFdata, offset(lifespan))
 #AIC==25017 
@@ -703,23 +734,35 @@ glm.nb(egg_total~infected+lifespan+avmintemp+avminhum+trial*infected, data=FFdat
 #------------------------------------------------------------------------------
 #find the principal components across the entire bugs lifespan
 pcad<-data.frame(FFdata$avmaxtemp,FFdata$avmintemp,FFdata$avmaxhum,FFdata$avminhum)
+  corm<-cor(pcad)
+
+  eigen(corm)  #First two components are greater than 1.
 pcout <- princomp(pcad)
+pcout2 <- prcomp(~FFdata.avmaxtemp+FFdata.avmintemp+FFdata.avmaxhum+FFdata.avminhum, data=pcad, scale=TRUE)
 #the sixth subset is the matrix of raw components
-pcm <- pcout[[6]]
+pcm <- pcout2$x
 #We need to add these componenets to original data set.
 #create idnum variable to later merge.
 prince<-data.frame(pcm)
-prince$idnum<-c(1:length(prince$Comp.1))
+prince$idnum<-c(1:length(prince$PC2))
 
+#find the relative contribution of each variable to each component
+#fromhttp://stackoverflow.com/questions/12760108/principal-components-analysis-how-to-get-the-contribution-of-each-paramete
+aload <- abs(pcout2$rotation)
+sweep(aload, 2, colSums(aload), "/")
+#shows that in pcout2, components have an approximately equal contriution
 ##Repeat for hatch model variables  
 #first create a data set without NA's Measurements
 srnas<-which(is.na(FFdata$havmintemp)==FALSE)
 rFFdata<-FFdata[srnas,]
 
 Hpcad<-data.frame(rFFdata$havmaxtemp,rFFdata$havmintemp,rFFdata$havmaxhum,rFFdata$havminhum)
-Hpcout<-princomp(Hpcad)
+  hcorm<-cor(Hpcad)
+  eigen(hcorm) #same, first two variales should be used.
+Hpcout <-princomp(Hpcad)
+Hpcout2 <- prcomp(~rFFdata.havmaxtemp+rFFdata.havmintemp+rFFdata.havmaxhum+rFFdata.havminhum, data=Hpcad, scale=TRUE)
 #the sixth subset is the matrix of raw components
-Hpcm<-Hpcout[[6]]
+Hpcm<-Hpcout2$x
 
 #We need to add these componenets to original data set.
 Hprince<-data.frame(Hpcm)
@@ -730,34 +773,145 @@ names(Hprince)<-c("HComp.1", "HComp.2", "HComp.3", "HComp.4", "idnum")
 #Merge the data sets
   single2<-merge(FFdata, prince, by="idnum")
   FFdataPC<-merge(Hprince, single2, by="idnum", all.y= TRUE)
-write.csv(FFdataPC, "FertilityFecundityDataPC.csv")
+#write.csv(FFdataPC, "FertilityFecundityDataPC.csv")
+
+#to determine the number of principle comonent
+#estimPCA<-estim_ncpPCA(pcad, ncp.min=0, ncp.max=4, method.cv="loo", method="EM")
+estim_ncpPCA(pcad, ncp.min=0, ncp.max=4, method.cv="loo")
+estim_ncpPCA(Hpcad, ncp.min=0, ncp.max=4, method.cv="loo")
 
 #Egg models
 #Null model with no principle components
-#pceggmod0 <- 
+pceggmod0 <- glm.nb(egg_total~infected, data=FFdataPC, offset(log(lifespan)))
 #Model with 1 PC
+pceggmod1 <- glm.nb(egg_total~infected+PC1, data=FFdataPC, offset(log(lifespan)))
 #Model with 2 PC
+pceggmod2 <- glm.nb(egg_total~infected+PC1+PC2, data=FFdataPC, offset(log(lifespan)))
+#Model with 2PC and trial
+pceggmod2b <- glm.nb(egg_total~infected+PC1+PC2+factor(trial), data=FFdataPC, offset(log(lifespan)))
+pceggmod2c <- glm.nb(egg_total~infected+PC1+PC2*factor(trial), data=FFdataPC, offset(log(lifespan)))
+pceggmod2d <- glm.nb(egg_total~infected+PC2+PC1*factor(trial), data=FFdataPC, offset(log(lifespan)))
+pceggmod2e <- glm.nb(egg_total~infected+PC1*factor(trial)+PC2*factor(trial), data=FFdataPC, offset(log(lifespan)))
+
 #Model with 3 PC
-#Model with 4 PC
-#Full Model with all Principle Components
+pceggmod3 <- glm.nb(egg_total~infected+PC1+PC2+PC3, data=FFdataPC, offset(log(lifespan)))
+#Model without PC2
+pceggmod3b <- glm.nb(egg_total~infected+PC1+PC3, data=FFdataPC, offset(log(lifespan)))
+pceggmod3c <- glm.nb(egg_total~infected+PC1+PC2+PC3+factor(trial), data=FFdataPC, offset(log(lifespan)))
+pceggmod3d <- glm.nb(egg_total~infected+PC1+PC3+factor(trial), data=FFdataPC, offset(log(lifespan)))
+#Full Model with all Principle Components #do not use, may overfit
+pceggmod4 <- glm.nb(egg_total~infected+PC1+PC2+PC3+PC4, data=FFdataPC, offset(log(lifespan)))
+
+#look at AIC's
+pceggmod0#4327
+pceggmod1#4263
+pceggmod2#4264
+pceggmod2b#4199
+pceggmod2c#4132
+pceggmod2d#4129
+pceggmod2e#4127***We will use this model
+
+pceggmod3#4250
+pceggmod3b#4248
+pceggmod3c#4197.7
+pceggmod3d#4239
+
+
+
+pceggmod4#4215
+#perform likelihood ratio test
+lrtest(pceggmod4,pceggmod2)#both test show pceggmod4 are significantly better than any other
+lrtest(pceggmod4,pceggmod1)
+lrtest(pceggmod3,pceggmod0)
+lrtest(pceggmod3,pceggmod1)
+lrtest(pceggmod3b,pceggmod3)
+
+lrtest(pceggmod2,pceggmod1)
 
 #Hatch models
+#remove 0's again
+pcnona<-which(FFdataPC$egg_total==0)
+FFnonaPC<-FFdataPC[-pcnona,]
 #Null model with no principle components
-hAltModelA<-glm.nb(hatch_total~infected+lifespan, data=FFdata, offset(egg_total))
+pchatchmodnull<-glm.nb(hatch_total~offset(log(egg_total)), data=FFnonaPC)
+
+pchatchmod0<-glm.nb(hatch_total~infected+lifespan+offset(log(egg_total)), data=FFnonaPC)
+#AIC=1140
+pchatchmod0a<-glm.nb(hatch_total~infected+offset(log(egg_total)), data=FFnonaPC)
+#1138.4
+pchatchmod0b<-glm.nb(hatch_total~infected+trial+offset(log(egg_total)), data=FFnonaPC)
+
 #Model with 1 PC
-hAltModelA<-glm.nb(hatch_total~infected+lifespan, data=FFdata, offset(egg_total))
+pchatchmod1<-glm.nb(hatch_total~infected+HComp.1+offset(log(egg_total)), data=FFnonaPC) 
+pchatchmod1b<-glm.nb(hatch_total~infected+factor(trial)+HComp.1+offset(log(egg_total)), data=FFnonaPC) 
+pchatchmod1c<-glm.nb(hatch_total~infected+factor(trial)*HComp.1+offset(log(egg_total)), data=FFnonaPC) 
+pchatchmod1d<-glm.nb(hatch_total~infected+lifespan+HComp.1+offset(log(egg_total)), data=FFnonaPC) 
+pchatchmod1e<-glm.nb(hatch_total~infected+lifespan+factor(trial)*HComp.1+offset(log(egg_total)), data=FFnonaPC) 
+
 #Model with 2 PC
-hAltModelA<-glm.nb(hatch_total~infected+lifespan, data=FFdata, offset(egg_total))
+pchatchmod2<-glm.nb(hatch_total~infected+HComp.1+HComp.2+offset(log(egg_total)), data=FFnonaPC)
+pchatchmod2b<-glm.nb(hatch_total~infected+factor(trial)+HComp.1+HComp.2+offset(log(egg_total)), data=FFnonaPC) 
+pchatchmod2c<-glm.nb(hatch_total~infected+HComp.1+HComp.2*factor(trial)+offset(log(egg_total)), data=FFnonaPC) 
+pchatchmod2d<-glm.nb(hatch_total~infected+lifespan+HComp.1+HComp.2+factor(trial)+offset(log(egg_total)), data=FFnonaPC)
+pchatchmod2e<-glm.nb(hatch_total~infected+HComp.2+HComp.1*factor(trial)+lifespan+offset(log(egg_total)), data=FFnonaPC) 
+
+
 #Model with 3 PC
-hAltModelA<-glm.nb(hatch_total~infected+lifespan, data=FFdata, offset(egg_total))
-#Model with 4 PC
-hAltModelA<-glm.nb(hatch_total~infected+lifespan, data=FFdata, offset(egg_total))
-#Full Model with all Principle Components
+pchatchmod3<-glm.nb(hatch_total~infected+HComp.1+HComp.2+HComp.3+offset(log(egg_total)), data=FFnonaPC)
+#Model with 3 PC
+pchatchmod3a<-glm.nb(hatch_total~infected+HComp.1+HComp.2+HComp.3+factor(trial)+offset(log(egg_total)), data=FFnonaPC)
+pchatchmod3b<-glm.nb(hatch_total~infected+HComp.1+HComp.2+HComp.3+factor(trial)+offset(log(egg_total)), data=FFnonaPC)
+pchatchmod3c<-glm.nb(hatch_total~infected+HComp.1+HComp.2+HComp.3+lifespan+offset(log(egg_total)), data=FFnonaPC)
+
+#Model with 4 PC  #using 4 PC overfits PC 
+pchatchmod4<-glm.nb(hatch_total~infected+HComp.1+HComp.2+HComp.3+HComp.4+offset(log(egg_total)), data=FFnonaPC, dist="negbin")
+
+pchatchmod0#1140 SE inf=0.05
+pchatchmod0a#1140
+pchatchmod0b#1140 SE 0.49
+pchatchmod1#1140
+pchatchmod1b#1144
+pchatchmod1c#1144
+pchatchmod1d#1142
+pchatchmod1e#1144 
+
+pchatchmod2#1141.9
+pchatchmod2b#1141.5
+pchatchmod2c#1144
+pchatchmod2d#1141
+pchatchmod2e#1143
+
+pchatchmod3#1143
+pchatchmod3a#1142
+pchatchmod3b#1142
+pchatchmod3c#1145
+
+pchatchmod4
+
+#perform likelihood ratio test
+lrtest(pchatchmod1,pchatchmod0)
 
 
+lrtest(pchatchmod4,pchatchmod2)#
+lrtest(pchatchmod4,pchatchmod1)
+lrtest(pchatchmod4,pchatchmod0)
+lrtest(pchatchmod2,pchatchmod1)
 
-
+#look at realtion between HComp 1 and HComp=2
+HCp<-ggplot(data=FFnonaPC, aes( y= HComp.2, x= HComp.1))+
+       geom_point(aes(shape=factor(infected), color=factor(trial)))
+HCp
+# g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status Each Week")+
+#   xlab("Week") +
+#   ylab("Number of Eggs Laid")
+# g<-g+scale_fill_manual(values=c("#00CCFF", "#990000"),name="Infection Status", labels=c("Controls", "Infected"))
+# #g<-g+ scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"))
+# #g<-g+scale_x_continuous(breaks=seq(0, 38, 2))
+# #g<-g+scale_x_discrete(labels=c("", seq())
+# g
 # 
+
+
 # #ploting examples of residuals and model 
 # testplot<-ggplot(aes( y= eggs, x= weeknum, na.rm=TRUE), 
 #                data=Compile)+geom_point(data=Compile)
@@ -774,9 +928,9 @@ hAltModelA<-glm.nb(hatch_total~infected+lifespan, data=FFdata, offset(egg_total)
 #ln(prob)=AICmin-AICi/2
 #2e^prob=difference between AICs.  
 #if sign prob is 0.05 then
-2*(log(0.05))
+2*(log(0.05) )
 # thus a difference in AIC of 6 o greater is a significant similar probablity for now.
-test1<-exp((11824-11852)/2)
+test1<-exp((11824-11852)/2 )
 
 lrtest(nbmod1, nbmod2)
 lrtest(nbmod2,nbmod3)
@@ -809,3 +963,51 @@ lrtest(nbmod2,nbmod3)
 #   result<-IRR.x<-cbind(exp(logIRR.x), coef(summary(x))[,4])
 #   return(result)
 #
+
+#chisquare
+#total of each
+eggslaidtot<-sum(FFdata$egg_total, na.rm=TRUE)
+sum(FFdata$hatch_total, na.rm=TRUE)
+#total of infected
+infecteds<-which(FFdata$infected==1)
+infegg<-sum(FFdata$egg_total[infecteds], na.rm=TRUE)
+infhat<-sum(FFdata$hatch_total[infecteds], na.rm=TRUE)
+#total for controls
+controls<-which(FFdata$infected==0)
+cntegg<-sum(FFdata$egg_total[controls], na.rm=TRUE)
+cnthat<-sum(FFdata$hatch_total[controls], na.rm=TRUE)
+#eggs that did not hatch
+infnhat<-infegg-infhat
+cntnhat<-cntegg-cnthat 
+#create table
+infobs<-c(infhat, infnhat)
+conobs<-c(cnthat, cntnhat)
+conttab<-data.frame(infobs, conobs)
+chisq.test(conttab)
+
+#proportion test
+#make conttab a table instead of data frame
+conttab<-as.matrix(conttab)
+#run the test
+prop.test(conttab)
+
+
+# use total number of hatched and not hatched respectively to calculate expected rates
+rexphatch<-6670/9700
+rexnohatch<-3030/9700
+rexphatch+rexnohatch
+#multiply the rates by the total number of infected bugs.  
+iexhatch<-rexphatch*6958
+iexnohatch<-rexnohatch*6958
+cexhatch<-rexphatch*2742
+cexnohatch<-rexnohatch*2742
+(((4826-iexhatch)^2)/iexhatch)+(((2132-iexnohatch)^2)/iexnohatch)+(((1844-cexhatch)^2)/cexhatch)+(((898-cexnohatch)^2)/cexnohatch)
+
+
+
+#chi square
+infobs<-c(4826, 2132)
+conobs<-c(1844, 898)
+conttab<-data.frame(infobs, conobs)
+chisq.test(conttab)
+fisher.test(conttab)
