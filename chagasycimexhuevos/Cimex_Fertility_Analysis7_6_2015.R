@@ -581,21 +581,21 @@ setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
 # #[11]AIC
 # #[14]Weights
 # #Model with infection and lifespan as covariates.
-lifespanmod<-glm.nb(egg_total~infected+lifespan, data=FFdata )
+lifespanmod<-glm.nb(egg_total~infected+lifespan, data=FFdataPC )
   summary(lifespanmod )
   #AIC==1636.7 P(infected)==0.107
 #Null Model without any temperature or humidity variables.
-nullmodel<- glm.nb(egg_total~infected, data=FFdata, offset(log(lifespan)))
+nullmodel<- glm.nb(egg_total~infected, data=FFdataPC, offset(log(lifespan)))
  summary(nullmodel)  #AIC==26710   P=<2e-16 *** Theta is 1.13
 #Check if poisson would be better
- poissonmod<-glm(egg_total~infected, offset(log(lifespan)), data=FFdata, family="poisson")
+ poissonmod<-glm(egg_total~infected, offset(log(lifespan)), data=FFdataPC, family="poisson")
  #test from http://www.ats.ucla.edu/stat/r/dae/nbreg.htm
   X2 <- 2*(logLik(nullmodel)-logLik(poissonmod))
   pchisq(X2, df=1, lower.tail=FALSE)  #is the df=1 because they are the same, except for theta?
   lrtest(poissonmod, nullmodel) #this does the same thing, again shows that nb is better
  #This rules out poisson
 #check for 0 inflation
-nullzmod<- zeroinfl(egg_total~infected+offset(log(lifespan)), data=FFdata)
+nullzmod<- zeroinfl(egg_total~infected+offset(log(lifespan)), data=FFdataPC)
  vuong(nullmodel, nullzmod) #null model is better, so no zero inflation
 
 #skip to to line 587 to show colinearity.
@@ -619,7 +619,7 @@ summary(selectedmodel)
 #full models
 fullmodel<-glm.nb(egg_total~infected+avmaxtemp+avminhum+avmaxhum+avmintemp, data=FFdataPC, offset(lifespan))
 summary(fullmodel) #AIC==
-plot(FFdata$avmaxhum, FFdata$avminhum)
+plot(FFdataPC$avmaxhum, FFdataPC$avminhum)
 #Alternative models (2 variables)  #all of which the full model has a better AIC
 AltModelA<-glm.nb(egg_total~infected+avmintemp+avminhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelA) #AIC==
@@ -752,8 +752,8 @@ hfullmodel<- glm(hatch_total~infected+havminhum+havmaxhum+havmintemp+havmaxtemp,
   
 #taking a closer look at trial to see if there are signifcant differences.    
   ##it looks like trial with an interaction with infection would be beneficial
-FFdata$trial<-as.factor(FFdataPC$trial)  
-FFdata$mouseidnum<-as.factor(FFdataPC$trial)#163793  <-so we shoudl include trial
+  FFdataPC$trial<-as.factor(FFdataPC$trial)  
+  FFdataPC$mouseidnum<-as.factor(FFdataPC$mouseidnum)#163793  <-so we shoudl include trial
   trialmod<- glm(hatch_total~infected+lifespan+havmaxhum+havmintemp+havminhum+trial, data=FFdataPC, offset(egg_total),family="poisson")
   summary(trialmod) #AIC==145802
   pRsq(trialmod$null.deviance, trialmod$deviance) #0.744
@@ -785,7 +785,7 @@ glm.nb(egg_total~infected+lifespan+avmintemp+avminhum+avmaxtemp+trial, data=FFda
 glm.nb(egg_total~infected+lifespan+avmintemp+avminhum+avmaxtemp+trial*infected, data=FFdata, offset(lifespan))
 #AIC==24960 
 
-glm.nb(egg_total~infected+lifespan+avmintemp+avminhum+trial*infected, data=FFdata, offset(lifespan))
+glm.nb(egg_total~infected+lifespan+avmintemp+avminhum+trial*infected, data=FFdataPC, offset(lifespan))
 #AIC==24960 
 #same, but all variables are signifcant
 
@@ -860,8 +860,11 @@ lrtest(pceggmod2,pceggmod1)
 
 #random effect model
 FFdataPC$idnum <- as.factor(FFdataPC$idnum)
-meeggmod2e <- glm.nb(egg_total~infected+PC1*factor(trial)+PC2*factor(trial)+
-                       (1|idnum), data=FFdataPC, offset(log(lifespan)))
+meeggmod2a <- glmer.nb(egg_total~infected+PC1+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+meeggmod2b <- glmer.nb(egg_total~infected+PC1+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+meeggmod2c <- glmer.nb(egg_total~infected+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+
+#
 
 #==============================================================================
 #Hatch models
@@ -951,7 +954,7 @@ lrtest(pchatchmod1,pchatchmod0)
 #lrtest(pchatchmod2,pchatchmod1)
 
 #adding random effects
-
+mehatchmod <- glmer.nb(hatch_total~infected+PC1+(1|trial)+offset(log(FFnonaPC$egg_total)), data=FFnonaPC)
 
 #look at realtion between HComp 1 and HComp=2
 HCp<-ggplot(data=FFnonaPC, aes( y= HComp.2, x= HComp.1))+
@@ -978,18 +981,18 @@ HCp
 # plot(residuals(nbmod13))
 
 
-#####Likelihood ratio test
+#####Likelihood ratio test example
 
 #exp((AICmin-AICi)/2)=Probablity that i minimalizes information loss just as well as min.
 #ln(prob)=AICmin-AICi/2
 #2e^prob=difference between AICs.  
 #if sign prob is 0.05 then
-2*(log(0.05) )
+#2*(log(0.05) )
 # thus a difference in AIC of 6 o greater is a significant similar probablity for now.
-test1<-exp((11824-11852)/2 )
+#test1<-exp((11824-11852)/2 )
 
-lrtest(nbmod1, nbmod2)
-lrtest(nbmod2,nbmod3)
+#lrtest(nbmod1, nbmod2)
+#lrtest(nbmod2,nbmod3)
 
 #maybe try "nlme" package
 
@@ -1022,16 +1025,16 @@ lrtest(nbmod2,nbmod3)
 
 #chisquare
 #total of each
-eggslaidtot<-sum(FFdata$egg_total, na.rm=TRUE)
-sum(FFdata$hatch_total, na.rm=TRUE)
+eggslaidtot<-sum(FFdataPC$egg_total, na.rm=TRUE)
+sum(FFdataPC$hatch_total, na.rm=TRUE)
 #total of infected
-infecteds<-which(FFdata$infected==1)
-infegg<-sum(FFdata$egg_total[infecteds], na.rm=TRUE)
-infhat<-sum(FFdata$hatch_total[infecteds], na.rm=TRUE)
+infecteds<-which(FFdataPC$infected==1)
+infegg<-sum(FFdataPC$egg_total[infecteds], na.rm=TRUE)
+infhat<-sum(FFdataPC$hatch_total[infecteds], na.rm=TRUE)
 #total for controls
-controls<-which(FFdata$infected==0)
-cntegg<-sum(FFdata$egg_total[controls], na.rm=TRUE)
-cnthat<-sum(FFdata$hatch_total[controls], na.rm=TRUE)
+controls<-which(FFdataPC$infected==0)
+cntegg<-sum(FFdataPC$egg_total[controls], na.rm=TRUE)
+cnthat<-sum(FFdataPC$hatch_total[controls], na.rm=TRUE)
 #eggs that did not hatch
 infnhat<-infegg-infhat
 cntnhat<-cntegg-cnthat 
