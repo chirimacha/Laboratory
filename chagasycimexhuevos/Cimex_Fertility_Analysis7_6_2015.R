@@ -637,6 +637,19 @@ AltModelC<-glm.nb(egg_total~infected+avmintemp+avmaxhum, data=FFdataPC, offset(l
   summary(AltModelC) #AIC==4268.5
 AltModelD<-glm.nb(egg_total~infected+avminhum+avmaxhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelD) #AIC==4269.9 
+=======
+  summary(AltModelA) #AIC==
+
+AltModelB<-glm.nb(egg_total~infected+avmaxtemp+avmaxhum, data=FFdataPC, offset(log(lifespan)))
+  summary(AltModelB) #AIC==
+
+AltModelC<-glm.nb(egg_total~infected+avmintemp+avmaxhum, data=FFdataPC, offset(log(lifespan)))
+  summary(AltModelC) #AIC==
+
+AltModelD<-glm.nb(egg_total~infected+avminhum+avmaxhum, data=FFdataPC, offset(log(lifespan)))
+  summary(AltModelD) #AIC== 
+
+>>>>>>> f02990865669bada348e4c4e3e11dfdaf665b119
 AltModelE<-glm.nb(egg_total~infected+avmintemp+avmaxtemp, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelE) #AIC==4235.5
 AltModelF<-glm.nb(egg_total~infected+avmaxtemp+avminhum, data=FFdataPC, offset(log(lifespan)))
