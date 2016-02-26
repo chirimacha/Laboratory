@@ -1,7 +1,7 @@
 # #packages needed/experimented with
 #install.packages(c("lubridate","reshape2", "matrixStats","ggplot2",
 #     "plyr", "geeM", "MASS", "lmtest","survval", "doBy","stats", "stringi", 
-#     "Rcpp", "pscl", "missMDA", "Rmisc", "lme4", "nlme"))
+#     "Rcpp", "pscl", "missMDA", "Rmisc", "lme4", "nlme", "xlsx"))
 #call the packages
 library(lubridate) #para extracting dates 
 library(reshape2) #para make the wide data into long data
@@ -18,6 +18,7 @@ library(missMDA)
 library(Rmisc) #summarySE command
 library(lme4)#linear mixed effects
 library(nlme)
+library(stargazer)
 
 # #set directory and bring in files to be analyzed.
 # #PC
@@ -25,535 +26,559 @@ setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
 #MAC
 #setwd("/Users/mzlevy/Laboratory/chagasycimexhuevos")
 
-# #bring in hatching data from each rep (pilot, rep 1, and rep 2)
-# cimfertpilot <- read.csv("Cimex_FertP_update12_3.csv")
-# #Original Found https://docs.google.com/spreadsheets/d/1E-GRO1_Ybrgqj0wjgz5s9YHY1KwJUVPov0I2PwgC2CQ/edit
-# cimfert1 <- read.csv("Cimex_FertR1_8_12.csv")
-# ##https://docs.google.com/spreadsheets/d/1iDBITasgMrbmwGJJSwsPkcal1b7b3kdfmviRtw8wbqA/edit#gid=709304485
-# cimfert2 <- read.csv("Cimex_FertR2_8_12.csv")
-# #https://docs.google.com/spreadsheets/d/13RvsL-uZaKgJPN3RBf8nTlsR8BQ6U-BrEQ_7BmxYgsI/edit
+#bring in hatching data from each rep (pilot, rep 1, and rep 2)
+cimfertpilot <- read.csv("Cimex_FertP_update12_3.csv")
+#Original Found https://docs.google.com/spreadsheets/d/1E-GRO1_Ybrgqj0wjgz5s9YHY1KwJUVPov0I2PwgC2CQ/edit
+cimfert1 <- read.csv("Cimex_FertR1_8_12.csv")
+##https://docs.google.com/spreadsheets/d/1iDBITasgMrbmwGJJSwsPkcal1b7b3kdfmviRtw8wbqA/edit#gid=709304485
+cimfert2 <- read.csv("Cimex_FertR2_8_12.csv")
+#https://docs.google.com/spreadsheets/d/13RvsL-uZaKgJPN3RBf8nTlsR8BQ6U-BrEQ_7BmxYgsI/edit
+
+#Bring in Mortality Data (currently derived from above tables.)
+#mortR1 <- read.csv("Cimex_Mortality_R1.csv")
+#mortR2 <- read.csv("Cimex_Mortality_R2.csv")
+#another tab in the two R1 and R2 Google docs above.
+
+#bring in temperature and humidity data.
+#the pilot has the temp and RH data for all sections
+tempRH <- read.csv("TEMP_Y_RH.csv")
+#original from same google file as above hatch data.
+
+###Put all the data together.
+##Create a table with all the insects.
+#first create marker so we can identify each trial.
+cimfertpilot$trial <- 0
+cimfert1$trial <- 1
+cimfert2$trial <- 2
+
+#bring the tables together.".fill" allows different table lengths fill w/ NA
+cimfert<-rbind.fill(cimfert2, cimfert1, cimfertpilot)
+
+#create unicode for insect pair
+cimfert$ID <- paste(cimfert$Nro_.pareja, cimfert$trial, sep="-")
+#create column that specifies specific mouse
+cimfert$raton <-paste(cimfert$Procedencia, cimfert$trial, sep="-")
+#first use Procedencia to get certain groups
+ControlP <- which(cimfert$Procedencia=="CO")
+InfectPA <- which(cimfert$Procedencia=="I-R1")
+InfectPB <- which(cimfert$Procedencia=="I-R2")
+ControlA <- which(cimfert$Procedencia=="CO-A")
+ControlB <- which(cimfert$Procedencia=="CO-B")
+InfectA <- which(cimfert$Procedencia=="I-A")
+InfectB <- which(cimfert$Procedencia=="I-B")
+
+##Now create some indicies using the mouse.
+#the R stands for which Rep it was in. RA is rep 1 and RB is rep2.
+InfectARA <-which(cimfert$raton=="I-A-1")
+InfectARB <-which(cimfert$raton=="I-A-2")
+InfectBRA <-which(cimfert$raton=="I-B-1")
+InfectBRB <-which(cimfert$raton=="I-B-2")
+ControlARA <- which(cimfert$raton=="CO-A-1")
+ControlARB <- which(cimfert$raton=="CO-A-2")
+ControlBRA <- which(cimfert$raton=="CO-B-1")
+ControlBRB <- which(cimfert$raton=="CO-B-2")
+#group the appropriate indicies for later usage(plots)
+tot<-c(1:length(cimfert$raton))
+controls <- c(ControlP, ControlA, ControlB) #all controls
+infect <- c(InfectPA, InfectPB, InfectA, InfectB) #all infected insects
+InfectP <- c(InfectPA, InfectPB) #both sets of infected mice in pilot
+InfectRA <- c(InfectARA, InfectBRA) #both infected mice in rep 1
+InfectRB <- c(InfectARB, InfectBRB)#both infected mice in rep 2
+ControlRA <- c(ControlARA, ControlBRA) #both controls rep 1
+ControlRB <- c(ControlARB, ControlBRB) #both controls rep 2
+#group for trial
+
+#make column designating infected/control
+cimfert$infected[infect]<-1
+cimfert$infected[controls]<-0
+
+#find which columns are hatch and which are eggs.
+postura<-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="p")
+viabilidad <-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="v")
+
+#make id numbers for analysis(character string doesn't play friendly with other pkgs)
+cimfert$idnum<-c(1:length(cimfert$ID))
+
+#We need to create outputs for the data to put it in long format 
+#each row represents a weekly observation for a particular insect
+#instead of all obsserations for that insect
+blank <- (1:(length(postura)*length(cimfert$Procedencia))*0)
+Compile <- data.frame(blank,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0)
+#rename colums of new table.
+Compile <- rename(Compile, replace = c("blank"="id", "X0"="parents","X0.1"="infected","X0.2"="start",
+                                       "X0.3"="week", "X0.4"="date", "X0.5"="eggs", "X0.6"="hatch", "X0.7"="alive",
+                                       "X0.8"="mouse", "X0.9"="procedencia", "X0.10"="trial", "X0.11"="idnum"))
+#if adding colums, be sure that you capitalize the Xx
+
+#make sure the cimfert columns are characters or they will not transfer.
+cimfert$Nro_.pareja <- as.character(cimfert$Nro_.pareja)
+cimfert$Procedencia <- as.character(cimfert$Procedencia)
+cimfert$Fecha_Inicio_.Pareja <-as.character(cimfert$Fecha_Inicio_.Pareja)
+
+#now we need to create a nested loop to get the data into the  new data frame
+for (d in 1:(length(postura))){
+  for (i in 1:(length(cimfert$s1_p))){ #i for each insect
+    Compile$week[i+((d-1)*length(cimfert$ID))] <- d
+    Compile$trial[i+((d-1)*length(cimfert$ID))] <- cimfert$trial[i]
+    Compile$mouse[i+((d-1)*length(cimfert$ID))] <- cimfert$raton[i]
+    Compile$id[i+((d-1)*length(cimfert$ID))] <- cimfert$ID[i]
+    Compile$parents[i+((d-1)*length(cimfert$ID))] <- cimfert$Nro_.pareja[i]
+    Compile$procedencia[i+((d-1)*length(cimfert$ID))] <- cimfert$Procedencia[i]
+    Compile$infected[i+((d-1)*length(cimfert$ID))] <- cimfert$infected[i]
+    Compile$start[i+((d-1)*length(cimfert$ID))] <- cimfert$Fecha_Inicio_.Pareja[i]
+    Compile$hatch[i+((d-1)*length(cimfert$ID))] <-cimfert[i,(2*d+3)]
+    Compile$eggs[i+((d-1)*length(cimfert$ID))]<-cimfert[i,(2*d+2)]
+    Compile$idnum[i+((d-1)*length(cimfert$ID))] <- cimfert$idnum[i]
+  }
+}
+
+#create a column that indicates if the mother is dead or alive
+#This is assumes that if a one is entered the insect was alive during that week.
+#this means the first week where the insect is dead has a 1 (it was alive at some point that week)
+
+#make eggs a numeric vector
+Compile$eggs<-as.numeric(Compile$eggs)
+# iff an NA is placed and not a 0, the bug was dead
+#so identify NA
+dead<-which(is.na(Compile$eggs)==TRUE)
+alive<-which(is.na(Compile$eggs)==FALSE)
+#mark na's as dead, else alive.
+Compile$alive[dead]<-0
+Compile$alive[alive]<-1
+
+#make date so that humidity and temperature data can be easily entered.
+Compile$start <- parse_date_time(Compile$start, "dmy", tz="EST")
+Compile$start <- as.Date(Compile$start)
+Compile$date <- (Compile$start+(Compile$week*7))
+
+#make the tempRH also date format
+tempRH$FECHA <- parse_date_time(tempRH$FECHA, "dmy", tz="EST")
+tempRH$FECHA <- as.Date(tempRH$FECHA)
+
+#identify which insects are in which repetition
+pilot <- which(Compile$trial==0)
+repone <- which(Compile$trial==1)
+reptwo <- which(Compile$trial==2)
+
+######################################################################
+#=====================================================================
+#Make Graphics Using Compile
+# #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 
-# #Bring in Mortality Data (currently derived from above tables.)
-# #mortR1 <- read.csv("Cimex_Mortality_R1.csv")
-# #mortR2 <- read.csv("Cimex_Mortality_R2.csv")
-# #another tab in the two R1 and R2 Google docs above.
+# ##plot eggs and hatch by week.
+# #create model to add regression line to line graphs
+# eggweek<-lm(Compile$eggs ~Compile$week)
+# hatchweek<-lm(Compile$hatch ~Compile$week)
+# #line graph for eggs laid by week
+# plot(Compile$week, Compile$eggs+rnorm(length(Compile$eggs), 0, 0.5), main="Eggs by Week")
+# abline(eggweek)
+# #box plot for eggs laid
+# boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
+# #Line graph for eggs laid by week
+# plot(Compile$week, Compile$hatch+rnorm(length(Compile$hatch), 0, 0.5), main="Hatching by Week")
+# abline(hatchweek)
+# #box plot for eggs hatched
+# boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
 # 
-# #bring in temperature and humidity data.
-# #the pilot has the temp and RH data for all sections
-# tempRH <- read.csv("TEMP_Y_RH.csv")
-# #original from same google file as above hatch data.
+# par(mfrow=c(1,1))
+# #pdf("graphs/NmbEggsByDateBox.pdf")
+# boxplot(Compile$eggs ~Compile$date, main="Eggs by Date")
+# #dev.off()
 # 
-# ###Put all the data together.
-# ##Create a table with all the insects.
-# #first create marker so we can identify each trial.
-# cimfertpilot$trial <- 0
-# cimfert1$trial <- 1
-# cimfert2$trial <- 2
+# #pdf("graphs/NmbHtchByDateBox.pdf")
+# boxplot(Compile$hatch ~Compile$date, main="Hatching by Date")
+# #dev.off()
 # 
-# #bring the tables together.".fill" allows different table lengths fill w/ NA
-# cimfert<-rbind.fill(cimfert2, cimfert1, cimfertpilot)
+# ##lets makle a combined plot of the two groups together
+# enona<-which(is.na(Compile$eggs)==FALSE)
+# hnona<-which(is.na(Compile$hatch)==FALSE)
+# Compile$infected<-as.factor(Compile$infected)
+# Compile$week<-as.factor(Compile$week)
 # 
-# #create unicode for insect pair
-# cimfert$ID <- paste(cimfert$Nro_.pareja, cimfert$trial, sep="-")
-# #create column that specifies specific mouse
-# cimfert$raton <-paste(cimfert$Procedencia, cimfert$trial, sep="-")
-# #first use Procedencia to get certain groups
-# ControlP <- which(cimfert$Procedencia=="CO")
-# InfectPA <- which(cimfert$Procedencia=="I-R1")
-# InfectPB <- which(cimfert$Procedencia=="I-R2")
-# ControlA <- which(cimfert$Procedencia=="CO-A")
-# ControlB <- which(cimfert$Procedencia=="CO-B")
-# InfectA <- which(cimfert$Procedencia=="I-A")
-# InfectB <- which(cimfert$Procedencia=="I-B")
+# #the box plot for eggs laid
+# par(mfrow=c(1,1))
+# #pdf("graphs/NumEggsLaidByWeekYInfyCntlBox.pdf")
+# g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
+#        data= Compile[enona,]) +geom_boxplot(data=Compile[enona,])
+# g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status Each Week")+
+#   xlab("Week") +
+#   ylab("Number of Eggs Laid")
+# g<-g+scale_fill_manual(values=c("#00CCFF", "#990000"),name="Infection Status", labels=c("Controls", "Infected"))
+# #g<-g+ scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"))
+# #g<-g+scale_x_continuous(breaks=seq(0, 38, 2))
+# #g<-g+scale_x_discrete(labels=c("", seq())
+# g
 # 
-# ##Now create some indicies using the mouse.
-# #the R stands for which Rep it was in. RA is rep 1 and RB is rep2.
-# InfectARA <-which(cimfert$raton=="I-A-1")
-# InfectARB <-which(cimfert$raton=="I-A-2")
-# InfectBRA <-which(cimfert$raton=="I-B-1")
-# InfectBRB <-which(cimfert$raton=="I-B-2")
-# ControlARA <- which(cimfert$raton=="CO-A-1")
-# ControlARB <- which(cimfert$raton=="CO-A-2")
-# ControlBRA <- which(cimfert$raton=="CO-B-1")
-# ControlBRB <- which(cimfert$raton=="CO-B-2")
-# #group the appropriate indicies for later usage(plots)
-# tot<-c(1:length(cimfert$raton))
-# controls <- c(ControlP, ControlA, ControlB) #all controls
-# infect <- c(InfectPA, InfectPB, InfectA, InfectB) #all infected insects
-# InfectP <- c(InfectPA, InfectPB) #both sets of infected mice in pilot
-# InfectRA <- c(InfectARA, InfectBRA) #both infected mice in rep 1
-# InfectRB <- c(InfectARB, InfectBRB)#both infected mice in rep 2
-# ControlRA <- c(ControlARA, ControlBRA) #both controls rep 1
-# ControlRB <- c(ControlARB, ControlBRB) #both controls rep 2
-# #group for trial
 # 
-# #make column designating infected/control
-# cimfert$infected[infect]<-1
-# cimfert$infected[controls]<-0
-# 
-# #find which columns are hatch and which are eggs.
-# postura<-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="p")
-# viabilidad <-which(substr(names(cimfert), nchar(names(cimfert)), nchar(names(cimfert)))=="v")
-# 
-# #make id numbers for analysis(character string doesn't play friendly with other pkgs)
-# cimfert$idnum<-c(1:length(cimfert$ID))
-# 
-# #We need to create outputs for the data to put it in long format 
-# #each row represents a weekly observation for a particular insect
-# #instead of all obsserations for that insect
-# blank <- (1:(length(postura)*length(cimfert$Procedencia))*0)
-# Compile <- data.frame(blank,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0)
-# #rename colums of new table.
-# Compile <- rename(Compile, replace = c("blank"="id", "X0"="parents","X0.1"="infected","X0.2"="start",
-#                                        "X0.3"="week", "X0.4"="date", "X0.5"="eggs", "X0.6"="hatch", "X0.7"="alive",
-#                                        "X0.8"="mouse", "X0.9"="procedencia", "X0.10"="trial", "X0.11"="idnum"))
-# #if adding colums, be sure that you capitalize the Xx
-# 
-# #make sure the cimfert columns are characters or they will not transfer.
-# cimfert$Nro_.pareja <- as.character(cimfert$Nro_.pareja)
-# cimfert$Procedencia <- as.character(cimfert$Procedencia)
-# cimfert$Fecha_Inicio_.Pareja <-as.character(cimfert$Fecha_Inicio_.Pareja)
-# 
-# #now we need to create a nested loop to get the data into the  new data frame
-# for (d in 1:(length(postura))){
-#   for (i in 1:(length(cimfert$s1_p))){ #i for each insect
-#     Compile$week[i+((d-1)*length(cimfert$ID))] <- d
-#     Compile$trial[i+((d-1)*length(cimfert$ID))] <- cimfert$trial[i]
-#     Compile$mouse[i+((d-1)*length(cimfert$ID))] <- cimfert$raton[i]
-#     Compile$id[i+((d-1)*length(cimfert$ID))] <- cimfert$ID[i]
-#     Compile$parents[i+((d-1)*length(cimfert$ID))] <- cimfert$Nro_.pareja[i]
-#     Compile$procedencia[i+((d-1)*length(cimfert$ID))] <- cimfert$Procedencia[i]
-#     Compile$infected[i+((d-1)*length(cimfert$ID))] <- cimfert$infected[i]
-#     Compile$start[i+((d-1)*length(cimfert$ID))] <- cimfert$Fecha_Inicio_.Pareja[i]
-#     Compile$hatch[i+((d-1)*length(cimfert$ID))] <-cimfert[i,(2*d+3)]
-#     Compile$eggs[i+((d-1)*length(cimfert$ID))]<-cimfert[i,(2*d+2)]
-#     Compile$idnum[i+((d-1)*length(cimfert$ID))] <- cimfert$idnum[i]
-#   }
-# }
-# 
-# #create a column that indicates if the mother is dead or alive
-# #This is assumes that if a one is entered the insect was alive during that week.
-# #this means the first week where the insect is dead has a 1 (it was alive at some point that week)
-# 
-# #make eggs a numeric vector
-# Compile$eggs<-as.numeric(Compile$eggs)
-# # iff an NA is placed and not a 0, the bug was dead
-# #so identify NA
-# dead<-which(is.na(Compile$eggs)==TRUE)
-# alive<-which(is.na(Compile$eggs)==FALSE)
-# #mark na's as dead, else alive.
-# Compile$alive[dead]<-0
-# Compile$alive[alive]<-1
-# 
-# #make date so that humidity and temperature data can be easily entered.
-# Compile$start <- parse_date_time(Compile$start, "dmy", tz="EST")
-# Compile$start <- as.Date(Compile$start)
-# Compile$date <- (Compile$start+(Compile$week*7))
-# 
-# #make the tempRH also date format
-# tempRH$FECHA <- parse_date_time(tempRH$FECHA, "dmy", tz="EST")
-# tempRH$FECHA <- as.Date(tempRH$FECHA)
-# 
-# #identify which insects are in which repetition
-# pilot <- which(Compile$trial==0)
-# repone <- which(Compile$trial==1)
-# reptwo <- which(Compile$trial==2)
-# 
-# ######################################################################
-# #=====================================================================
-# #Make Graphics Using Compile
-# # #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# # 
-# # ##plot eggs and hatch by week.
-# # #create model to add regression line to line graphs
-# # eggweek<-lm(Compile$eggs ~Compile$week)
-# # hatchweek<-lm(Compile$hatch ~Compile$week)
-# # #line graph for eggs laid by week
-# # plot(Compile$week, Compile$eggs+rnorm(length(Compile$eggs), 0, 0.5), main="Eggs by Week")
-# # abline(eggweek)
-# # #box plot for eggs laid
-# # boxplot(Compile$eggs ~Compile$week, main="Eggs by Week")
-# # #Line graph for eggs laid by week
-# # plot(Compile$week, Compile$hatch+rnorm(length(Compile$hatch), 0, 0.5), main="Hatching by Week")
-# # abline(hatchweek)
-# # #box plot for eggs hatched
-# # boxplot(Compile$hatch ~Compile$week, main="Hatching by Week")
-# # 
-# # par(mfrow=c(1,1))
-# # #pdf("graphs/NmbEggsByDateBox.pdf")
-# # boxplot(Compile$eggs ~Compile$date, main="Eggs by Date")
-# # #dev.off()
-# # 
-# # #pdf("graphs/NmbHtchByDateBox.pdf")
-# # boxplot(Compile$hatch ~Compile$date, main="Hatching by Date")
-# # #dev.off()
-# # 
-# # ##lets makle a combined plot of the two groups together
-# # enona<-which(is.na(Compile$eggs)==FALSE)
-# # hnona<-which(is.na(Compile$hatch)==FALSE)
-# # Compile$infected<-as.factor(Compile$infected)
-# # Compile$week<-as.factor(Compile$week)
-# # 
-# # #the box plot for eggs laid
-# # par(mfrow=c(1,1))
-# # #pdf("graphs/NumEggsLaidByWeekYInfyCntlBox.pdf")
-# # g<-ggplot(aes( y= eggs, x= week, fill = infected, na.rm=TRUE),
-# #        data= Compile[enona,]) +geom_boxplot(data=Compile[enona,])
-# # g<-g+ggtitle("Distribution of Number of Eggs Laid by Infection Status Each Week")+
-# #   xlab("Week") +
-# #   ylab("Number of Eggs Laid")
-# # g<-g+scale_fill_manual(values=c("#00CCFF", "#990000"),name="Infection Status", labels=c("Controls", "Infected"))
-# # #g<-g+ scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"))
-# # #g<-g+scale_x_continuous(breaks=seq(0, 38, 2))
-# # #g<-g+scale_x_discrete(labels=c("", seq())
-# # g
-# # 
-# # 
-# # #ggsave(g, file="BoxPlotDistNumEggLaidbyInfectionStatusbyWeek.jpeg", units= "cm",
-# # #   width = 26.4, height= 15.875)
-# # #dev.off()
-# # 
-# # 
-# # #create graph that show average 
-# # weekinfsum<-summarySE(Compile, measurevar="eggs", groupvars=c("infected", "week"), na.rm=TRUE)
-# # 
-# # #Change working directory for easy access to draft writers
-# # setwd("c:\\Users\\tradylan\\Dropbox\\cruzi_on_lifetables\\paper_draft\\Figuras\\figura_5_AverageEggsLaid")
-# # #setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos\\graphs")
-# # 
-# # #save as csv so figure can easily be recreated on its own.
-# # #write.csv(weekinfsum,"DataforFig5.csv")
-# # 
-# # ##to save as pdf
-# # #pdf("graphs/AvNumEggsLaidByWeekYInfyLineCI.pdf")
-# # pdf("AvNumEggsLaidByWeekYInfyLineCI.pdf")
-# # 
-# # #Code to create figure in ggplot
-# # g2 <- ggplot(weekinfsum, aes(x=week, y=eggs, color=infected)) +
-# #   geom_errorbar(aes(ymin=eggs-ci, ymax=eggs+ci, group=infected, color=infected),
-# #                 width=.1)+
-# #   geom_line(aes(group=infected)) +
-# #   ggtitle("Average Number of Eggs Laid from Living Insects By Week")+
-# #   xlab("Week") +
-# #   ylab("Average Number of Eggs Laid")+
-# #   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"),h= c(250, 3))+
-# #   geom_point()+
-# #   theme(legend.position=c(0.9, 0.9))
-# # g2
-# # 
-# # dev.off()
-# # ##save as various file types
-# # #JPEG
-# # ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.jpeg", units= "cm",
+# #ggsave(g, file="BoxPlotDistNumEggLaidbyInfectionStatusbyWeek.jpeg", units= "cm",
 # #   width = 26.4, height= 15.875)
-# # 
-# # #BMP
-# # ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.bmp", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # #GIF
-# # #ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.gif", units= "cm",
-# # # width = 26.4, height= 15.875)
-# # 
-# # #TIFF
-# # ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.tiff", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # #EPS
-# # ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.eps", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # #SVG
-# # ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.svg", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # #png
-# # ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.png", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # 
-# # 
-# # #hatch plot
-# # #pdf("graphs/NumEggsHtchByWeekyInfyCntrlBox.pdf")
-# # h<-ggplot(aes( y= hatch, x= week, fill = infected, na.rm=TRUE), 
-# #        data= Compile[hnona,])+geom_boxplot(data=Compile[hnona,])
-# # h<-h+ggtitle("Distribution of Number of Eggs Hatched by Infection Status in Bugs that Laid Eggs")
-# # h<-h+scale_fill_manual(values=c("#00CCFF", "#990000"))
-# # h
-# # 
-# # #ggsave(h, file="BoxPlotDistNumEggHtvhbyInfectionStatusbyWeek.jpeg", units= "cm",
-# #        #width = 26.4, height= 15.875)
-# # #dev.off()
-# # 
-# # #h2: Hatchrate Plot
-# # #make a hatch rate 
-# # Compile$hatchrate<-Compile$hatch/Compile$eggs
-# # #Make a summary table
-# # hatchratesum<-summarySE(Compile, measurevar="hatchrate", groupvars=c("infected", "week"), na.rm=TRUE)
-# # #replace the Inf'swith NA's
-# # hatchratesum$hatchrate[which(is.infinite(hatchratesum$hatchrate)==TRUE)]<-NA
-# # #write.csv(hatchratesum,"DataforFig6.csv")
-# # 
-# # #Plot the average and 95% Confidence Interval
-# # #change working directory
-# # setwd("c:\\Users\\tradylan\\Dropbox\\cruzi_on_lifetables\\paper_draft\\Figuras\\figura_6_AverageHatchRate")
-# # 
-# # pdf("AvHatchrateByWeekYInfyLineCI.pdf")
-# # h2 <- ggplot(hatchratesum, aes(x=week, y=hatchrate, color=infected)) +
-# #   geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
-# #                 width=.1)+
-# #   geom_line(aes(group=infected)) +
-# #   ggtitle("Average Percentage of Eggs that Hatched by Week")+
-# #   xlab("Week") +
-# #   ylab("Average Percentage of Eggs that Hatched")+
-# #   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
-# #   geom_point()+
-# #   theme(legend.position=c(0.9, 0.9))+
-# #   scale_y_continuous(breaks=seq(-3, 3, 0.5))
-# # h2
-# # dev.off()
-# # ##save as other various file types.
-# # #JPEG
-# # ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.jpeg", units= "cm",
-# #   width = 26.4, height= 15.875)
-# # 
-# # #BMP
-# # ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.bmp", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # #TIFF
-# # ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.tiff", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # #EPS
-# # ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.eps", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # #SVG
-# # ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.svg", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # #png
-# # ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.png", units= "cm",
-# #  width = 26.4, height= 15.875)
-# # 
-# # 
-# # #h3: Hatchrate Plot by trial
-# # #Make a summary table
-# # hatchratetrial<-summarySE(Compile, measurevar="hatchrate", groupvars=c("infected", "week", "trial"), na.rm=TRUE)
-# # #replace the inf with NA
-# # hatchratetrial$hatchrate[which(is.infinite(hatchratetrial$hatchrate)==TRUE)]<-NA
-# # par(mfrow=c(3,1))
-# # pdf("graphs/AvHatchrateByWeekYInfyTrialLineCIReps.pdf")
-# # 
-# # #rep Pilot
-# # h3a <- ggplot(hatchratetrial[which(hatchratetrial$trial==0),], aes(x=week, y=hatchrate, color=infected)) +
-# #   geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
-# #                 width=.1)+
-# #   geom_line(aes(group=c(infected))) +
-# #   ggtitle("Average Hatch Rate Each Week By Insects that Laid in Pilot")+
-# #   xlab("Week") +
-# #   ylab("Average Percentage of Eggs that Hatched")+
-# #   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
-# #   geom_point()
-# # h3a
-# # #Rep 1
-# # h3b <- ggplot(hatchratetrial[which(hatchratetrial$trial==1),], aes(x=week, y=hatchrate, color=infected)) +
-# #   geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
-# #                 width=.1)+
-# #   geom_line(aes(group=c(infected))) +
-# #   ggtitle("Average Hatch Rate Each Week By Insects that Laid in Rep 1")+
-# #   xlab("Week") +
-# #   ylab("Average Percentage of Eggs that Hatched")+
-# #   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
-# #   geom_point()
-# # h3b
-# # #Rep 2
-# # h3c <- ggplot(hatchratetrial[which(hatchratetrial$trial==2),], aes(x=week, y=hatchrate, color=infected)) +
-# #   geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
-# #                 width=.1)+
-# #   geom_line(aes(group=c(infected))) +
-# #   ggtitle("Average Hatch Rate Each Week By Insects that Laid in Rep 2")+
-# #   xlab("Week") +
-# #   ylab("Average Percentage of Eggs that Hatched")+
-# #   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
-# #   geom_point()
-# # h3c
-# # 
-# # 
-# # dev.off()
-# # 
-# # par(mfrow=c(1,1))
+# #dev.off()
 # 
 # 
-# #create a factor id for mice
-# mice<-unique(Compile$mouse)
-# mouseidnum<-c(1:length(mice))
-# mousetable<-data.frame(mice,mouseidnum)
-# mousetable$mouseidnum<-as.factor(mousetable$mouseidnum)
-# Compile$mouseidnum<-Compile$trial*0
+# #create graph that show average 
+# weekinfsum<-summarySE(Compile, measurevar="eggs", groupvars=c("infected", "week"), na.rm=TRUE)
 # 
-# for(i in 1:length(mice)){
-#    micenumi<-which(mousetable$mouseidnum==i)
-#    micematch<-which(Compile$mouse==mousetable$mice[micenumi])
-#    Compile$mouseidnum[micematch]<-i   
-# }
+# #Change working directory for easy access to draft writers
+# setwd("c:\\Users\\tradylan\\Dropbox\\cruzi_on_lifetables\\paper_draft\\Figuras\\figura_5_AverageEggsLaid")
+# #setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos\\graphs")
 # 
-# ###create values that summarize across insect's life
-# # #create rows to fill by loop
-# Compile$lifespan<-Compile$eggs*NA
-# Compile$egg_total<-Compile$eggs*NA
-# Compile$hatch_total<-Compile$eggs*NA
-# Compile$avmaxtemp<-Compile$eggs*NA
-# Compile$avmintemp<-Compile$eggs*NA
-# Compile$avmaxhum<-Compile$eggs*NA
-# Compile$avminhum<-Compile$eggs*NA
-# Compile$havmaxtemp<-Compile$eggs*NA
-# Compile$havmintemp<-Compile$eggs*NA
-# Compile$havmaxhum<-Compile$eggs*NA
-# Compile$havminhum<-Compile$eggs*NA
+# #save as csv so figure can easily be recreated on its own.
+# #write.csv(weekinfsum,"DataforFig5.csv")
 # 
-# #in temperature dataset make temperature and humidity values numeric
-# tempRH$TEMP.MAX..Â.C.<-as.numeric(tempRH$TEMP.MAX..Â.C.)
-# tempRH$TEMP.MIN..Â.C.<-as.numeric(tempRH$TEMP.MIN..Â.C.)
-# tempRH$HR.MAX....<-as.numeric(tempRH$HR.MAX....)
-# tempRH$HR.MIN....<-as.numeric(tempRH$HR.MIN....)
+# ##to save as pdf
+# #pdf("graphs/AvNumEggsLaidByWeekYInfyLineCI.pdf")
+# pdf("AvNumEggsLaidByWeekYInfyLineCI.pdf")
 # 
-# # #identify living observations so temperatures while the
-# # #insect is dead does not have affect
-# lives <- which(Compile$alive==1) 
-# #identify observations that have eggs laid
-# eggslaid <- which(Compile$eggs > 0)
+# #Code to create figure in ggplot
+# g2 <- ggplot(weekinfsum, aes(x=week, y=eggs, color=infected)) +
+#   geom_errorbar(aes(ymin=eggs-ci, ymax=eggs+ci, group=infected, color=infected),
+#                 width=.1)+
+#   geom_line(aes(group=infected)) +
+#   ggtitle("Average Number of Eggs Laid from Living Insects By Week")+
+#   xlab("Week") +
+#   ylab("Average Number of Eggs Laid")+
+#   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"),h= c(250, 3))+
+#   geom_point()+
+#   theme(legend.position=c(0.9, 0.9))
+# g2
 # 
-# # #loop over each insect and calculate lifespan and temperature variables
-# for (i in 1:max(Compile$idnum)) {
-#   ids<-which(Compile$idnum==i)
-#   #Sum eggs laid and hatched across life of bug
-#   Compile$egg_total[ids]<-sum(Compile$eggs[ids], na.rm=TRUE)
-#   Compile$hatch_total[ids]<-sum(Compile$hatch[ids], na.rm=TRUE)
-#   is <- intersect(ids, lives)#that way you don't add dead times to observations
-#   #the number of observations while alive == lifespan
-#   ls<-length(is)
-#   Compile$lifespan[ids]<-ls
-#   #identify the first and last observations in [is]
-#   fst<-is[1]
-#   lst<-is[ls]
-#   #identify first and last date for each insect.
-#   begin<-(Compile$start[fst])
-#   end<-Compile$date[lst]
-#   a<-which(tempRH$FECHA==begin)
-#   b<-which(tempRH$FECHA==end)
-#   #Use dates to find values from temperature and humidity data
-#   #average over the life of the bug.
-#   avmaxtemp1<-mean(tempRH$TEMP.MAX..Â.C.[a:b], na.rm=TRUE)
-#   avmintemp1<-mean(tempRH$TEMP.MIN..Â.C.[a:b], na.rm=TRUE)
-#   avmaxhum1<-mean(tempRH$HR.MAX....[a:b], na.rm=TRUE)
-#   avminhum1<-mean(tempRH$HR.MIN....[a:b], na.rm=TRUE)
-#   #Now add summarized temperature values to Compile
-#   Compile$avmaxtemp[ids]<-avmaxtemp1
-#   Compile$avmintemp[ids]<-avmintemp1
-#   Compile$avmaxhum[ids]<-avmaxhum1
-#   Compile$avminhum[ids]<-avminhum1
-# }
+# dev.off()
+# ##save as various file types
+# #JPEG
+# ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.jpeg", units= "cm",
+#   width = 26.4, height= 15.875)
 # 
-# #now make a similar calculation for humidity, only using weeks where eggs were laid
-# for (i in 1:max(Compile$idnum)) {
-#   ids<-which(Compile$idnum==i)
-#   leggs <- intersect(ids, eggslaid)
-#   if(length(leggs) > 0){
-#   #create a list of dates
-#     FECHA<-NA
-#     for (j in 1:length(leggs)){
-#       endings <- Compile$date[leggs[j]]
-#       beginings <- (Compile$date[leggs[j]])-6
-#       moredates<-(beginings:endings)
-#       FECHA<-c(FECHA, moredates)
-#     }
-#     num<-1:length(FECHA)
-#     datetable<-data.frame(num, FECHA)
-#   
-#     #merge temperature data onto datetable
-#     temptable<-merge(datetable, tempRH, by="FECHA", all.x=TRUE)
-#     #take the average of each of these columns
-#     havmaxtemp1 <- mean(temptable$TEMP.MAX..Â.C., na.rm=TRUE)
-#     havmintemp1 <- mean(temptable$TEMP.MIN..Â.C., na.rm=TRUE)
-#     havmaxhum1 <- mean(temptable$HR.MAX...., na.rm=TRUE)
-#     havminhum1 <- mean(temptable$HR.MIN...., na.rm=TRUE)
-#     #Now add these to Compile
-#     Compile$havmaxtemp[ids] <- havmaxtemp1
-#     Compile$havmintemp[ids] <- havmintemp1
-#     Compile$havmaxhum[ids] <- havmaxhum1
-#     Compile$havminhum[ids] <- havminhum1 
-#   }
-# }
+# #BMP
+# ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.bmp", units= "cm",
+#  width = 26.4, height= 15.875)
 # 
-# #finally lets reduce the table down to only the lifespan data
-# #this is the same as only taking the first week of dtaa
-# weekone<-which(Compile$week==1)
-# FFdata<-Compile[weekone,]
-# #and then removing duplicate or week specific columns
-# FFdata$id<- NULL
-# FFdata$sdweek<- NULL
-# FFdata$procedencia<- NULL
-# FFdata$mouse<- NULL
-# FFdata$alive<- NULL
-# FFdata$date<- NULL
-# FFdata$week<- NULL
-# FFdata$start<- NULL
-# FFdata$id<- NULL
-# FFdata$parents<- NULL
-# FFdata$eggs<- NULL
-# FFdata$hatch<- NULL
+# #GIF
+# #ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.gif", units= "cm",
+# # width = 26.4, height= 15.875)
 # 
-# # plot(FFdata$lifespan, FFdata$egg_total)
+# #TIFF
+# ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.tiff", units= "cm",
+#  width = 26.4, height= 15.875)
 # 
-# #find the principal components for Temp/Hum across the entire bugs lifespan
-# pcad<-data.frame(FFdata$avmaxtemp,FFdata$avmintemp,FFdata$avmaxhum,
-#                  FFdata$avminhum)
-#   corm<-cor(pcad)
-#   eigen(corm)  #First two components are greater than 1. 
-# #pcout <- princomp(pcad)#R community recomends using prcomp over princomp.
-# pcout2 <- prcomp(~FFdata.avmaxtemp+FFdata.avmintemp+FFdata.avmaxhum+
-#                    FFdata.avminhum, data=pcad, scale=TRUE)
-# #the sixth subset is the matrix of raw components
-# pcm <- pcout2$x
-# #We need to add these componenets to original data set.
-# #create idnum variable to later merge.
-# prince<-data.frame(pcm)
-# prince$idnum<-c(1:length(prince$PC2))
+# #EPS
+# ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.eps", units= "cm",
+#  width = 26.4, height= 15.875)
 # 
-# #find the relative contribution of each variable to each component
-# #fromhttp://stackoverflow.com/questions/12760108/principal-components-
-# #analysis-how-to-get-the-contribution-of-each-paramete
-# aload <- abs(pcout2$rotation)
-# sweep(aload, 2, colSums(aload), "/")
+# #SVG
+# ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.svg", units= "cm",
+#  width = 26.4, height= 15.875)
 # 
-# ##Repeat for hatch model variables  
-# #first create a data set without NA Measurements
-# srnas<-which(is.na(FFdata$havmintemp)==FALSE)
-# rFFdata<-FFdata[srnas,]
-# Hpcad<-data.frame(rFFdata$havmaxtemp,rFFdata$havmintemp,rFFdata$havmaxhum,rFFdata$havminhum)
-#   hcorm<-cor(Hpcad)
-# #find eigen values
-#   eigen(hcorm) #same as before, first two variales should be used.
-# #Hpcout <-princomp(Hpcad)
-# Hpcout2 <- prcomp(~rFFdata.havmaxtemp+rFFdata.havmintemp+rFFdata.havmaxhum+rFFdata.havminhum, data=Hpcad, scale=TRUE)
-# #obtain raw components to be added back to data table
-# Hpcm<-Hpcout2$x
+# #png
+# ggsave(g2, file="AvNumEggsLaidByWeekYInfyLineCI.png", units= "cm",
+#  width = 26.4, height= 15.875)
 # 
-# #We need to add these componenets to original data set.
-# Hprince<-data.frame(Hpcm)
-# #attach idnum to merge on.
-# Hprince$idnum<-rFFdata$idnum
-# # Columns need to be renamed to be difirrent from non-hatch components
-# names(Hprince)<-c("HComp.1", "HComp.2", "HComp.3", "HComp.4", "idnum") 
 # 
-# ###Merge the data sets
-#   #eggs laid
-#   single2<-merge(FFdata, prince, by="idnum")
-#   #eggs hatched
-#   FFdataPC<-merge(Hprince, single2, by="idnum", all.y= TRUE)
-# write.csv(FFdataPC, "FertilityFecundityDataPC.csv")
+# 
+# #hatch plot
+# #pdf("graphs/NumEggsHtchByWeekyInfyCntrlBox.pdf")
+# h<-ggplot(aes( y= hatch, x= week, fill = infected, na.rm=TRUE), 
+#        data= Compile[hnona,])+geom_boxplot(data=Compile[hnona,])
+# h<-h+ggtitle("Distribution of Number of Eggs Hatched by Infection Status in Bugs that Laid Eggs")
+# h<-h+scale_fill_manual(values=c("#00CCFF", "#990000"))
+# h
+# 
+# #ggsave(h, file="BoxPlotDistNumEggHtvhbyInfectionStatusbyWeek.jpeg", units= "cm",
+#        #width = 26.4, height= 15.875)
+# #dev.off()
+# 
+# #h2: Hatchrate Plot
+# #make a hatch rate 
+# Compile$hatchrate<-Compile$hatch/Compile$eggs
+# #Make a summary table
+# hatchratesum<-summarySE(Compile, measurevar="hatchrate", groupvars=c("infected", "week"), na.rm=TRUE)
+# #replace the Inf'swith NA's
+# hatchratesum$hatchrate[which(is.infinite(hatchratesum$hatchrate)==TRUE)]<-NA
+# #write.csv(hatchratesum,"DataforFig6.csv")
+# 
+# #Plot the average and 95% Confidence Interval
+# #change working directory
+# setwd("c:\\Users\\tradylan\\Dropbox\\cruzi_on_lifetables\\paper_draft\\Figuras\\figura_6_AverageHatchRate")
+# 
+# pdf("AvHatchrateByWeekYInfyLineCI.pdf")
+# h2 <- ggplot(hatchratesum, aes(x=week, y=hatchrate, color=infected)) +
+#   geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
+#                 width=.1)+
+#   geom_line(aes(group=infected)) +
+#   ggtitle("Average Percentage of Eggs that Hatched by Week")+
+#   xlab("Week") +
+#   ylab("Average Percentage of Eggs that Hatched")+
+#   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
+#   geom_point()+
+#   theme(legend.position=c(0.9, 0.9))+
+#   scale_y_continuous(breaks=seq(-3, 3, 0.5))
+# h2
+# dev.off()
+# ##save as other various file types.
+# #JPEG
+# ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.jpeg", units= "cm",
+#   width = 26.4, height= 15.875)
+# 
+# #BMP
+# ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.bmp", units= "cm",
+#  width = 26.4, height= 15.875)
+# 
+# #TIFF
+# ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.tiff", units= "cm",
+#  width = 26.4, height= 15.875)
+# 
+# #EPS
+# ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.eps", units= "cm",
+#  width = 26.4, height= 15.875)
+# 
+# #SVG
+# ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.svg", units= "cm",
+#  width = 26.4, height= 15.875)
+# 
+# #png
+# ggsave(h2, file="AvHatchrateByWeekYInfyLineCI.png", units= "cm",
+#  width = 26.4, height= 15.875)
+# 
+# 
+# #h3: Hatchrate Plot by trial
+# #Make a summary table
+# hatchratetrial<-summarySE(Compile, measurevar="hatchrate", groupvars=c("infected", "week", "trial"), na.rm=TRUE)
+# #replace the inf with NA
+# hatchratetrial$hatchrate[which(is.infinite(hatchratetrial$hatchrate)==TRUE)]<-NA
+# par(mfrow=c(3,1))
+# pdf("graphs/AvHatchrateByWeekYInfyTrialLineCIReps.pdf")
+# 
+# #rep Pilot
+# h3a <- ggplot(hatchratetrial[which(hatchratetrial$trial==0),], aes(x=week, y=hatchrate, color=infected)) +
+#   geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
+#                 width=.1)+
+#   geom_line(aes(group=c(infected))) +
+#   ggtitle("Average Hatch Rate Each Week By Insects that Laid in Pilot")+
+#   xlab("Week") +
+#   ylab("Average Percentage of Eggs that Hatched")+
+#   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
+#   geom_point()
+# h3a
+# #Rep 1
+# h3b <- ggplot(hatchratetrial[which(hatchratetrial$trial==1),], aes(x=week, y=hatchrate, color=infected)) +
+#   geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
+#                 width=.1)+
+#   geom_line(aes(group=c(infected))) +
+#   ggtitle("Average Hatch Rate Each Week By Insects that Laid in Rep 1")+
+#   xlab("Week") +
+#   ylab("Average Percentage of Eggs that Hatched")+
+#   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
+#   geom_point()
+# h3b
+# #Rep 2
+# h3c <- ggplot(hatchratetrial[which(hatchratetrial$trial==2),], aes(x=week, y=hatchrate, color=infected)) +
+#   geom_errorbar(aes(ymin=hatchrate-ci, ymax=hatchrate+ci, group=infected, color=infected),
+#                 width=.1)+
+#   geom_line(aes(group=c(infected))) +
+#   ggtitle("Average Hatch Rate Each Week By Insects that Laid in Rep 2")+
+#   xlab("Week") +
+#   ylab("Average Percentage of Eggs that Hatched")+
+#   scale_color_discrete(name="Infection Status", labels=c("Controls", "Infected"), h= c(250, 3))+
+#   geom_point()
+# h3c
+# 
+# 
+# dev.off()
+# 
+# par(mfrow=c(1,1))
+
+
+#create a factor id for mice
+mice<-unique(Compile$mouse)
+mouseidnum<-c(1:length(mice))
+mousetable<-data.frame(mice,mouseidnum)
+mousetable$mouseidnum<-as.factor(mousetable$mouseidnum)
+Compile$mouseidnum<-Compile$trial*0
+
+for(i in 1:length(mice)){
+   micenumi<-which(mousetable$mouseidnum==i)
+   micematch<-which(Compile$mouse==mousetable$mice[micenumi])
+   Compile$mouseidnum[micematch]<-i   
+}
+
+###create values that summarize across insect's life
+# #create rows to fill by loop
+Compile$lifespan<-Compile$eggs*NA
+Compile$egg_total<-Compile$eggs*NA
+Compile$hatch_total<-Compile$eggs*NA
+Compile$avmaxtemp<-Compile$eggs*NA
+Compile$avmintemp<-Compile$eggs*NA
+Compile$avmaxhum<-Compile$eggs*NA
+Compile$avminhum<-Compile$eggs*NA
+Compile$havmaxtemp<-Compile$eggs*NA
+Compile$havmintemp<-Compile$eggs*NA
+Compile$havmaxhum<-Compile$eggs*NA
+Compile$havminhum<-Compile$eggs*NA
+
+#in temperature dataset make temperature and humidity values numeric
+tempRH$TEMP.MAX..Â.C.<-as.numeric(tempRH$TEMP.MAX..Â.C.)
+tempRH$TEMP.MIN..Â.C.<-as.numeric(tempRH$TEMP.MIN..Â.C.)
+tempRH$HR.MAX....<-as.numeric(tempRH$HR.MAX....)
+tempRH$HR.MIN....<-as.numeric(tempRH$HR.MIN....)
+
+# #identify living observations so temperatures while the
+# #insect is dead does not have affect
+lives <- which(Compile$alive==1) 
+#identify observations that have eggs laid
+eggslaid <- which(Compile$eggs > 0)
+
+# #loop over each insect and calculate lifespan and temperature variables
+for (i in 1:max(Compile$idnum)) {
+  ids<-which(Compile$idnum==i)
+  #Sum eggs laid and hatched across life of bug
+  Compile$egg_total[ids]<-sum(Compile$eggs[ids], na.rm=TRUE)
+  Compile$hatch_total[ids]<-sum(Compile$hatch[ids], na.rm=TRUE)
+  is <- intersect(ids, lives)#that way you don't add dead times to observations
+  #the number of observations while alive == lifespan
+  ls<-length(is)
+  Compile$lifespan[ids]<-ls
+  #identify the first and last observations in [is]
+  fst<-is[1]
+  lst<-is[ls]
+  #identify first and last date for each insect.
+  begin<-(Compile$start[fst])
+  end<-Compile$date[lst]
+  a<-which(tempRH$FECHA==begin)
+  b<-which(tempRH$FECHA==end)
+  #Use dates to find values from temperature and humidity data
+  #average over the life of the bug.
+  avmaxtemp1<-mean(tempRH$TEMP.MAX..Â.C.[a:b], na.rm=TRUE)
+  avmintemp1<-mean(tempRH$TEMP.MIN..Â.C.[a:b], na.rm=TRUE)
+  avmaxhum1<-mean(tempRH$HR.MAX....[a:b], na.rm=TRUE)
+  avminhum1<-mean(tempRH$HR.MIN....[a:b], na.rm=TRUE)
+  #Now add summarized temperature values to Compile
+  Compile$avmaxtemp[ids]<-avmaxtemp1
+  Compile$avmintemp[ids]<-avmintemp1
+  Compile$avmaxhum[ids]<-avmaxhum1
+  Compile$avminhum[ids]<-avminhum1
+}
+
+#now make a similar calculation for humidity, only using weeks where eggs were laid
+for (i in 1:max(Compile$idnum)) {
+  ids<-which(Compile$idnum==i)
+  leggs <- intersect(ids, eggslaid)
+  if(length(leggs) > 0){
+  #create a list of dates
+    FECHA<-NA
+    for (j in 1:length(leggs)){
+      endings <- Compile$date[leggs[j]]
+      beginings <- (Compile$date[leggs[j]])-6
+      moredates<-(beginings:endings)
+      FECHA<-c(FECHA, moredates)
+    }
+    num<-1:length(FECHA)
+    datetable<-data.frame(num, FECHA)
+  
+    #merge temperature data onto datetable
+    temptable<-merge(datetable, tempRH, by="FECHA", all.x=TRUE)
+    #take the average of each of these columns
+    havmaxtemp1 <- mean(temptable$TEMP.MAX..Â.C., na.rm=TRUE)
+    havmintemp1 <- mean(temptable$TEMP.MIN..Â.C., na.rm=TRUE)
+    havmaxhum1 <- mean(temptable$HR.MAX...., na.rm=TRUE)
+    havminhum1 <- mean(temptable$HR.MIN...., na.rm=TRUE)
+    #Now add these to Compile
+    Compile$havmaxtemp[ids] <- havmaxtemp1
+    Compile$havmintemp[ids] <- havmintemp1
+    Compile$havmaxhum[ids] <- havmaxhum1
+    Compile$havminhum[ids] <- havminhum1 
+  }
+}
+
+#finally lets reduce the table down to only the lifespan data
+#this is the same as only taking the first week of dtaa
+weekone<-which(Compile$week==1)
+FFdata<-Compile[weekone,]
+#and then removing duplicate or week specific columns
+FFdata$id<- NULL
+FFdata$sdweek<- NULL
+FFdata$procedencia<- NULL
+FFdata$mouse<- NULL
+FFdata$alive<- NULL
+FFdata$date<- NULL
+FFdata$week<- NULL
+FFdata$start<- NULL
+FFdata$id<- NULL
+FFdata$parents<- NULL
+FFdata$eggs<- NULL
+FFdata$hatch<- NULL
+
+# plot(FFdata$lifespan, FFdata$egg_total)
+
+#find the principal components for Temp/Hum across the entire bugs lifespan
+pcad<-data.frame(FFdata$avmaxtemp,FFdata$avmintemp,FFdata$avmaxhum,
+                 FFdata$avminhum)
+  corm<-cor(pcad)
+  eigen(corm)  #First two components are greater than 1. 
+#pcout <- princomp(pcad)#R community recomends using prcomp over princomp.
+pcout2 <- prcomp(~FFdata.avmaxtemp+FFdata.avmintemp+FFdata.avmaxhum+
+                   FFdata.avminhum, data=pcad, scale=TRUE)
+#the sixth subset is the matrix of raw components
+pcm <- pcout2$x
+#We need to add these componenets to original data set.
+#create idnum variable to later merge.
+prince<-data.frame(pcm)
+prince$idnum<-c(1:length(prince$PC2))
+
+#find the relative contribution of each variable to each component
+#fromhttp://stackoverflow.com/questions/12760108/principal-components-
+#analysis-how-to-get-the-contribution-of-each-paramete
+aload <- abs(pcout2$rotation)
+sweep(aload, 2, colSums(aload), "/")
+
+#Principal Components With Trial 
+pcadb<-data.frame(FFdata$avmaxtemp,FFdata$avmintemp,FFdata$avmaxhum,
+                 FFdata$avminhum, FFdata$trial)
+cormb<-cor(pcadb)
+eigen(cormb)  #First two components are greater than 1. 
+#pcout <- princomp(pcad)#R community recomends using prcomp over princomp.
+pcout2b<- prcomp(~FFdata.avmaxtemp+FFdata.avmintemp+FFdata.avmaxhum+
+                   FFdata.avminhum+FFdata.trial, data=pcadb, scale=TRUE)
+#the sixth subset is the matrix of raw components
+pcmb <- pcout2b$x
+#We need to add these componenets to original data set.
+#create idnum variable to later merge.
+princeb<-data.frame(pcmb)
+princeb$idnum<-c(1:length(princeb$PC2))
+names(princeb)<-c("TPC1", "TPC2", "TPC3", "TPC4", "TPC4", "idnum") 
+
+
+#find the relative contribution of each variable to each component
+#fromhttp://stackoverflow.com/questions/12760108/principal-components-
+#analysis-how-to-get-the-contribution-of-each-parameter
+aloadb <- abs(pcout2b$rotation)
+sweep(aloadb, 2, colSums(aloadb), "/")
+
+##Repeat for hatch model variables  
+#first create a data set without NA Measurements
+srnas<-which(is.na(FFdata$havmintemp)==FALSE)
+rFFdata<-FFdata[srnas,]
+Hpcad<-data.frame(rFFdata$havmaxtemp,rFFdata$havmintemp,rFFdata$havmaxhum,rFFdata$havminhum)
+  hcorm<-cor(Hpcad)
+#find eigen values
+  eigen(hcorm) #same as before, first two variales should be used.
+#Hpcout <-princomp(Hpcad)
+Hpcout2 <- prcomp(~rFFdata.havmaxtemp+rFFdata.havmintemp+rFFdata.havmaxhum+rFFdata.havminhum, data=Hpcad, scale=TRUE)
+#obtain raw components to be added back to data table
+Hpcm<-Hpcout2$x
+
+#We need to add these componenets to original data set.
+Hprince<-data.frame(Hpcm)
+#attach idnum to merge on.
+Hprince$idnum<-rFFdata$idnum
+# Columns need to be renamed to be difirrent from non-hatch components
+names(Hprince)<-c("HComp.1", "HComp.2", "HComp.3", "HComp.4", "idnum") 
+
+###Merge the data sets
+  #eggs laid
+  single<-merge(FFdata, prince, by="idnum")
+  single2<-merge(single, princeb, by="idnum")
+  #eggs hatched
+  FFdataPC<-merge(Hprince, single2, by="idnum", all.y= TRUE)
+#write.csv(FFdataPC, "FertilityFecundityDataPC.csv")
  
 ##################################################################################
 #start here by bringing in data from above.
@@ -587,12 +612,11 @@ lifespanmod<-glm.nb(egg_total~infected+lifespan, data=FFdataPC )
 
 #Null Model without any temperature or humidity variables.
 nullmodel<- glm.nb(egg_total~infected, data=FFdataPC, offset(log(lifespan)))
-<<<<<<< HEAD
+
  summary(nullmodel) #Theta is 1.13
-=======
+
  summary(nullmodel)  #AIC==26710   P=<2e-16 *** Theta is 1.13
 
->>>>>>> f02990865669bada348e4c4e3e11dfdaf665b119
 #Check if poisson would be better
  poissonmod<-glm(egg_total~infected, offset(log(lifespan)), data=FFdataPC, family="poisson")
  #test from http://www.ats.ucla.edu/stat/r/dae/nbreg.htm
@@ -629,7 +653,6 @@ plot(FFdataPC$avmaxhum, FFdataPC$avminhum)
 
 #Alternative models (2 variables)  #all of which the full model has a better AIC
 AltModelA<-glm.nb(egg_total~infected+avmintemp+avminhum, data=FFdataPC, offset(log(lifespan)))
-<<<<<<< HEAD
   summary(AltModelA) #AIC==4271.2
 AltModelB<-glm.nb(egg_total~infected+avmaxtemp+avmaxhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelB) #AIC==4257.2
@@ -637,7 +660,6 @@ AltModelC<-glm.nb(egg_total~infected+avmintemp+avmaxhum, data=FFdataPC, offset(l
   summary(AltModelC) #AIC==4268.5
 AltModelD<-glm.nb(egg_total~infected+avminhum+avmaxhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelD) #AIC==4269.9 
-=======
   summary(AltModelA) #AIC==
 
 AltModelB<-glm.nb(egg_total~infected+avmaxtemp+avmaxhum, data=FFdataPC, offset(log(lifespan)))
@@ -649,7 +671,6 @@ AltModelC<-glm.nb(egg_total~infected+avmintemp+avmaxhum, data=FFdataPC, offset(l
 AltModelD<-glm.nb(egg_total~infected+avminhum+avmaxhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelD) #AIC== 
 
->>>>>>> f02990865669bada348e4c4e3e11dfdaf665b119
 AltModelE<-glm.nb(egg_total~infected+avmintemp+avmaxtemp, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelE) #AIC==4235.5
 AltModelF<-glm.nb(egg_total~infected+avmaxtemp+avminhum, data=FFdataPC, offset(log(lifespan)))
@@ -729,6 +750,57 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   
   pceggmod4#4215
   
+#Put PC Model Outputs into Table.  
+estpc <- cbind(Estimate = coef(pceggmod2d), confint(pceggmod2d),
+  summary(pceggmod2d)$coef[,2], summary(pceggmod2d)$coef[,4])
+colnames(estpc)[4]<-"Std. Error"  
+colnames(estpc)[5]<-"P-Value"
+PCOutput<-data.frame(estpc)
+names(PCOutput) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
+PCOutput$Exp_Est <- exp(PCOutput$Estimate)
+PCOutput$Exp_lCI <- exp(PCOutput$lCI)
+PCOutput$Exp_uCI <- exp(PCOutput$uCI)
+
+#also add AIC's, Theta, and AIC and log Likelihoods
+nTheta<-as.vector(c(pceggmod2d$theta, "-", "-", pceggmod2d$SE.theta, "-","-", "-", "-" ))
+nTwologlik<-c(pceggmod2d$twologlik, "-", "-", "-", "-", "-", "-", "-")
+nAIC<-c(pceggmod2d$aic, "-", "-", "-", "-", "-", "-", "-")
+#Paste
+PCOutput<-rbind(PCOutput, nTheta, nTwologlik, nAIC)
+rownames(PCOutput)[5:11]<- c("Rep1", "Rep2","PC1_Rep1_Int","PC1_Rep2_Int", 
+                             "Theta", "2xLog Likelihood", "AIC")
+
+#   stargazer(tpceggmod2, type="html",
+#             dep.var.labels=c("Eggs Laid Per Week"),
+#             covariate.labels=c("Infection Status","Principal Component 1",
+#                                "Principal Component 2"), out="models.htm")
+
+write.csv(PCOutput, "pcout.csv") 
+
+
+###Model with Both PC Interactions
+estpcb <- cbind(Estimate = coef(pceggmod2e), confint(pceggmod2e),
+               summary(pceggmod2e)$coef[,2], summary(pceggmod2e)$coef[,4])
+colnames(estpcb)[4]<-"Std. Error"  
+colnames(estpcb)[5]<-"P-Value"
+PCOutputB<-data.frame(estpcb)
+names(PCOutputB) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
+PCOutputB$Exp_Est <- exp(PCOutputB$Estimate)
+PCOutputB$Exp_lCI <- exp(PCOutputB$lCI)
+PCOutputB$Exp_uCI <- exp(PCOutputB$uCI)
+
+#also add AIC's, Theta, and AIC and log Likelihoods
+bnTheta<-as.vector(c(pceggmod2e$theta, "-", "-", pceggmod2e$SE.theta, "-","-", "-", "-" ))
+bnTwologlik<-c(pceggmod2e$twologlik, "-", "-", "-", "-", "-", "-", "-")
+bnAIC<-c(pceggmod2e$aic, "-", "-", "-", "-", "-", "-", "-")
+#Paste
+PCOutputB<-rbind(PCOutputB, bnTheta, bnTwologlik, bnAIC)
+rownames(PCOutputB)[5:13]<- c("Rep1", "Rep2","PC1_Rep1_Int","PC1_Rep2_Int",
+                             "PC2_Rep1_Int","PC2_Rep2_Int", "Theta", 
+                             "2xLog Likelihood", "AIC")
+write.csv(PCOutputB, "pcoutb.csv") 
+
+
   #perform likelihood ratio test
   lrtest(pceggmod4,pceggmod2)
   #both test show pceggmod4 are significantly better than any other
@@ -740,12 +812,48 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   
   lrtest(pceggmod2,pceggmod1)
   
+###Egg Models with Trial Included in Principle Components
+  #should I put -1 to remove intercept?
+  tpceggmod2 <- glm.nb(egg_total~infected+TPC1+TPC2, data=FFdataPC,
+                      offset(log(lifespan)))
+  
+est <- cbind(Estimate = coef(tpceggmod2), confint(tpceggmod2),
+             summary(tpceggmod2)$coef[,2], summary(tpceggmod2)$coef[,4])
+colnames(est)[4]<-"Std. Error"  
+colnames(est)[5]<-"P-Value"
+tPCOutput<-data.frame(est)
+  names(tPCOutput) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
+  tPCOutput$Exp_Est <- exp(tPCOutput$Estimate)
+  tPCOutput$Exp_lCI <- exp( tPCOutput$lCI)
+  tPCOutput$Exp_uCI <- exp(tPCOutput$uCI)
+#also add AIC's, Theta, and AIC and log Likelihoods
+  Theta<-as.vector(c(tpceggmod2$theta, "-", "-", tpceggmod2$SE.theta, "-","-", "-", "-" ))
+  Twologlik<-c(tpceggmod2$twologlik, "-", "-", "-", "-", "-", "-", "-")
+  AIC<-c(tpceggmod2$aic, "-", "-", "-", "-", "-", "-", "-")
+#Paste
+  tPCOutput<-rbind(tPCOutput, Theta, Twologlik, AIC)
+  rownames(tPCOutput)[5:7]<- c("Theta", "2xLog Likelihood", "AIC")
+  
+#   stargazer(tpceggmod2, type="html",
+#             dep.var.labels=c("Eggs Laid Per Week"),
+#             covariate.labels=c("Infection Status","Principal Component 1",
+#                                "Principal Component 2"), out="models.htm")
+
+  write.csv(tPCOutput, "trialpcout.csv")
+  
+##To make output   
+#  stargazer(tpceggmod2, type="html",
+#            dep.var.labels=c("Eggs Laid Per Week"),
+#            covariate.labels=c("Infection Status","Principal Component 1",
+#                               "Principal Component 2"), out="models.htm")  
+  
   #random effect models: has a very small variance.
   FFdataPC$idnum <- as.factor(FFdataPC$idnum)
   #Only 3 trials: Pilot, Rep 1, Rep 2.
   meeggmodt1_2 <- glmer.nb(egg_total~infected+PC1+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
   meeggmodt1 <- glmer.nb(egg_total~infected+PC1+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
   meeggmodt2 <- glmer.nb(egg_total~infected+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+  meeggmodt <- glmer.nb(egg_total~infected+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
   
   #With Random Effect on Mouse
   #This is not to say directly the mouse, but the insects are inheritantly subgrouped in this way
@@ -754,6 +862,32 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   meeggmodm1 <- glmer.nb(egg_total~infected+PC1+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
   meeggmodm2 <- glmer.nb(egg_total~infected+PC2+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
   
+#   estme <- cbind(Estimate = coef(meeggmodm1_2), confint(meeggmodm1_2),
+#                summary(meeggmodm1_2)$coef[,2], summary(meeggmodm1_2)$coef[,4])
+#   colnames(est)[4]<-"Std. Error"  
+#   colnames(est)[5]<-"P-Value"
+#   mePCOutput<-data.frame(est)
+#   names(mePCOutput) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
+#   mePCOutput$Exp_Est <- exp(mePCOutput$Estimate)
+#   mePCOutput$Exp_lCI <- exp( mePCOutput$lCI)
+#   mePCOutput$Exp_uCI <- exp(mePCOutput$uCI)
+#   #also add AIC's, Theta, and AIC and log Likelihoods
+#   mTheta<-as.vector(c(meeggmodm1_2$theta, "-", "-", meeggmodm1_2$SE.theta, "-","-", "-", "-" ))
+#   mLoglik<-c(summary(meeggmodm1_2)$logLik[1], "-", "-", "-", "-", "-", "-", "-")
+#   mAIC<-c(summary(meeggmodm1_2)$AICtab[1], "-", "-", "-", "-", "-", "-", "-")
+#   Random<-c("Mouse(Feeding Group)", "Variance:",, "Std.Dev:", )
+#   #Paste
+#   mePCOutput<-rbind(mePCOutput, mTheta, mLoglik, mAIC)
+#   rownames(mePCOutput)[5:8]<- c("Theta", "Log Likelihood", "AIC", "Random Eect")
+#   
+  #   stargazer(tpceggmod2, type="html",
+  #             dep.var.labels=c("Eggs Laid Per Week"),
+  #             covariate.labels=c("Infection Status","Principal Component 1",
+  #                                "Principal Component 2"), out="models.htm")
+  
+  write.csv(tPCOutput, "trialpcout.csv")
+  
+    
 #I tried to do idnum, but I recieved iteration errors.  
 #We currently have 1 data type per female, unless we made each egg binary.  
 #Trial and mouse give same error. Each trial only has at most 2 mice, so not enough data
