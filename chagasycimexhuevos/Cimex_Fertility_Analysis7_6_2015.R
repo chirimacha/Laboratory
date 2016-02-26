@@ -584,9 +584,15 @@ setwd("c:\\Users\\tradylan\\Documents\\Laboratory\\chagasycimexhuevos")
 lifespanmod<-glm.nb(egg_total~infected+lifespan, data=FFdataPC )
   summary(lifespanmod )
   #AIC==1636.7 P(infected)==0.107
+
 #Null Model without any temperature or humidity variables.
 nullmodel<- glm.nb(egg_total~infected, data=FFdataPC, offset(log(lifespan)))
+<<<<<<< HEAD
  summary(nullmodel) #Theta is 1.13
+=======
+ summary(nullmodel)  #AIC==26710   P=<2e-16 *** Theta is 1.13
+
+>>>>>>> f02990865669bada348e4c4e3e11dfdaf665b119
 #Check if poisson would be better
  poissonmod<-glm(egg_total~infected, offset(log(lifespan)), data=FFdataPC, family="poisson")
  #test from http://www.ats.ucla.edu/stat/r/dae/nbreg.htm
@@ -623,6 +629,7 @@ plot(FFdataPC$avmaxhum, FFdataPC$avminhum)
 
 #Alternative models (2 variables)  #all of which the full model has a better AIC
 AltModelA<-glm.nb(egg_total~infected+avmintemp+avminhum, data=FFdataPC, offset(log(lifespan)))
+<<<<<<< HEAD
   summary(AltModelA) #AIC==4271.2
 AltModelB<-glm.nb(egg_total~infected+avmaxtemp+avmaxhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelB) #AIC==4257.2
