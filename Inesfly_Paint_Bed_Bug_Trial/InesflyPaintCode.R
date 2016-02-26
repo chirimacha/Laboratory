@@ -1,31 +1,65 @@
 ###This code cleans up the data for the bed bug inesfly paint study
+## Review Read me at
 
+###############################################################################
+###GENERAL SET UP###
+###============================================================================
 ##Install and load necessary packages
 #Install packages
-#install.packages(c("reshape","survival","tables"))
+#install.packages(c("reshape","survival","tables", "doBy", "ggplot2"))
+
 #load packages
-library(reshape)
+library(reshape) #Used to change data between short and long formats.
 library(survival) #for cox proportional hazaard
 library(tables)
 library(doBy)#use summaryBy function
 library(ggplot2)
-##set up the working directory
-setwd("C:/Users/tradylan/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 
+##set up the working directory
+#PC for Dylan
+setwd("C:/Users/tradylan/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+#MAC for Mike
+#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")")
+
+###############################################################################
 ###bring in data
+###============================================================================
+
+##Orignal Excel Document on Dropbox at 
+##https://www.dropbox.com/s/2e1cibn7vls22cq/InesflyPilotData4_10_Updated_LM%20%281%29.xlsx?dl=0
+##or ~Dropbox\Inesfly Paint for Bed Bugs\Data Entry\InesflyPilotData4_10_Updated_LM (1)
+##data was saved as CSV then moved to repository.
+
+#Pilot Data 
+##Bring in Pilot
+#Pilot1D <- read.csv("DATA/InesflyPilot_1D.csv")
+#Pilot100D <- read.csv("DATA/InesflyPilot_100D.csv")
+#250 Days <- read.csv("DATA/")
+#1 Year <- read.csv("DATA/")
+
+#Data For Full Study: Individual Data for 1 Month
 #for exposure 1 day post paint with individual measurements
 D1Ind <- read.csv("DATA/Inesfly_Ind_1D.csv")
-#for exposure 1 day post paint with jar counts
+#for exposure 90 day post paint with individual measurements
+D90Ind <- read.csv("DATA/Inesfly_Ind_90DA.csv")
+#for exposure 180 days post painting with indivual measurements
+#D180Ind <- read.csv("DATA/Inesfly_Ind_180DA.csv")
+
+#Bring in Data from Jar
 D1Jar <- read.csv("DATA/Inesfly_Jar_1D.csv")
-#bring in temperature data
-TEMPHUM<- read.csv("DATA/InesflyTempHum.csv")
+D90Jar <- read.csv("DATA/Inesfly_Jar_1D.csv")
+#D180Jar
+
 #bring in paint data
 PAINTDIST<- read.csv("DATA/InesflyPaintDistribution.csv")
-##Bring in Pilot
-Pilot1D<-read.csv("DATA/InesflyPilot_1D.csv")
-Pilot100D<-read.csv("DATA/InesflyPilot_100D.csv")
 
-##
+#bring in temperature data
+TEMPHUM<- read.csv("DATA/InesflyTempHum.csv")
+
+###############################################################################
+### Extract and Clean Individual Data and then Merge
+###============================================================================
+
 #Split the unicode into relevant information for Individual observations
 D1Ind$INSECT <- as.character(D1Ind$INSECT)
 D1Ind$TIME <- substr(D1Ind$INSECT, 1, 3)
@@ -110,43 +144,43 @@ LD1Ind$living[living] <- 1
 #==============================================================================
 ##Lets clean up the data so that we get smooth transitions
 #lets make a copy of LD1Ind so that we have a clean and raw set
-Cl1Ind<-LD1Ind
-#If dead, then becomes knockdown mark as knock down.
-#create vector of unique days
-days<-unique(Cl1Ind$DAY)
-mday<-max(days)
-deadobs<-which(Cl1Ind$dead==1)
-nmax<-which(Cl1Ind$DAY < mday)
-testobs<-intersect(deadobs, nmax)
-Cl1Ind$CC<-Cl1Ind$STAGE*NA
-for(i in 1:length(testobs)){
-  d<-Cl1Ind$DAY[testobs[i]]
-  n<-which(days==d)
-  nx<-days[n+1]
-  ins<-Cl1Ind$INSECT[testobs[i]]
-  ains<-which(Cl1Ind$INSECT==ins)
-  anx<-which(Cl1Ind$DAY==nx)
-  nextobv<-intersect(ains, anx)
-  if(Cl1Ind$STATUS[testobs[i]] != Cl1Ind$STATUS[nextobv]){
-    Cl1Ind$STATUS[testobs[i]]<- Cl1Ind$STATUS[nextobv]
-    Cl1Ind$dead[testobs[i]]<- Cl1Ind$dead[nextobv]
-    Cl1Ind$alive[testobs[i]]<- Cl1Ind$alive[nextobv]
-    Cl1Ind$knockdown[testobs[i]]<- Cl1Ind$knockdown[nextobv]
-    Cl1Ind$unviable[testobs[i]]<- Cl1Ind$unviable[nextobv]
-    Cl1Ind$living[testobs[i]]<- Cl1Ind$living[nextobv]
-    Cl1Ind$CC[testobs[i]]<-"STATUS CHANGED IN CODE- Died later than originally recorded"
-  }
-}
-bug<-which(Cl1Ind$CC=="STATUS CHANGED IN CODE- Died later than originally recorded")
-Cl1Ind$INSECT[bug]
-#Check if these are data entry errors or other
-
-
-
-Cl1Ind$INSECT[deadobs]
-if(Cl1Ind$DAY[deadobs]>mday){
-  if(Cl1$Ind)
-}
+# Cl1Ind<-LD1Ind
+# #If dead, then becomes knockdown mark as knock down.
+# #create vector of unique days
+# days<-unique(Cl1Ind$DAY)#made DAY below
+# mday<-max(days)
+# deadobs<-which(Cl1Ind$dead==1)
+# nmax<-which(Cl1Ind$DAY < mday)
+# testobs<-intersect(deadobs, nmax)
+# Cl1Ind$CC<-Cl1Ind$STAGE*NA
+# for(i in 1:length(testobs)){
+#   d<-Cl1Ind$DAY[testobs[i]]
+#   n<-which(days==d)
+#   nx<-days[n+1]
+#   ins<-Cl1Ind$INSECT[testobs[i]]
+#   ains<-which(Cl1Ind$INSECT==ins)
+#   anx<-which(Cl1Ind$DAY==nx)
+#   nextobv<-intersect(ains, anx)
+#   if(Cl1Ind$STATUS[testobs[i]] != Cl1Ind$STATUS[nextobv]){
+#     Cl1Ind$STATUS[testobs[i]]<- Cl1Ind$STATUS[nextobv]
+#     Cl1Ind$dead[testobs[i]]<- Cl1Ind$dead[nextobv]
+#     Cl1Ind$alive[testobs[i]]<- Cl1Ind$alive[nextobv]
+#     Cl1Ind$knockdown[testobs[i]]<- Cl1Ind$knockdown[nextobv]
+#     Cl1Ind$unviable[testobs[i]]<- Cl1Ind$unviable[nextobv]
+#     Cl1Ind$living[testobs[i]]<- Cl1Ind$living[nextobv]
+#     Cl1Ind$CC[testobs[i]]<-"STATUS CHANGED IN CODE- Died later than originally recorded"
+#   }
+# }
+# bug<-which(Cl1Ind$CC=="STATUS CHANGED IN CODE- Died later than originally recorded")
+# Cl1Ind$INSECT[bug]
+# #Check if these are data entry errors or other
+# 
+# 
+# 
+# Cl1Ind$INSECT[deadobs]
+# if(Cl1Ind$DAY[deadobs]>mday){
+#   if(Cl1$Ind)
+# }
 
 
 #also consider case where knock down went to alive.
