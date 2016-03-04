@@ -514,8 +514,7 @@ pcad<-data.frame(FFdata$avmaxtemp,FFdata$avmintemp,FFdata$avmaxhum,
   corm<-cor(pcad)
   eigen(corm)  #First two components are greater than 1. 
 #pcout <- princomp(pcad)#R community recomends using prcomp over princomp.
-pcout2 <- prcomp(~FFdata.avmaxtemp+FFdata.avmintemp+FFdata.avmaxhum+
-                   FFdata.avminhum, data=pcad, scale=TRUE)
+t
 #the sixth subset is the matrix of raw components
 pcm <- pcout2$x
 #We need to add these componenets to original data set.
@@ -578,6 +577,10 @@ names(Hprince)<-c("HComp.1", "HComp.2", "HComp.3", "HComp.4", "idnum")
   single2<-merge(single, princeb, by="idnum")
   #eggs hatched
   FFdataPC<-merge(Hprince, single2, by="idnum", all.y= TRUE)
+  
+##Add a factor variable that indicates mouse.
+  FFdataPC$GP<-paste(FFdataPC$trial, FFdataPC$infected)
+  
 #write.csv(FFdataPC, "FertilityFecundityDataPC.csv")
  
 ##################################################################################
@@ -715,24 +718,50 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   #Model with trial and PC1 Interaction
   pceggmod2d <- glm.nb(egg_total~infected+PC2+PC1*factor(trial), data=FFdataPC, 
                        offset(log(lifespan)))
+  pceggmod2dwi <- glm.nb(egg_total~infected+PC2+PC1*factor(trial)-1, data=FFdataPC, 
+                       offset(log(lifespan)))
   #Model with trial interacting with both PC2 and PC1
   pceggmod2e <- glm.nb(egg_total~infected+PC1*factor(trial)+PC2*factor(trial),
                        data=FFdataPC, offset(log(lifespan)))
+  
   pceggmod2epoi <- glm(egg_total~infected+PC1*factor(trial)+PC2*factor(trial),
                        data=FFdataPC, offset(log(lifespan)), family="poisson")
+  
+  pceggmod2ewi <- glm.nb(egg_total~infected+PC1*factor(trial)+PC2*factor(trial)-1,
+                       data=FFdataPC, offset(log(lifespan)))
+  
+  pceggmod2gp<-glm.nb(egg_total~GP+PC1+PC2-1,
+                      data=FFdataPC, offset(log(lifespan)))
+  
+  pceggmod2gpi<-glm.nb(egg_total~GP*PC1+PC2-1,
+                      data=FFdataPC, offset(log(lifespan)))
+  pceggmod2gpii<-glm.nb(egg_total~infected+GP*PC1+PC2-1,
+                       data=FFdataPC, offset(log(lifespan)))
+  pceggmod2gpii2<-glm.nb(egg_total~infected+GP*PC1+PC2,
+                        data=FFdataPC, offset(log(lifespan)))
+  
+  summary(pceggmod2ewi)
   #Model with 3 PC
   pceggmod3 <- glm.nb(egg_total~infected+PC1+PC2+PC3, data=FFdataPC,
                       offset(log(lifespan)))
   #Model without PC2 (more significant that 1,2, and 3 if no trial interactions)
   pceggmod3b <- glm.nb(egg_total~infected+PC1+PC3, data=FFdataPC,
                        offset(log(lifespan)))
-  pceggmod3c <- glm.nb(egg_total~infected+PC1+PC2+PC3+factor(trial), 
+  pceggmod3c <- glm.nb(egg_total~infected+PC1+PC2+PC3+factor(trial)-1, 
                        data=FFdataPC, offset(log(lifespan)))
   pceggmod3d <- glm.nb(egg_total~infected+PC1+PC3+factor(trial), data=FFdataPC,
                        offset(log(lifespan)))
   #Full Model with all Principle Components #do not use, may overfit
   pceggmod4 <- glm.nb(egg_total~infected+PC1+PC2+PC3+PC4, data=FFdataPC,
                       offset(log(lifespan)))
+  FFdataPC$trial<-as.factor(FFdataPC$trial)
+  FFdataPC$trial<-relevel(FFdataPC$trial, 1)
+  pceggmod2ewi <- glm.nb(egg_total~infected+PC1*factor(trial)+PC2*factor(trial)-1,
+                         data=FFdataPC, offset(log(lifespan)))
+  
+  #Place Trial Facotor in side Princi
+  tpceggmod2 <- glm.nb(egg_total~infected+TPC1+TPC2, data=FFdataPC,
+                       offset(log(lifespan)))
   
   #look at AIC's
   pceggmod0#4327
@@ -745,7 +774,7 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   
   pceggmod3#4250
   pceggmod3b#4248
-  pceggmod3c#4197.7
+  pceggmod3c#4197.7 #If we decide
   pceggmod3d#4239
   
   pceggmod4#4215
@@ -756,10 +785,10 @@ estpc <- cbind(Estimate = coef(pceggmod2d), confint(pceggmod2d),
 colnames(estpc)[4]<-"Std. Error"  
 colnames(estpc)[5]<-"P-Value"
 PCOutput<-data.frame(estpc)
-names(PCOutput) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
-PCOutput$Exp_Est <- exp(PCOutput$Estimate)
-PCOutput$Exp_lCI <- exp(PCOutput$lCI)
-PCOutput$Exp_uCI <- exp(PCOutput$uCI)
+names(PCOutput) <- c("Estimate", "Lower CI", "Upper CI", "Std. Error","P-Value")
+PCOutput$Exp_Estimate<- exp(PCOutput$Estimate)
+PCOutput$Exp_Lower_CI <- exp(PCOutput$lCI)
+PCOutput$Exp_Upper_CI <- exp(PCOutput$uCI)
 
 #also add AIC's, Theta, and AIC and log Likelihoods
 nTheta<-as.vector(c(pceggmod2d$theta, "-", "-", pceggmod2d$SE.theta, "-","-", "-", "-" ))
@@ -767,7 +796,7 @@ nTwologlik<-c(pceggmod2d$twologlik, "-", "-", "-", "-", "-", "-", "-")
 nAIC<-c(pceggmod2d$aic, "-", "-", "-", "-", "-", "-", "-")
 #Paste
 PCOutput<-rbind(PCOutput, nTheta, nTwologlik, nAIC)
-rownames(PCOutput)[5:11]<- c("Rep1", "Rep2","PC1_Rep1_Int","PC1_Rep2_Int", 
+rownames(PCOutput)[5:11]<- c("Repetition 1 (Rep1)", "Repetition 2 (Rep2),","PC1 Rep1 Interaction","PC1 Rep2 Interaction"
                              "Theta", "2xLog Likelihood", "AIC")
 
 #   stargazer(tpceggmod2, type="html",
@@ -814,8 +843,7 @@ write.csv(PCOutputB, "pcoutb.csv")
   
 ###Egg Models with Trial Included in Principle Components
   #should I put -1 to remove intercept?
-  tpceggmod2 <- glm.nb(egg_total~infected+TPC1+TPC2, data=FFdataPC,
-                      offset(log(lifespan)))
+
   
 est <- cbind(Estimate = coef(tpceggmod2), confint(tpceggmod2),
              summary(tpceggmod2)$coef[,2], summary(tpceggmod2)$coef[,4])
@@ -841,11 +869,55 @@ tPCOutput<-data.frame(est)
 
   write.csv(tPCOutput, "trialpcout.csv")
   
-##To make output   
-#  stargazer(tpceggmod2, type="html",
+##Model with 3 PC s and Trial (No Interaction)  
+  ##Make an output table 
+  estpcc <- cbind(Estimate = coef(pceggmod3c), confint(pceggmod3c),
+                  round(summary(pceggmod3c)$coef[,2], digits=3), 
+                  signif(summary(pceggmod3c)$coef[,4], digits=3))
+  colnames(estpcc)[4]<-"Std. Error"  
+  colnames(estpcc)[5]<-"P-Value"
+  PCOutputC<-data.frame(estpcc)
+  names(PCOutputC) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
+  PCOutputC$Exp_Est <- round(exp(PCOutputC$Estimate), digits=3)
+  PCOutputC$Exp_lCI <- round(exp(PCOutputC$lCI), digits=3)
+  PCOutputC$Exp_uCI <- round(exp(PCOutputC$uCI), digits=3)
+  
+
+  #Combine Estimates and Confidence Intervals
+
+  PCOutputC$IRR<-paste(PCOutputC$Exp_Est,"(",PCOutputC$Exp_lCI, "-", PCOutputC$Exp_uCI,
+                      ")" )
+  
+  #Delete Extra Columns
+  PCOutputC$Estimate <- NULL
+  PCOutputC$lCI <- NULL
+  PCOutputC$uCI <- NULL
+  PCOutputC$Exp_Est <- NULL
+  PCOutputC$Exp_lCI <- NULL
+  PCOutputC$Exp_uCI <- NULL
+  
+  PCOutputC<- PCOutputC[,c(3,1,2)]
+  names(PCOutputC) <- c("Ratio of Eggs Laid Per Week (95% CI)", "Std. Error","P-Value")
+  
+  #also add AIC's, Theta, and AIC and log Likelihoods
+  cTheta<-as.vector(c(round(pceggmod3c$theta, digits=3), 
+                      round(pceggmod3c$SE.theta, digits=3), "-" ))
+  cTwologlik<-c(ceiling(pceggmod3c$twologlik), "-", "-")
+  cAIC<-c(ceiling(pceggmod3c$aic), "-", "-", "-")
+  #Paste
+  PCOutputC<-rbind(PCOutputC, cTheta, cTwologlik, cAIC)
+  rownames(PCOutputC)<- c("Infected", "Temperature and Humidity Principal Component 1 (PC1)","PC2","PC3","Pilot ", "Repetition 1", "Repetition 2",
+                                "Theta", "2xLog Likelihood", "AIC")
+  
+  write.csv(PCOutputC, "pcoutc.csv") 
+
+#To make output   
+#  stargazer(pceggmod3c, type="html",
 #            dep.var.labels=c("Eggs Laid Per Week"),
-#            covariate.labels=c("Infection Status","Principal Component 1",
-#                               "Principal Component 2"), out="models.htm")  
+#            covariate.labels=c("Infection Status","PC1",
+#                               "PC2", "PC3",  "Pilot", "Repetition 1","Repetition 2"),
+#            out="PC3NIMoD.htm", notes=c("PC 1-3 are principal components of temperature and humidity values."),
+#            ci = TRUE, ci.level = 0.95, ci.separator = "-")  
   
   #random effect models: has a very small variance.
   FFdataPC$idnum <- as.factor(FFdataPC$idnum)
@@ -1293,3 +1365,6 @@ conobs<-c(1844, 898)
 conttab<-data.frame(infobs, conobs)
 chisq.test(conttab)
 fisher.test(conttab)
+
+
+which(FFdataPC$, )
