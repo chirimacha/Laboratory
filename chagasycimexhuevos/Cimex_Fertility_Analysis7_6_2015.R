@@ -911,13 +911,16 @@ tPCOutput<-data.frame(est)
   
   write.csv(PCOutputC, "pcoutc.csv") 
 
-#To make output   
+#To make output   #need ci.custom to get correct exp
 #  stargazer(pceggmod3c, type="html",
 #            dep.var.labels=c("Eggs Laid Per Week"),
 #            covariate.labels=c("Infection Status","PC1",
 #                               "PC2", "PC3",  "Pilot", "Repetition 1","Repetition 2"),
-#            out="PC3NIMoD.htm", notes=c("PC 1-3 are principal components of temperature and humidity values."),
-#            ci = TRUE, ci.level = 0.95, ci.separator = "-")  
+#            out="PC3NIMoD.htm", 
+#            notes=c("PC 1-3 are principal components of temperature and humidity values."),
+#            ci = TRUE, ci.level = 0.95, ci.separator = "-",
+#            apply.coef =exp, apply.se= exp, apply.ci =exp
+#              )  
   
   #random effect models: has a very small variance.
   FFdataPC$idnum <- as.factor(FFdataPC$idnum)
