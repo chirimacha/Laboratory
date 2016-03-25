@@ -25,22 +25,22 @@ library(splancs)
 setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
 #bring in video(s)
-pilotvid <- readVid("PetriDishPilots.mp4")
-pilotvidr1 <- readVid("PilotPetriRound1.mp4")
-marchpilot<-readVid("MarchPilot.mp4")
-framepic <- getFrame(pilotvidr1, 5)
+ pilotvid   <- readVid("PetriDishPilots.mp4")
+ pilotvidr1 <- readVid("PilotPetriRound1.mp4")
+ marchpilot <- readVid("MarchPilot.mp4")
+# framepic <- getFrame(pilotvidr1, 5)
 #imshow(framepic)
 
-quartz()
-png("framepic.png")
-imshow(framepic)
-dev.off()
-
-#create a mask using that output in a photo editor
-readImg("newmask.png")
+# quartz()
+# png("framepic.png")
+# imshow(framepic)
+# dev.off()
+# 
+# #create a mask using that output in a photo editor
+# nmask<-readImg("newmask.png")
 
 #get frame from march pilot to export to GIMP
-getFrame(marchpilot)
+#getFrame(marchpilot)
 
 #bring in camera feed
 #Stream0 is front camera, 1 is Logitech Camera
@@ -205,9 +205,10 @@ tracks[1:pos, ]
 #the code doesn't propperly call the other parts, it also doesn't define
 #the background or the masks
 
-#Try to only find the background once, this takes too long, especially if median is used.
+#Try to create the background once, this takes too long, especially if median is used.
 bg <- backgrounder(pilotvidr1, n = 100, method = "mean", color = FALSE)
 bugpos<- data.frame()
+
 
 #Create "mask" that only allows one petri dish to be analyzed at a time
 mat <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
@@ -243,24 +244,24 @@ imshow(nbga)
 
 #make the matrix into an image
 #quartz()
-pmask <- r2img(mat)
-#now bring the mask and the background together
-nbg<-blend(bg, pmask, "*")
-imshow(nbg)
+# pmask <- r2img(mat)
+# #now bring the mask and the background together
+# nbg<-blend(bg, pmask, "*")
+# imshow(nbg)
 
 
 ##see what Simon Garnier's loop is doing by taking only 1 frame
- rev<-getFrame(pilotvidr1, 5)
- grscl<-ddd2d(rev)
- mask<-blend(grscl, pmaska, "*")
- neg<-blend(nbg, mask, "-") #the order matters
- #mult<-blend(neg1, neg1, "*")
- ths<-thresholding(neg, 60, "binary")
- imshow(ths)
- bugloc<-blobDetector(ths)
- bcoutputx<-mutate(bugloc, frame=5, track=NA)
- stoutx<-simpleTracker(bcoutputx, past=bugpos, maxDist= 10)
- bugpos<- rbind(bugpos, stoutx)
+#  rev<-getFrame(pilotvidr1, 5)
+#  grscl<-ddd2d(rev)
+#  mask<-blend(grscl, pmaska, "*")
+#  neg<-blend(nbg, mask, "-") #the order matters
+#  #mult<-blend(neg1, neg1, "*")
+#  ths<-thresholding(neg, 60, "binary")
+#  imshow(ths)
+#  bugloc<-blobDetector(ths)
+#  bcoutputx<-mutate(bugloc, frame=5, track=NA)
+#  stoutx<-simpleTracker(bcoutputx, past=bugpos, maxDist= 10)
+#  bugpos<- rbind(bugpos, stoutx)
 
 #create output data frame
 bugpos<- data.frame()
@@ -322,7 +323,45 @@ bugpos$onpest[below]<-0
 #combine then with a master data frame and add
 CompiledData$tray<-1
 
-#around frame238, it tracks outside of petri dish
+###############################################################################
+###Repeat this process using the new march pilot
+#create the background
+mbg <- backgrounder(marchpilot, n = 100, method = "mean", color = FALSE)
+#create a blank data frame for loop output
+marbugpos <- data.frame()
+
+###Each quadrant will have to build upon
+#Quadrant 2
+mmat <- matrix(0, nrow = mbg$dim[1], ncol = mbg$dim[2])
+#sadly, for each dish we need to define the area by hand.
+mmat[150:268, 370:480] <- 1
+#go through matrix and ask if it is in or out of the polygon
+pmaskm <- (r2img(mmat))
+#now bring the mask and the background together
+nbgm<-blend(mbg, pmaskm, "*")
+imshow(nbgm)
+
+for (i in 1:20){
+  #extract individual frames
+  res<-getFrame(marchpilot, i) 
+  #put frame into grey scale.
+  gryscl <- ddd2d(res) 
+  #mask other petri dishes
+  mask<-blend(gryscl, pmaskm, "*")
+  #subtract background from the mask. Only movement will show 
+  sub<-blend(nbgm, mask, "-") 
+  #set a threshold difference to remove changes due to glare/reflection
+  bw<-thresholding(sub, 50, "binary")
+  #detect the black blobs that are created. Get coordinates
+  bugcords<-blobDetector(bw) 
+  # add track # to data frame
+  bugcords<-mutate(bugcords, frame = i, track = NA) 
+  #determines what points are linked. Optimally each insect given 1 track each
+  #because there is only one object, we can max out maxDist. 
+  stout<-simpleTracker(past = marbugpos, current = bugcords, maxDist=100) 
+  #combine tables previous in the loop.
+  marbugpos<- rbind(marbugpos, stout)
+}
 
 
-#Now we have insect positions defined, we need to define the lines in R.
+
