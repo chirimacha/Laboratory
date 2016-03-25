@@ -27,8 +27,20 @@ setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"
 #bring in video(s)
 pilotvid <- readVid("PetriDishPilots.mp4")
 pilotvidr1 <- readVid("PilotPetriRound1.mp4")
-framepic <- getFrame(pilotvid, 800)
+marchpilot<-readVid("MarchPilot.mp4")
+framepic <- getFrame(pilotvidr1, 5)
+#imshow(framepic)
+
+quartz()
+png("framepic.png")
 imshow(framepic)
+dev.off()
+
+#create a mask using that output in a photo editor
+readImg("newmask.png")
+
+#get frame from march pilot to export to GIMP
+getFrame(marchpilot)
 
 #bring in camera feed
 #Stream0 is front camera, 1 is Logitech Camera
