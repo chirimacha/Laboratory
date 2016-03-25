@@ -3,17 +3,17 @@
 
 ###Install Packages and open libraries.
 #Install VideoPlayR
-if (!require(devtools)) {
-  install.packages("devtools")
-}
-
-devtools::install_github("swarm-lab/videoplayR")
-
-#install Other packages:
-install.packages("dplyr")
-install.packages("clue")
-install.packages("shiny")
-install.packages("splancs")
+# if (!require(devtools)) {
+#   install.packages("devtools")
+# }
+# 
+# devtools::install_github("swarm-lab/videoplayR")
+# 
+# #install Other packages:
+# install.packages("dplyr")
+# install.packages("clue")
+# install.packages("shiny")
+# install.packages("splancs")
 #Open Libraries
 library(videoplayR)
 library(dplyr)
@@ -32,7 +32,7 @@ imshow(framepic)
 
 #bring in camera feed
 #Stream0 is front camera, 1 is Logitech Camera
-stream1<-readStream(1)
+#stream1<-readStream(1)
 
 #Simple Tracker Code(package not available for new R)
 pdiff <- function(a, b) {
@@ -194,7 +194,7 @@ tracks[1:pos, ]
 #the background or the masks
 
 #Try to only find the background once, this takes too long, especially if median is used.
-#bg <- backgrounder(pilotvidr1, n = 100, method = "mean", color = FALSE)
+bg <- backgrounder(pilotvidr1, n = 100, method = "mean", color = FALSE)
 bugpos<- data.frame()
 
 #Create "mask" that only allows one petri dish to be analyzed at a time
@@ -208,27 +208,26 @@ nbga<-blend(bg, pmaska, "*")
 imshow(nbga)
 
 #get polygon
-mypoly<-getpoly()
-mypoly2<-getpoly()
-#inmypoly<-inout(mat,mypoly)
-inorout  <- matrix( 0, nrow = bg$dim[1], ncol = bg$dim[2] )
-inorout2 <- inorout
+#mypoly<-getpoly()
+#mypoly2<-getpoly()
+#inorout  <- matrix( 0, nrow = bg$dim[1], ncol = bg$dim[2] )
+#inorout2 <- inorout
 
-for(i in 1:dim(mat)[1]){
-  for(j in 1:dim(mat)[2]){
-    point<-as.points(i,j)
-    if (inout(point, mypoly)==TRUE) inorout[i,j] <- 1
-  }
-}
+#for(i in 1:dim(mat)[1]){
+#  for(j in 1:dim(mat)[2]){
+#    point<-as.points(i,j)
+#    if (inout(point, mypoly)==TRUE) inorout[i,j] <- 1
+#  }
+#}
 
-quartz(height=3, width=6)
-
-for(i in 1:dim(mat)[1]){
-  for(j in 1:dim(mat)[2]){
-    point<-as.points(c(i), c(j))
-    inorout2[(dim(mat)[1]-i+1),j] <- inout(point, mypoly)
-  }
-}
+# quartz(height=3, width=6)
+# 
+# for(i in 1:dim(mat)[1]){
+#   for(j in 1:dim(mat)[2]){
+#     point<-as.points(c(i), c(j))
+#     inorout2[(dim(mat)[1]-i+1),j] <- inout(point, mypoly)
+#   }
+# }
 
 #make the matrix into an image
 #quartz()
@@ -239,17 +238,17 @@ imshow(nbg)
 
 
 ##see what Simon Garnier's loop is doing by taking only 1 frame
-# rev<-getFrame(pilotvidr1, 5)
-# grscl<-ddd2d(rev)
-# mask<-blend(grscl, pmask, "*")
-# neg<-blend(nbg, mask, "-") #the order matters
-# mult<-blend(neg1, neg1, "*")
-# ths<-thresholding(neg, 60, "binary")
-# imshow(ths)
-# bugloc<-blobDetector(ths)
-# bcoutputx<-mutate(bugloc, frame=5, track=NA)
-# stoutx<-simpleTracker(bcoutputx, past=bugpos, maxDist= 10)
-# bugpos<- rbind(bugpos, stoutx)
+ rev<-getFrame(pilotvidr1, 5)
+ grscl<-ddd2d(rev)
+ mask<-blend(grscl, pmaska, "*")
+ neg<-blend(nbg, mask, "-") #the order matters
+ #mult<-blend(neg1, neg1, "*")
+ ths<-thresholding(neg, 60, "binary")
+ imshow(ths)
+ bugloc<-blobDetector(ths)
+ bcoutputx<-mutate(bugloc, frame=5, track=NA)
+ stoutx<-simpleTracker(bcoutputx, past=bugpos, maxDist= 10)
+ bugpos<- rbind(bugpos, stoutx)
 
 #create output data frame
 bugpos<- data.frame()
@@ -261,9 +260,9 @@ for (i in 1:pilotvidr1$length){
   #put frame into grey scale.
   gryscl <- ddd2d(res) 
   #mask other petri dishes
-  mask<-blend(gryscl, pmask, "*")
+  mask<-blend(gryscl, pmaska, "*")
   #subtract background from the mask. Only movement will show 
-  sub<-blend(nbg, mask, "-") 
+  sub<-blend(nbga, mask, "-") 
   #set a threshold difference to remove changes due to glare/reflection
   bw<-thresholding(sub, 70, "binary")
   #detect the black blobs that are created. Get coordinates
