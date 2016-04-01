@@ -209,7 +209,6 @@ tracks[1:pos, ]
 bg <- backgrounder(pilotvidr1, n = 100, method = "mean", color = FALSE)
 bugpos<- data.frame()
 
-
 #Create "mask" that only allows one petri dish to be analyzed at a time
 mat <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
 #sadly, for each dish we need to define the area by hand.
@@ -341,7 +340,8 @@ pmaskm <- (r2img(mmat))
 nbgm<-blend(mbg, pmaskm, "*")
 imshow(nbgm)
 
-for (i in 1:20){
+#only want to use 1 hour. 1 hour is 1frame/sec*60 sec*60min=3600
+for (i in 1:marchpilot$length){
   #extract individual frames
   res<-getFrame(marchpilot, i) 
   #put frame into grey scale.
@@ -355,13 +355,70 @@ for (i in 1:20){
   #detect the black blobs that are created. Get coordinates
   bugcords<-blobDetector(bw) 
   # add track # to data frame
-  bugcords<-mutate(bugcords, frame = i, track = NA) 
-  #determines what points are linked. Optimally each insect given 1 track each
-  #because there is only one object, we can max out maxDist. 
-  stout<-simpleTracker(past = marbugpos, current = bugcords, maxDist=100) 
-  #combine tables previous in the loop.
-  marbugpos<- rbind(marbugpos, stout)
+  if(nrow(bugcords)>0) {
+   bugcords<-mutate(bugcords, frame = i, track = NA) 
+    #determines what points are linked. Optimally each insect given 1 track each
+    #because there is only one object, we can max out maxDist. 
+    stout<-simpleTracker(past = marbugpos, current = bugcords, maxDist=1000) 
+    #combine tables previous in the loop.
+   marbugpos<- rbind(marbugpos, stout)
+  }
+  #do we want to add an else value? idk if it will mess up simpleTracker
 }
 
+#Now that we have the coordinates
+###Now define the border between control and pesticide
+imshow(nbgm)
+ya<-c(224,320)
+xa<-c(423,421)  
+lines(xa,ya, col= "red",lwd = 1)
+
+# #In the future I will need to do the same thing in x chord.
+ yb<-c(272,272) #96
+ xb<-c(375,471)  
+ lines(xb,yb, col= "red",lwd = 1)
+
+#generate line equation
+line1a<-lm(ya~xa)
+line1b<-lm(yb~xb)
+
+newsa<-data.frame(xa = marbugpos$x)
+newsb<-data.frame(xb = marbugpos$x)
+marbugpos$pred1 <- predict(line1a, newsa, na.rm=TRUE)
+marbugpos$pred2 <- predict(line1b, newsb, na.rm=TRUE)
+
+#determine if y of bug is above or below line (differnet from predicted y)
+belowa<-which(marbugpos$y<marbugpos$pred1)
+abovea<-which(marbugpos$y>=marbugpos$pred1)
+marbugpos$yse1[above]<-1
+marbugpos$ysem[below]<-0
+
+belowb<-which(marbugpos$y<marbugpos$pred2)
+aboveb<-which(marbugpos$y>=marbugpos$pred2)
+marbugpos$xsem[above]<-1
+marbugpos$xsem[below]<-0
+
+#bind for quadrant specs
+marbugpos$quad[intersect(abovea,aboveb)]<-1
+marbugpos$quad[intersect(abovea,belowb)]<-2
+marbugpos$quad[intersect(belowa,aboveb)]<-3
+marbugpos$quad[intersect(belowa,belowb)]<-4
 
 
+#For this example let say quadrants 1 and 4 have pesticide.
+marbugpos$onpest[which(marbugpos$quad==1)]<-1
+marbugpos$onpest[which(marbugpos$quad==2)]<-0
+marbugpos$onpest[which(marbugpos$quad==3)]<-0
+marbugpos$onpest[which(marbugpos$quad==4)]<-1
+
+
+#save output as a csv
+write.csv(marbugpos, "marchpilot_controldata.csv")
+
+#plot the tracks
+pdf("marchpilot_controltrackplot.pdf")
+imshow(mbg)
+for(i in 1:length(marbugpos$track)){
+  lines(x=marbugpos$x[which(marbugpos$track==i)], y=marbugpos$y[which(marbugpos$track==i)], col=i)
+}
+dev.off()
