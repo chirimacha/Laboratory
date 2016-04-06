@@ -289,7 +289,7 @@ for (i in 1:pilotchiri$length-1){
   #do we want to add an else value? idk if it will mess up simpleTracker
 }
 
-pdf("marchpilot_controltrackplot.pdf")
+pdf("test2.pdf")
 imshow(bg)
 for(i in 1:max(bugpos$track)){
   lines(x=bugpos$x[which(bugpos$track==i)], y=bugpos$y[which(bugpos$track==i)], col=i)
