@@ -869,7 +869,7 @@ tPCOutput<-data.frame(est)
 
   #write.csv(tPCOutput, "trialpcout.csv")
   
-##Model with 3 PC s and Trial (No Interaction)  
+###Model with 3 PC s and Trial (No Interaction)  
   ##Make an output table 
   estpcc <- cbind(Estimate = coef(pceggmod3c), confint(pceggmod3c),
                   round(summary(pceggmod3c)$coef[,2], digits=3), 
@@ -911,6 +911,48 @@ tPCOutput<-data.frame(est)
   
 #write.csv(PCOutputC, "pcoutc.csv") 
 
+#=## Mixed Model Output
+  ###Model with Both PC Interactions
+  CIS <- confint(meeggmodt1_2, method="Wald")
+  CIS <- CIS[-1,]
+  #CIS <- data.frame(CIS)
+  estpcm <- cbind(Estimate = summary(meeggmodt1_2)$coefficients[,1], CIS, 
+                  summary(meeggmodt1_2)$coefficients[,2],
+           signif(summary(meeggmodt1_2)$coefficients[,4], digits=3))
+        
+  
+  PCOutputM<-data.frame(estpcm)
+  names(PCOutputM) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
+  PCOutputM$Exp_Est <- round(exp(PCOutputM$Estimate), digits=3)
+  PCOutputM$Exp_lCI <- round(exp(PCOutputM$lCI), digits=3)
+  PCOutputM$Exp_uCI <- round(exp(PCOutputM$uCI), digits=3)
+  
+  #Combine Estimates and Confidence Intervals
+  
+  PCOutputM$IRR<-paste(PCOutputM$Exp_Est,"(",PCOutputM$Exp_lCI, "-", PCOutputM$Exp_uCI,
+                       ")" )
+  
+  #Delete Extra Columns
+  PCOutputM$Estimate <- NULL
+  PCOutputM$lCI <- NULL
+  PCOutputM$uCI <- NULL
+  PCOutputM$Exp_Est <- NULL
+  PCOutputM$Exp_lCI <- NULL
+  PCOutputM$Exp_uCI <- NULL
+  
+  PCOutputM<- PCOutputM[,c(3,1,2)]
+  
+  #also add AIC's, Theta, and AIC and log Likelihoods
+  MnTheta<-as.vector(c(round(getME(meeggmodt1_2,"glmer.nb.theta"), digits=3), "-", "-"))
+  Mnloglik<-c(ceiling(logLik(meeggmodt1_2)[1]), "-", "-")
+  MnAIC<-c(ceiling(extractAIC(meeggmodt1_2)[2]), "-", "-")
+  #Paste
+  PCOutputM<-rbind(PCOutputM, MnTheta, Mnloglik, MnAIC)
+  rownames(PCOutputM)[5:7]<- c("Theta", "Log Likelihood", "AIC")
+  View(PCOutputM)
+  
+#write.csv(PCOutputM, "MixedEffectOutputTable.csv")
+  
 #To make output   #need ci.custom to get correct exp
 #  stargazer(pceggmod3c, type="html",
 #            dep.var.labels=c("Eggs Laid Per Week"),
@@ -955,10 +997,10 @@ tPCOutput<-data.frame(est)
 #   mePCOutput<-rbind(mePCOutput, mTheta, mLoglik, mAIC)
 #   rownames(mePCOutput)[5:8]<- c("Theta", "Log Likelihood", "AIC", "Random Eect")
 #   
-  #   stargazer(tpceggmod2, type="html",
-  #             dep.var.labels=c("Eggs Laid Per Week"),
-  #             covariate.labels=c("Infection Status","Principal Component 1",
-  #                                "Principal Component 2"), out="models.htm")
+#     stargazer(tpceggmod2, type="html",
+#               dep.var.labels=c("Eggs Laid Per Week"),
+#               covariate.labels=c("Infection Status","Principal Component 1",
+#                                  "Principal Component 2"), out="models.htm")
   
    stargazer(meeggmodt1_2, type="html", dep.var.labels=c("Eggs Laid Per Week"), 
    covariate.labels=c("Infection Status","PC1", "PC2", "PC3",  "Pilot",
