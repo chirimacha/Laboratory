@@ -747,7 +747,7 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   #Model without PC2 (more significant that 1,2, and 3 if no trial interactions)
   pceggmod3b <- glm.nb(egg_total~infected+PC1+PC3, data=FFdataPC,
                        offset(log(lifespan)))
-  pceggmod3c <- glm.nb(egg_total~infected+PC1+PC2+PC3+factor(trial)-1, 
+  pceggmod3c <- glm.nb(egg_total~infected+PC1+PC2+PC3+factor(trial), 
                        data=FFdataPC, offset(log(lifespan)))
   pceggmod3d <- glm.nb(egg_total~infected+PC1+PC3+factor(trial), data=FFdataPC,
                        offset(log(lifespan)))
@@ -756,7 +756,7 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
                       offset(log(lifespan)))
   FFdataPC$trial<-as.factor(FFdataPC$trial)
   FFdataPC$trial<-relevel(FFdataPC$trial, 1)
-  pceggmod2ewi <- glm.nb(egg_total~infected+PC1*factor(trial)+PC2*factor(trial)-1,
+  pceggmod2ewi <- glm.nb(egg_total~infected+PC1*factor(trial)+PC2*factor(trial),
                          data=FFdataPC, offset(log(lifespan)))
   
   #Place Trial Facotor in side Princi
@@ -843,8 +843,6 @@ rownames(PCOutputB)[5:13]<- c("Rep1", "Rep2","PC1_Rep1_Int","PC1_Rep2_Int",
   
 ###Egg Models with Trial Included in Principle Components
   #should I put -1 to remove intercept?
-
-  
 est <- cbind(Estimate = coef(tpceggmod2), confint(tpceggmod2),
              summary(tpceggmod2)$coef[,2], summary(tpceggmod2)$coef[,4])
 colnames(est)[4]<-"Std. Error"  
@@ -877,7 +875,7 @@ tPCOutput<-data.frame(est)
   colnames(estpcc)[4]<-"Std. Error"  
   colnames(estpcc)[5]<-"P-Value"
   PCOutputC<-data.frame(estpcc)
-  names(PCOutputC) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
+  names(PCOutputC) <- c("Estimate", "lCI", "uCI", "Std.Error","P-Value")
   PCOutputC$Exp_Est <- round(exp(PCOutputC$Estimate), digits=3)
   PCOutputC$Exp_lCI <- round(exp(PCOutputC$lCI), digits=3)
   PCOutputC$Exp_uCI <- round(exp(PCOutputC$uCI), digits=3)
@@ -888,30 +886,68 @@ tPCOutput<-data.frame(est)
   PCOutputC$IRR<-paste(PCOutputC$Exp_Est,"(",PCOutputC$Exp_lCI, "-", PCOutputC$Exp_uCI,
                       ")" )
   
+  PCOutputCB<-PCOutputC
+  
   #Delete Extra Columns
   PCOutputC$Estimate <- NULL
+  PCOutputC$Std.Error <- NULL
   PCOutputC$lCI <- NULL
   PCOutputC$uCI <- NULL
   PCOutputC$Exp_Est <- NULL
   PCOutputC$Exp_lCI <- NULL
   PCOutputC$Exp_uCI <- NULL
   
-  PCOutputC<- PCOutputC[,c(3,1,2)]
-  names(PCOutputC) <- c("Ratio of Eggs Laid Per Week (95% CI)", "Std. Error","P-Value")
+  #from this version, do not delete estimate.
+  PCOutputCB$lCI <- NULL
+  PCOutputCB$uCI <- NULL
+  PCOutputCB$Exp_Est <- NULL
+  PCOutputCB$Exp_lCI <- NULL
+  PCOutputCB$Exp_uCI <- NULL
+  
+  PCOutputC<- PCOutputC[,c(2,1)]
+  names(PCOutputC) <- c("Ratio of Eggs Laid Per Week (95% CI)","P-Value")
   
   #also add AIC's, Theta, and AIC and log Likelihoods
-  cTheta<-as.vector(c(round(pceggmod3c$theta, digits=3), 
-                      round(pceggmod3c$SE.theta, digits=3), "-" ))
-  cTwologlik<-c(ceiling(pceggmod3c$twologlik), "-", "-")
-  cAIC<-c(ceiling(pceggmod3c$aic), "-", "-", "-")
+  cTheta<-as.vector(c(round(pceggmod3c$theta, digits=3), "-" ))
+  cTwologlik<-c(ceiling(pceggmod3c$twologlik), "-" )
+  cAIC<-c(ceiling(pceggmod3c$aic), "-")
   #Paste
   PCOutputC<-rbind(PCOutputC, cTheta, cTwologlik, cAIC)
-  rownames(PCOutputC)<- c("Infected", "Temperature and Humidity Principal Component 1 (PC1)","PC2","PC3","Pilot ", "Repetition 1", "Repetition 2",
+  rownames(PCOutputC)<- c("Intercept", "Infected", "Temperature and Humidity Principal Component 1 (PC1)","PC2","PC3", "Repetition 1", "Repetition 2",
                                 "Theta", "2xLog Likelihood", "AIC")
   
 #write.csv(PCOutputC, "pcoutc.csv") 
-
+  
+  PCOutputCB<- PCOutputCB[,c(1,2,4,3)]
+  names(PCOutputCB) <- c("Raw Estimate", "Std. Error", "Ratio of Eggs Laid Per Week (95% CI)", "P-Value")
+  ##Second format
+  cTheta<-as.vector(c(round(pceggmod3c$theta, digits=3), round(pceggmod3c$SE.theta, digits=3),"-","-" ))
+  cTwologlik<-c(ceiling(pceggmod3c$twologlik), "-","-","-" )
+  cAIC<-c(ceiling(pceggmod3c$aic), "-","-","-")
+  #Paste
+  PCOutputCB<-rbind(PCOutputCB, cTheta, cTwologlik, cAIC)
+  rownames(PCOutputCB)<- c("Intercept", "Infected", "Temperature and Humidity Principal Component 1 (PC1)","PC2","PC3", "Repetition 1", "Repetition 2",
+                          "Theta", "2xLog Likelihood", "AIC")
+  write.csv(PCOutputCB,"ExpandedOutputTable.csv")
+  
+#3#############################################################################
 #=## Mixed Model Output
+  
+  #random effect models: has a very small variance.
+  FFdataPC$idnum <- as.factor(FFdataPC$idnum)
+  #Only 3 trials: Pilot, Rep 1, Rep 2.
+  meeggmodt1_2 <- glmer.nb(egg_total~infected+PC1+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+  meeggmodt1 <- glmer.nb(egg_total~infected+PC1+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+  meeggmodt2 <- glmer.nb(egg_total~infected+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+  meeggmodt <- glmer.nb(egg_total~infected+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+  
+  #With Random Effect on Mouse
+  #This is not to say directly the mouse, but the insects are inheritantly subgrouped in this way
+  #such as feeding times, future GP meals, and so forth that may create dependence.
+  meeggmodm1_2 <- glmer.nb(egg_total~infected+PC1+PC2+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+  meeggmodm1 <- glmer.nb(egg_total~infected+PC1+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+  meeggmodm2 <- glmer.nb(egg_total~infected+PC2+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
+  
   ###Model with Both PC Interactions
   CIS <- confint(meeggmodt1_2, method="Wald")
   CIS <- CIS[-1,]
@@ -964,21 +1000,7 @@ tPCOutput<-data.frame(est)
 #            apply.coef =exp, apply.se= exp, apply.ci =exp
 #              )  
   
-  #random effect models: has a very small variance.
-  FFdataPC$idnum <- as.factor(FFdataPC$idnum)
-  #Only 3 trials: Pilot, Rep 1, Rep 2.
-  meeggmodt1_2 <- glmer.nb(egg_total~infected+PC1+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
-  meeggmodt1 <- glmer.nb(egg_total~infected+PC1+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
-  meeggmodt2 <- glmer.nb(egg_total~infected+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
-  meeggmodt <- glmer.nb(egg_total~infected+PC2+(1|trial)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
-  
-  #With Random Effect on Mouse
-  #This is not to say directly the mouse, but the insects are inheritantly subgrouped in this way
-  #such as feeding times, future GP meals, and so forth that may create dependence.
-  meeggmodm1_2 <- glmer.nb(egg_total~infected+PC1+PC2+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
-  meeggmodm1 <- glmer.nb(egg_total~infected+PC1+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
-  meeggmodm2 <- glmer.nb(egg_total~infected+PC2+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
-  
+
 #   estme <- cbind(Estimate = coef(meeggmodm1_2), confint(meeggmodm1_2),
 #                summary(meeggmodm1_2)$coef[,2], summary(meeggmodm1_2)$coef[,4])
 #   colnames(est)[4]<-"Std. Error"  
