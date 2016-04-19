@@ -747,7 +747,7 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   #Model without PC2 (more significant that 1,2, and 3 if no trial interactions)
   pceggmod3b <- glm.nb(egg_total~infected+PC1+PC3, data=FFdataPC,
                        offset(log(lifespan)))
-  pceggmod3c <- glm.nb(egg_total~infected+PC1+PC2+PC3+factor(trial)-1, 
+  pceggmod3c <- glm.nb(egg_total~infected+PC1+PC2+PC3+factor(trial), 
                        data=FFdataPC, offset(log(lifespan)))
   pceggmod3d <- glm.nb(egg_total~infected+PC1+PC3+factor(trial), data=FFdataPC,
                        offset(log(lifespan)))
@@ -756,7 +756,7 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
                       offset(log(lifespan)))
   FFdataPC$trial<-as.factor(FFdataPC$trial)
   FFdataPC$trial<-relevel(FFdataPC$trial, 1)
-  pceggmod2ewi <- glm.nb(egg_total~infected+PC1*factor(trial)+PC2*factor(trial)-1,
+  pceggmod2ewi <- glm.nb(egg_total~infected+PC1*factor(trial)+PC2*factor(trial),
                          data=FFdataPC, offset(log(lifespan)))
   
   #Place Trial Facotor in side Princi
@@ -843,8 +843,6 @@ rownames(PCOutputB)[5:13]<- c("Rep1", "Rep2","PC1_Rep1_Int","PC1_Rep2_Int",
   
 ###Egg Models with Trial Included in Principle Components
   #should I put -1 to remove intercept?
-
-  
 est <- cbind(Estimate = coef(tpceggmod2), confint(tpceggmod2),
              summary(tpceggmod2)$coef[,2], summary(tpceggmod2)$coef[,4])
 colnames(est)[4]<-"Std. Error"  
@@ -869,7 +867,7 @@ tPCOutput<-data.frame(est)
 
   #write.csv(tPCOutput, "trialpcout.csv")
   
-##Model with 3 PC s and Trial (No Interaction)  
+###Model with 3 PC s and Trial (No Interaction)  
   ##Make an output table 
   estpcc <- cbind(Estimate = coef(pceggmod3c), confint(pceggmod3c),
                   round(summary(pceggmod3c)$coef[,2], digits=3), 
@@ -877,7 +875,7 @@ tPCOutput<-data.frame(est)
   colnames(estpcc)[4]<-"Std. Error"  
   colnames(estpcc)[5]<-"P-Value"
   PCOutputC<-data.frame(estpcc)
-  names(PCOutputC) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
+  names(PCOutputC) <- c("Estimate", "lCI", "uCI", "Std.Error","P-Value")
   PCOutputC$Exp_Est <- round(exp(PCOutputC$Estimate), digits=3)
   PCOutputC$Exp_lCI <- round(exp(PCOutputC$lCI), digits=3)
   PCOutputC$Exp_uCI <- round(exp(PCOutputC$uCI), digits=3)
@@ -888,39 +886,52 @@ tPCOutput<-data.frame(est)
   PCOutputC$IRR<-paste(PCOutputC$Exp_Est,"(",PCOutputC$Exp_lCI, "-", PCOutputC$Exp_uCI,
                       ")" )
   
+  PCOutputCB<-PCOutputC
+  
   #Delete Extra Columns
   PCOutputC$Estimate <- NULL
+  PCOutputC$Std.Error <- NULL
   PCOutputC$lCI <- NULL
   PCOutputC$uCI <- NULL
   PCOutputC$Exp_Est <- NULL
   PCOutputC$Exp_lCI <- NULL
   PCOutputC$Exp_uCI <- NULL
   
-  PCOutputC<- PCOutputC[,c(3,1,2)]
-  names(PCOutputC) <- c("Ratio of Eggs Laid Per Week (95% CI)", "Std. Error","P-Value")
+  #from this version, do not delete estimate.
+  PCOutputCB$lCI <- NULL
+  PCOutputCB$uCI <- NULL
+  PCOutputCB$Exp_Est <- NULL
+  PCOutputCB$Exp_lCI <- NULL
+  PCOutputCB$Exp_uCI <- NULL
+  
+  PCOutputC<- PCOutputC[,c(2,1)]
+  names(PCOutputC) <- c("Ratio of Eggs Laid Per Week (95% CI)","P-Value")
   
   #also add AIC's, Theta, and AIC and log Likelihoods
-  cTheta<-as.vector(c(round(pceggmod3c$theta, digits=3), 
-                      round(pceggmod3c$SE.theta, digits=3), "-" ))
-  cTwologlik<-c(ceiling(pceggmod3c$twologlik), "-", "-")
-  cAIC<-c(ceiling(pceggmod3c$aic), "-", "-", "-")
+  cTheta<-as.vector(c(round(pceggmod3c$theta, digits=3), "-" ))
+  cTwologlik<-c(ceiling(pceggmod3c$twologlik), "-" )
+  cAIC<-c(ceiling(pceggmod3c$aic), "-")
   #Paste
   PCOutputC<-rbind(PCOutputC, cTheta, cTwologlik, cAIC)
-  rownames(PCOutputC)<- c("Infected", "Temperature and Humidity Principal Component 1 (PC1)","PC2","PC3","Pilot ", "Repetition 1", "Repetition 2",
+  rownames(PCOutputC)<- c("Intercept", "Infected", "Temperature and Humidity Principal Component 1 (PC1)","PC2","PC3", "Repetition 1", "Repetition 2",
                                 "Theta", "2xLog Likelihood", "AIC")
   
 #write.csv(PCOutputC, "pcoutc.csv") 
-
-#To make output   #need ci.custom to get correct exp
-#  stargazer(pceggmod3c, type="html",
-#            dep.var.labels=c("Eggs Laid Per Week"),
-#            covariate.labels=c("Infection Status","PC1",
-#                               "PC2", "PC3",  "Pilot", "Repetition 1","Repetition 2"),
-#            out="PC3NIMoD.htm", 
-#            notes=c("PC 1-3 are principal components of temperature and humidity values."),
-#            ci = TRUE, ci.level = 0.95, ci.separator = "-",
-#            apply.coef =exp, apply.se= exp, apply.ci =exp
-#              )  
+  
+  PCOutputCB<- PCOutputCB[,c(1,2,4,3)]
+  names(PCOutputCB) <- c("Raw Estimate", "Std. Error", "Ratio of Eggs Laid Per Week (95% CI)", "P-Value")
+  ##Second format
+  cTheta<-as.vector(c(round(pceggmod3c$theta, digits=3), round(pceggmod3c$SE.theta, digits=3),"-","-" ))
+  cTwologlik<-c(ceiling(pceggmod3c$twologlik), "-","-","-" )
+  cAIC<-c(ceiling(pceggmod3c$aic), "-","-","-")
+  #Paste
+  PCOutputCB<-rbind(PCOutputCB, cTheta, cTwologlik, cAIC)
+  rownames(PCOutputCB)<- c("Intercept", "Infected", "Temperature and Humidity Principal Component 1 (PC1)","PC2","PC3", "Repetition 1", "Repetition 2",
+                          "Theta", "2xLog Likelihood", "AIC")
+  write.csv(PCOutputCB,"ExpandedOutputTable.csv")
+  
+#3#############################################################################
+#=## Mixed Model Output
   
   #random effect models: has a very small variance.
   FFdataPC$idnum <- as.factor(FFdataPC$idnum)
@@ -937,6 +948,59 @@ tPCOutput<-data.frame(est)
   meeggmodm1 <- glmer.nb(egg_total~infected+PC1+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
   meeggmodm2 <- glmer.nb(egg_total~infected+PC2+(1|mouseidnum)+offset(log(FFdataPC$lifespan)), data=FFdataPC)
   
+  ###Model with Both PC Interactions
+  CIS <- confint(meeggmodt1_2, method="Wald")
+  CIS <- CIS[-1,]
+  #CIS <- data.frame(CIS)
+  estpcm <- cbind(Estimate = summary(meeggmodt1_2)$coefficients[,1], CIS, 
+                  summary(meeggmodt1_2)$coefficients[,2],
+           signif(summary(meeggmodt1_2)$coefficients[,4], digits=3))
+        
+  
+  PCOutputM<-data.frame(estpcm)
+  names(PCOutputM) <- c("Estimate", "lCI", "uCI", "Std. Error","P-Value")
+  PCOutputM$Exp_Est <- round(exp(PCOutputM$Estimate), digits=3)
+  PCOutputM$Exp_lCI <- round(exp(PCOutputM$lCI), digits=3)
+  PCOutputM$Exp_uCI <- round(exp(PCOutputM$uCI), digits=3)
+  
+  #Combine Estimates and Confidence Intervals
+  
+  PCOutputM$IRR<-paste(PCOutputM$Exp_Est,"(",PCOutputM$Exp_lCI, "-", PCOutputM$Exp_uCI,
+                       ")" )
+  
+  #Delete Extra Columns
+  PCOutputM$Estimate <- NULL
+  PCOutputM$lCI <- NULL
+  PCOutputM$uCI <- NULL
+  PCOutputM$Exp_Est <- NULL
+  PCOutputM$Exp_lCI <- NULL
+  PCOutputM$Exp_uCI <- NULL
+  
+  PCOutputM<- PCOutputM[,c(3,1,2)]
+  
+  #also add AIC's, Theta, and AIC and log Likelihoods
+  MnTheta<-as.vector(c(round(getME(meeggmodt1_2,"glmer.nb.theta"), digits=3), "-", "-"))
+  Mnloglik<-c(ceiling(logLik(meeggmodt1_2)[1]), "-", "-")
+  MnAIC<-c(ceiling(extractAIC(meeggmodt1_2)[2]), "-", "-")
+  #Paste
+  PCOutputM<-rbind(PCOutputM, MnTheta, Mnloglik, MnAIC)
+  rownames(PCOutputM)[5:7]<- c("Theta", "Log Likelihood", "AIC")
+  View(PCOutputM)
+  
+#write.csv(PCOutputM, "MixedEffectOutputTable.csv")
+  
+#To make output   #need ci.custom to get correct exp
+#  stargazer(pceggmod3c, type="html",
+#            dep.var.labels=c("Eggs Laid Per Week"),
+#            covariate.labels=c("Infection Status","PC1",
+#                               "PC2", "PC3",  "Pilot", "Repetition 1","Repetition 2"),
+#            out="PC3NIMoD.htm", 
+#            notes=c("PC 1-3 are principal components of temperature and humidity values."),
+#            ci = TRUE, ci.level = 0.95, ci.separator = "-",
+#            apply.coef =exp, apply.se= exp, apply.ci =exp
+#              )  
+  
+
 #   estme <- cbind(Estimate = coef(meeggmodm1_2), confint(meeggmodm1_2),
 #                summary(meeggmodm1_2)$coef[,2], summary(meeggmodm1_2)$coef[,4])
 #   colnames(est)[4]<-"Std. Error"  
@@ -955,10 +1019,10 @@ tPCOutput<-data.frame(est)
 #   mePCOutput<-rbind(mePCOutput, mTheta, mLoglik, mAIC)
 #   rownames(mePCOutput)[5:8]<- c("Theta", "Log Likelihood", "AIC", "Random Eect")
 #   
-  #   stargazer(tpceggmod2, type="html",
-  #             dep.var.labels=c("Eggs Laid Per Week"),
-  #             covariate.labels=c("Infection Status","Principal Component 1",
-  #                                "Principal Component 2"), out="models.htm")
+#     stargazer(tpceggmod2, type="html",
+#               dep.var.labels=c("Eggs Laid Per Week"),
+#               covariate.labels=c("Infection Status","Principal Component 1",
+#                                  "Principal Component 2"), out="models.htm")
   
    stargazer(meeggmodt1_2, type="html", dep.var.labels=c("Eggs Laid Per Week"), 
    covariate.labels=c("Infection Status","PC1", "PC2", "PC3",  "Pilot",
