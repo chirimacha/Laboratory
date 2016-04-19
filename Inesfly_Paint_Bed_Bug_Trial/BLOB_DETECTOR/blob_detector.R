@@ -32,13 +32,13 @@ devtools::install_github("swarm-lab/videoplayR")
 #WD connected to github.
 
 #setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
-  setwd("/home/gianfranco/Documentos/github/Laboratory/Inesfly_Paint_Bed_Bug_Trial/BLOG_DETECTOR")
+  setwd("/home/gianfranco/Documentos/github/Laboratory/Inesfly_Paint_Bed_Bug_Trial/BLOB_DETECTOR")
 
 #bring in video(s)
-  pilotchiri <- readVid("test2.avi")
+  pilotchiri <- readVid("test3.avi")
   
   pilotchiri$length
-  framepic <- getFrame(pilotchiri, 100)
+  framepic <- getFrame(pilotchiri, 200)
   imshow(framepic)
 
 #Simple Tracker Code(package not available for new R)
@@ -201,13 +201,14 @@ tracks[1:pos, ]
 #the background or the masks
 
 #Try to create the background once, this takes too long, especially if median is used.
-  bg <- backgrounder(pilotchiri, n = 100, method = "mean", color = FALSE)
+  bg <- backgrounder(pilotchiri, n = 200, method = "mean", color = FALSE)
   imshow(bg)
   
 #Create "mask" that only allows one petri dish to be analyzed at a time
   mat <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
 #sadly, for each dish we need to define the area by hand.
-  mat[50:620, 10:480] <- 1 #Al tanteo
+  #mat[50:620, 10:480] <- 1 #Al tanteo
+  mat[0:622, 25:480] <- 1 #Al tanteo
   
 #go through matrix and ask if it is in or out of the polygon
   pmaska <- (r2img(mat))
@@ -263,7 +264,7 @@ tracks[1:pos, ]
 bugpos<- data.frame()
 
 #Loop over each frame in the video.
-#i<- 100
+#i<- 200
 for (i in 1:pilotchiri$length-1){
   #extract individual frames
     res<-getFrame(pilotchiri, i) 
@@ -291,7 +292,15 @@ for (i in 1:pilotchiri$length-1){
 
 pdf("test2.pdf")
 imshow(bg)
-for(i in 1:max(bugpos$track)){
+for(i in 2:2){
   lines(x=bugpos$x[which(bugpos$track==i)], y=bugpos$y[which(bugpos$track==i)], col=i)
 }
 dev.off()
+imshow(bg)
+for (i in 1:17) {
+  points(x=aux$x[i], y=aux$y[i], col="green")
+}
+lines(x=aux$x, y=aux$y, col="yellow")
+
+abx <- bugpos$x[which(bugpos$track==2)]
+aby <- bugpos$y[which(bugpos$track==2)]
