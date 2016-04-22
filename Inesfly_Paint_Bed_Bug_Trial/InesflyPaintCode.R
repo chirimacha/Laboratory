@@ -21,6 +21,26 @@ setwd("C:/Users/tradylan/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 #MAC for Mike
 #setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")")
 
+
+###############################################################################
+#Tutorial on Cox Models from
+# http://rstudio-pubs-static.s3.amazonaws.com/5896_8f0fed2ccbbd42489276e554a05af87e.html
+#may also be helpful:
+#https://stat.ethz.ch/education/semesters/ss2011/seminar/contents/presentation_3.pdf
+data(package = "survival")
+
+## Load lung data
+data(lung)
+## Show first 6 rows
+head(lung)
+
+#Each row is comprised of one insect, with the follow up duration (until death),
+#and indicator if died or not (event=(status==2)
+lung$SurvObj <- with(lung, Surv(time, status == 2))
+
+?Surv
+
+
 ###############################################################################
 ###bring in data
 ###============================================================================
@@ -45,10 +65,10 @@ D90Ind <- read.csv("DATA/Inesfly_Ind_90DA.csv")
 #for exposure 180 days post painting with indivual measurements
 #D180Ind <- read.csv("DATA/Inesfly_Ind_180DA.csv")
 
-#Bring in Data from Jar
-D1Jar <- read.csv("DATA/Inesfly_Jar_1D.csv")
-D90Jar <- read.csv("DATA/Inesfly_Jar_1D.csv")
-#D180Jar
+# #Bring in Data from Jar
+# D1Jar <- read.csv("DATA/Inesfly_Jar_1D.csv")
+# D90Jar <- read.csv("DATA/Inesfly_Jar_1D.csv")
+# #D180Jar
 
 #bring in paint data
 PAINTDIST<- read.csv("DATA/InesflyPaintDistribution.csv")
