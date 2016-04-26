@@ -657,13 +657,16 @@ plot(FFdataPC$avmaxhum, FFdataPC$avminhum)
 #Alternative models (2 variables)  #all of which the full model has a better AIC
 AltModelA<-glm.nb(egg_total~infected+avmintemp+avminhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelA) #AIC==4271.2
+AltModelAa<-glm.nb(egg_total~infected+avmintemp+avminhum+factor(trial), data=FFdataPC, offset(log(lifespan)))
+  summary(AltModelAa) #AIC==4211.9
 AltModelB<-glm.nb(egg_total~infected+avmaxtemp+avmaxhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelB) #AIC==4257.2
+AltModelBa<-glm.nb(egg_total~infected+avmaxtemp+avmaxhum+factor(trial), data=FFdataPC, offset(log(lifespan)))
+  summary(AltModelBa) #AIC==4195.3
 AltModelC<-glm.nb(egg_total~infected+avmintemp+avmaxhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelC) #AIC==4268.5
 AltModelD<-glm.nb(egg_total~infected+avminhum+avmaxhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelD) #AIC==4269.9 
-  summary(AltModelA) #AIC==
 
 AltModelB<-glm.nb(egg_total~infected+avmaxtemp+avmaxhum, data=FFdataPC, offset(log(lifespan)))
   summary(AltModelB) #AIC==
@@ -786,9 +789,9 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
                            FFdataPC$avmaxhum[repones], FFdataPC$avminhum[repones])
   pcrt<-  pcp <-data.frame(FFdataPC$avmaxtemp[reptwos],FFdataPC$avmintemp[reptwos],
                            FFdataPC$avmaxhum[reptwos], FFdataPC$avminhum[reptwos])
-  estim_ncpPCA(pcp, ncp.min=0, ncp.max=4, method.cv="loo")
-  estim_ncpPCA(pcro, ncp.min=0, ncp.max=4, method.cv="loo")
-  estim_ncpPCA(pcrt, ncp.min=0, ncp.max=4, method.cv="loo")
+  #estim_ncpPCA(pcp, ncp.min=0, ncp.max=4, method.cv="loo")
+  #estim_ncpPCA(pcro, ncp.min=0, ncp.max=4, method.cv="loo")
+  #estim_ncpPCA(pcrt, ncp.min=0, ncp.max=4, method.cv="loo")
   #We need to add these componenets to original data set.
   uprincea<-data.frame(pcia)
   uprinceb<-data.frame(pcib)
@@ -827,9 +830,9 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   
   # #We need to add these componenets to original data set.
   # #create idnum variable to later merge.
-  princeb<-data.frame(pcmb)
-  princeb$idnum<-
-  names(princeb)<-c("UPC", "UPC", "UPC3", "idnum") 
+#   princeb<-data.frame(pcmb)
+#   princeb$idnum<-
+#   names(princeb)<-c("UPC", "UPC", "UPC3", "idnum") 
   # 
   # 
   # #find the relative contribution of each variable to each component
@@ -840,33 +843,57 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   
   #at first only infection and PC1 were significant
   pceggmod3ca <- glm.nb(egg_total~infected+UPC1+UPC2+UPC3, 
-                       data=FFdataPC[pilots,], offset(log(lifespan)))#AIC=
+                       data=FFdataPC[pilots,], offset(log(lifespan)))#AIC=1153.6
   ##remove pc3, PC still not sign 
   pceggmod2ca <- glm.nb(egg_total~infected+UPC1+UPC2, 
-                 data=FFdataPC[pilots,], offset(log(lifespan))) #AIC=
+                 data=FFdataPC[pilots,], offset(log(lifespan))) #AIC=1151.6
   #remove pc2
   pceggmod1ca <- glm.nb(egg_total~infected+UPC1, 
-                 data=FFdataPC[pilots,], offset(log(lifespan))) #AIC=
+                 data=FFdataPC[pilots,], offset(log(lifespan))) #AIC=1150
   
   #
   pceggmod3cb <- glm.nb(egg_total~infected+UPC1+UPC2+UPC3, 
-                 data=FFdataPC[repones,], offset(log(lifespan))) #AIC=
+                 data=FFdataPC[repones,], offset(log(lifespan))) #AIC=1256.9
   
   #  
   pceggmod2cb <- glm.nb(egg_total~infected+UPC1+UPC2, 
-                 data=FFdataPC[repones,], offset(log(lifespan)))#AIC=
+                 data=FFdataPC[repones,], offset(log(lifespan)))#AIC=1255
   #
   pceggmod1cb <- glm.nb(egg_total~infected+UPC1, 
-                        data=FFdataPC[repones,], offset(log(lifespan)))#AIC=
+                        data=FFdataPC[repones,], offset(log(lifespan)))#AIC=1254.7
   
   #all variables were significant for this model
   pceggmod3cc <- glm.nb(egg_total~infected+UPC1+UPC2+UPC3, 
-                       data=FFdataPC[reptwos,], offset(log(lifespan))) #
+                       data=FFdataPC[reptwos,], offset(log(lifespan))) #1702.4
   pceggmod2cc <- glm.nb(egg_total~infected+UPC1+UPC2, 
-                        data=FFdataPC[reptwos,], offset(log(lifespan)))#
+                        data=FFdataPC[reptwos,], offset(log(lifespan)))# 1721.1
   pceggmod1cc <- glm.nb(egg_total~infected+UPC1, 
-                        data=FFdataPC[reptwos,], offset(log(lifespan)))#
+                        data=FFdataPC[reptwos,], offset(log(lifespan)))#1719.9
   
+  
+#Now tlook at the three models seperately but use avh values
+HighPilotMod <- glm.nb(egg_total~infected+avmaxtemp+avmaxhum, 
+                        data=FFdataPC[pilots,], offset(log(lifespan))) #
+HighRepOneMod <- glm.nb(egg_total~infected+avmaxtemp+avmaxhum, 
+                        data=FFdataPC[repones,], offset(log(lifespan))) #
+HighRepTwoMod <- glm.nb(egg_total~infected+avmaxtemp+avmaxhum, 
+                        data=FFdataPC[reptwos,], offset(log(lifespan))) #
+#Optimize each set of covariates.
+HighTempPilot <- glm.nb(egg_total~infected+avmaxtemp+avmaxhum, 
+                       data=FFdataPC[pilots,], offset(log(lifespan))) #
+HighRepOneMod <- glm.nb(egg_total~infected+avmaxtemp+avmaxhum, 
+                        data=FFdataPC[repones,], offset(log(lifespan))) #
+HighRepTwoMod <- glm.nb(egg_total~infected+avmaxtemp+avmaxhum, 
+                        data=FFdataPC[reptwos,], offset(log(lifespan))) #
+
+
+LowPilotMod<- glm.nb(egg_total~infected+avmintemp+avminhum, 
+                      data=FFdataPC[pilots,], offset(log(lifespan))) #
+LowRepOneMod <- glm.nb(egg_total~infected+avmintemp+avminhum, 
+                        data=FFdataPC[repones,], offset(log(lifespan))) #
+LowRepTwoMod <- glm.nb(egg_total~infected+avmintemp+avminhum, 
+                        data=FFdataPC[reptwos,], offset(log(lifespan))) #
+
   #look at AIC's
   pceggmod0#4327
   pceggmod1#4263
@@ -891,11 +918,12 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   dummy_var <- pceggmod3c
   Pilot_model <- pceggmod1ca
   Rep1_model <- pceggmod1cb
-  Rep2_model <- pceggmod2cc
+  Rep2_model <- pceggmod3cc
   Pilot_model_all <- pceggmod3ca
   Rep1_model_all <- pceggmod3cb
   Rep2_model_all <- pceggmod3cc
-  
+  AllLowMod<-AltModelAa
+  AllHighMod<-AltModelBa
   
   stargazer(dummy_var,  Pilot_model,Rep1_model,Rep2_model, type="html", out="trialsep_optmods.htm",
             column.labels=c("Dummy Variable", "Pilot","Rep 1", "Rep 2")
@@ -904,6 +932,15 @@ AltModelG<-glm.nb(egg_total~infected+avmintemp+avmaxtemp+avminhum, data=FFdataPC
   stargazer(dummy_var, Pilot_model_all, Rep1_model_all, Rep2_model_all, type="html", out="trialsep_mods.htm",
            column.labels=c("Dummy Variable", "Pilot","Rep 1", "Rep 2")
     )  
+  
+  stargazer(AllHighMod, HighPilotMod, HighRepOneMod, HighRepTwoMod, type="html", out="hightrialsep_mods.htm",
+            column.labels=c("Dummy Variable", "Pilot","Rep 1", "Rep 2")
+  ) 
+  
+  stargazer(AllLowMod, LowPilotMod, LowRepOneMod, LowRepTwoMod, type="html", out="lowtrialsep_mods.htm",
+            column.labels=c("Dummy Variable", "Pilot","Rep 1", "Rep 2")
+  ) 
+  
   
 #Put PC Model Outputs into Table.  
 estpc <- cbind(Estimate = coef(pceggmod2d), confint(pceggmod2d),
@@ -1054,7 +1091,7 @@ tPCOutput<-data.frame(est)
   PCOutputCB<-rbind(PCOutputCB, cTheta, cTwologlik, cAIC)
   rownames(PCOutputCB)<- c("Intercept", "Infected", "Temperature and Humidity Principal Component 1 (PC1)","PC2","PC3", "Repetition 1", "Repetition 2",
                           "Theta", "2xLog Likelihood", "AIC")
-  write.csv(PCOutputCB,"ExpandedOutputTable.csv")
+#  write.csv(PCOutputCB,"ExpandedOutputTable.csv")
   
 #3#############################################################################
 #=## Mixed Model Output
