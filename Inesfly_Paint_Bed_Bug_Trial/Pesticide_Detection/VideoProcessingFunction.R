@@ -69,15 +69,15 @@ function(video, maskdimtab, linecoordstab, threshold, maxDist){
    }
   
 #Now run this subfunction over the 6 dishes  
-pdt1 <-Coords(video, pmaska, nbga1, threshold==50, maxDist==1000)
-pdt2 <-Coords(video, pmaskb, nbga2, threshold==50, maxDist==1000)
-pdt3 <-Coords(video, pmaskc, nbga3, threshold==50, maxDist==1000)
-pdt4 <-Coords(video, pmaskd, nbga4, threshold==50, maxDist==1000)
-pdt5 <-Coords(video, pmaske, nbga5, threshold==50, maxDist==1000)
-pdt6 <-Coords(video, pmaskf, nbga6, threshold==50, maxDist==1000)
+pdt1 <-Coords(video, pmaska, nbga1, threshold==threshold, maxDist==maxDist)
+pdt2 <-Coords(video, pmaskb, nbga2, threshold==threshold, maxDist==maxDist)
+pdt3 <-Coords(video, pmaskc, nbga3, threshold==threshold, maxDist==maxDist)
+pdt4 <-Coords(video, pmaskd, nbga4, threshold==threshold, maxDist==maxDist)
+pdt5 <-Coords(video, pmaske, nbga5, threshold==threshold, maxDist==maxDist)
+pdt6 <-Coords(video, pmaskf, nbga6, threshold==threshold, maxDist==maxDist)
 
 #Now find lines and designate quadrants.
-
+  
 
 
 }
