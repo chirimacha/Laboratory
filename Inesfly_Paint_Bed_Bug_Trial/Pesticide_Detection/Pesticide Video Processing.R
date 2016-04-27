@@ -14,12 +14,15 @@
 # install.packages("clue")
 # install.packages("shiny")
 # install.packages("splancs")
+# install.packages("grid")
+
 #Open Libraries
 library(videoplayR)
 library(dplyr)
 library(clue)
 library(shiny)
 library(splancs)
+library(grid)
 
 ##Simple Tracker (package not available for new R)
 ##Skip to line  163--figure out how to source this code to save space
@@ -215,19 +218,19 @@ R1T6C2<- readVid("Trial6Cam2.mp4")
 #the code from twitter doesn't propperly call the other parts, it also doesn't 
 #define the background or the masks
 
-#Try to create the background once, this takes too long, especially if median is used.
-bg <- backgrounder(pilotvidr1, n = 100, method = "mean", color = FALSE)
-bugpos<- data.frame()
-
-#Create "mask" that only allows one petri dish to be analyzed at a time
-mat <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-#sadly, for each dish we need to define the area by hand.
-mat[150:400, 50:280] <- 1
-#go through matrix and ask if it is in or out of the polygon
-pmaska <- (r2img(mat))
-#now bring the mask and the background together
-nbga<-blend(bg, pmaska, "*")
-imshow(nbga)
+# #Try to create the background once, this takes too long, especially if median is used.
+# bg <- backgrounder(pilotvidr1, n = 100, method = "mean", color = FALSE)
+# bugpos<- data.frame()
+# 
+# #Create "mask" that only allows one petri dish to be analyzed at a time
+# mat <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
+# #sadly, for each dish we need to define the area by hand.
+# mat[150:400, 50:280] <- 1
+# #go through matrix and ask if it is in or out of the polygon
+# pmaska <- (r2img(mat))
+# #now bring the mask and the background together
+# nbga<-blend(bg, pmaska, "*")
+# imshow(nbga)
 
 #get polygon
 #mypoly<-getpoly()
@@ -273,67 +276,67 @@ imshow(nbga)
 #  bugpos<- rbind(bugpos, stoutx)
 
 #create output data frame
-bugpos<- data.frame()
+# bugpos<- data.frame()
+# 
+# #Loop over each frame in the video.
+# for (i in 1:pilotvidr1$length){
+#   #extract individual frames
+#   res<-getFrame(pilotvidr1, i) 
+#   #put frame into grey scale.
+#   gryscl <- ddd2d(res) 
+#   #mask other petri dishes
+#   mask<-blend(gryscl, pmaska, "*")
+#   #subtract background from the mask. Only movement will show 
+#   sub<-blend(nbga, mask, "-") 
+#   #set a threshold difference to remove changes due to glare/reflection
+#   bw<-thresholding(sub, 70, "binary")
+#   #detect the black blobs that are created. Get coordinates
+#     bugcords<-blobDetector(bw) 
+#   # add track # to data frame
+#     bugcords<-mutate(bugcords, frame = i, track = NA) 
+#   #determines what points are linked. Optimally each insect given 1 track each
+#   #because there is only one object, we can max out maxDist. 
+#     stout<-simpleTracker(past = bugpos, current = bugcords,maxDist=100) 
+#   #combine tables previous in the loop.
+#     bugpos<- rbind(bugpos, stout)
+# }
+# 
+# imshow(bg)
+# for(i in 1:max(bugpos$track)){
+#   lines(x=bugpos$x[which(bugpos$track==i)], y=bugpos$y[which(bugpos$track==i)], col=i)
+# }
+# 
+# ###Now define the border between control and pesticide
+# imshow(nbga)
+# y<-c(192,204)
+# x<-c(65,280)  
+# lines(x,y, col= "red",lwd = 4)
+# 
+# #generate line equation
+# line1<-lm(y~x)
+# slope1<-((y[2]-y[1])/(x[2]-x[1]))
+# int1<-  (line1$coefficients[1])
+# 
+# #generate where the line y is depending on the x of the bug.
+# fits <- function(xn){
+#   pred<-slope1*(xn)+int1  
+#   pred
+# }
+# 
+# bugpos$pred<-sapply(bugpos$x, FUN=fits)
+# 
+# #determine if y of bug is above or below line (differnet from predicted y)
+# below<-which(bugpos$y<bugpos$pred)
+# above<-which(bugpos$y>=bugpos$pred)
+# bugpos$onpest[above]<-1
+# bugpos$onpest[below]<-0
+# 
+# ################################
+# #combine then with a master data frame and add
+# CompiledData$tray<-1
 
-#Loop over each frame in the video.
-for (i in 1:pilotvidr1$length){
-  #extract individual frames
-  res<-getFrame(pilotvidr1, i) 
-  #put frame into grey scale.
-  gryscl <- ddd2d(res) 
-  #mask other petri dishes
-  mask<-blend(gryscl, pmaska, "*")
-  #subtract background from the mask. Only movement will show 
-  sub<-blend(nbga, mask, "-") 
-  #set a threshold difference to remove changes due to glare/reflection
-  bw<-thresholding(sub, 70, "binary")
-  #detect the black blobs that are created. Get coordinates
-    bugcords<-blobDetector(bw) 
-  # add track # to data frame
-    bugcords<-mutate(bugcords, frame = i, track = NA) 
-  #determines what points are linked. Optimally each insect given 1 track each
-  #because there is only one object, we can max out maxDist. 
-    stout<-simpleTracker(past = bugpos, current = bugcords,maxDist=100) 
-  #combine tables previous in the loop.
-    bugpos<- rbind(bugpos, stout)
-}
-
-imshow(bg)
-for(i in 1:max(bugpos$track)){
-  lines(x=bugpos$x[which(bugpos$track==i)], y=bugpos$y[which(bugpos$track==i)], col=i)
-}
-
-###Now define the border between control and pesticide
-imshow(nbga)
-y<-c(192,204)
-x<-c(65,280)  
-lines(x,y, col= "red",lwd = 4)
-
-#generate line equation
-line1<-lm(y~x)
-slope1<-((y[2]-y[1])/(x[2]-x[1]))
-int1<-  (line1$coefficients[1])
-
-#generate where the line y is depending on the x of the bug.
-fits <- function(xn){
-  pred<-slope1*(xn)+int1  
-  pred
-}
-
-bugpos$pred<-sapply(bugpos$x, FUN=fits)
-
-#determine if y of bug is above or below line (differnet from predicted y)
-below<-which(bugpos$y<bugpos$pred)
-above<-which(bugpos$y>=bugpos$pred)
-bugpos$onpest[above]<-1
-bugpos$onpest[below]<-0
-
-################################
-#combine then with a master data frame and add
-CompiledData$tray<-1
 
 ###############################################################################
-###Repeat this process using the new march pilot
 #create the background
 mbg <- backgrounder(marchpilot, n = 100, method = "mean", color = FALSE)
 #create a blank data frame for loop output
@@ -343,12 +346,31 @@ marbugpos <- data.frame()
 #Quadrant 2
 mmat <- matrix(0, nrow = mbg$dim[1], ncol = mbg$dim[2])
 #sadly, for each dish we need to define the area by hand.
-mmat[1:268, 0:480] <- 1
+mmat[150:268, 370:480] <- 1
 #go through matrix and ask if it is in or out of the polygon
 pmaskm <- (r2img(mmat))
 #now bring the mask and the background together
 nbgm<-blend(mbg, pmaskm, "*")
 imshow(nbgm)
+
+###############################################################################
+#Determine the coordinates for matrix and lines
+imshow(nbgm)
+a<-grid.locator(unit = "npc")
+imshow(nbgm)
+gcx<-as.numeric(substring(a$x, 1, 6))
+gcy<-as.numeric(substring(a$y, 1, 6))
+X <- ceiling(gcx*nbgm$dim[1])
+Y <- ceiling(gcy*nbgm$dim[1])
+imshow(nbgm)
+points(x=c(Y),y=c(X), col="red", pch=19, cex = 2 )
+
+###Create tables
+#one that is used to create masks
+#one that is used to create lines
+
+###############################################################################
+#Determine the coordinates for matrix and lines
 
 #only want to use 1 hour. 1 hour is 1frame/sec*60 sec*60min=3600
 for (i in 1:marchpilot$length){
