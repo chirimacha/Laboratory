@@ -25,17 +25,28 @@ library(splancs)
 setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
 #bring in video(s)
- pilotvid   <- readVid("PetriDishPilots.mp4")
- pilotvidr1 <- readVid("PilotPetriRound1.mp4")
- marchpilot <- readVid("MarchPilot.mp4")
-# framepic <- getFrame(pilotvidr1, 5)
-#imshow(framepic)
+#pilotvid   <- readVid("PetriDishPilots.mp4")
+#pilotvidr1 <- readVid("PilotPetriRound1.mp4")
+marchpilot <- readVid("MarchPilot.mp4")
 
-# quartz()
-# png("framepic.png")
-# imshow(framepic)
-# dev.off()
-# 
+#Import Videos for First Repetition
+#Rep One
+
+#Rep Two
+
+#Rep Three
+
+#Rep Four
+
+#Rep Five
+
+#Rep Six
+
+
+
+
+#
+
 # #create a mask using that output in a photo editor
 # nmask<-readImg("newmask.png")
 
