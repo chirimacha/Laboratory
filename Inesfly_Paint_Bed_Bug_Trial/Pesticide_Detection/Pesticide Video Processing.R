@@ -253,7 +253,7 @@ imshow(nbga)
 #  rev<-getFrame(pilotvidr1, 5)
 #  grscl<-ddd2d(rev)
 #  mask<-blend(grscl, pmaska, "*")
-#  neg<-blend(nbg, mask, "-") #the order matters
+#  neg<-blend(nbga, mask, "-") #the order matters
 #  #mult<-blend(neg1, neg1, "*")
 #  ths<-thresholding(neg, 60, "binary")
 #  imshow(ths)
@@ -294,7 +294,7 @@ for(i in 1:max(bugpos$track)){
 }
 
 ###Now define the border between control and pesticide
-imshow(nbg)
+imshow(nbga)
 y<-c(192,204)
 x<-c(65,280)  
 lines(x,y, col= "red",lwd = 4)
