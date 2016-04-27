@@ -20,44 +20,9 @@ library(dplyr)
 library(clue)
 library(shiny)
 library(splancs)
-###Set Working Directory
-#WD connected to github.
-setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
-#bring in video(s)
-#pilotvid   <- readVid("PetriDishPilots.mp4")
-#pilotvidr1 <- readVid("PilotPetriRound1.mp4")
-marchpilot <- readVid("MarchPilot.mp4")
-
-#Import Videos for First Repetition
-#Rep One
-
-#Rep Two
-
-#Rep Three
-
-#Rep Four
-
-#Rep Five
-
-#Rep Six
-
-
-
-
-#
-
-# #create a mask using that output in a photo editor
-# nmask<-readImg("newmask.png")
-
-#get frame from march pilot to export to GIMP
-#getFrame(marchpilot)
-
-#bring in camera feed
-#Stream0 is front camera, 1 is Logitech Camera
-#stream1<-readStream(1)
-
-#Simple Tracker Code(package not available for new R)
+##Simple Tracker (package not available for new R)
+##Skip to line  163--figure out how to source this code to save space
 pdiff <- function(a, b) {
   nr <- length(a)
   nc <- length(b)
@@ -197,7 +162,41 @@ if (progress) {
 tracks[1:pos, ]
 }
 
+###Set Working Directory
+#lab computer
+setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+#Justin's Computer
+#setwd("")
+
+#bring in video(s)
+marchpilot <- readVid("MarchPilot.mp4")
+#Import Videos for First Repetition
+##Repetition 1 (Recorded on "2016-04-21")
+#Trial One
+R1T1C1<- readVid("Trial1Cam1.mp4")
+R1T1C2<- readVid("Trial1Cam2.mp4")
+#Trial Two
+R1T2C1<- readVid("Trial2Cam1.mp4")
+R1T2C2<- readVid("Trial2Cam2.mp4")
+#Trial Three
+R1T3C1<- readVid("Trial3Cam1.mp4")
+R1T3C2<- readVid("Trial3Cam2.mp4")
+#Trial Four
+R1T4C1<- readVid("Trial4Cam1.mp4")
+R1T4C2<- readVid("Trial4Cam2.mp4")
+#Trial Five
+R1T5C1<- readVid("Trial5Cam1.mp4")
+R1T5C2<- readVid("Trial5Cam2.mp4")
+#Trial Six
+R1T6C1<- readVid("Trial6Cam1.mp4")
+R1T6C2<- readVid("Trial6Cam2.mp4")
+
+#Install Data Tables with times, dates, humidity
+#and quadrant assignments.
+#<- read.csv("")
+
 ###############################################################################
+###Begin developing code.
 #Look at Simon's code from twitter
 #############################
 # #Simon's code from twitter
@@ -213,8 +212,8 @@ tracks[1:pos, ]
 #   rbind(res, .)
 # }
 
-#the code doesn't propperly call the other parts, it also doesn't define
-#the background or the masks
+#the code from twitter doesn't propperly call the other parts, it also doesn't 
+#define the background or the masks
 
 #Try to create the background once, this takes too long, especially if median is used.
 bg <- backgrounder(pilotvidr1, n = 100, method = "mean", color = FALSE)
@@ -344,7 +343,7 @@ marbugpos <- data.frame()
 #Quadrant 2
 mmat <- matrix(0, nrow = mbg$dim[1], ncol = mbg$dim[2])
 #sadly, for each dish we need to define the area by hand.
-mmat[150:268, 370:480] <- 1
+mmat[1:268, 0:480] <- 1
 #go through matrix and ask if it is in or out of the polygon
 pmaskm <- (r2img(mmat))
 #now bring the mask and the background together
