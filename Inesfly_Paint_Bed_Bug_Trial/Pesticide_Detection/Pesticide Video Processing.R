@@ -1,3 +1,5 @@
+#WARNING: DO NOT CHANGE QUARTZ WINDOW DIMENSIONS DURING ANALYSIS
+
 ###Code for video tracking
 #To determine if bed bugs can detect pesticides.
 
@@ -15,7 +17,6 @@
 # install.packages("shiny")
 # install.packages("splancs")
 # install.packages("grid")
-
 #Open Libraries
 library(videoplayR)
 library(dplyr)
@@ -215,52 +216,6 @@ R1T6C2<- readVid("Trial6Cam2.mp4")
 #   rbind(res, .)
 # }
 
-#the code from twitter doesn't propperly call the other parts, it also doesn't 
-#define the background or the masks
-
-# #Try to create the background once, this takes too long, especially if median is used.
-# bg <- backgrounder(pilotvidr1, n = 100, method = "mean", color = FALSE)
-# bugpos<- data.frame()
-# 
-# #Create "mask" that only allows one petri dish to be analyzed at a time
-# mat <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-# #sadly, for each dish we need to define the area by hand.
-# mat[150:400, 50:280] <- 1
-# #go through matrix and ask if it is in or out of the polygon
-# pmaska <- (r2img(mat))
-# #now bring the mask and the background together
-# nbga<-blend(bg, pmaska, "*")
-# imshow(nbga)
-
-#get polygon
-#mypoly<-getpoly()
-#mypoly2<-getpoly()
-#inorout  <- matrix( 0, nrow = bg$dim[1], ncol = bg$dim[2] )
-#inorout2 <- inorout
-
-#for(i in 1:dim(mat)[1]){
-#  for(j in 1:dim(mat)[2]){
-#    point<-as.points(i,j)
-#    if (inout(point, mypoly)==TRUE) inorout[i,j] <- 1
-#  }
-#}
-
-# quartz(height=3, width=6)
-# 
-# for(i in 1:dim(mat)[1]){
-#   for(j in 1:dim(mat)[2]){
-#     point<-as.points(c(i), c(j))
-#     inorout2[(dim(mat)[1]-i+1),j] <- inout(point, mypoly)
-#   }
-# }
-
-#make the matrix into an image
-#quartz()
-# pmask <- r2img(mat)
-# #now bring the mask and the background together
-# nbg<-blend(bg, pmask, "*")
-# imshow(nbg)
-
 
 ##see what Simon Garnier's loop is doing by taking only 1 frame
 #  rev<-getFrame(pilotvidr1, 5)
@@ -274,66 +229,6 @@ R1T6C2<- readVid("Trial6Cam2.mp4")
 #  bcoutputx<-mutate(bugloc, frame=5, track=NA)
 #  stoutx<-simpleTracker(bcoutputx, past=bugpos, maxDist= 10)
 #  bugpos<- rbind(bugpos, stoutx)
-
-#create output data frame
-# bugpos<- data.frame()
-# 
-# #Loop over each frame in the video.
-# for (i in 1:pilotvidr1$length){
-#   #extract individual frames
-#   res<-getFrame(pilotvidr1, i) 
-#   #put frame into grey scale.
-#   gryscl <- ddd2d(res) 
-#   #mask other petri dishes
-#   mask<-blend(gryscl, pmaska, "*")
-#   #subtract background from the mask. Only movement will show 
-#   sub<-blend(nbga, mask, "-") 
-#   #set a threshold difference to remove changes due to glare/reflection
-#   bw<-thresholding(sub, 70, "binary")
-#   #detect the black blobs that are created. Get coordinates
-#     bugcords<-blobDetector(bw) 
-#   # add track # to data frame
-#     bugcords<-mutate(bugcords, frame = i, track = NA) 
-#   #determines what points are linked. Optimally each insect given 1 track each
-#   #because there is only one object, we can max out maxDist. 
-#     stout<-simpleTracker(past = bugpos, current = bugcords,maxDist=100) 
-#   #combine tables previous in the loop.
-#     bugpos<- rbind(bugpos, stout)
-# }
-# 
-# imshow(bg)
-# for(i in 1:max(bugpos$track)){
-#   lines(x=bugpos$x[which(bugpos$track==i)], y=bugpos$y[which(bugpos$track==i)], col=i)
-# }
-# 
-# ###Now define the border between control and pesticide
-# imshow(nbga)
-# y<-c(192,204)
-# x<-c(65,280)  
-# lines(x,y, col= "red",lwd = 4)
-# 
-# #generate line equation
-# line1<-lm(y~x)
-# slope1<-((y[2]-y[1])/(x[2]-x[1]))
-# int1<-  (line1$coefficients[1])
-# 
-# #generate where the line y is depending on the x of the bug.
-# fits <- function(xn){
-#   pred<-slope1*(xn)+int1  
-#   pred
-# }
-# 
-# bugpos$pred<-sapply(bugpos$x, FUN=fits)
-# 
-# #determine if y of bug is above or below line (differnet from predicted y)
-# below<-which(bugpos$y<bugpos$pred)
-# above<-which(bugpos$y>=bugpos$pred)
-# bugpos$onpest[above]<-1
-# bugpos$onpest[below]<-0
-# 
-# ################################
-# #combine then with a master data frame and add
-# CompiledData$tray<-1
 
 
 ###############################################################################
@@ -354,20 +249,46 @@ nbgm<-blend(mbg, pmaskm, "*")
 imshow(nbgm)
 
 ###############################################################################
+#Substring
+removeRight <- function(x, y, n){
+  substr(x, y, nchar(x)-n)
+}
+
 #Determine the coordinates for matrix and lines
+rto <- res$dim[1]/res$dim[2]
+quartz(width=6, height=rto*6)
 imshow(nbgm)
 a<-grid.locator(unit = "npc")
-imshow(nbgm)
-gcx<-as.numeric(substring(a$x, 1, 6))
-gcy<-as.numeric(substring(a$y, 1, 6))
-X <- ceiling(gcx*nbgm$dim[1])
+gcx<-as.numeric(a$x)
+gcy<-as.numeric(a$y)
+X <- ceiling(gcx*nbgm$dim[2])
 Y <- ceiling(gcy*nbgm$dim[1])
 imshow(nbgm)
-points(x=c(Y),y=c(X), col="red", pch=19, cex = 2 )
+points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
+X
+Y
+#Repeat the above code to find the points and manually enter them below
 
 ###Create tables
-#one that is used to create masks
+#Video 1
+Tray<-c(1,2,3,4,5,6)
+MX1 <-c(,,,,,)
+MX2 <-c(,,,,,)
+MY1 <-c(,,,,,)
+MY2 <-c(,,,,,)
+BPX <-c(,,,,,)
+BPY <-c(,,,,,)
+TPX <-c(,,,,,)
+TPY <-c(,,,,,)
+RPX <-c(,,,,,)
+RPY <-c(,,,,,)
+LPX <-c(,,,,,)
+LPY <-c(,,,,,)
+
+CoordTabMP<-data.frame(Tray, MX1, MX2, BPX, BPY, TPX, TPY, RPX, RPY, LPX, LPY)
+
 #one that is used to create lines
+
 
 ###############################################################################
 #Determine the coordinates for matrix and lines
@@ -443,14 +364,124 @@ marbugpos$onpest[which(marbugpos$quad==2)]<-0
 marbugpos$onpest[which(marbugpos$quad==3)]<-0
 marbugpos$onpest[which(marbugpos$quad==4)]<-1
 
+# #save output as a csv
+# write.csv(marbugpos, "marchpilot_controldata.csv")
+# 
+# #plot the tracks
+# pdf("marchpilot_controltrackplot.pdf")
+# imshow(mbg)
+# for(i in 1:length(marbugpos$track)){
+#   lines(x=marbugpos$x[which(marbugpos$track==i)], y=marbugpos$y[which(marbugpos$track==i)], col=i)
+# }
+# dev.off()
 
-#save output as a csv
-write.csv(marbugpos, "marchpilot_controldata.csv")
+###############################################################################
+####====FULL_VIDS==============================================================
+###
+#Get Frames in order to find coordinates
+FR1T1C1 <- getFrame(R1T1C1, 5)
+FR1T1C2 <- getFrame(R1T1C2, 5)
+FR1T2C1 <- getFrame(R1T2C1, 5)
+FR1T2C2 <- getFrame(R1T2C2, 5)
+FR1T3C1 <- getFrame(R1T3C1, 5)
+FR1T3C2 <- getFrame(R1T3C2, 5)
+FR1T4C1 <- getFrame(R1T4C1, 5)
+FR1T4C2 <- getFrame(R1T4C2, 5)
+FR1T5C1 <- getFrame(R1T5C1, 5)
+FR1T5C2 <- getFrame(R1T5C2, 5)
+FR1T6C1 <- getFrame(R1T6C1, 5)
+FR1T6C2 <- getFrame(R1T6C2, 5)
 
-#plot the tracks
-pdf("marchpilot_controltrackplot.pdf")
-imshow(mbg)
-for(i in 1:length(marbugpos$track)){
-  lines(x=marbugpos$x[which(marbugpos$track==i)], y=marbugpos$y[which(marbugpos$track==i)], col=i)
-}
-dev.off()
+#Now Identify points and create tables.
+getpoint<-function(frame){
+  rto <- frame$dim[1]/frame$dim[2]
+  quartz(width=6, height=rto*6)
+  imshow(frame)
+  a<-grid.locator(unit = "npc")
+  gcx<-as.numeric(a$x)
+  gcy<-as.numeric(a$y)
+  X <- ceiling(gcx*frame$dim[2])
+  Y <- ceiling(gcy*frame$dim[1])
+  imshow(frame)
+  points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
+  coord<-c(X,Y)
+  output=coord
+  }
+
+tester<-getpoint(FR1T1C2)
+#Repeat the above code to find the points and manually enter them below
+
+###Create tables
+#Video FR1T1C1
+#Note that if X coords for TP and BP are exactly equal, it may create errors.
+Tray<-c(1,2,3,4,5,6)
+aMXL <-c(,,,,,)
+aMXR <-c(,,,,,)
+aMYT <-c(,,,,,)
+aMYB <-c(,,,,,)
+aTPX <-c(,,,,,)
+aTPY <-c(,,,,,)
+aBPX <-c(,,,,,)
+aBPY <-c(,,,,,)
+aLPX <-c(,,,,,)
+aLPY <-c(,,,,,)
+aRPX <-c(,,,,,)
+aRPY <-c(,,,,,)
+#c(,,,,,)
+#create a coordinate table
+CoTbR1T1C1<-data.frame(Tray, aMXL, aMXR, aMYT, aMYB, aBPX, aBPY, aTPX, aTPY, 
+                       aRPX, aRPY, aLPX, aLPY)
+#rename so that colums can be found in function
+names(CoTbR1T1C1)<-c(Tray,MXL, MXR, MYT, MYB, BPX, BPY, TPX, TPY, 
+                     RPX, RPY, LPX, LPY)
+
+#Video FR1T1C2
+
+Tray<-c(1,2,3,4,5,6)
+bMXL <-c(168, 351, 521, 178, 349, 517)
+bMXR <-c(351, 521, 703, 349, 517, 703)
+bMYT <-c(427, 427, 427, 238, 238, 238)
+bMYB <-c(238, 238, 238,  59,  59,  59)
+bTPX <-c(258, 434, 608, 267, 439, 596)
+bTPY <-c(404, 406, 410, 224, 224, 219)
+bBPX <-c(284, 439, 604, 276, 438, 601)
+bBPY <-c(254, 255, 252,  87,  82,  77)
+bLPX <-c(199, 363, 532, 198, 362, 527)
+bLPY <-c(316, 329, 330, 153, 155, 150)
+bRPX <-c(338, 511, 685, 337, 515, 678)
+bRPY <-c(338, 331, 333, 158, 154, 155)
+#c(,,,,,)
+#create a coordinate table
+CoTbR1T1C2<-data.frame(Tray, aMXL, aMXR, aMYT, aMYB, aBPX, aBPY, aTPX, aTPY, 
+                       aRPX, aRPY, aLPX, aLPY)
+names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+                     "RPX", "RPY", "LPX", "LPY")
+#Plot out lines to double check
+
+###############################################################################
+#run over function
+bg <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+VideoDos<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, maxDistb=1000)
+
+
+ya<-c(0,100)
+xa<-c(50,51)  
+
+# #In the future I will need to do the same thing in x chord.
+yb<-c(50,50) #96
+xb<-c(0,100)  
+
+#generate line equation
+line1a<-lm(ya~xa)
+line1b<-lm(yb~xb)
+
+newsa<-data.frame(xa = c(40, 40, 60, 60))
+newsb<-data.frame(xb = c(40, 40, 60, 60))
+pred1 <- predict(line1a, newsa, na.rm=TRUE)
+pred2 <- predict(line1b, newsb, na.rm=TRUE)
+
+#determine if y of bug is above or below line (differnet from predicted y)
+belowa<-which(bugpos$y<bugpos$pred1)
+abovea<-which(bugpos$y>=bugpos$pred1)
+belowb<-which(bugpos$y<bugpos$pred2)
+aboveb<-which(bugpos$y>=bugpos$pred2)
