@@ -168,9 +168,9 @@ tracks[1:pos, ]
 
 ###Set Working Directory
 #lab computer
-setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 #Justin's Computer
-#setwd("")
+setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
 #bring in video(s)
 marchpilot <- readVid("MarchPilot.mp4")
@@ -410,8 +410,8 @@ bRPX <-c(338, 511, 685, 337, 515, 678)
 bRPY <-c(338, 331, 333, 158, 154, 155)
 #c(,,,,,)
 #create a coordinate table
-CoTbR1T1C2<-data.frame(Tray, aMXL, aMXR, aMYT, aMYB, aBPX, aBPY, aTPX, aTPY, 
-                       aRPX, aRPY, aLPX, aLPY)
+CoTbR1T1C2<-data.frame(Tray, bMXL, bMXR, bMYT, bMYB, bBPX, bBPY, bTPX, bTPY, 
+                       bRPX, bRPY, bLPX, bLPY)
 names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
 #Plot out lines to double check
@@ -432,5 +432,6 @@ bg <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+
 #
 DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, maxDistb=1000)
