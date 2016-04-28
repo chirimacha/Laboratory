@@ -434,26 +434,3 @@ bg <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 #
 DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, maxDistb=1000)
-
-
-ya<-c(0,100)
-xa<-c(50,51)  
-
-# #In the future I will need to do the same thing in x chord.
-yb<-c(50,50) #96
-xb<-c(0,100)  
-
-#generate line equation
-line1a<-lm(ya~xa)
-line1b<-lm(yb~xb)
-
-newsa<-data.frame(xa = c(40, 40, 60, 60))
-newsb<-data.frame(xb = c(40, 40, 60, 60))
-pred1 <- predict(line1a, newsa, na.rm=TRUE)
-pred2 <- predict(line1b, newsb, na.rm=TRUE)
-
-#determine if y of bug is above or below line (differnet from predicted y)
-belowa<-which(bugpos$y<bugpos$pred1)
-abovea<-which(bugpos$y>=bugpos$pred1)
-belowb<-which(bugpos$y<bugpos$pred2)
-aboveb<-which(bugpos$y>=bugpos$pred2)
