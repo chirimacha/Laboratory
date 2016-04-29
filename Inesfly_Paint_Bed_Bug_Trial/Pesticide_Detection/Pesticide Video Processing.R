@@ -499,7 +499,7 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
   nbga6<-blend(bg, pmaskf, "*")
   
   #Create Function that finds the coordinate of the insect in each quadrant in each frame
-  Coords<-function(video, pmask, nbga, coordtaba, tn, threshold, maxDista){
+  Coords<-function(video, pmask, nbga, coordtaba, tn, threshold, maxDista, rep){
     #determine loop length
 #     if (video$length<1800) {
 #       fr <- video$length
@@ -591,6 +591,10 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
   
   #Bind All the tables
   MasterTab<-rbind(pdt1, pdt2, pdt3, pdt4, pdt5, pdt6)
+
+  #indicate which camera this is
+  MasterTab<-
+  
   #Output as single data table
   return(MasterTab)
 }
@@ -598,7 +602,7 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
 ###############################################################################
 #run 
 #DR1T1C1<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C1, thresholda=50, 
-                     maxDistb=1000)
+       #              maxDistb=1000)
 DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
                      maxDistb=1000)
 # DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
@@ -630,26 +634,28 @@ DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50,
 
 ####create function that takes in data set and adds quadrant assignments
     #determine if bug is above or below line (differnet from predicted y)
-function{VidData, CoordData}(    
+Assign<-function{VidData, CoordData}(    
     belowa <- which((VidData$y) <  (VidData$pred1))
     abovea <- which((VidData$y) >= (VidData$pred1))
     belowb <- which((VidData$y) <  (VidData$pred2))
     aboveb <- which((VidData$y) >= (VidData$pred2))
     
-    NegSlope <- which(CoordData$TPX < CoordData$BPX )
+    NegSlope <- which(CoordData$TPX <  CoordData$BPX )
     PosSlope <- which(CoordData$TPX >= CoordData$BPX )
     
+    negs<-which(is.na(match(VidData$trayn, NegSlope)==FALSE))
+    poss<-which(is.na(match(VidData$trayn, PosSlope)==FALSE))
+    
 # Determine Quadrants #change depending on slope of verticle line
-    if((coordtab$TPX[tn]) > (coordtab$BPX[tn])) {
-      bugpos$quad[intersect(belowa,aboveb)]<-1
-      bugpos$quad[intersect(abovea,aboveb)]<-4
-      bugpos$quad[intersect(belowa,belowb)]<-2
-      bugpos$quad[intersect(abovea,belowb)]<-3
-    } else {
-      bugpos$quad[intersect(abovea,aboveb)]<-1
-      bugpos$quad[intersect(belowa,aboveb)]<-4
-      bugpos$quad[intersect(abovea,belowb)]<-2
-      bugpos$quad[intersect(belowa,belowb)]<-3
+#In cases of positive slopes
+      bugpos$quad[(interect( poss, (intersect(belowa,aboveb)))]<-1
+      bugpos$quad[(interect( poss, (intersect(abovea,aboveb)))]<-4
+      bugpos$quad[(interect( poss, (intersect(belowa,belowb)))]<-2
+      bugpos$quad[(interect( poss, (intersect(abovea,belowb)))]<-3
+      bugpos$quad[(interect( negs, (intersect(abovea,aboveb)))]<-1
+      bugpos$quad[(interect( negs, (intersect(belowa,aboveb)))]<-4
+      bugpos$quad[(interect( negs, (intersect(abovea,belowb)))]<-2
+      bugpos$quad[(interect( negs, (intersect(belowa,belowb)))]<-3
       
 ###Create function that determines which quadrants have pesticide
 
