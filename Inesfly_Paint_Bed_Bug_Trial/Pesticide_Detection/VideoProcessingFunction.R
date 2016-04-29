@@ -2,7 +2,7 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
   #create the background
   #bg <- backgrounder(video, n = 1800, method = "mean", color = FALSE)
   
-  #create black masks to isolate each petridish
+  #create black masks to isolate each petridish using matrix
   mat1 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
   mat2 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
   mat3 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
