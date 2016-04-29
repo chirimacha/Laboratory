@@ -249,48 +249,6 @@ nbgm<-blend(mbg, pmaskm, "*")
 imshow(nbgm)
 
 ###############################################################################
-#Substring
-removeRight <- function(x, y, n){
-  substr(x, y, nchar(x)-n)
-}
-
-#Determine the coordinates for matrix and lines
-rto <- res$dim[1]/res$dim[2]
-quartz(width=6, height=rto*6)
-imshow(nbgm)
-a<-grid.locator(unit = "npc")
-gcx<-as.numeric(a$x)
-gcy<-as.numeric(a$y)
-X <- ceiling(gcx*nbgm$dim[2])
-Y <- ceiling(gcy*nbgm$dim[1])
-imshow(nbgm)
-points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
-X
-Y
-#Repeat the above code to find the points and manually enter them below
-
-###Create tables
-#Video 1
-Tray<-c(1,2,3,4,5,6)
-MX1 <-c(,,,,,)
-MX2 <-c(,,,,,)
-MY1 <-c(,,,,,)
-MY2 <-c(,,,,,)
-BPX <-c(,,,,,)
-BPY <-c(,,,,,)
-TPX <-c(,,,,,)
-TPY <-c(,,,,,)
-RPX <-c(,,,,,)
-RPY <-c(,,,,,)
-LPX <-c(,,,,,)
-LPY <-c(,,,,,)
-
-CoordTabMP<-data.frame(Tray, MX1, MX2, BPX, BPY, TPX, TPY, RPX, RPY, LPX, LPY)
-
-#one that is used to create lines
-
-
-###############################################################################
 #Determine the coordinates for matrix and lines
 
 #only want to use 1 hour. 1 hour is 1frame/sec*60 sec*60min=3600
@@ -459,9 +417,23 @@ names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TP
 #Plot out lines to double check
 
 ###############################################################################
-#run over function
+#create background.  Do this step only once
+
+bg<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 bg <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-VideoDos<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, maxDistb=1000)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+#
+DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, maxDistb=1000)
 
 
 ya<-c(0,100)

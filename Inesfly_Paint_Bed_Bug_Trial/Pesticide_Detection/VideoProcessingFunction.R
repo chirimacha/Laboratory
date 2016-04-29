@@ -131,5 +131,5 @@ pdt6 <-Coords(video, pmaskf, nbga6, coordtaba=coordtab, tn=6,
 #Bind All the tables
 MasterTab<-rbind(pdt1, pdt2, pdt3, pdt4, pdt5, pdt6)
 #Output as single data table
-returen(MasterTab)
+return(MasterTab)
 }
