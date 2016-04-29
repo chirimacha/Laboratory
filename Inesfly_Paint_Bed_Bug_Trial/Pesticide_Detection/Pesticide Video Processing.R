@@ -168,14 +168,15 @@ tracks[1:pos, ]
 
 ###Set Working Directory
 #lab computer
-#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 #Justin's Computer
 #setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
-#Mike's Computer<-I figured its probably similar to the lab computer
-#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+#Gian Franco's
+#setwd(".../Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+
 
 #bring in video(s)
-marchpilot <- readVid("MarchPilot.mp4")
+#marchpilot <- readVid("MarchPilot.mp4")
 #Import Videos for First Repetition
 ##Repetition 1 (Recorded on "2016-04-21")
 #Trial One
@@ -199,7 +200,7 @@ R1T6C2<- readVid("Trial6Cam2.mp4")
 
 #Install Data Tables with times, dates, humidity
 #and quadrant assignments.
-#<- read.csv("")
+TrayPlace<- read.csv("TraysRep1.csv")
 
 ###############################################################################
 ###Begin developing code.
@@ -357,6 +358,7 @@ FR1T6C2 <- getFrame(R1T6C2, 5)
 
 #Function uses frame above to click and obtain coordinates. 
 #DO NOT CHANGE QUARTZ SIZE!!!
+
 getpoint<-function(frame){
   rto <- frame$dim[1]/frame$dim[2]
   quartz(width=6, height=rto*6)
@@ -549,24 +551,24 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
     bugpos$pred1 <- predict(line1a, newsa, na.rm=TRUE)
     bugpos$pred2 <- predict(line1b, newsb, na.rm=TRUE)
     
-    #determine if bug is above or below line (differnet from predicted y)
-    belowa<-which(bugpos$y<bugpos$pred1)
-    abovea<-which(bugpos$y>=bugpos$pred1)
-    belowb<-which(bugpos$y<bugpos$pred2)
-    aboveb<-which(bugpos$y>=bugpos$pred2)
-    
-    #Determine Quadrants #change depending on slope of verticle line
-    if(coordtab$TPX[tn]>coordtab$BPX[tn]) {
-      bugpos$quad[intersect(belowa,aboveb)]<-1
-      bugpos$quad[intersect(abovea,aboveb)]<-4
-      bugpos$quad[intersect(belowa,belowb)]<-2
-      bugpos$quad[intersect(abovea,belowb)]<-3
-    } else {
-      bugpos$quad[intersect(abovea,aboveb)]<-1
-      bugpos$quad[intersect(belowa,aboveb)]<-4
-      bugpos$quad[intersect(abovea,belowb)]<-2
-      bugpos$quad[intersect(belowa,belowb)]<-3
-    }
+#     #determine if bug is above or below line (differnet from predicted y)
+#     belowa<-which((bugpos$y) <  (bugpos$pred1))
+#     abovea<-which((bugpos$y) >= (bugpos$pred1))
+#     belowb<-which((bugpos$y) <  (bugpos$pred2))
+#     aboveb<-which((bugpos$y) >= (bugpos$pred2))
+#     which()
+# # Determine Quadrants #change depending on slope of verticle line
+#     if((coordtab$TPX[tn]) > (coordtab$BPX[tn])) {
+#       bugpos$quad[intersect(belowa,aboveb)]<-1
+#       bugpos$quad[intersect(abovea,aboveb)]<-4
+#       bugpos$quad[intersect(belowa,belowb)]<-2
+#       bugpos$quad[intersect(abovea,belowb)]<-3
+#     } else {
+#       bugpos$quad[intersect(abovea,aboveb)]<-1
+#       bugpos$quad[intersect(belowa,aboveb)]<-4
+#       bugpos$quad[intersect(abovea,belowb)]<-2
+#       bugpos$quad[intersect(belowa,belowb)]<-3
+#     }
     #indicate the tray in data table.
     bugpos$trayn<-tn
     #return the data table.
@@ -595,5 +597,59 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
 
 ###############################################################################
 #run 
+#DR1T1C1<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C1, thresholda=50, 
+                     maxDistb=1000)
 DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+#                      maxDistb=1000)
+
+######################################################################
+
+#MERGE ALL THE DATA TABLES
+
+####create function that takes in data set and adds quadrant assignments
+    #determine if bug is above or below line (differnet from predicted y)
+function{VidData, CoordData}(    
+    belowa <- which((VidData$y) <  (VidData$pred1))
+    abovea <- which((VidData$y) >= (VidData$pred1))
+    belowb <- which((VidData$y) <  (VidData$pred2))
+    aboveb <- which((VidData$y) >= (VidData$pred2))
+    
+    NegSlope <- which(CoordData$TPX < CoordData$BPX )
+    PosSlope <- which(CoordData$TPX >= CoordData$BPX )
+    
+# Determine Quadrants #change depending on slope of verticle line
+    if((coordtab$TPX[tn]) > (coordtab$BPX[tn])) {
+      bugpos$quad[intersect(belowa,aboveb)]<-1
+      bugpos$quad[intersect(abovea,aboveb)]<-4
+      bugpos$quad[intersect(belowa,belowb)]<-2
+      bugpos$quad[intersect(abovea,belowb)]<-3
+    } else {
+      bugpos$quad[intersect(abovea,aboveb)]<-1
+      bugpos$quad[intersect(belowa,aboveb)]<-4
+      bugpos$quad[intersect(abovea,belowb)]<-2
+      bugpos$quad[intersect(belowa,belowb)]<-3
+      
+###Create function that determines which quadrants have pesticide
+
