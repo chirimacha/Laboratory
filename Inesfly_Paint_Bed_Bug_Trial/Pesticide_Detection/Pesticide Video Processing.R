@@ -499,11 +499,13 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
   #Create Function that finds the coordinate of the insect in each quadrant in each frame
   Coords<-function(video, pmask, nbga, coordtaba, tn, threshold, maxDista){
     #determine loop length
-    if (video$length<1800) {
-      fr <- video$length
-    } else {
-      fr<-1800
-    }
+#     if (video$length<1800) {
+#       fr <- video$length
+#     } else {
+#       fr<-1800
+#     }
+    #temporarily set fr to 20 to speed up code while debugging.
+    fr<-20
     #Reset bugpos to blank data frame
     bugpos<-data.frame()
     for (i in 1:fr){
