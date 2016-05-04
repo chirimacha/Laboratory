@@ -454,7 +454,7 @@ bg<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 
 #Takes in the video and coordinate table to 
 #output the coordinates of the insect in each frame for all 6 bugs
-VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
+VidAnalysis<-function(video, coordtab, thresholda, maxDistb, cam, rep, trial){
   #create the background
   #bg <- backgrounder(video, n = 1800, method = "mean", color = FALSE)
   
@@ -499,7 +499,7 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
   nbga6<-blend(bg, pmaskf, "*")
   
   #Create Function that finds the coordinate of the insect in each quadrant in each frame
-  Coords<-function(video, pmask, nbga, coordtaba, tn, threshold, maxDista, rep){
+  Coords<-function(video, pmask, nbga, coordtaba, tn, threshold, maxDista, rep, cam){
     #determine loop length
 #     if (video$length<1800) {
 #       fr <- video$length
@@ -593,8 +593,12 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
   MasterTab<-rbind(pdt1, pdt2, pdt3, pdt4, pdt5, pdt6)
 
   #indicate which camera this is
-  MasterTab<-
-  
+  MasterTab$camera<-cam
+  #Indicate which repetition
+  MasterTab$rep<-rep
+  MasterTab$trial<-trial
+  MasterTab$position<-(MasterTab$trayn)+(6*(cam-1))
+
   #Output as single data table
   return(MasterTab)
 }
@@ -604,7 +608,7 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
 #DR1T1C1<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C1, thresholda=50, 
        #              maxDistb=1000)
 DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-                     maxDistb=1000)
+                     maxDistb=1000, cam=2, rep=1, trial=1)
 # DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
 #                      maxDistb=1000)
 # DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
@@ -634,7 +638,7 @@ DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50,
 
 ####create function that takes in data set and adds quadrant assignments
     #determine if bug is above or below line (differnet from predicted y)
-Assign<-function{VidData, CoordData}(    
+Assign<-function(VidData, CoordData, trayData){    
     belowa <- which((VidData$y) <  (VidData$pred1))
     abovea <- which((VidData$y) >= (VidData$pred1))
     belowb <- which((VidData$y) <  (VidData$pred2))
@@ -643,19 +647,110 @@ Assign<-function{VidData, CoordData}(
     NegSlope <- which(CoordData$TPX <  CoordData$BPX )
     PosSlope <- which(CoordData$TPX >= CoordData$BPX )
     
-    negs<-which(is.na(match(VidData$trayn, NegSlope)==FALSE))
-    poss<-which(is.na(match(VidData$trayn, PosSlope)==FALSE))
+    negs<-which(is.na(match(NegSlope, VidData$trayn))==FALSE)
+    poss<-which(is.na(match(PosSlope, VidData$trayn))==FALSE)
     
 # Determine Quadrants #change depending on slope of verticle line
-#In cases of positive slopes
-      bugpos$quad[(interect( poss, (intersect(belowa,aboveb)))]<-1
-      bugpos$quad[(interect( poss, (intersect(abovea,aboveb)))]<-4
-      bugpos$quad[(interect( poss, (intersect(belowa,belowb)))]<-2
-      bugpos$quad[(interect( poss, (intersect(abovea,belowb)))]<-3
-      bugpos$quad[(interect( negs, (intersect(abovea,aboveb)))]<-1
-      bugpos$quad[(interect( negs, (intersect(belowa,aboveb)))]<-4
-      bugpos$quad[(interect( negs, (intersect(abovea,belowb)))]<-2
-      bugpos$quad[(interect( negs, (intersect(belowa,belowb)))]<-3
+# In cases of positive slopes
+VidData$quad<-NA
+VidData$quad[intersect( poss, (intersect(belowa,aboveb)))]<-1
+VidData$quad[intersect( poss, (intersect(abovea,aboveb)))]<-4
+VidData$quad[intersect( poss, (intersect(belowa,belowb)))]<-2
+VidData$quad[intersect( poss, (intersect(abovea,belowb)))]<-3
+VidData$quad[intersect( negs, (intersect(abovea,aboveb)))]<-1
+VidData$quad[intersect( negs, (intersect(belowa,aboveb)))]<-4
+VidData$quad[intersect( negs, (intersect(abovea,belowb)))]<-2
+VidData$quad[intersect( negs, (intersect(belowa,belowb)))]<-3
       
 ###Create function that determines which quadrants have pesticide
+for (i in 1:length(VidData$quad)){
+   r <- which(trayData$Repetition==VidData$rep[i])
+   t <- which(trayData$Trial==VidData$trial[i])
+   p <- which(trayData$Position==VidData$position[i])
+   id <- intersect( p, intersect(r, t))
 
+    VidData$DishID[i] <- trayData$DishID[id]
+    VidData$Orientation[i] <- trayData$Orientation[id]
+  
+  #there has to be a better way to do this
+    one   <- c(1,2,3,4)
+    two   <- c(2,3,4,1)
+    three <- c(3,4,1,2)
+    four  <- c(4,1,2,3)
+    OTab  <- data.frame(one, two, three, four)
+    Or    <- which(OTab$one==VidData$Orientation[i])
+  VidData$PQuad[i] <- OTab[Or, VidData$Orientation[i]]
+  #I'm pretty sure the above 7 lines could be two.
+  }
+
+  uno<-which(VidData$PQuad==1)  
+  dos<-which(VidData$PQuad==2)  
+  tres<-which(VidData$PQuad==3)  
+  cuatro<-which(VidData$PQuad==4)  
+
+  VidData$Pesticide[uno]<-0
+  VidData$Pesticide[dos]<-1
+  VidData$Pesticide[tres]<-0
+  VidData$Pesticide[cuatro]<-1
+  
+  return(VidData)
+}
+
+
+#=============
+tryit<-Assign(VidData = DR1T1C2, CoordData = CoTbR1T1C2, trayData = TrayPlace)
+
+  belowa <- which((DR1T1C2$y) <  (DR1T1C2$pred1))
+  abovea <- which((DR1T1C2$y) >= (DR1T1C2$pred1))
+  belowb <- which((DR1T1C2$y) <  (DR1T1C2$pred2))
+  aboveb <- which((DR1T1C2$y) >= (DR1T1C2$pred2))
+  
+  NegSlope <- which(CoTbR1T1C2$TPX <  CoTbR1T1C2$BPX )
+  PosSlope <- which(CoTbR1T1C2$TPX >= CoTbR1T1C2$BPX )
+  
+  negs<-which(is.na(match(DR1T1C2$trayn, NegSlope))==FALSE)
+  poss<-which(is.na(match(DR1T1C2$trayn, PosSlope))==FALSE)
+  
+  # Determine Quadrants #change depending on slope of verticle line
+  # In cases of positive slopes
+DR1T1C2$quad<-NA
+DR1T1C2$quad[intersect( poss, (intersect(belowa,aboveb)))]<-1
+DR1T1C2$quad[intersect( poss, (intersect(abovea,aboveb)))]<-4
+DR1T1C2$quad[intersect( poss, (intersect(belowa,belowb)))]<-2
+DR1T1C2$quad[intersect( poss, (intersect(abovea,belowb)))]<-3
+DR1T1C2$quad[intersect( negs, (intersect(abovea,aboveb)))]<-1
+DR1T1C2$quad[intersect( negs, (intersect(belowa,aboveb)))]<-4
+DR1T1C2$quad[intersect( negs, (intersect(abovea,belowb)))]<-2
+DR1T1C2$quad[intersect( negs, (intersect(belowa,belowb)))]<-3
+  
+  ###Create function that determines which quadrants have pesticide
+  for (i in 1:length(DR1T1C2$quad)) {
+    r <- which(TrayPlace$Repetition==DR1T1C2$rep[i])
+    t <- which(TrayPlace$Trial==DR1T1C2$trial[i])
+    p <- which(TrayPlace$Position==DR1T1C2$position[i])
+    id <- intersect( p, intersect(r, t))
+    
+    DR1T1C2$DishID[i] <- TrayPlace$DishID[id]
+    DR1T1C2$Orientation[i] <- TrayPlace$Orientation[id]
+    
+    #there has to be a better way to do this
+    one   <- c(1,2,3,4)
+    two   <- c(2,3,4,1)
+    three <- c(3,4,1,2)
+    four  <- c(4,1,2,3)
+    OTab  <- data.frame(one, two, three, four)
+    Or    <- which(OTab$one==DR1T1C2$Orientation[i])
+    DR1T1C2$PQuad[i] <- OTab[Or, DR1T1C2$Orientation[i]]
+    #I'm pretty sure the above 7 lines could be two.
+  }
+  
+  uno<-which(DR1T1C2$PQuad==1)  
+  dos<-which(DR1T1C2$PQuad==2)  
+  tres<-which(DR1T1C2$PQuad==3)  
+  cuatro<-which(DR1T1C2$PQuad==4)  
+DR1T1C2$Pesticide<-NA  
+DR1T1C2$Pesticide[uno]<-0
+DR1T1C2$Pesticide[dos]<-1
+DR1T1C2$Pesticide[tres]<-0
+DR1T1C2$Pesticide[cuatro]<-1
+}
