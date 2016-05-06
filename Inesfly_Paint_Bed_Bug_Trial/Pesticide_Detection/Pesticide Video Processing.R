@@ -436,6 +436,20 @@ CoTbR1T1C2<-data.frame(Tray, bMXL, bMXR, bMYT, bMYB, bBPX, bBPY, bTPX, bTPY,
 names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
 
+visualize<-function(CD, frame){
+  imshow(frame)
+  for(i in 1:6){
+    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i])) 
+    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i])) 
+    lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i])) 
+    lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i])) 
+    lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]))
+    lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]))
+  }
+}
+
+visualize(frame = FR1T1C2, CD=CoTbR1T1C2)
+
 ###############################################################################
 #create background.  Do this step only once
 bg<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
@@ -609,6 +623,7 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb, cam, rep, trial){
        #              maxDistb=1000)
 DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
                      maxDistb=1000, cam=2, rep=1, trial=1)
+#  write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
 # DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
 #                      maxDistb=1000)
 # DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
@@ -634,8 +649,10 @@ DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50,
 
 ######################################################################
 
-#MERGE ALL THE DATA TABLES
+#Combing ALL THE DATA TABLES?
+#CompVid<-rbind(DR1T1C2)
 
+#write.csv( CompVid,"CompiledRawVideoData.csv")
 ####create function that takes in data set and adds quadrant assignments
     #determine if bug is above or below line (differnet from predicted y)
 Assign<-function(VidData, CoordData, trayData){    
@@ -679,21 +696,24 @@ for (i in 1:length(VidData$quad)){
     four  <- c(4,1,2,3)
     OTab  <- data.frame(one, two, three, four)
     Or    <- which(OTab$one==VidData$Orientation[i])
-  VidData$PQuad[i] <- OTab[Or, VidData$Orientation[i]]
+  VidData$PQuad[i] <- OTab[Or, VidData$quad[i]]
   #I'm pretty sure the above 7 lines could be two.
   }
 
-  uno<-which(VidData$PQuad==1)  
-  dos<-which(VidData$PQuad==2)  
-  tres<-which(VidData$PQuad==3)  
-  cuatro<-which(VidData$PQuad==4)  
+  uno <- which(VidData$PQuad==1)  
+  dos <- which(VidData$PQuad==2)  
+  tres <- which(VidData$PQuad==3)  
+  cuatro <- which(VidData$PQuad==4)  
+  PTrays <- which(VidData$DishID <=6)
 
-  VidData$Pesticide[uno]<-0
-  VidData$Pesticide[dos]<-1
-  VidData$Pesticide[tres]<-0
-  VidData$Pesticide[cuatro]<-1
+  VidData$Pesticide<-NA
+  VidData$Pesticide[intersect( PTrays, uno)] <- 0
+  VidData$Pesticide[intersect( PTrays, dos)] <- 1
+  VidData$Pesticide[intersect( PTrays, tres)] <- 0
+  VidData$Pesticide[intersect( PTrays, cuatro)] <- 1
   
   return(VidData)
+
 }
 
 
@@ -744,13 +764,15 @@ DR1T1C2$quad[intersect( negs, (intersect(belowa,belowb)))]<-3
     #I'm pretty sure the above 7 lines could be two.
   }
   
-  uno<-which(DR1T1C2$PQuad==1)  
-  dos<-which(DR1T1C2$PQuad==2)  
-  tres<-which(DR1T1C2$PQuad==3)  
-  cuatro<-which(DR1T1C2$PQuad==4)  
-DR1T1C2$Pesticide<-NA  
-DR1T1C2$Pesticide[uno]<-0
-DR1T1C2$Pesticide[dos]<-1
-DR1T1C2$Pesticide[tres]<-0
-DR1T1C2$Pesticide[cuatro]<-1
+  uno <- which(DR1T1C2$PQuad==1)  
+  dos <- which(DR1T1C2$PQuad==2)  
+  tres <- which(DR1T1C2$PQuad==3)  
+  cuatro <- which(DR1T1C2$PQuad==4)  
+  PTrays<- which(VidData$DishID <=6)
+
+DR1T1C2$Pesticide <- NA  
+DR1T1C2$Pesticide[uno] <- 0
+DR1T1C2$Pesticide[intersect( PTrays, dos)] <- 1
+DR1T1C2$Pesticide[tres] <- 0
+DR1T1C2$Pesticide[intersect( PTrays, cuatro)] <- 1
 }
