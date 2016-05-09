@@ -1,11 +1,11 @@
 
 #Repeat the above code to find the points and 
 #manually enter them in the dataframes below.
-tester<-getpoint(FR1T1C1)
+tester<-getpoint(FR1T2C1)
 tester
 
-Video FR1T1C1
-Note that if X coords for TP and BP are exactly equal, it may create errors.
+#Video FR1T1C1
+#Note that if X coords for TP and BP are exactly equal, it may create errors.
 Tray<-c(1,2,3,4,5,6)
 aMXL <-c(144,331,527,144,333,527)
 aMXR <-c(331,527,728,333,527,728)
@@ -26,7 +26,7 @@ CoTbR1T1C1<-data.frame(Tray, aMXL, aMXR, aMYT, aMYB, aBPX, aBPY, aTPX, aTPY,
 #rename so that colums can be found in function
 names(CoTbR1T1C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR1T1C1, "CoTbR1T1C1.csv")
+#write.csv(CoTbR1T1C1, "CoTbR1T1C1.csv")
 
 ###============================
 Tray<-c(1,2,3,4,5,6)
@@ -60,3 +60,32 @@ CoTbR1T1C2<-data.frame(Tray, bMXL, bMXR, bMYT, bMYB, bBPX, bBPY, bTPX, bTPY,
 names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
 #write.csv(CoTbR1T1C2,"CoTbR1T1C2.csv")
+#==============================================================================
+
+#Video FR1T2C1
+#Note that if X coords for TP and BP are exactly equal, it may create errors.
+Tray<-c(1,2,3,4,5,6)
+cMXL <-c(134,333,526,134,329,526)
+cMXR <-c(333,526,727,333,526,727)
+cMYT <-c(424,424,424,230,230,208)
+cMYB <-c(230,230,208, 30, 30, 30)
+cTPX <-c(240,436,634,246,428,623)
+cTPY <-c(410,404,388,214,209,199)
+cBPX <-c(240,430,620,247,423,615)
+cBPY <-c(242,236,224,066, 63, 50)
+cLPX <-c(157,351,551,172,349,546)
+cLPY <-c(328,321,309,145,139,127)
+cRPX <-c(314,513,713,319,502,698)
+cRPY <-c(324,316,304,143,137,125)
+#c(,,,,,)
+#create a coordinate table
+CoTbR1T2C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+                       cRPX, cRPY, cLPX, cLPY)
+#rename so that colums can be found in function
+names(CoTbR1T2C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+                     "RPX", "RPY", "LPX", "LPY")
+write.csv(CoTbR1T2C1, "CoTbR1T2C1.csv")
+#==============================================================================
+
+
+

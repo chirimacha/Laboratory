@@ -183,7 +183,7 @@ setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"
 R1T1C1<- readVid("Trial1Cam1.mp4")
 R1T1C2<- readVid("Trial1Cam2.mp4")
 #Trial Two
-R1T2C1<- readVid("Trial2Cam1.mp4")
+R1T2C1<- readVid("Trial2Cam1.mp4") #<-why is video only 913 frames
 R1T2C2<- readVid("Trial2Cam2.mp4")
 #Trial Three
 R1T3C1<- readVid("Trial3Cam1.mp4")
@@ -344,6 +344,12 @@ TrayPlace<- read.csv("TraysRep1.csv")
 ###
 #Get a frames from each video in order to find coordinates
 FR1T1C1 <- getFrame(R1T1C1, 5)
+FR1T1C16 <- getFrame(R1T1C1, 10)
+imshow(FR1T1C1)
+imshow(FR1T1C16)
+
+
+
 FR1T1C2 <- getFrame(R1T1C2, 5)
 FR1T2C1 <- getFrame(R1T2C1, 5)
 FR1T2C2 <- getFrame(R1T2C2, 5)
@@ -361,7 +367,9 @@ FR1T6C2 <- getFrame(R1T6C2, 5)
 
 getpoint<-function(frame){
   rto <- frame$dim[1]/frame$dim[2]
-  quartz(width=6, height=rto*6)
+  print(rto)
+  ht<-rto*6
+  quartz(width=6, height=ht)
   imshow(frame)
   a<-grid.locator(unit = "npc")
   gcx<-as.numeric(a$x)
@@ -375,9 +383,11 @@ getpoint<-function(frame){
   }
 
 #Repeat the above code to find the points and 
-#manually enter them in the dataframes below.
-tester<-getpoint(FR1T1C2)
+#manually enter them in2the dataframes below.
+tester<-getpoint(FR1T2C1)
 tester
+dev.off()
+
 
 ###Create tables
 #Video FR1T1C1
@@ -439,22 +449,28 @@ names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TP
 visualize<-function(CD, frame){
   imshow(frame)
   for(i in 1:6){
-    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i])) 
-    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i])) 
-    lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i])) 
-    lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i])) 
-    lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]))
-    lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]))
+    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
+    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
+    lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+    lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+    lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
+    lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
   }
 }
 
 visualize(frame = FR1T1C2, CD=CoTbR1T1C2)
+visualize(frame = FR1T2C1, CD=CoTbR1T2C1)
+####Bring in Frames coordinate tables
+CoTbR1T1C1 <- read.csv("CoTbR1T1C1.csv")
+CoTbR1T1C2 <- read.csv("CoTbR1T1C1.csv")
+CoTbR1T2C1 <- read.csv("CoTbR1T1C1.csv")
+
 
 ###############################################################################
 #create background.  Do this step only once
-bg<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# bg <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+bga <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+bgb <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE) #why only 15min of futage?
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
@@ -468,7 +484,7 @@ bg<- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 
 #Takes in the video and coordinate table to 
 #output the coordinates of the insect in each frame for all 6 bugs
-VidAnalysis<-function(video, coordtab, thresholda, maxDistb, cam, rep, trial){
+VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial){
   #create the background
   #bg <- backgrounder(video, n = 1800, method = "mean", color = FALSE)
   
@@ -619,38 +635,21 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb, cam, rep, trial){
 
 ###############################################################################
 #run 
-#DR1T1C1<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C1, thresholda=50, 
-       #              maxDistb=1000)
-DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
+DR1T1C1 <- VidAnalysis(video=R1T1C1, bg= bga, coordtab=CoTbR1T1C1, thresholda=50, 
+                     maxDistb=1000, cam=1, rep=1, trial=1)
+  write.csv(DR1T1C2, "Rep1Trial1Cam1RawData.csv")
+DR1T1C2 <- VidAnalysis(video=R1T1C2, bg= bgb, coordtab=CoTbR1T1C2, thresholda=50, 
                      maxDistb=1000, cam=2, rep=1, trial=1)
-#  write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
-# DR1T1C2<-VidAnalysis(video=R1T1C2, coordtab=CoTbR1T1C2, thresholda=50, 
-#                      maxDistb=1000)
+  write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
+
+DR1T2C1 <- VidAnalysis(video=R1T2C1, bg= bgc, coordtab=CoTbR1T2C1, thresholda=50, 
+                       maxDistb=1000, cam=1, rep=1, trial=1)
+  write.csv(DR1T1C2, "Rep1Trial2Cam1RawData.csv")
 
 ######################################################################
 
 #Combing ALL THE DATA TABLES?
-#CompVid<-rbind(DR1T1C2)
+CompVid<-rbind( DR1T1C1, DR1T1C2, DR1T2C1)
 
 #write.csv( CompVid,"CompiledRawVideoData.csv")
 ####create function that takes in data set and adds quadrant assignments
