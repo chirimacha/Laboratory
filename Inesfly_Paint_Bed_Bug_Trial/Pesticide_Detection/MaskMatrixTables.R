@@ -1,7 +1,7 @@
 
 #Repeat the above code to find the points and 
 #manually enter them in the dataframes below.
-tester<-getpoint(FR1T2C1)
+tester<-getpoint(FR1T2C2)
 tester
 
 #Video FR1T1C1
@@ -86,6 +86,26 @@ names(CoTbR1T2C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "T
                      "RPX", "RPY", "LPX", "LPY")
 write.csv(CoTbR1T2C1, "CoTbR1T2C1.csv")
 #==============================================================================
-
-
+#Video FR1T2C1
+Tray<-c(1,2,3,4,5,6)
+cMXL <-c(162,346,520,162,346,520)
+cMXR <-c(346,520,718,346,520,718)
+cMYT <-c(423,423,423,239,239,239)
+cMYB <-c(239,239,239,043,043,043)
+cTPX <-c(252,431,615,272,436,608)
+cTPY <-c(403,409,412,221,219,205)
+cBPX <-c(,,,,,)
+cBPY <-c(,,,,,)
+cLPX <-c(,,,,,)
+cLPY <-c(,,,,,)
+cRPX <-c(,,,,,)
+cRPY <-c(,,,,,)
+#c(,,,,,)
+#create a coordinate table
+CoTbR1T2C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+                       cRPX, cRPY, cLPX, cLPY)
+#rename so that colums can be found in function
+names(CoTbR1T2C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+                     "RPX", "RPY", "LPX", "LPY")
+write.csv(CoTbR1T2C2, "CoTbR1T2C2.csv")
 

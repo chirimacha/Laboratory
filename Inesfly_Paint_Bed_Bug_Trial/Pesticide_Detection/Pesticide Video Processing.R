@@ -463,7 +463,7 @@ visualize(frame = FR1T2C1, CD=CoTbR1T2C1)
 ####Bring in Frames coordinate tables
 CoTbR1T1C1 <- read.csv("CoTbR1T1C1.csv")
 CoTbR1T1C2 <- read.csv("CoTbR1T1C1.csv")
-CoTbR1T2C1 <- read.csv("CoTbR1T1C1.csv")
+CoTbR1T2C1 <- read.csv("CoTbR1T2C1.csv")
 
 
 ###############################################################################
