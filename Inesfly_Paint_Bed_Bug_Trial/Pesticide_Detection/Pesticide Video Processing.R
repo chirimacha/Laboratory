@@ -177,6 +177,7 @@ setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"
 
 #bring in video(s)
 #marchpilot <- readVid("MarchPilot.mp4")
+
 #Import Videos for First Repetition
 ##Repetition 1 (Recorded on "2016-04-21")
 #Trial One
@@ -198,9 +199,29 @@ R1T5C2<- readVid("Trial5Cam2.mp4")
 R1T6C1<- readVid("Trial6Cam1.mp4")
 R1T6C2<- readVid("Trial6Cam2.mp4")
 
+##Import Repetition 2 (Recorded "2016-05-12")
+#Trial One
+R2T1C1<- readVid("R2T1C1.mp4")
+R2T1C2<- readVid("R2T1C2.mp4")
+#Trial Two
+R2T2C1<- readVid("R2T2C1.mp4") #<-why is video only 913 frames
+R2T2C2<- readVid("R2T2C2.mp4")
+#Trial Three
+R2T3C1<- readVid("R2T3C1.mp4")
+R2T3C2<- readVid("R2T3C2.mp4")
+#Trial Four
+R2T4C1<- readVid("R2T4C1.mp4")
+R2T4C2<- readVid("R2T4C2.mp4")
+#Trial Five
+R2T5C1<- readVid("R2T5C1.mp4")
+R2T5C2<- readVid("R2T5C2.mp4")
+#Trial Six
+R2T6C1<- readVid("R2T6C1.mp4")
+R2T6C2<- readVid("R2T6C2.mp4")
+
 #Install Data Tables with times, dates, humidity
 #and quadrant assignments.
-TrayPlace<- read.csv("TraysRep1.csv")
+TrayPlace<- read.csv("TraysRep1y2.csv")
 
 ###############################################################################
 ###Begin developing code.
@@ -343,12 +364,13 @@ TrayPlace<- read.csv("TraysRep1.csv")
 # ####====FULL_VIDS==============================================================
 ###
 #Get a frames from each video in order to find coordinates
+
+#Cam 1 for Repetition 1 videos has recording error 
+#Error with duplicate and skipped frames
 FR1T1C1 <- getFrame(R1T1C1, 5)
-FR1T1C16 <- getFrame(R1T1C1, 10)
+#FR1T1C16 <- getFrame(R1T1C1, 10)
 imshow(FR1T1C1)
 imshow(FR1T1C16)
-
-
 
 FR1T1C2 <- getFrame(R1T1C2, 5)
 FR1T2C1 <- getFrame(R1T2C1, 5)
@@ -361,6 +383,20 @@ FR1T5C1 <- getFrame(R1T5C1, 5)
 FR1T5C2 <- getFrame(R1T5C2, 5)
 FR1T6C1 <- getFrame(R1T6C1, 5)
 FR1T6C2 <- getFrame(R1T6C2, 5)
+
+#Repetition 2 Frame 5
+FR2T1C1 <- getFrame(R2T1C1, 5)
+FR2T1C2 <- getFrame(R2T1C2, 5)
+FR2T2C1 <- getFrame(R2T2C1, 5)
+FR2T2C2 <- getFrame(R2T2C2, 5)
+FR2T3C1 <- getFrame(R2T3C1, 5)
+FR2T3C2 <- getFrame(R2T3C2, 5)
+FR2T4C1 <- getFrame(R2T4C1, 5)
+FR2T4C2 <- getFrame(R2T4C2, 5)
+FR2T5C1 <- getFrame(R2T5C1, 5)
+FR2T5C2 <- getFrame(R2T5C2, 5)
+FR2T6C1 <- getFrame(R2T6C1, 5)
+FR2T6C2 <- getFrame(R2T6C2, 5)
 
 #Function uses frame above to click and obtain coordinates. 
 #DO NOT CHANGE QUARTZ SIZE!!!
@@ -461,16 +497,22 @@ visualize<-function(CD, frame){
 visualize(frame = FR1T1C2, CD=CoTbR1T1C2)
 visualize(frame = FR1T2C1, CD=CoTbR1T2C1)
 ####Bring in Frames coordinate tables
+
+#REP 1
 CoTbR1T1C1 <- read.csv("CoTbR1T1C1.csv")
 CoTbR1T1C2 <- read.csv("CoTbR1T1C1.csv")
 CoTbR1T2C1 <- read.csv("CoTbR1T2C1.csv")
 
+#REP 2
+CoTbR2T1C1 <- read.csv("CoTbR1T1C1.csv")
+CoTbR2T1C2 <- read.csv("CoTbR1T1C1.csv")
+CoTbR2T2C1 <- read.csv("CoTbR1T2C1.csv")
 
 ###############################################################################
 #create background.  Do this step only once
 bga <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 bgb <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE) #why only 15min of futage?
+bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE) 
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
@@ -481,6 +523,13 @@ bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE) #why only 
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
+
+##REP 2
+bgaRB <- backgrounder(R2T1C2, n = 1600, method = "mean", color = FALSE)
+bgbRB <- backgrounder(R2T1C2, n = 1600, method = "mean", color = FALSE)
+bgcRB <- backgrounder(R2T2C1, n = 1600, method = "mean", color = FALSE)
+
+
 
 #Takes in the video and coordinate table to 
 #output the coordinates of the insect in each frame for all 6 bugs
