@@ -422,7 +422,6 @@ getpoint<-function(frame){
 #manually enter them in2the dataframes below.
 tester<-getpoint(FR1T2C1)
 tester
-dev.off()
 
 
 ###Create tables
@@ -525,9 +524,11 @@ bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 
 ##REP 2
-bgaRB <- backgrounder(R2T1C2, n = 1600, method = "mean", color = FALSE)
+bgaRB <- backgrounder(R2T1C1, n = 1600, method = "mean", color = FALSE)
 bgbRB <- backgrounder(R2T1C2, n = 1600, method = "mean", color = FALSE)
 bgcRB <- backgrounder(R2T2C1, n = 1600, method = "mean", color = FALSE)
+bgdRB <- backgrounder(R2T2C2, n = 1600, method = "mean", color = FALSE)
+
 
 
 
@@ -686,14 +687,31 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
 #run 
 DR1T1C1 <- VidAnalysis(video=R1T1C1, bg= bga, coordtab=CoTbR1T1C1, thresholda=50, 
                      maxDistb=1000, cam=1, rep=1, trial=1)
-  write.csv(DR1T1C2, "Rep1Trial1Cam1RawData.csv")
+  write.csv(DR1T1C1, "Rep1Trial1Cam1RawData.csv")
+
 DR1T1C2 <- VidAnalysis(video=R1T1C2, bg= bgb, coordtab=CoTbR1T1C2, thresholda=50, 
                      maxDistb=1000, cam=2, rep=1, trial=1)
   write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
 
 DR1T2C1 <- VidAnalysis(video=R1T2C1, bg= bgc, coordtab=CoTbR1T2C1, thresholda=50, 
                        maxDistb=1000, cam=1, rep=1, trial=1)
-  write.csv(DR1T1C2, "Rep1Trial2Cam1RawData.csv")
+  write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+###Rep2
+DR2T1C1 <- VidAnalysis(video=R2T1C1, bg= bgaRB, coordtab=CoTbR2T1C1, thresholda=50, 
+                       maxDistb=1000, cam=1, rep=1, trial=1)
+           write.csv(DR2T1C1, "Rep2Trial1Cam1RawData.csv")
+
+DR2T1C2 <- VidAnalysis(video=R2T1C2, bg= bgbRB, coordtab=CoTbR2T1C2, thresholda=50, 
+                       maxDistb=1000, cam=2, rep=1, trial=1)
+          write.csv(DR2T1C2, "Rep2Trial1Cam2RawData.csv")
+
+DR2T2C1 <- VidAnalysis(video=R2T2C1, bg= bgcRB, coordtab=CoTbR2T2C1, thresholda=50, 
+                       maxDistb=1000, cam=1, rep=1, trial=1)
+           write.csv(DR2T2C1, "Rep2Trial2Cam1RawData.csv")
+
+DR2T2C2 <- VidAnalysis(video=R2T2C1, bg= bgcRB, coordtab=CoTbR2T2C1, thresholda=50, 
+                       maxDistb=1000, cam=1, rep=1, trial=1)
+           write.csv(DR2T2C2, "Rep2Trial2Cam2RawData.csv")
 
 ######################################################################
 
