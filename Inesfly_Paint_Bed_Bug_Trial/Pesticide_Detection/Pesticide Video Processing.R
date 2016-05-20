@@ -504,8 +504,17 @@ CoTbR1T2C1 <- read.csv("CoTbR1T2C1.csv")
 
 #REP 2
 CoTbR2T1C1 <- read.csv("CoTbR1T1C1.csv")
-CoTbR2T1C2 <- read.csv("CoTbR1T1C1.csv")
+CoTbR2T1C2 <- read.csv("CoTbR1T1C2.csv")
 CoTbR2T2C1 <- read.csv("CoTbR1T2C1.csv")
+CoTbR2T2C2 <- read.csv("CoTbR1T2C2.csv")
+CoTbR2T3C1 <- read.csv("CoTbR1T3C1.csv")
+CoTbR2T3C2 <- read.csv("CoTbR1T3C2.csv")
+# CoTbR2T4C1 <- read.csv("CoTbR1T4C1.csv")
+# CoTbR2T4C2 <- read.csv("CoTbR1T4C2.csv")
+# CoTbR2T5C1 <- read.csv("CoTbR1T5C1.csv")
+# CoTbR2T5C2 <- read.csv("CoTbR1T5C2.csv")
+# CoTbR2T6C1 <- read.csv("CoTbR1T6C1.csv")
+# CoTbR2T6C2 <- read.csv("CoTbR1T6C2.csv")
 
 ###############################################################################
 #create background.  Do this step only once
@@ -524,13 +533,24 @@ bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 
 ##REP 2
-bgaRB <- backgrounder(R2T1C1, n = 1600, method = "mean", color = FALSE)
-bgbRB <- backgrounder(R2T1C2, n = 1600, method = "mean", color = FALSE)
-bgcRB <- backgrounder(R2T2C1, n = 1600, method = "mean", color = FALSE)
-bgdRB <- backgrounder(R2T2C2, n = 1600, method = "mean", color = FALSE)
-
-
-
+#T1
+bgaRB <- backgrounder(R2T1C1, n = 1800, method = "mean", color = FALSE)
+bgbRB <- backgrounder(R2T1C2, n = 1800, method = "mean", color = FALSE)
+#T2
+bgcRB <- backgrounder(R2T2C1, n = 1800, method = "mean", color = FALSE)
+bgdRB <- backgrounder(R2T2C2, n = 1800, method = "mean", color = FALSE)
+#T3
+bgeRB <- backgrounder(R2T3C1, n = 1800, method = "mean", color = FALSE)
+bgfRB <- backgrounder(R2T3C2, n = 1800, method = "mean", color = FALSE)
+# #T4
+# bggRB <- backgrounder(R2T4C1, n = 1800, method = "mean", color = FALSE)
+# bghRB <- backgrounder(R2T4C2, n = 1800, method = "mean", color = FALSE)
+# #T5
+# bgiRB <- backgrounder(R2T5C1, n = 1800, method = "mean", color = FALSE)
+# bgjRB <- backgrounder(R2T5C2, n = 1800, method = "mean", color = FALSE)
+# #T6
+# bgkRB <- backgrounder(R2T6C1, n = 1800, method = "mean", color = FALSE)
+# bglRB <- backgrounder(R2T6C2, n = 1800, method = "mean", color = FALSE)
 
 #Takes in the video and coordinate table to 
 #output the coordinates of the insect in each frame for all 6 bugs
@@ -696,6 +716,7 @@ DR1T1C2 <- VidAnalysis(video=R1T1C2, bg= bgb, coordtab=CoTbR1T1C2, thresholda=50
 DR1T2C1 <- VidAnalysis(video=R1T2C1, bg= bgc, coordtab=CoTbR1T2C1, thresholda=50, 
                        maxDistb=1000, cam=1, rep=1, trial=1)
   write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+
 ###Rep2
 DR2T1C1 <- VidAnalysis(video=R2T1C1, bg= bgaRB, coordtab=CoTbR2T1C1, thresholda=50, 
                        maxDistb=1000, cam=1, rep=1, trial=1)
@@ -709,14 +730,63 @@ DR2T2C1 <- VidAnalysis(video=R2T2C1, bg= bgcRB, coordtab=CoTbR2T2C1, thresholda=
                        maxDistb=1000, cam=1, rep=1, trial=1)
            write.csv(DR2T2C1, "Rep2Trial2Cam1RawData.csv")
 
-DR2T2C2 <- VidAnalysis(video=R2T2C1, bg= bgcRB, coordtab=CoTbR2T2C1, thresholda=50, 
+DR2T2C2 <- VidAnalysis(video=R2T2C2, bg= bgdRB, coordtab=CoTbR2T2C2, thresholda=50, 
                        maxDistb=1000, cam=1, rep=1, trial=1)
            write.csv(DR2T2C2, "Rep2Trial2Cam2RawData.csv")
 
+DR2T3C1 <- VidAnalysis(video=R2T3C1, bg= bgeRB, coordtab=CoTbR2T3C1, thresholda=50, 
+                       maxDistb=1000, cam=1, rep=1, trial=1)
+           write.csv(DR2T3C1, "Rep2Trial3Cam1RawData.csv")
+
+DR2T3C2 <- VidAnalysis(video=R2T3C1, bg= bgfRB, coordtab=CoTbR2T3C2, thresholda=50, 
+                       maxDistb=1000, cam=1, rep=1, trial=1)
+          write.csv(DR2T3C2, "Rep2Trial3Cam2RawData.csv")
+# 
+# DR2T4C1 <- VidAnalysis(video=R2T4C1, bg= bgeRB, coordtab=CoTbR2T4C1, thresholda=50, 
+#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#            write.csv(DR2T4C1, "Rep2Trial4Cam1RawData.csv")
+# 
+# DR2T4C2 <- VidAnalysis(video=R2T4C1, bg= bgfRB, coordtab=CoTbR2T4C2, thresholda=50, 
+#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#            write.csv(DR2T4C2, "Rep2Trial4Cam2RawData.csv")
+# 
+# DR2T5C1 <- VidAnalysis(video=R2T5C1, bg= bgeRB, coordtab=CoTbR2T5C1, thresholda=50, 
+#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#            write.csv(DR2T5C1, "Rep2Trial5Cam1RawData.csv")
+# 
+# DR2T5C2 <- VidAnalysis(video=R2T5C1, bg= bgfRB, coordtab=CoTbR2T5C2, thresholda=50, 
+#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#            write.csv(DR2T5C2, "Rep2Trial5Cam2RawData.csv")
+# 
+# DR2T6C1 <- VidAnalysis(video=R2T6C1, bg= bgeRB, coordtab=CoTbR2T6C1, thresholda=50, 
+#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#           write.csv(DR2T6C1, "Rep2Trial6Cam1RawData.csv")
+# 
+# DR2T6C2 <- VidAnalysis(video=R2T6C1, bg= bgfRB, coordtab=CoTbR2T6C2, thresholda=50, 
+#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#            write.csv(DR2T6C2, "Rep2Trial6Cam2RawData.csv")
+
+######################################################################
+###The Code below should be able to be used on a PC
+
+#If running from PC run these codes
+DR2T1C1 <- read.csv("Rep2Trial1Cam1RawData.csv")
+DR2T1C2 <- read.csv("Rep2Trial1Cam2RawData.csv")
+DR2T2C1 <- read.csv("Rep2Trial2Cam1RawData.csv")
+DR2T2C2 <- read.csv("Rep2Trial2Cam2RawData.csv")
+DR2T3C1 <- read.csv("Rep2Trial3Cam1RawData.csv")
+DR2T3C2 <- read.csv("Rep2Trial3Cam2RawData.csv")
+DR2T4C1 <- read.csv("Rep2Trial4Cam1RawData.csv")
+DR2T4C2 <- read.csv("Rep2Trial4Cam2RawData.csv")
+DR2T5C1 <- read.csv("Rep2Trial5Cam1RawData.csv")
+DR2T5C2 <- read.csv("Rep2Trial5Cam2RawData.csv")
+DR2T6C1 <- read.csv("Rep2Trial6Cam1RawData.csv")
+DR2T6C2 <- read.csv("Rep2Trial6Cam2RawData.csv")
 ######################################################################
 
 #Combing ALL THE DATA TABLES?
-CompVid<-rbind( DR1T1C1, DR1T1C2, DR1T2C1)
+CompVidRep2<-rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
+               DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
 
 #write.csv( CompVid,"CompiledRawVideoData.csv")
 ####create function that takes in data set and adds quadrant assignments
