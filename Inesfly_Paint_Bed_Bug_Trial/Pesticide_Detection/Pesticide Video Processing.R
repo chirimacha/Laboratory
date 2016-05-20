@@ -651,6 +651,8 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
     bugpos$pred1 <- predict(line1a, newsa, na.rm=TRUE)
     bugpos$pred2 <- predict(line1b, newsb, na.rm=TRUE)
     
+    bugpos$TPX<-coordtaba$TPX[tn]
+    bugpos$BPX<-coordtaba$BPX[tn]
 #     #determine if bug is above or below line (differnet from predicted y)
 #     belowa<-which((bugpos$y) <  (bugpos$pred1))
 #     abovea<-which((bugpos$y) >= (bugpos$pred1))
@@ -699,6 +701,7 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
   MasterTab$trial<-trial
   MasterTab$position<-(MasterTab$trayn)+(6*(cam-1))
 
+  
   #Output as single data table
   return(MasterTab)
 }
@@ -707,63 +710,64 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
 #run 
 DR1T1C1 <- VidAnalysis(video=R1T1C1, bg= bga, coordtab=CoTbR1T1C1, thresholda=50, 
                      maxDistb=1000, cam=1, rep=1, trial=1)
-  write.csv(DR1T1C1, "Rep1Trial1Cam1RawData.csv")
+  #write.csv(DR1T1C1, "Rep1Trial1Cam1RawData.csv")
 
 DR1T1C2 <- VidAnalysis(video=R1T1C2, bg= bgb, coordtab=CoTbR1T1C2, thresholda=50, 
                      maxDistb=1000, cam=2, rep=1, trial=1)
-  write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
+  #write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
 
 DR1T2C1 <- VidAnalysis(video=R1T2C1, bg= bgc, coordtab=CoTbR1T2C1, thresholda=50, 
                        maxDistb=1000, cam=1, rep=1, trial=1)
-  write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+  #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
 
 ###Rep2
 DR2T1C1 <- VidAnalysis(video=R2T1C1, bg= bgaRB, coordtab=CoTbR2T1C1, thresholda=50, 
-                       maxDistb=1000, cam=1, rep=1, trial=1)
+                       maxDistb=1000, cam=1, rep=2, trial=1)
            write.csv(DR2T1C1, "Rep2Trial1Cam1RawData.csv")
 
 DR2T1C2 <- VidAnalysis(video=R2T1C2, bg= bgbRB, coordtab=CoTbR2T1C2, thresholda=50, 
-                       maxDistb=1000, cam=2, rep=1, trial=1)
+                       maxDistb=1000, cam=2, rep=2, trial=1)
           write.csv(DR2T1C2, "Rep2Trial1Cam2RawData.csv")
 
 DR2T2C1 <- VidAnalysis(video=R2T2C1, bg= bgcRB, coordtab=CoTbR2T2C1, thresholda=50, 
-                       maxDistb=1000, cam=1, rep=1, trial=1)
+                       maxDistb=1000, cam=1, rep=2, trial=2)
            write.csv(DR2T2C1, "Rep2Trial2Cam1RawData.csv")
 
 DR2T2C2 <- VidAnalysis(video=R2T2C2, bg= bgdRB, coordtab=CoTbR2T2C2, thresholda=50, 
-                       maxDistb=1000, cam=1, rep=1, trial=1)
+                       maxDistb=1000, cam=2, rep=2, trial=2)
            write.csv(DR2T2C2, "Rep2Trial2Cam2RawData.csv")
 
 DR2T3C1 <- VidAnalysis(video=R2T3C1, bg= bgeRB, coordtab=CoTbR2T3C1, thresholda=50, 
-                       maxDistb=1000, cam=1, rep=1, trial=1)
+                       maxDistb=1000, cam=1, rep=2, trial=3)
            write.csv(DR2T3C1, "Rep2Trial3Cam1RawData.csv")
 
-DR2T3C2 <- VidAnalysis(video=R2T3C1, bg= bgfRB, coordtab=CoTbR2T3C2, thresholda=50, 
-                       maxDistb=1000, cam=1, rep=1, trial=1)
+DR2T3C2 <- VidAnalysis(video=R2T3C2, bg= bgfRB, coordtab=CoTbR2T3C2, thresholda=50, 
+                       maxDistb=1000, cam=2, rep=2, trial=3)
           write.csv(DR2T3C2, "Rep2Trial3Cam2RawData.csv")
-# 
+
+
 # DR2T4C1 <- VidAnalysis(video=R2T4C1, bg= bgeRB, coordtab=CoTbR2T4C1, thresholda=50, 
-#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#                        maxDistb=1000, cam=1, rep=2, trial=4)
 #            write.csv(DR2T4C1, "Rep2Trial4Cam1RawData.csv")
 # 
 # DR2T4C2 <- VidAnalysis(video=R2T4C1, bg= bgfRB, coordtab=CoTbR2T4C2, thresholda=50, 
-#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#                        maxDistb=1000, cam=2, rep=2, trial=4)
 #            write.csv(DR2T4C2, "Rep2Trial4Cam2RawData.csv")
 # 
 # DR2T5C1 <- VidAnalysis(video=R2T5C1, bg= bgeRB, coordtab=CoTbR2T5C1, thresholda=50, 
-#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#                        maxDistb=1000, cam=1, rep=2, trial=5)
 #            write.csv(DR2T5C1, "Rep2Trial5Cam1RawData.csv")
 # 
 # DR2T5C2 <- VidAnalysis(video=R2T5C1, bg= bgfRB, coordtab=CoTbR2T5C2, thresholda=50, 
-#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#                        maxDistb=1000, cam=2, rep=2, trial=5)
 #            write.csv(DR2T5C2, "Rep2Trial5Cam2RawData.csv")
 # 
 # DR2T6C1 <- VidAnalysis(video=R2T6C1, bg= bgeRB, coordtab=CoTbR2T6C1, thresholda=50, 
-#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#                        maxDistb=1000, cam=1, rep=2, trial=6)
 #           write.csv(DR2T6C1, "Rep2Trial6Cam1RawData.csv")
 # 
 # DR2T6C2 <- VidAnalysis(video=R2T6C1, bg= bgfRB, coordtab=CoTbR2T6C2, thresholda=50, 
-#                        maxDistb=1000, cam=1, rep=1, trial=1)
+#                        maxDistb=1000, cam=2, rep=2, trial=6)
 #            write.csv(DR2T6C2, "Rep2Trial6Cam2RawData.csv")
 
 ######################################################################
@@ -776,118 +780,118 @@ DR2T2C1 <- read.csv("Rep2Trial2Cam1RawData.csv")
 DR2T2C2 <- read.csv("Rep2Trial2Cam2RawData.csv")
 DR2T3C1 <- read.csv("Rep2Trial3Cam1RawData.csv")
 DR2T3C2 <- read.csv("Rep2Trial3Cam2RawData.csv")
-DR2T4C1 <- read.csv("Rep2Trial4Cam1RawData.csv")
-DR2T4C2 <- read.csv("Rep2Trial4Cam2RawData.csv")
-DR2T5C1 <- read.csv("Rep2Trial5Cam1RawData.csv")
-DR2T5C2 <- read.csv("Rep2Trial5Cam2RawData.csv")
-DR2T6C1 <- read.csv("Rep2Trial6Cam1RawData.csv")
-DR2T6C2 <- read.csv("Rep2Trial6Cam2RawData.csv")
+# DR2T4C1 <- read.csv("Rep2Trial4Cam1RawData.csv")
+# DR2T4C2 <- read.csv("Rep2Trial4Cam2RawData.csv")
+# DR2T5C1 <- read.csv("Rep2Trial5Cam1RawData.csv")
+# DR2T5C2 <- read.csv("Rep2Trial5Cam2RawData.csv")
+# DR2T6C1 <- read.csv("Rep2Trial6Cam1RawData.csv")
+# DR2T6C2 <- read.csv("Rep2Trial6Cam2RawData.csv")
+
 ######################################################################
 
 #Combing ALL THE DATA TABLES?
-CompVidRep2<-rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
-               DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
+CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2)
+             #  DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
+#Combine all Coordinate tables
+CoorMaster <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2)
 
 #write.csv( CompVid,"CompiledRawVideoData.csv")
 ####create function that takes in data set and adds quadrant assignments
     #determine if bug is above or below line (differnet from predicted y)
-Assign<-function(VidData, CoordData, trayData){    
-    belowa <- which((VidData$y) <  (VidData$pred1))
-    abovea <- which((VidData$y) >= (VidData$pred1))
-    belowb <- which((VidData$y) <  (VidData$pred2))
-    aboveb <- which((VidData$y) >= (VidData$pred2))
-    
-    NegSlope <- which(CoordData$TPX <  CoordData$BPX )
-    PosSlope <- which(CoordData$TPX >= CoordData$BPX )
-    
-    negs<-which(is.na(match(NegSlope, VidData$trayn))==FALSE)
-    poss<-which(is.na(match(PosSlope, VidData$trayn))==FALSE)
-    
-# Determine Quadrants #change depending on slope of verticle line
-# In cases of positive slopes
-VidData$quad<-NA
-VidData$quad[intersect( poss, (intersect(belowa,aboveb)))]<-1
-VidData$quad[intersect( poss, (intersect(abovea,aboveb)))]<-4
-VidData$quad[intersect( poss, (intersect(belowa,belowb)))]<-2
-VidData$quad[intersect( poss, (intersect(abovea,belowb)))]<-3
-VidData$quad[intersect( negs, (intersect(abovea,aboveb)))]<-1
-VidData$quad[intersect( negs, (intersect(belowa,aboveb)))]<-4
-VidData$quad[intersect( negs, (intersect(abovea,belowb)))]<-2
-VidData$quad[intersect( negs, (intersect(belowa,belowb)))]<-3
-      
-###Create function that determines which quadrants have pesticide
-for (i in 1:length(VidData$quad)){
-   r <- which(trayData$Repetition==VidData$rep[i])
-   t <- which(trayData$Trial==VidData$trial[i])
-   p <- which(trayData$Position==VidData$position[i])
-   id <- intersect( p, intersect(r, t))
-
-    VidData$DishID[i] <- trayData$DishID[id]
-    VidData$Orientation[i] <- trayData$Orientation[id]
-  
-  #there has to be a better way to do this
-    one   <- c(1,2,3,4)
-    two   <- c(2,3,4,1)
-    three <- c(3,4,1,2)
-    four  <- c(4,1,2,3)
-    OTab  <- data.frame(one, two, three, four)
-    Or    <- which(OTab$one==VidData$Orientation[i])
-  VidData$PQuad[i] <- OTab[Or, VidData$quad[i]]
-  #I'm pretty sure the above 7 lines could be two.
-  }
-
-  uno <- which(VidData$PQuad==1)  
-  dos <- which(VidData$PQuad==2)  
-  tres <- which(VidData$PQuad==3)  
-  cuatro <- which(VidData$PQuad==4)  
-  PTrays <- which(VidData$DishID <=6)
-
-  VidData$Pesticide<-NA
-  VidData$Pesticide[intersect( PTrays, uno)] <- 0
-  VidData$Pesticide[intersect( PTrays, dos)] <- 1
-  VidData$Pesticide[intersect( PTrays, tres)] <- 0
-  VidData$Pesticide[intersect( PTrays, cuatro)] <- 1
-  
-  return(VidData)
-
-}
+# Assign<-function(VidData, CoordData, trayData){    
+#     belowa <- which((VidData$y) <  (VidData$pred1))
+#     abovea <- which((VidData$y) >= (VidData$pred1))
+#     belowb <- which((VidData$y) <  (VidData$pred2))
+#     aboveb <- which((VidData$y) >= (VidData$pred2))
+#     
+#     NegSlope <- which(CoordData$TPX <  CoordData$BPX )
+#     PosSlope <- which(CoordData$TPX >= CoordData$BPX )
+#     
+#     negs<-which(is.na(match(NegSlope, VidData$trayn))==FALSE)
+#     poss<-which(is.na(match(PosSlope, VidData$trayn))==FALSE)
+#     
+# # Determine Quadrants #change depending on slope of verticle line
+# # In cases of positive slopes
+# VidData$quad<-NA
+# VidData$quad[intersect( poss, (intersect(belowa,aboveb)))]<-1
+# VidData$quad[intersect( poss, (intersect(abovea,aboveb)))]<-4
+# VidData$quad[intersect( poss, (intersect(belowa,belowb)))]<-2
+# VidData$quad[intersect( poss, (intersect(abovea,belowb)))]<-3
+# VidData$quad[intersect( negs, (intersect(abovea,aboveb)))]<-1
+# VidData$quad[intersect( negs, (intersect(belowa,aboveb)))]<-4
+# VidData$quad[intersect( negs, (intersect(abovea,belowb)))]<-2
+# VidData$quad[intersect( negs, (intersect(belowa,belowb)))]<-3
+#       
+# ###Create function that determines which quadrants have pesticide
+# for (i in 1:length(VidData$quad)){
+#    r <- which(trayData$Repetition==VidData$rep[i])
+#    t <- which(trayData$Trial==VidData$trial[i])
+#    p <- which(trayData$Position==VidData$position[i])
+#    id <- intersect( p, intersect(r, t))
+# 
+#     VidData$DishID[i] <- trayData$DishID[id]
+#     VidData$Orientation[i] <- trayData$Orientation[id]
+#   
+#   #there has to be a better way to do this
+#     one   <- c(1,2,3,4)
+#     two   <- c(2,3,4,1)
+#     three <- c(3,4,1,2)
+#     four  <- c(4,1,2,3)
+#     OTab  <- data.frame(one, two, three, four)
+#     Or    <- which(OTab$one==VidData$Orientation[i])
+#   VidData$PQuad[i] <- OTab[Or, VidData$quad[i]]
+#   #I'm pretty sure the above 7 lines could be two.
+#   }
+# 
+#   uno <- which(VidData$PQuad==1)  
+#   dos <- which(VidData$PQuad==2)  
+#   tres <- which(VidData$PQuad==3)  
+#   cuatro <- which(VidData$PQuad==4)  
+#   PTrays <- which(VidData$DishID <=6)
+# 
+#   VidData$Pesticide<-NA
+#   VidData$Pesticide[intersect( PTrays, uno)] <- 0
+#   VidData$Pesticide[intersect( PTrays, dos)] <- 1
+#   VidData$Pesticide[intersect( PTrays, tres)] <- 0
+#   VidData$Pesticide[intersect( PTrays, cuatro)] <- 1
+#   
+#   return(VidData)
+# 
+# }
 
 
 #=============
-tryit<-Assign(VidData = DR1T1C2, CoordData = CoTbR1T1C2, trayData = TrayPlace)
+#tryit<-Assign(VidData = CompVidRep2, CoordData = CoTbR1T1C2, trayData = TrayPlace)
 
-  belowa <- which((DR1T1C2$y) <  (DR1T1C2$pred1))
-  abovea <- which((DR1T1C2$y) >= (DR1T1C2$pred1))
-  belowb <- which((DR1T1C2$y) <  (DR1T1C2$pred2))
-  aboveb <- which((DR1T1C2$y) >= (DR1T1C2$pred2))
+  belowa <- which((CompVidRep2$y) <  (CompVidRep2$pred1))
+  abovea <- which((CompVidRep2$y) >= (CompVidRep2$pred1))
+  belowb <- which((CompVidRep2$y) <  (CompVidRep2$pred2))
+  aboveb <- which((CompVidRep2$y) >= (CompVidRep2$pred2))
   
-  NegSlope <- which(CoTbR1T1C2$TPX <  CoTbR1T1C2$BPX )
-  PosSlope <- which(CoTbR1T1C2$TPX >= CoTbR1T1C2$BPX )
-  
-  negs<-which(is.na(match(DR1T1C2$trayn, NegSlope))==FALSE)
-  poss<-which(is.na(match(DR1T1C2$trayn, PosSlope))==FALSE)
-  
+  NegSlope <- which(CompVidRep2$TPX <  CompVidRep2$BPX )
+  PosSlope <- which(CompVidRep2$TPX >= CompVidRep2$BPX )
+
   # Determine Quadrants #change depending on slope of verticle line
   # In cases of positive slopes
-DR1T1C2$quad<-NA
-DR1T1C2$quad[intersect( poss, (intersect(belowa,aboveb)))]<-1
-DR1T1C2$quad[intersect( poss, (intersect(abovea,aboveb)))]<-4
-DR1T1C2$quad[intersect( poss, (intersect(belowa,belowb)))]<-2
-DR1T1C2$quad[intersect( poss, (intersect(abovea,belowb)))]<-3
-DR1T1C2$quad[intersect( negs, (intersect(abovea,aboveb)))]<-1
-DR1T1C2$quad[intersect( negs, (intersect(belowa,aboveb)))]<-4
-DR1T1C2$quad[intersect( negs, (intersect(abovea,belowb)))]<-2
-DR1T1C2$quad[intersect( negs, (intersect(belowa,belowb)))]<-3
+CompVidRep2$quad<-NA
+CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,aboveb)))]<-1
+CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,aboveb)))]<-4
+CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,belowb)))]<-2
+CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,belowb)))]<-3
+CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,aboveb)))]<-1
+CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,aboveb)))]<-4
+CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,belowb)))]<-2
+CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,belowb)))]<-3
   
   ###Create function that determines which quadrants have pesticide
-  for (i in 1:length(DR1T1C2$quad)) {
-    r <- which(TrayPlace$Repetition==DR1T1C2$rep[i])
-    t <- which(TrayPlace$Trial==DR1T1C2$trial[i])
-    p <- which(TrayPlace$Position==DR1T1C2$position[i])
+  for (i in 1:length(CompVidRep2$quad)) {
+    r <- which(TrayPlace$Repetition==CompVidRep2$rep[i])
+    t <- which(TrayPlace$Trial==CompVidRep2$trial[i])
+    p <- which(TrayPlace$Position==CompVidRep2$position[i])
     id <- intersect( p, intersect(r, t))
     
-    DR1T1C2$DishID[i] <- TrayPlace$DishID[id]
-    DR1T1C2$Orientation[i] <- TrayPlace$Orientation[id]
+    CompVidRep2$DishID[i] <- TrayPlace$DishID[id]
+    CompVidRep2$Orientation[i] <- TrayPlace$Orientation[id]
     
     #there has to be a better way to do this
     one   <- c(1,2,3,4)
@@ -895,20 +899,19 @@ DR1T1C2$quad[intersect( negs, (intersect(belowa,belowb)))]<-3
     three <- c(3,4,1,2)
     four  <- c(4,1,2,3)
     OTab  <- data.frame(one, two, three, four)
-    Or    <- which(OTab$one==DR1T1C2$Orientation[i])
-    DR1T1C2$PQuad[i] <- OTab[Or, DR1T1C2$Orientation[i]]
+    Or    <- which(OTab$one==CompVidRep2$Orientation[i])
+    CompVidRep2$PQuad[i] <- OTab[Or, CompVidRep2$Orientation[i]]
     #I'm pretty sure the above 7 lines could be two.
   }
   
-  uno <- which(DR1T1C2$PQuad==1)  
-  dos <- which(DR1T1C2$PQuad==2)  
-  tres <- which(DR1T1C2$PQuad==3)  
-  cuatro <- which(DR1T1C2$PQuad==4)  
-  PTrays<- which(VidData$DishID <=6)
+  uno <- which(CompVidRep2$PQuad==1)  
+  dos <- which(CompVidRep2$PQuad==2)  
+  tres <- which(CompVidRep2$PQuad==3)  
+  cuatro <- which(CompVidRep2$PQuad==4)  
+  PTrays<- which(CompVidRep2$DishID <=6)
 
-DR1T1C2$Pesticide <- NA  
-DR1T1C2$Pesticide[uno] <- 0
-DR1T1C2$Pesticide[intersect( PTrays, dos)] <- 1
-DR1T1C2$Pesticide[tres] <- 0
-DR1T1C2$Pesticide[intersect( PTrays, cuatro)] <- 1
-}
+CompVidRep2$Pesticide <- NA  
+CompVidRep2$Pesticide[uno] <- 0
+CompVidRep2$Pesticide[intersect( PTrays, dos)] <- 1
+CompVidRep2$Pesticide[tres] <- 0
+CompVidRep2$Pesticide[intersect( PTrays, cuatro)] <- 1
