@@ -168,9 +168,9 @@ tracks[1:pos, ]
 
 ###Set Working Directory
 #lab computer
-setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 #Justin's Computer
-#setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 #Gian Franco's
 #setwd(".../Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
@@ -419,25 +419,37 @@ getpoint<-function(frame){
   }
 
 #Repeat the above code to find the points and 
+<<<<<<< Updated upstream
 #manually enter them in2the dataframes below.
 tester<-getpoint(FR1T2C1)
 tester
+=======
+#manually enter them in the dataframes below.
+tester<-getpoint(FR1T1C1)
+tester #[1] "x-coord" "y-coord"
+>>>>>>> Stashed changes
 
 
 ###Create tables
 #Video FR1T1C1
 #Note that if X coords for TP and BP are exactly equal, it may create errors.
+
+
 # Tray<-c(1,2,3,4,5,6)
-# aMXL <-c(,,,,,)
-# aMXR <-c(,,,,,)
-# aMYT <-c(,,,,,)
-# aMYB <-c(,,,,,)
+# aMXL <-c(169,351,519,169,351,519)
+# aMXR <-c(351,519,704,351,519,704)
+# aMYT <-c(436,436,436,242,242,242)
+# aMYB <-c(242,242,242,71,71,71)
+
 # aTPX <-c(,,,,,)
 # aTPY <-c(,,,,,)
+
 # aBPX <-c(,,,,,)
 # aBPY <-c(,,,,,)
+
 # aLPX <-c(,,,,,)
 # aLPY <-c(,,,,,)
+
 # aRPX <-c(,,,,,)
 # aRPY <-c(,,,,,)
 # #c(,,,,,)
@@ -447,6 +459,8 @@ tester
 # #rename so that colums can be found in function
 # names(CoTbR1T1C1)<-c(Tray,MXL, MXR, MYT, MYB, BPX, BPY, TPX, TPY, 
 #                      RPX, RPY, LPX, LPY)
+
+###############################################################################
 
 #Video FR1T1C2
 #tray number
@@ -480,6 +494,36 @@ CoTbR1T1C2<-data.frame(Tray, bMXL, bMXR, bMYT, bMYB, bBPX, bBPY, bTPX, bTPY,
 #rename so values are easily called in loop or function
 names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
+CoTbR1T1C2
+ imshow(FR1T1C2)
+  points(CoTbR1T1C2$TPX,CoTbR1T1C2$TPY)
+
+###############################################################################
+# Video FR1T2C1
+# Tray<-c(1,2,3,4,5,6)
+# aMXL <-c(,,,,,)
+# aMXR <-c(,,,,,)
+# aMYT <-c(,,,,,)
+# aMYB <-c(,,,,,)
+
+# aTPX <-c(,,,,,)
+# aTPY <-c(,,,,,)
+
+# aBPX <-c(,,,,,)
+# aBPY <-c(,,,,,)
+
+# aLPX <-c(,,,,,)
+# aLPY <-c(,,,,,)
+
+# aRPX <-c(,,,,,)
+# aRPY <-c(,,,,,)
+# #c(,,,,,)
+# #create a coordinate table
+# CoTbR1T1C1<-data.frame(Tray, aMXL, aMXR, aMYT, aMYB, aBPX, aBPY, aTPX, aTPY, 
+#                        aRPX, aRPY, aLPX, aLPY)
+# #rename so that colums can be found in function
+# names(CoTbR1T1C1)<-c(Tray,MXL, MXR, MYT, MYB, BPX, BPY, TPX, TPY, 
+#                      RPX, RPY, LPX, LPY)
 
 visualize<-function(CD, frame){
   imshow(frame)

@@ -50,8 +50,11 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
       } else {
         fr<-1800
       }
+    
     bugpos <- NULL
-    bugpos<-data.frame()
+    bugpos <- data.frame()
+    
+    #loop to put data in bugpos
     for (i in 1:fr){
      #extract individual frames
      res<-getFrame(video, i) 
@@ -67,7 +70,7 @@ VidAnalysis<-function(video, coordtab, thresholda, maxDistb){
      bugcords<-blobDetector(bw) 
      # add track # to data frame
         if(nrow(bugcords)>0) {
-          bugcords<-mutate(bugcords, frame = i, track = NA) 
+          bugcords<-mutate(bugcords, frame = i, track = NA) #blobs for one frame
       #determines what points are linked. Optimally each insect given 1 track each
       #because there is only one object, we can max out maxDist. 
           stout<-simpleTracker(past = bugpos, current = bugcords, maxDist = maxDista) 
