@@ -419,21 +419,13 @@ getpoint<-function(frame){
   }
 
 #Repeat the above code to find the points and 
-<<<<<<< Updated upstream
 #manually enter them in2the dataframes below.
 tester<-getpoint(FR1T2C1)
 tester
-=======
-#manually enter them in the dataframes below.
-tester<-getpoint(FR1T1C1)
-tester #[1] "x-coord" "y-coord"
->>>>>>> Stashed changes
-
 
 ###Create tables
 #Video FR1T1C1
 #Note that if X coords for TP and BP are exactly equal, it may create errors.
-
 
 # Tray<-c(1,2,3,4,5,6)
 # aMXL <-c(169,351,519,169,351,519)
@@ -537,34 +529,31 @@ visualize<-function(CD, frame){
   }
 }
 
-visualize(frame = FR1T1C2, CD=CoTbR1T1C2)
-visualize(frame = FR1T2C1, CD=CoTbR1T2C1)
-####Bring in Frames coordinate tables
-
+#### Bring in Frames coordinate tables
 #REP 1
 CoTbR1T1C1 <- read.csv("CoTbR1T1C1.csv")
 CoTbR1T1C2 <- read.csv("CoTbR1T1C1.csv")
 CoTbR1T2C1 <- read.csv("CoTbR1T2C1.csv")
 
 #REP 2
-CoTbR2T1C1 <- read.csv("CoTbR1T1C1.csv")
-CoTbR2T1C2 <- read.csv("CoTbR1T1C2.csv")
-CoTbR2T2C1 <- read.csv("CoTbR1T2C1.csv")
-CoTbR2T2C2 <- read.csv("CoTbR1T2C2.csv")
-CoTbR2T3C1 <- read.csv("CoTbR1T3C1.csv")
-CoTbR2T3C2 <- read.csv("CoTbR1T3C2.csv")
-# CoTbR2T4C1 <- read.csv("CoTbR1T4C1.csv")
-# CoTbR2T4C2 <- read.csv("CoTbR1T4C2.csv")
-# CoTbR2T5C1 <- read.csv("CoTbR1T5C1.csv")
-# CoTbR2T5C2 <- read.csv("CoTbR1T5C2.csv")
-# CoTbR2T6C1 <- read.csv("CoTbR1T6C1.csv")
-# CoTbR2T6C2 <- read.csv("CoTbR1T6C2.csv")
+CoTbR2T1C1 <- read.csv("CoTbR2T1C1.csv")
+CoTbR2T1C2 <- read.csv("CoTbR2T1C2.csv")
+CoTbR2T2C1 <- read.csv("CoTbR2T2C1.csv")
+CoTbR2T2C2 <- read.csv("CoTbR2T2C2.csv")
+CoTbR2T3C1 <- read.csv("CoTbR2T3C1.csv")
+CoTbR2T3C2 <- read.csv("CoTbR2T3C2.csv")
+CoTbR2T4C1 <- read.csv("CoTbR2T4C1.csv")
+CoTbR2T4C2 <- read.csv("CoTbR2T4C2.csv")
+CoTbR2T5C1 <- read.csv("CoTbR2T5C1.csv")
+CoTbR2T5C2 <- read.csv("CoTbR2T5C2.csv")
+CoTbR2T6C1 <- read.csv("CoTbR2T6C1.csv")
+CoTbR2T6C2 <- read.csv("CoTbR2T6C2.csv")
 
 ###############################################################################
 #create background.  Do this step only once
 bga <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 bgb <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE) 
+# bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE) 
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 # <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
@@ -836,8 +825,6 @@ DR2T3C2 <- read.csv("Rep2Trial3Cam2RawData.csv")
 #Combing ALL THE DATA TABLES?
 CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2)
              #  DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
-#Combine all Coordinate tables
-CoorMaster <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2)
 
 #write.csv( CompVid,"CompiledRawVideoData.csv")
 ####create function that takes in data set and adds quadrant assignments
@@ -948,11 +935,11 @@ CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,belowb)))]<-3
     #I'm pretty sure the above 7 lines could be two.
   }
   
-  uno <- which(CompVidRep2$PQuad==1)  
-  dos <- which(CompVidRep2$PQuad==2)  
-  tres <- which(CompVidRep2$PQuad==3)  
-  cuatro <- which(CompVidRep2$PQuad==4)  
-  PTrays<- which(CompVidRep2$DishID <=6)
+  uno <- which(CompVidRep2$PQuad == 1)  
+  dos <- which(CompVidRep2$PQuad == 2)  
+  tres <- which(CompVidRep2$PQuad == 3)  
+  cuatro <- which(CompVidRep2$PQuad == 4)  
+  PTrays<- which(CompVidRep2$DishID <= 6)
 
 CompVidRep2$Pesticide <- NA  
 CompVidRep2$Pesticide[uno] <- 0
