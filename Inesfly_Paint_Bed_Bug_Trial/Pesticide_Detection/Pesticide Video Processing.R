@@ -1,9 +1,9 @@
 #WARNING: DO NOT CHANGE QUARTZ WINDOW DIMENSIONS DURING ANALYSIS
 
-###Code for video tracking
-#To determine if bed bugs can detect pesticides.
+########### Code for video tracking ###########
+# To determine if bed bugs can detect pesticides.
 
-###Install Packages and open libraries.
+########### Install Packages and open libraries ###########
 #Install VideoPlayR
 # if (!require(devtools)) {
 #   install.packages("devtools")
@@ -25,7 +25,7 @@ library(shiny)
 library(splancs)
 library(grid)
 
-##Simple Tracker (package not available for new R)
+########### Simple Tracker (package not available for new R) ###########
 ##Skip to line  163--figure out how to source this code to save space
 pdiff <- function(a, b) {
   nr <- length(a)
@@ -166,7 +166,7 @@ if (progress) {
 tracks[1:pos, ]
 }
 
-###Set Working Directory
+########### Set Working Directory ###########
 #lab computer
 #setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 #Justin's Computer
@@ -174,8 +174,7 @@ setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Tria
 #Gian Franco's
 #setwd(".../Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
-
-#bring in video(s)
+########### Bring in video(s) ###########
 #marchpilot <- readVid("MarchPilot.mp4")
 
 #Import Videos for First Repetition
@@ -219,27 +218,11 @@ R2T5C2<- readVid("R2T5C2.mp4")
 R2T6C1<- readVid("R2T6C1.mp4")
 R2T6C2<- readVid("R2T6C2.mp4")
 
-#Install Data Tables with times, dates, humidity
-#and quadrant assignments.
+########### Input Data Tables with times, dates, humidity as TrayPlace ###########
+########### and quadrant assignments.
 TrayPlace<- read.csv("TraysRep1y2.csv")
 
 ###############################################################################
-###Begin developing code.
-#Look at Simon's code from twitter
-#############################
-# #Simon's code from twitter
-# for (i in 1:vid$length){
-#   res<-getFrame(vid, i) %>%
-#     ddd2d() %>%
-#   blend(mask, "*") %>%
-#   blend(bg, ., "-") %>%
-#     thresholding(30, "binary") %>%
-#     blobDetector() %>%
-#   dplyr::mutate(frame = i, track = NA) %>%
-#   simpleTracker(past = res, lookBack= 60, maxDist= 10) %>%
-#   rbind(res, .)
-# }
-
 
 ##see what Simon Garnier's loop is doing by taking only 1 frame
 #  rev<-getFrame(pilotvidr1, 5)
@@ -254,205 +237,65 @@ TrayPlace<- read.csv("TraysRep1y2.csv")
 #  stoutx<-simpleTracker(bcoutputx, past=bugpos, maxDist= 10)
 #  bugpos<- rbind(bugpos, stoutx)
 
-
-###############################################################################
-#March Bug Pilot Analysis works for 1 quadrant.  
-#Uncomment and Run this code to 327 to see it work.
-
-# #create the background
-# mbg <- backgrounder(marchpilot, n = 100, method = "mean", color = FALSE)
-# #create a blank data frame for loop output
-# marbugpos <- data.frame()
-# 
-# ###Each quadrant will have to build upon
-# #Quadrant 2
-# mmat <- matrix(0, nrow = mbg$dim[1], ncol = mbg$dim[2])
-# #sadly, for each dish we need to define the area by hand.
-# mmat[150:268, 370:480] <- 1
-# #go through matrix and ask if it is in or out of the polygon
-# pmaskm <- (r2img(mmat))
-# #now bring the mask and the background together
-# nbgm<-blend(mbg, pmaskm, "*")
-# imshow(nbgm)
-# 
-# ###############################################################################
-# #Determine the coordinates for matrix and lines
-# 
-# #only want to use 1 hour. 1 hour is 1frame/sec*60 sec*60min=3600
-# for (i in 1:marchpilot$length){
-#   #extract individual frames
-#   res<-getFrame(marchpilot, i) 
-#   #put frame into grey scale.
-#   gryscl <- ddd2d(res) 
-#   #mask other petri dishes
-#   mask<-blend(gryscl, pmaskm, "*")
-#   #subtract background from the mask. Only movement will show 
-#   sub<-blend(nbgm, mask, "-") 
-#   #set a threshold difference to remove changes due to glare/reflection
-#   bw<-thresholding(sub, 50, "binary")
-#   #detect the black blobs that are created. Get coordinates
-#   bugcords<-blobDetector(bw) 
-#   # add track # to data frame
-#   if(nrow(bugcords)>0) {
-#    bugcords<-mutate(bugcords, frame = i, track = NA) 
-#     #determines what points are linked. Optimally each insect given 1 track each
-#     #because there is only one object, we can max out maxDist. 
-#     stout<-simpleTracker(past = marbugpos, current = bugcords, maxDist=1000) 
-#     #combine tables previous in the loop.
-#    marbugpos<- rbind(marbugpos, stout)
-#   }
-#   #do we want to add an else value? idk if it will mess up simpleTracker
-# }
-# 
-# #Now that we have the coordinates
-# ###Now define the border between control and pesticide
-# imshow(nbgm)
-# ya<-c(224,320)
-# xa<-c(423,421)  
-# lines(xa,ya, col= "red",lwd = 1)
-# 
-# # #In the future I will need to do the same thing in x chord.
-#  yb<-c(272,272) #96
-#  xb<-c(375,471)  
-#  lines(xb,yb, col= "red",lwd = 1)
-# 
-# #generate line equation
-# line1a<-lm(ya~xa)
-# line1b<-lm(yb~xb)
-# 
-# newsa<-data.frame(xa = marbugpos$x)
-# newsb<-data.frame(xb = marbugpos$x)
-# marbugpos$pred1 <- predict(line1a, newsa, na.rm=TRUE)
-# marbugpos$pred2 <- predict(line1b, newsb, na.rm=TRUE)
-# 
-# #determine if y of bug is above or below line (differnet from predicted y)
-# belowa<-which(marbugpos$y<marbugpos$pred1)
-# abovea<-which(marbugpos$y>=marbugpos$pred1)
-# marbugpos$yse1[above]<-1
-# marbugpos$ysem[below]<-0
-# 
-# belowb<-which(marbugpos$y<marbugpos$pred2)
-# aboveb<-which(marbugpos$y>=marbugpos$pred2)
-# marbugpos$xsem[above]<-1
-# marbugpos$xsem[below]<-0
-# 
-# #bind for quadrant specs
-# marbugpos$quad[intersect(abovea,aboveb)]<-1
-# marbugpos$quad[intersect(abovea,belowb)]<-2
-# marbugpos$quad[intersect(belowa,aboveb)]<-3
-# marbugpos$quad[intersect(belowa,belowb)]<-4
-# 
-# 
-# #For this example let say quadrants 1 and 4 have pesticide.
-# marbugpos$onpest[which(marbugpos$quad==1)]<-1
-# marbugpos$onpest[which(marbugpos$quad==2)]<-0
-# marbugpos$onpest[which(marbugpos$quad==3)]<-0
-# marbugpos$onpest[which(marbugpos$quad==4)]<-1
-# 
-# # #save output as a csv
-# # write.csv(marbugpos, "marchpilot_controldata.csv")
-# # 
-# # #plot the tracks
-# # pdf("marchpilot_controltrackplot.pdf")
-# # imshow(mbg)
-# # for(i in 1:length(marbugpos$track)){
-# #   lines(x=marbugpos$x[which(marbugpos$track==i)], y=marbugpos$y[which(marbugpos$track==i)], col=i)
-# # }
-# # dev.off()
-# 
 # ###############################################################################
 # ####====FULL_VIDS==============================================================
-###
-#Get a frames from each video in order to find coordinates
 
+# Get a frames from each video in order to find coordinates
 #Cam 1 for Repetition 1 videos has recording error 
 #Error with duplicate and skipped frames
-FR1T1C1 <- getFrame(R1T1C1, 5)
-#FR1T1C16 <- getFrame(R1T1C1, 10)
-imshow(FR1T1C1)
-imshow(FR1T1C16)
 
-FR1T1C2 <- getFrame(R1T1C2, 5)
-FR1T2C1 <- getFrame(R1T2C1, 5)
-FR1T2C2 <- getFrame(R1T2C2, 5)
-FR1T3C1 <- getFrame(R1T3C1, 5)
-FR1T3C2 <- getFrame(R1T3C2, 5)
-FR1T4C1 <- getFrame(R1T4C1, 5)
-FR1T4C2 <- getFrame(R1T4C2, 5)
-FR1T5C1 <- getFrame(R1T5C1, 5)
-FR1T5C2 <- getFrame(R1T5C2, 5)
-FR1T6C1 <- getFrame(R1T6C1, 5)
-FR1T6C2 <- getFrame(R1T6C2, 5)
+# #Repetition 1 Frame 5
+# FR1T1C1 <- getFrame(R1T1C1, 5)
+# FR1T1C2 <- getFrame(R1T1C2, 5)
+# FR1T2C1 <- getFrame(R1T2C1, 5)
+# FR1T2C2 <- getFrame(R1T2C2, 5)
+# FR1T3C1 <- getFrame(R1T3C1, 5)
+# FR1T3C2 <- getFrame(R1T3C2, 5)
+# FR1T4C1 <- getFrame(R1T4C1, 5)
+# FR1T4C2 <- getFrame(R1T4C2, 5)
+# FR1T5C1 <- getFrame(R1T5C1, 5)
+# FR1T5C2 <- getFrame(R1T5C2, 5)
+# FR1T6C1 <- getFrame(R1T6C1, 5)
+# FR1T6C2 <- getFrame(R1T6C2, 5)
 
-#Repetition 2 Frame 5
-FR2T1C1 <- getFrame(R2T1C1, 5)
-FR2T1C2 <- getFrame(R2T1C2, 5)
-FR2T2C1 <- getFrame(R2T2C1, 5)
-FR2T2C2 <- getFrame(R2T2C2, 5)
-FR2T3C1 <- getFrame(R2T3C1, 5)
-FR2T3C2 <- getFrame(R2T3C2, 5)
-FR2T4C1 <- getFrame(R2T4C1, 5)
-FR2T4C2 <- getFrame(R2T4C2, 5)
-FR2T5C1 <- getFrame(R2T5C1, 5)
-FR2T5C2 <- getFrame(R2T5C2, 5)
-FR2T6C1 <- getFrame(R2T6C1, 5)
-FR2T6C2 <- getFrame(R2T6C2, 5)
+# #Repetition 2 Frame 5
+# FR2T1C1 <- getFrame(R2T1C1, 5)
+# FR2T1C2 <- getFrame(R2T1C2, 5)
+# FR2T2C1 <- getFrame(R2T2C1, 5)
+# FR2T2C2 <- getFrame(R2T2C2, 5)
+# FR2T3C1 <- getFrame(R2T3C1, 5)
+# FR2T3C2 <- getFrame(R2T3C2, 5)
+# FR2T4C1 <- getFrame(R2T4C1, 5)
+# FR2T4C2 <- getFrame(R2T4C2, 5)
+# FR2T5C1 <- getFrame(R2T5C1, 5)
+# FR2T5C2 <- getFrame(R2T5C2, 5)
+# FR2T6C1 <- getFrame(R2T6C1, 5)
+# FR2T6C2 <- getFrame(R2T6C2, 5)
 
 #Function uses frame above to click and obtain coordinates. 
 #DO NOT CHANGE QUARTZ SIZE!!!
 
-getpoint<-function(frame){
-  rto <- frame$dim[1]/frame$dim[2]
-  print(rto)
-  ht<-rto*6
-  quartz(width=6, height=ht)
-  imshow(frame)
-  a<-grid.locator(unit = "npc")
-  gcx<-as.numeric(a$x)
-  gcy<-as.numeric(a$y)
-  X <- ceiling(gcx*frame$dim[2])
-  Y <- ceiling(gcy*frame$dim[1])
-  imshow(frame)
-  points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
-  coord<-c(X,Y)
-  output=coord
-  }
-
-#Repeat the above code to find the points and 
-#manually enter them in2the dataframes below.
-tester<-getpoint(FR1T2C1)
-tester
-
-###Create tables
-#Video FR1T1C1
-#Note that if X coords for TP and BP are exactly equal, it may create errors.
-
-# Tray<-c(1,2,3,4,5,6)
-# aMXL <-c(169,351,519,169,351,519)
-# aMXR <-c(351,519,704,351,519,704)
-# aMYT <-c(436,436,436,242,242,242)
-# aMYB <-c(242,242,242,71,71,71)
-
-# aTPX <-c(,,,,,)
-# aTPY <-c(,,,,,)
-
-# aBPX <-c(,,,,,)
-# aBPY <-c(,,,,,)
-
-# aLPX <-c(,,,,,)
-# aLPY <-c(,,,,,)
-
-# aRPX <-c(,,,,,)
-# aRPY <-c(,,,,,)
-# #c(,,,,,)
-# #create a coordinate table
-# CoTbR1T1C1<-data.frame(Tray, aMXL, aMXR, aMYT, aMYB, aBPX, aBPY, aTPX, aTPY, 
-#                        aRPX, aRPY, aLPX, aLPY)
-# #rename so that colums can be found in function
-# names(CoTbR1T1C1)<-c(Tray,MXL, MXR, MYT, MYB, BPX, BPY, TPX, TPY, 
-#                      RPX, RPY, LPX, LPY)
-
-###############################################################################
+# getpoint<-function(frame){
+#   rto <- frame$dim[1]/frame$dim[2]
+#   print(rto)
+#   ht<-rto*6
+#   quartz(width=6, height=ht)
+#   imshow(frame)
+#   a<-grid.locator(unit = "npc")
+#   gcx<-as.numeric(a$x)
+#   gcy<-as.numeric(a$y)
+#   X <- ceiling(gcx*frame$dim[2])
+#   Y <- ceiling(gcy*frame$dim[1])
+#   imshow(frame)
+#   points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
+#   coord<-c(X,Y)
+#   output=coord
+#   }
+# 
+# #Repeat the above code to find the points and 
+# #manually enter them in2the dataframes below.
+# tester<-getpoint(FR1T2C1)
+# tester
 
 #Video FR1T1C2
 #tray number
@@ -466,9 +309,9 @@ bMYT <-c(427, 427, 427, 238, 238, 238)
 #bottom matrix limit
 bMYB <-c(238, 238, 238,  59,  59,  59)
 
-#Top point of vericle line (X-Coord)
+#Top point of vertical line (X-Coord)
 bTPX <-c(258, 434, 608, 267, 439, 596)
-#Top point of verticle line (Y-Coord)
+#Top point of vertical line (Y-Coord)
 bTPY <-c(404, 406, 410, 224, 224, 219)
 #Bottom Point
 bBPX <-c(284, 439, 604, 276, 438, 601)
@@ -490,49 +333,23 @@ CoTbR1T1C2
  imshow(FR1T1C2)
   points(CoTbR1T1C2$TPX,CoTbR1T1C2$TPY)
 
-###############################################################################
-# Video FR1T2C1
-# Tray<-c(1,2,3,4,5,6)
-# aMXL <-c(,,,,,)
-# aMXR <-c(,,,,,)
-# aMYT <-c(,,,,,)
-# aMYB <-c(,,,,,)
-
-# aTPX <-c(,,,,,)
-# aTPY <-c(,,,,,)
-
-# aBPX <-c(,,,,,)
-# aBPY <-c(,,,,,)
-
-# aLPX <-c(,,,,,)
-# aLPY <-c(,,,,,)
-
-# aRPX <-c(,,,,,)
-# aRPY <-c(,,,,,)
-# #c(,,,,,)
-# #create a coordinate table
-# CoTbR1T1C1<-data.frame(Tray, aMXL, aMXR, aMYT, aMYB, aBPX, aBPY, aTPX, aTPY, 
-#                        aRPX, aRPY, aLPX, aLPY)
-# #rename so that colums can be found in function
-# names(CoTbR1T1C1)<-c(Tray,MXL, MXR, MYT, MYB, BPX, BPY, TPX, TPY, 
-#                      RPX, RPY, LPX, LPY)
-
-visualize<-function(CD, frame){
-  imshow(frame)
-  for(i in 1:6){
-    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
-    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
-    lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-    lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-    lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
-    lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
-  }
-}
+#########################
+# visualize<-function(CD, frame){
+#   imshow(frame)
+#   for(i in 1:6){
+#     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
+#     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
+#     lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+#     lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+#     lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
+#     lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
+#   }
+# }
 
 #### Bring in Frames coordinate tables
 #REP 1
 CoTbR1T1C1 <- read.csv("CoTbR1T1C1.csv")
-CoTbR1T1C2 <- read.csv("CoTbR1T1C1.csv")
+CoTbR1T1C2 <- read.csv("CoTbR1T1C2.csv")
 CoTbR1T2C1 <- read.csv("CoTbR1T2C1.csv")
 
 #REP 2
@@ -549,8 +366,7 @@ CoTbR2T5C2 <- read.csv("CoTbR2T5C2.csv")
 CoTbR2T6C1 <- read.csv("CoTbR2T6C1.csv")
 CoTbR2T6C2 <- read.csv("CoTbR2T6C2.csv")
 
-###############################################################################
-#create background.  Do this step only once
+############## Create background.  Do this step only once ################
 bga <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 bgb <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
 # bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE) 
@@ -585,23 +401,23 @@ bgfRB <- backgrounder(R2T3C2, n = 1800, method = "mean", color = FALSE)
 # bgkRB <- backgrounder(R2T6C1, n = 1800, method = "mean", color = FALSE)
 # bglRB <- backgrounder(R2T6C2, n = 1800, method = "mean", color = FALSE)
 
-#Takes in the video and coordinate table to 
-#output the coordinates of the insect in each frame for all 6 bugs
+# Takes in the video and coordinate table to 
+# output the coordinates of the insect in each frame for all 6 bugs
 VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial){
   #create the background
   #bg <- backgrounder(video, n = 1800, method = "mean", color = FALSE)
   
-  #create black masks to isolate each petridish using matrix
+  # Creates black masks over each petri dish, giving black 
   mat1 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
   mat2 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
   mat3 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
   mat4 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
   mat5 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
   mat6 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-  #create whole for each petridish in each mask
-  #sadly, for each dish we need to define the area by hand.
-  #mat works left to right, but top to bottom.  
-  #Graphing works bottom to top so we need correction
+  
+  # Create hole for each petri dish in each mask
+  # The matrix works left to right, BUT top to bottom.  
+  # Graphing works bottom to top so we need correction
   mat1[((bg$dim[1])-coordtab$MYT[1]):((bg$dim[1])-coordtab$MYB[1]),
        coordtab$MXL[1]:coordtab$MXR[1]] <- 1
   mat2[((bg$dim[1])-coordtab$MYT[2]):((bg$dim[1])-coordtab$MYB[2]),
@@ -615,7 +431,7 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
   mat6[((bg$dim[1])-coordtab$MYT[6]):((bg$dim[1])-coordtab$MYB[6]), 
        coordtab$MXL[6]:coordtab$MXR[6]] <- 1
   
-  #Make Mask Matrix into an image
+  # Make Mask Matrix into an image
   pmaska <- (r2img(mat1))
   pmaskb <- (r2img(mat2))
   pmaskc <- (r2img(mat3))
@@ -623,7 +439,7 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
   pmaske <- (r2img(mat5))
   pmaskf <- (r2img(mat6))
   
-  #now bring the mask and the background together
+  # Now bring the mask and the background together
   nbga1<-blend(bg, pmaska, "*")
   nbga2<-blend(bg, pmaskb, "*")
   nbga3<-blend(bg, pmaskc, "*")
@@ -631,18 +447,22 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
   nbga5<-blend(bg, pmaske, "*")
   nbga6<-blend(bg, pmaskf, "*")
   
-  #Create Function that finds the coordinate of the insect in each quadrant in each frame
+  #Coords fxn that finds the coordinate of the insect in each quadrant in each frame
   Coords<-function(video, pmask, nbga, coordtaba, tn, threshold, maxDista, rep, cam){
     #determine loop length
-#     if (video$length<1800) {
-#       fr <- video$length
-#     } else {
-#       fr<-1800
-#     }
-    #temporarily set fr to 20 to speed up code while debugging.
+    #     if (video$length<1800) {
+    #       fr <- video$length
+    #     } else {
+    #       fr<-1800
+    #     }
+    
+    # Temporarily set fr to 20 to speed up code while debugging.
     fr<-20
-    #Reset bugpos to blank data frame
+    
+    # Reset bugpos to blank data frame
     bugpos<-data.frame()
+    
+    # Looks at each video frame and finds the coordinates of each blob
     for (i in 1:fr){
       #extract individual frames
       res<-getFrame(video, i) 
@@ -650,12 +470,13 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
       gryscl <- ddd2d(res) 
       #mask other petri dishes
       mask<-blend(gryscl, pmask, "*")
-      #subtract background from the mask. Only movement will show 
+      #subtract background from the mask (previous image). Only movement will show 
       sub<-blend(nbga, mask, "-") 
       #set a threshold difference to remove changes due to glare/reflection/noise
       bw<-thresholding(sub, threshold, "binary")
       #detect the white blobs that are created. Get coordinates
-      bugcords<-blobDetector(bw) 
+      bugcords<-blobDetector(bw)
+      
       # add track # to data frame only if a change is detected
       if(nrow(bugcords)>0) {
         bugcords<-mutate(bugcords, frame = i, track = NA) 
@@ -666,51 +487,35 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
         bugpos<- rbind(bugpos, stout)
       }
     }
+    
+    # Defines the lines of the quadrants on the petri dish
     ya<-c(coordtaba$BPY[tn],coordtaba$TPY[tn])
-    xa<-c(coordtaba$BPX[tn],coordtaba$TPX[tn])  
-    
-    # #In the future I will need to do the same thing in x chord.
-    yb<-c(coordtaba$LPY[tn],coordtab$RPY[tn]) #96
+    xa<-c(coordtaba$BPX[tn],coordtaba$TPX[tn])   
+    yb<-c(coordtaba$LPY[tn],coordtab$RPY[tn])
     xb<-c(coordtaba$LPX[tn],coordtab$RPX[tn])  
-    
-    #generate line equation
     line1a<-lm(ya~xa)
     line1b<-lm(yb~xb)
     
-    #obtain data for prediction
+    ## Gives y value of line for given x of bug.
+    # Thus, we can see whether bug is above or below line.
     newsa<-data.frame(xa = bugpos$x)
     newsb<-data.frame(xb = bugpos$x)
-    #predict the location of line at specified location
     bugpos$pred1 <- predict(line1a, newsa, na.rm=TRUE)
     bugpos$pred2 <- predict(line1b, newsb, na.rm=TRUE)
     
+    # Finding whether the vertical line has positive or negative slope
     bugpos$TPX<-coordtaba$TPX[tn]
     bugpos$BPX<-coordtaba$BPX[tn]
-#     #determine if bug is above or below line (differnet from predicted y)
-#     belowa<-which((bugpos$y) <  (bugpos$pred1))
-#     abovea<-which((bugpos$y) >= (bugpos$pred1))
-#     belowb<-which((bugpos$y) <  (bugpos$pred2))
-#     aboveb<-which((bugpos$y) >= (bugpos$pred2))
-#     which()
-# # Determine Quadrants #change depending on slope of verticle line
-#     if((coordtab$TPX[tn]) > (coordtab$BPX[tn])) {
-#       bugpos$quad[intersect(belowa,aboveb)]<-1
-#       bugpos$quad[intersect(abovea,aboveb)]<-4
-#       bugpos$quad[intersect(belowa,belowb)]<-2
-#       bugpos$quad[intersect(abovea,belowb)]<-3
-#     } else {
-#       bugpos$quad[intersect(abovea,aboveb)]<-1
-#       bugpos$quad[intersect(belowa,aboveb)]<-4
-#       bugpos$quad[intersect(abovea,belowb)]<-2
-#       bugpos$quad[intersect(belowa,belowb)]<-3
-#     }
-    #indicate the tray in data table.
+    
+    # Indicate the tray in data table.
     bugpos$trayn<-tn
-    #return the data table.
+    
+    # Return the data table.
     return(bugpos)   
   }
-  
-  #Now run this subfunction over the 6 dishes  
+
+  # Now run this subfunction over the 6 dishes   
+  # e.g. pdt1 = bugpos for tray 1, location, regardless of camera 1 or camera 2
   pdt1 <-Coords(video, pmaska, nbga1, coordtaba=coordtab, tn=1, 
                 threshold=thresholda, maxDista=maxDistb)
   pdt2 <-Coords(video, pmaskb, nbga2, coordtaba=coordtab, tn=2, 
@@ -724,60 +529,60 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep, trial
   pdt6 <-Coords(video, pmaskf, nbga6, coordtaba=coordtab, tn=6, 
                 threshold=thresholda, maxDista=maxDistb)
   
-  #Bind All the tables
+  # Bind All the tables
   MasterTab<-rbind(pdt1, pdt2, pdt3, pdt4, pdt5, pdt6)
 
-  #indicate which camera this is
-  MasterTab$camera<-cam
-  #Indicate which repetition
-  MasterTab$rep<-rep
-  MasterTab$trial<-trial
-  MasterTab$position<-(MasterTab$trayn)+(6*(cam-1))
+  # Indicate which camera this is
+  MasterTab$camera <- cam
+  # Indicate which repetition
+  MasterTab$rep <- rep
+  MasterTab$trial <- trial
+  MasterTab$position <- (MasterTab$trayn)+(6*(cam-1))
 
-  
   #Output as single data table
   return(MasterTab)
 }
 
-###############################################################################
-#run 
-DR1T1C1 <- VidAnalysis(video=R1T1C1, bg= bga, coordtab=CoTbR1T1C1, thresholda=50, 
+######################################################
+######## Running VidAnalysis for all videos ##########
+
+#### Repetition 1
+DR1T1C1 <- VidAnalysis(video=R1T1C1, bg= bga, coordtab=CoTbR1T1C1, thresholda=25, 
                      maxDistb=1000, cam=1, rep=1, trial=1)
   #write.csv(DR1T1C1, "Rep1Trial1Cam1RawData.csv")
 
-DR1T1C2 <- VidAnalysis(video=R1T1C2, bg= bgb, coordtab=CoTbR1T1C2, thresholda=50, 
+DR1T1C2 <- VidAnalysis(video=R1T1C2, bg= bgb, coordtab=CoTbR1T1C2, thresholda=30, 
                      maxDistb=1000, cam=2, rep=1, trial=1)
   #write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
 
-DR1T2C1 <- VidAnalysis(video=R1T2C1, bg= bgc, coordtab=CoTbR1T2C1, thresholda=50, 
-                       maxDistb=1000, cam=1, rep=1, trial=1)
+DR1T2C1 <- VidAnalysis(video=R1T2C1, bg= bgc, coordtab=CoTbR1T2C1, thresholda=25, 
+                       maxDistb=1000, cam=1, rep=1, trial=2)
   #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
 
-###Rep2
-DR2T1C1 <- VidAnalysis(video=R2T1C1, bg= bgaRB, coordtab=CoTbR2T1C1, thresholda=50, 
+#### Repetition 2
+DR2T1C1 <- VidAnalysis(video=R2T1C1, bg= bgaRB, coordtab=CoTbR2T1C1, thresholda=25, 
                        maxDistb=1000, cam=1, rep=2, trial=1)
            write.csv(DR2T1C1, "Rep2Trial1Cam1RawData.csv")
 
-DR2T1C2 <- VidAnalysis(video=R2T1C2, bg= bgbRB, coordtab=CoTbR2T1C2, thresholda=50, 
+DR2T1C2 <- VidAnalysis(video=R2T1C2, bg= bgbRB, coordtab=CoTbR2T1C2, thresholda=30, 
                        maxDistb=1000, cam=2, rep=2, trial=1)
           write.csv(DR2T1C2, "Rep2Trial1Cam2RawData.csv")
 
-DR2T2C1 <- VidAnalysis(video=R2T2C1, bg= bgcRB, coordtab=CoTbR2T2C1, thresholda=50, 
+DR2T2C1 <- VidAnalysis(video=R2T2C1, bg= bgcRB, coordtab=CoTbR2T2C1, thresholda=25, 
                        maxDistb=1000, cam=1, rep=2, trial=2)
            write.csv(DR2T2C1, "Rep2Trial2Cam1RawData.csv")
 
-DR2T2C2 <- VidAnalysis(video=R2T2C2, bg= bgdRB, coordtab=CoTbR2T2C2, thresholda=50, 
+DR2T2C2 <- VidAnalysis(video=R2T2C2, bg= bgdRB, coordtab=CoTbR2T2C2, thresholda=30, 
                        maxDistb=1000, cam=2, rep=2, trial=2)
            write.csv(DR2T2C2, "Rep2Trial2Cam2RawData.csv")
 
-DR2T3C1 <- VidAnalysis(video=R2T3C1, bg= bgeRB, coordtab=CoTbR2T3C1, thresholda=50, 
+DR2T3C1 <- VidAnalysis(video=R2T3C1, bg= bgeRB, coordtab=CoTbR2T3C1, thresholda=25, 
                        maxDistb=1000, cam=1, rep=2, trial=3)
            write.csv(DR2T3C1, "Rep2Trial3Cam1RawData.csv")
 
-DR2T3C2 <- VidAnalysis(video=R2T3C2, bg= bgfRB, coordtab=CoTbR2T3C2, thresholda=50, 
+DR2T3C2 <- VidAnalysis(video=R2T3C2, bg= bgfRB, coordtab=CoTbR2T3C2, thresholda=30, 
                        maxDistb=1000, cam=2, rep=2, trial=3)
           write.csv(DR2T3C2, "Rep2Trial3Cam2RawData.csv")
-
 
 # DR2T4C1 <- VidAnalysis(video=R2T4C1, bg= bgeRB, coordtab=CoTbR2T4C1, thresholda=50, 
 #                        maxDistb=1000, cam=1, rep=2, trial=4)
@@ -807,12 +612,13 @@ DR2T3C2 <- VidAnalysis(video=R2T3C2, bg= bgfRB, coordtab=CoTbR2T3C2, thresholda=
 ###The Code below should be able to be used on a PC
 
 #If running from PC run these codes
-DR2T1C1 <- read.csv("Rep2Trial1Cam1RawData.csv")
-DR2T1C2 <- read.csv("Rep2Trial1Cam2RawData.csv")
-DR2T2C1 <- read.csv("Rep2Trial2Cam1RawData.csv")
-DR2T2C2 <- read.csv("Rep2Trial2Cam2RawData.csv")
-DR2T3C1 <- read.csv("Rep2Trial3Cam1RawData.csv")
-DR2T3C2 <- read.csv("Rep2Trial3Cam2RawData.csv")
+# DR2T1C1 <- read.csv("Rep2Trial1Cam1RawData.csv")
+# DR2T1C2 <- read.csv("Rep2Trial1Cam2RawData.csv")
+# DR2T2C1 <- read.csv("Rep2Trial2Cam1RawData.csv")
+# DR2T2C2 <- read.csv("Rep2Trial2Cam2RawData.csv")
+# DR2T3C1 <- read.csv("Rep2Trial3Cam1RawData.csv")
+# DR2T3C2 <- read.csv("Rep2Trial3Cam2RawData.csv")
+
 # DR2T4C1 <- read.csv("Rep2Trial4Cam1RawData.csv")
 # DR2T4C2 <- read.csv("Rep2Trial4Cam2RawData.csv")
 # DR2T5C1 <- read.csv("Rep2Trial5Cam1RawData.csv")
@@ -880,10 +686,8 @@ CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2)
 #   cuatro <- which(VidData$PQuad==4)  
 #   PTrays <- which(VidData$DishID <=6)
 # 
-#   VidData$Pesticide<-NA
-#   VidData$Pesticide[intersect( PTrays, uno)] <- 0
+#   VidData$Pesticide <- 0
 #   VidData$Pesticide[intersect( PTrays, dos)] <- 1
-#   VidData$Pesticide[intersect( PTrays, tres)] <- 0
 #   VidData$Pesticide[intersect( PTrays, cuatro)] <- 1
 #   
 #   return(VidData)
@@ -891,8 +695,10 @@ CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2)
 # }
 
 
-#=============
-#tryit<-Assign(VidData = CompVidRep2, CoordData = CoTbR1T1C2, trayData = TrayPlace)
+# =============
+
+# a = vertical
+# b = horizontal
 
   belowa <- which((CompVidRep2$y) <  (CompVidRep2$pred1))
   abovea <- which((CompVidRep2$y) >= (CompVidRep2$pred1))
@@ -902,37 +708,51 @@ CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2)
   NegSlope <- which(CompVidRep2$TPX <  CompVidRep2$BPX )
   PosSlope <- which(CompVidRep2$TPX >= CompVidRep2$BPX )
 
-  # Determine Quadrants #change depending on slope of verticle line
+  # Determine Quadrants change depending on slope of verticle line
   # In cases of positive slopes
-CompVidRep2$quad<-NA
-CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,aboveb)))]<-1
-CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,aboveb)))]<-4
-CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,belowb)))]<-2
-CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,belowb)))]<-3
-CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,aboveb)))]<-1
-CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,aboveb)))]<-4
-CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,belowb)))]<-2
-CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,belowb)))]<-3
+
+  # Instead of counter-clockwise numbering of quadrants (from the perspective
+  # of the video, not considering pesticide), quadrants were labeled clockwise
+  # starting form the top right as 1
+  CompVidRep2$quad <- 0
+  CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,aboveb)))]<-1
+  CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,aboveb)))]<-4
+  CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,belowb)))]<-2
+  CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,belowb)))]<-3
+  CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,aboveb)))]<-1
+  CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,aboveb)))]<-4
+  CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,belowb)))]<-2
+  CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,belowb)))]<-3
   
-  ###Create function that determines which quadrants have pesticide
+  # Create function that determines which quadrants have pesticide
+  CompVidRep2$PQuad <- 0
+  CompVidRep2$DishID <- 0
+  CompVidRep2$Orientation <- 0
+  
+  #Table to determine the painted quadrants given orientation
+  one   <- c(1,2,3,4)
+  two   <- c(2,3,4,1)
+  three <- c(3,4,1,2)
+  four  <- c(4,1,2,3)
+  OTab  <- data.frame(one, two, three, four)
+
+  # Input data from TrayPlace into CompVidRep2
   for (i in 1:length(CompVidRep2$quad)) {
-    r <- which(TrayPlace$Repetition==CompVidRep2$rep[i])
-    t <- which(TrayPlace$Trial==CompVidRep2$trial[i])
-    p <- which(TrayPlace$Position==CompVidRep2$position[i])
-    id <- intersect( p, intersect(r, t))
+    # r, t and p are the INDICES within TrayPlace
+    # by themselves, r, t and p are vectors but we then find the intersection
+    # of all three to arrive at the id
+    r <- which(TrayPlace$Repetition == CompVidRep2$rep[i]) 
+    t <- which(TrayPlace$Trial == CompVidRep2$trial[i])
+    p <- which(TrayPlace$Position == CompVidRep2$position[i])
+    id <- intersect(p, intersect(r, t))
     
     CompVidRep2$DishID[i] <- TrayPlace$DishID[id]
     CompVidRep2$Orientation[i] <- TrayPlace$Orientation[id]
     
-    #there has to be a better way to do this
-    one   <- c(1,2,3,4)
-    two   <- c(2,3,4,1)
-    three <- c(3,4,1,2)
-    four  <- c(4,1,2,3)
-    OTab  <- data.frame(one, two, three, four)
-    Or    <- which(OTab$one==CompVidRep2$Orientation[i])
-    CompVidRep2$PQuad[i] <- OTab[Or, CompVidRep2$Orientation[i]]
-    #I'm pretty sure the above 7 lines could be two.
+    # Setting up orientations
+  
+    CompVidRep2$PQuad[i] <- OTab[CompVidRep2$Orientation[i], 
+                                 CompVidRep2$quad[i]]
   }
   
   uno <- which(CompVidRep2$PQuad == 1)  
@@ -941,7 +761,7 @@ CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,belowb)))]<-3
   cuatro <- which(CompVidRep2$PQuad == 4)  
   PTrays<- which(CompVidRep2$DishID <= 6)
 
-CompVidRep2$Pesticide <- NA  
+CompVidRep2$Pesticide <- 0  
 CompVidRep2$Pesticide[uno] <- 0
 CompVidRep2$Pesticide[intersect( PTrays, dos)] <- 1
 CompVidRep2$Pesticide[tres] <- 0
