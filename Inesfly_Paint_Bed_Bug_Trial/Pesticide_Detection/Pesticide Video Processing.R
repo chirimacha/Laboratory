@@ -329,8 +329,8 @@ bRPY <-c(338, 331, 333, 158, 154, 155)
 CoTbR1T1C2<-data.frame(Tray, bMXL, bMXR, bMYT, bMYB, bBPX, bBPY, bTPX, bTPY, 
                        bRPX, bRPY, bLPX, bLPY)
 #rename so values are easily called in loop or function
-names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
-                     "RPX", "RPY", "LPX", "LPY")
+names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX",
+                     "TPY", "RPX", "RPY", "LPX", "LPY")
 CoTbR1T1C2
  imshow(FR1T1C2)
   points(CoTbR1T1C2$TPX,CoTbR1T1C2$TPY)
@@ -461,7 +461,7 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep,
     #     }
     
     # Temporarily set fr to 20 to speed up code while debugging.
-    fr<-20
+    fr <- 1800
     
     # Reset bugpos to blank data frame
     bugpos<-data.frame()
@@ -469,51 +469,51 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep,
     # Looks at each video frame and finds the coordinates of each blob
     for (i in 1:fr){
       #extract individual frames
-      res<-getFrame(video, i) 
+      res <- getFrame(video, i) 
       #put frame into grey scale.
       gryscl <- ddd2d(res) 
       #mask other petri dishes
-      mask<-blend(gryscl, pmask, "*")
+      mask <- blend(gryscl, pmask, "*")
       #subtract background from the mask (previous image). Only movement shows
-      sub<-blend(nbga, mask, "-") 
+      sub <- blend(nbga, mask, "-") 
       #set a threshold difference to remove changes due to glare/noise
-      bw<-thresholding(sub, threshold, "binary")
+      bw <- thresholding(sub, threshold, "binary")
       #detect the white blobs that are created. Get coordinates
-      bugcords<-blobDetector(bw)
+      bugcords <- blobDetector(bw)
       
       # add track # to data frame only if a change is detected
-      if(nrow(bugcords)>0) {
+      if (nrow(bugcords) > 0) {
         bugcords<-mutate(bugcords, frame = i, track = NA) 
         # determines what points are linked. Optimally each insect given 1 track 
         # each because there is only one object, we can max out maxDist. 
         stout<-simpleTracker(past = bugpos, current = bugcords, 
                              maxDist = maxDista) 
-        #combine tables previous in the loop.
+        # combine tables previous in the loop.
         bugpos<- rbind(bugpos, stout)
       }
     }
     
     # Defines the lines of the quadrants on the petri dish
-    ya<-c(coordtaba$BPY[tn],coordtaba$TPY[tn])
-    xa<-c(coordtaba$BPX[tn],coordtaba$TPX[tn])   
-    yb<-c(coordtaba$LPY[tn],coordtab$RPY[tn])
-    xb<-c(coordtaba$LPX[tn],coordtab$RPX[tn])  
-    line1a<-lm(ya~xa)
-    line1b<-lm(yb~xb)
+    ya <- c(coordtaba$BPY[tn],coordtaba$TPY[tn])
+    xa <- c(coordtaba$BPX[tn],coordtaba$TPX[tn])   
+    yb <- c(coordtaba$LPY[tn],coordtab$RPY[tn])
+    xb <- c(coordtaba$LPX[tn],coordtab$RPX[tn])  
+    line1a <- lm(ya~xa)
+    line1b <- lm(yb~xb)
     
     ## Gives y value of line for given x of bug.
     # Thus, we can see whether bug is above or below line.
-    newsa<-data.frame(xa = bugpos$x)
-    newsb<-data.frame(xb = bugpos$x)
+    newsa <- data.frame(xa = bugpos$x)
+    newsb <- data.frame(xb = bugpos$x)
     bugpos$pred1 <- predict(line1a, newsa, na.rm=TRUE)
     bugpos$pred2 <- predict(line1b, newsb, na.rm=TRUE)
     
     # Finding whether the vertical line has positive or negative slope
-    bugpos$TPX<-coordtaba$TPX[tn]
-    bugpos$BPX<-coordtaba$BPX[tn]
+    bugpos$TPX <- coordtaba$TPX[tn]
+    bugpos$BPX <- coordtaba$BPX[tn]
     
     # Indicate the tray in data table.
-    bugpos$trayn<-tn
+    bugpos$trayn <- tn
     
     # Return the data table.
     return(bugpos)   
