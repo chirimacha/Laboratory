@@ -1,12 +1,13 @@
-## Code for video tracking to determine if bed bugs can detect pesticides.
-## WARNING: DO NOT CHANGE QUARTZ WINDOW DIMENSIONS DURING ANALYSIS
+## Code for video tracking to determine if bed bugs can detect pesticides
+## Levy Lab 2016
+## WARNING: Do not change Quartz window dimensions during getPoint analysis
 
 ## Install Packages and open libraries
 #Install VideoPlayR
 # if (!require(devtools)) {
 #   install.packages("devtools")
 # }
-# 
+#
 # devtools::install_github("swarm-lab/videoplayR")
 # 
 # #install Other packages:
@@ -15,6 +16,7 @@
 # install.packages("shiny")
 # install.packages("splancs")
 # install.packages("grid")
+
 # Open Libraries
 library(videoplayR)
 library(dplyr)
@@ -28,10 +30,93 @@ library(grid)
 # setwd("/Users/mzlevy/Laboratory/
 #     Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 # Justin's Computer
-  setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/
-      Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+  setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
+                  "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
 # Gian Franco's
 # setwd(".../Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+
+## Set number of repetitions, trials, cameras
+# WARNING: as of May 25, 2016 only using repetition 2 trials
+repetition = 2
+trial = 6
+camera = 2
+
+## Bring in videos, coordinate tables (frames), TrayPlace
+# Repetition 1 recorded on 2016-04-21; repetition 2 recorded 2016-05-12
+# CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
+TrayPlace<- read.csv("TraysRep1y2.csv") # times, dates, humidity quadrant 
+                                        # assignments as TrayPlace
+for (i in 2:repetition) { 
+  for (j in 1:trial) {
+    for (k in 1:camera) {
+      temp_name1 <- paste("vidR", i, "T", j, "C", k, sep = "")
+      video_name <- paste("R", i, "T", j, "C", k, ".mp4", sep = "")
+      assign(temp_name1, readVid(video_name))
+      
+      temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
+      csv_name <- paste("CoTbR", i, "T", j, "C", k, ".csv", sep = "")
+      assign(temp_name2, read.csv(csv_name))
+    }
+  }
+}
+
+## Create background (this will take awhile, ~30-40 minutes)
+# WARNING: Do this step only once
+for (i in 2:repetition) { 
+  for (j in 1:trial) {
+    for (k in 1:camera) {
+      temp_name <- paste("bgR", i, "T", j, "C", k, sep = "")
+      vid_name <- paste("vidR", i, "T", j, "C", k, sep = "")
+      assign(temp_name, backgrounder(get(vid_name),  n = 1800, 
+                               method = "median", color = FALSE))
+    }
+  }
+}
+
+## Get a frame from each video in order to find coordinates
+staticFrame = 5
+for (i in 2:repetition) { 
+  for (j in 1:trial) {
+    for (k in 1:camera) {
+      temp_name <- paste("FR", i, "T", j, "C", k, sep = "")
+      vid_name <- paste("vidR", i, "T", j, "C", k, sep = "")
+      assign(temp_name, getFrame(get(vid_name), staticFrame))
+    }
+  }
+}
+
+# ##getpoint<-function(frame) { # Do not change Quartz size
+#   rto <- frame$dim[1]/frame$dim[2]
+#   print(rto)
+#   ht<-rto*6
+#   quartz(width=6, height=ht)
+#
+#   imshow(frame)
+#   a<-grid.locator(unit = "npc")
+#   gcx<-as.numeric(a$x)
+#   gcy<-as.numeric(a$y)
+#   X <- ceiling(gcx*frame$dim[2])
+#   Y <- ceiling(gcy*frame$dim[1])
+#   imshow(frame)
+#   points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
+#   coord<-c(X,Y)
+#   output=coord
+#   }
+# #Repeat the above code to find points. Manually enter them in the data frames.
+# tester <- getpoint(FR1T2C1)
+# tester
+
+# visualize<-function(CD, frame){
+#   imshow(frame)
+#   for(i in 1:6){
+#     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
+#     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
+#     lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+#     lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+#     lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
+#     lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
+#   }
+# }
 
 ## Simple Tracker (package not available for new R)
 pdiff <- function(a, b) {
@@ -180,247 +265,19 @@ if (progress) {
 tracks[1:pos, ]
 }
 
-## Bring in videos and TrayPlace
-# Import Videos for First Repetition
-# Repetition 1 (Recorded on "2016-04-21")
-# Trial One
-R1T1C1<- readVid("Trial1Cam1.mp4")
-R1T1C2<- readVid("Trial1Cam2.mp4")
-# Trial Two
-R1T2C1<- readVid("Trial2Cam1.mp4") #<-why is video only 913 frames
-R1T2C2<- readVid("Trial2Cam2.mp4")
-# Trial Three
-R1T3C1<- readVid("Trial3Cam1.mp4")
-R1T3C2<- readVid("Trial3Cam2.mp4")
-# Trial Four
-R1T4C1<- readVid("Trial4Cam1.mp4")
-R1T4C2<- readVid("Trial4Cam2.mp4")
-# Trial Five
-R1T5C1<- readVid("Trial5Cam1.mp4")
-R1T5C2<- readVid("Trial5Cam2.mp4")
-# Trial Six
-R1T6C1<- readVid("Trial6Cam1.mp4")
-R1T6C2<- readVid("Trial6Cam2.mp4")
-
-# Repetition 2 (Recorded "2016-05-12")
-# Trial One
-R2T1C1<- readVid("R2T1C1.mp4")
-R2T1C2<- readVid("R2T1C2.mp4")
-# Trial Two
-R2T2C1<- readVid("R2T2C1.mp4")
-R2T2C2<- readVid("R2T2C2.mp4")
-# Trial Three
-R2T3C1<- readVid("R2T3C1.mp4")
-R2T3C2<- readVid("R2T3C2.mp4")
-# Trial Four
-R2T4C1<- readVid("R2T4C1.mp4")
-R2T4C2<- readVid("R2T4C2.mp4")
-# Trial Five
-R2T5C1<- readVid("R2T5C1.mp4")
-R2T5C2<- readVid("R2T5C2.mp4")
-# Trial Six
-R2T6C1<- readVid("R2T6C1.mp4")
-R2T6C2<- readVid("R2T6C2.mp4")
-
-## Input Data Tables with times, dates, humidity as TrayPlace and quadrant
-## assignments.
-TrayPlace<- read.csv("TraysRep1y2.csv")
-
-###############################################################################
-## See what Simon Garnier's loop is doing by taking only 1 frame
-#  rev<-getFrame(pilotvidr1, 5)
-#  grscl<-ddd2d(rev)
-#  mask<-blend(grscl, pmaska, "*")
-#  neg<-blend(nbga, mask, "-") #the order matters
-#  #mult<-blend(neg1, neg1, "*")
-#  ths<-thresholding(neg, 60, "binary")
-#  imshow(ths)
-#  bugloc<-blobDetector(ths)
-#  bcoutputx<-mutate(bugloc, frame=5, track=NA)
-#  stoutx<-simpleTracker(bcoutputx, past=bugpos, maxDist= 10)
-#  bugpos<- rbind(bugpos, stoutx)
-
-###############################################################################
-## Full Videos
-# Get a frames from each video in order to find coordinates
-# Cam 1 for Repetition 1 videos has recording error 
-# Error with duplicate and skipped frames
-
-# #Repetition 1 Frame 5
-# FR1T1C1 <- getFrame(R1T1C1, 5)
-# FR1T1C2 <- getFrame(R1T1C2, 5)
-# FR1T2C1 <- getFrame(R1T2C1, 5)
-# FR1T2C2 <- getFrame(R1T2C2, 5)
-# FR1T3C1 <- getFrame(R1T3C1, 5)
-# FR1T3C2 <- getFrame(R1T3C2, 5)
-# FR1T4C1 <- getFrame(R1T4C1, 5)
-# FR1T4C2 <- getFrame(R1T4C2, 5)
-# FR1T5C1 <- getFrame(R1T5C1, 5)
-# FR1T5C2 <- getFrame(R1T5C2, 5)
-# FR1T6C1 <- getFrame(R1T6C1, 5)
-# FR1T6C2 <- getFrame(R1T6C2, 5)
-
-# #Repetition 2 Frame 5
-# FR2T1C1 <- getFrame(R2T1C1, 5)
-# FR2T1C2 <- getFrame(R2T1C2, 5)
-# FR2T2C1 <- getFrame(R2T2C1, 5)
-# FR2T2C2 <- getFrame(R2T2C2, 5)
-# FR2T3C1 <- getFrame(R2T3C1, 5)
-# FR2T3C2 <- getFrame(R2T3C2, 5)
-# FR2T4C1 <- getFrame(R2T4C1, 5)
-# FR2T4C2 <- getFrame(R2T4C2, 5)
-# FR2T5C1 <- getFrame(R2T5C1, 5)
-# FR2T5C2 <- getFrame(R2T5C2, 5)
-# FR2T6C1 <- getFrame(R2T6C1, 5)
-# FR2T6C2 <- getFrame(R2T6C2, 5)
-
-#Function uses frame above to click and obtain coordinates. 
-#DO NOT CHANGE QUARTZ SIZE!!!
-
-# getpoint<-function(frame){
-#   rto <- frame$dim[1]/frame$dim[2]
-#   print(rto)
-#   ht<-rto*6
-#   quartz(width=6, height=ht)
-#   imshow(frame)
-#   a<-grid.locator(unit = "npc")
-#   gcx<-as.numeric(a$x)
-#   gcy<-as.numeric(a$y)
-#   X <- ceiling(gcx*frame$dim[2])
-#   Y <- ceiling(gcy*frame$dim[1])
-#   imshow(frame)
-#   points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
-#   coord<-c(X,Y)
-#   output=coord
-#   }
-# 
-# #Repeat the above code to find the points and 
-# #manually enter them in2the dataframes below.
-# tester<-getpoint(FR1T2C1)
-# tester
-
-#Video FR1T1C2
-#tray number
-Tray<-c(1,2,3,4,5,6)
-#Left Matrix limit for mask
-bMXL <-c(168, 351, 521, 178, 349, 517)
-#right Matrix limit for mask
-bMXR <-c(351, 521, 703, 349, 517, 703)
-#Top matrix limit
-bMYT <-c(427, 427, 427, 238, 238, 238)
-#bottom matrix limit
-bMYB <-c(238, 238, 238,  59,  59,  59)
-
-#Top point of vertical line (X-Coord)
-bTPX <-c(258, 434, 608, 267, 439, 596)
-#Top point of vertical line (Y-Coord)
-bTPY <-c(404, 406, 410, 224, 224, 219)
-#Bottom Point
-bBPX <-c(284, 439, 604, 276, 438, 601)
-bBPY <-c(254, 255, 252,  87,  82,  77)
-#Left Point of horizontal line
-bLPX <-c(199, 363, 532, 198, 362, 527)
-bLPY <-c(316, 329, 330, 153, 155, 150)
-#Right Point of Horizontal line
-bRPX <-c(338, 511, 685, 337, 515, 678)
-bRPY <-c(338, 331, 333, 158, 154, 155)
-#c(,,,,,)
-#create a coordinate table
-CoTbR1T1C2<-data.frame(Tray, bMXL, bMXR, bMYT, bMYB, bBPX, bBPY, bTPX, bTPY, 
-                       bRPX, bRPY, bLPX, bLPY)
-#rename so values are easily called in loop or function
-names(CoTbR1T1C2)<-c("Tray","MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX",
-                     "TPY", "RPX", "RPY", "LPX", "LPY")
-CoTbR1T1C2
- imshow(FR1T1C2)
-  points(CoTbR1T1C2$TPX,CoTbR1T1C2$TPY)
-
-#########################
-# visualize<-function(CD, frame){
-#   imshow(frame)
-#   for(i in 1:6){
-#     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
-#     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
-#     lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-#     lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-#     lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
-#     lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
-#   }
-# }
-
-## Bring in Frames coordinate tables
-# Repetition 1
-CoTbR1T1C1 <- read.csv("CoTbR1T1C1.csv")
-CoTbR1T1C2 <- read.csv("CoTbR1T1C2.csv")
-CoTbR1T2C1 <- read.csv("CoTbR1T2C1.csv")
-
-# Repetition 2
-CoTbR2T1C1 <- read.csv("CoTbR2T1C1.csv")
-CoTbR2T1C2 <- read.csv("CoTbR2T1C2.csv")
-CoTbR2T2C1 <- read.csv("CoTbR2T2C1.csv")
-CoTbR2T2C2 <- read.csv("CoTbR2T2C2.csv")
-CoTbR2T3C1 <- read.csv("CoTbR2T3C1.csv")
-CoTbR2T3C2 <- read.csv("CoTbR2T3C2.csv")
-CoTbR2T4C1 <- read.csv("CoTbR2T4C1.csv")
-CoTbR2T4C2 <- read.csv("CoTbR2T4C2.csv")
-CoTbR2T5C1 <- read.csv("CoTbR2T5C1.csv")
-CoTbR2T5C2 <- read.csv("CoTbR2T5C2.csv")
-CoTbR2T6C1 <- read.csv("CoTbR2T6C1.csv")
-CoTbR2T6C2 <- read.csv("CoTbR2T6C2.csv")
-
-## Create background. Do this step only once.
-bga <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-bgb <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# bgc <- backgrounder(R1T2C1, n = 1600, method = "mean", color = FALSE) 
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-# <- backgrounder(R1T1C2, n = 1600, method = "mean", color = FALSE)
-
-## Repetition 2
-# Trial 1
-bgaRB <- backgrounder(R2T1C1, n = 1800, method = "mean", color = FALSE)
-bgbRB <- backgrounder(R2T1C2, n = 1800, method = "mean", color = FALSE)
-# Trial 2
-bgcRB <- backgrounder(R2T2C1, n = 1800, method = "mean", color = FALSE)
-bgdRB <- backgrounder(R2T2C2, n = 1800, method = "mean", color = FALSE)
-# Trial 3
-bgeRB <- backgrounder(R2T3C1, n = 1800, method = "mean", color = FALSE)
-bgfRB <- backgrounder(R2T3C2, n = 1800, method = "mean", color = FALSE)
-# # Trial 4
-# bggRB <- backgrounder(R2T4C1, n = 1800, method = "mean", color = FALSE)
-# bghRB <- backgrounder(R2T4C2, n = 1800, method = "mean", color = FALSE)
-# #T5
-# bgiRB <- backgrounder(R2T5C1, n = 1800, method = "mean", color = FALSE)
-# bgjRB <- backgrounder(R2T5C2, n = 1800, method = "mean", color = FALSE)
-# #T6
-# bgkRB <- backgrounder(R2T6C1, n = 1800, method = "mean", color = FALSE)
-# bglRB <- backgrounder(R2T6C2, n = 1800, method = "mean", color = FALSE)
-
-# Takes in the video and coordinate table to 
-# output the coordinates of the insect in each frame for all 6 bugs
-VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep,
-                      trial){
-  #create the background
-  #bg <- backgrounder(video, n = 1800, method = "mean", color = FALSE)
+# VidAnalysis takes in the video and coordinate table to output the coordinates
+# of the insect in each frame for all 6 bugs.
+VidAnalysis<-function(video, bg, coordtab, thresholda,
+                      maxDistb, cam, rep, trial) {
+  # Creates black masks over each petri dish, giving black rectangle
+  for (i in 1:6) {
+    temp_mat <- paste("mat", i, sep = "")
+    assign(temp_mat, matrix(0, nrow = bg$dim[1], ncol = bg$dim[2]))
+  }
   
-  # Creates black masks over each petri dish, giving black 
-  mat1 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-  mat2 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-  mat3 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-  mat4 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-  mat5 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-  mat6 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-  
-  # Create hole for each petri dish in each mask
-  # The matrix works left to right, BUT top to bottom.  
-  # Graphing works bottom to top so we need correction
+  # Create white hole for each petri dish in complete mask. The matrix works 
+  # left to right, BUT top to bottom. Graph works bottom to top so we need 
+  # correction.
   mat1[((bg$dim[1])-coordtab$MYT[1]):((bg$dim[1])-coordtab$MYB[1]),
        coordtab$MXL[1]:coordtab$MXR[1]] <- 1
   mat2[((bg$dim[1])-coordtab$MYT[2]):((bg$dim[1])-coordtab$MYB[2]),
@@ -433,74 +290,66 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep,
        coordtab$MXL[5]:coordtab$MXR[5]] <- 1
   mat6[((bg$dim[1])-coordtab$MYT[6]):((bg$dim[1])-coordtab$MYB[6]), 
        coordtab$MXL[6]:coordtab$MXR[6]] <- 1
-  
-  # Make Mask Matrix into an image
-  pmaska <- (r2img(mat1))
-  pmaskb <- (r2img(mat2))
-  pmaskc <- (r2img(mat3))
-  pmaskd <- (r2img(mat4))
-  pmaske <- (r2img(mat5))
-  pmaskf <- (r2img(mat6))
-  
+  # Make mask matrix into an image
+  for (j in 1:6) {
+    temp_imask <- paste("imask", j, sep = "")
+    assign(temp_imask, r2img(get(paste("mat", j, sep = "")))) # here we are getting the value of mat, which is different from the above which is trying to get the ORIGINAL mat
+  }
   # Now bring the mask and the background together
-  nbga1<-blend(bg, pmaska, "*")
-  nbga2<-blend(bg, pmaskb, "*")
-  nbga3<-blend(bg, pmaskc, "*")
-  nbga4<-blend(bg, pmaskd, "*")
-  nbga5<-blend(bg, pmaske, "*")
-  nbga6<-blend(bg, pmaskf, "*")
-  
+  for (k in 1:6) {
+    temp_maskBG <- paste("maskBG", k, sep = "")
+    assign(temp_maskBG, blend(bg, get(paste("imask", k, sep = "")), "*"))
+  }
   #Coords finds the coordinate of the insect in each quadrant in each frame
-  Coords<-function(video, pmask, nbga, coordtaba, tn, threshold, maxDista, rep,
-                   cam){
-    #determine loop length
+  Coords<-function(video, imask, maskBG, coordtaba, tn,
+                   threshold, maxDista, rep, cam) {
+    # determine loop length
     #     if (video$length<1800) {
     #       fr <- video$length
     #     } else {
     #       fr<-1800
     #     }
     
-    # Temporarily set fr to 20 to speed up code while debugging.
-    fr <- 1800
-    
-    # Reset bugpos to blank data frame
-    bugpos<-data.frame()
+    # Temporarily set fr to 20 to speed up code while debugging. Usually 1800.
+    fr <- 20 # when i switch this to 20, it throws the error
     
     # Looks at each video frame and finds the coordinates of each blob
-    for (i in 1:fr){
-      #extract individual frames
-      res <- getFrame(video, i) 
-      #put frame into grey scale.
-      gryscl <- ddd2d(res) 
-      #mask other petri dishes
-      mask <- blend(gryscl, pmask, "*")
-      #subtract background from the mask (previous image). Only movement shows
-      sub <- blend(nbga, mask, "-") 
-      #set a threshold difference to remove changes due to glare/noise
-      bw <- thresholding(sub, threshold, "binary")
-      #detect the white blobs that are created. Get coordinates
-      bugcords <- blobDetector(bw)
-      
+    bugpos <- data.frame()
+    for (l in 1:fr){
+      res <- getFrame(video, l) # extract individual frames
+      gryscl <- ddd2d(res) # put frame into grey scale.
+      mask <- blend(gryscl, imask, "*") # mask other petri dishes
+      sub <- blend(maskBG, mask, "-") # subtract background from the mask 
+                                    # (previous image). Only movement shows
+      bw <- thresholding(sub, threshold, "binary") # set a threshold difference 
+                                                   # to remove changes due to 
+                                                   # glare/noise
+      bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+                                   # gets coordinates
       # add track # to data frame only if a change is detected
+      
+      ############Commenting and uncommenting here makes an error
+      ############Since this now produces the same result as the old code, I
+      ############believe I have debugged the for loops.
       if (nrow(bugcords) > 0) {
-        bugcords<-mutate(bugcords, frame = i, track = NA) 
+        bugcords <- mutate(bugcords, frame = l, track = NA) 
         # determines what points are linked. Optimally each insect given 1 track 
         # each because there is only one object, we can max out maxDist. 
-        stout<-simpleTracker(past = bugpos, current = bugcords, 
-                             maxDist = maxDista) 
+        stout <- simpleTracker(past = bugpos, current = bugcords, 
+                            maxDist = maxDista) 
         # combine tables previous in the loop.
         bugpos<- rbind(bugpos, stout)
+        #bugpos <- bugcords
       }
     }
     
     # Defines the lines of the quadrants on the petri dish
     ya <- c(coordtaba$BPY[tn],coordtaba$TPY[tn])
     xa <- c(coordtaba$BPX[tn],coordtaba$TPX[tn])   
-    yb <- c(coordtaba$LPY[tn],coordtab$RPY[tn])
-    xb <- c(coordtaba$LPX[tn],coordtab$RPX[tn])  
+    yb <- c(coordtaba$LPY[tn],coordtaba$RPY[tn])
+    xb <- c(coordtaba$LPX[tn],coordtaba$RPX[tn])  
     line1a <- lm(ya~xa)
     line1b <- lm(yb~xb)
-    
     ## Gives y value of line for given x of bug.
     # Thus, we can see whether bug is above or below line.
     newsa <- data.frame(xa = bugpos$x)
@@ -511,81 +360,102 @@ VidAnalysis<-function(video, bg, coordtab, thresholda, maxDistb, cam, rep,
     # Finding whether the vertical line has positive or negative slope
     bugpos$TPX <- coordtaba$TPX[tn]
     bugpos$BPX <- coordtaba$BPX[tn]
-    
     # Indicate the tray in data table.
     bugpos$trayn <- tn
-    
     # Return the data table.
     return(bugpos)   
   }
 
   # Now run this subfunction over the 6 dishes   
   # e.g. pdt1 = bugpos for tray 1, location, regardless of camera 1 or camera 2
-  pdt1 <-Coords(video, pmaska, nbga1, coordtaba=coordtab, tn=1, 
-                threshold=thresholda, maxDista=maxDistb)
-  pdt2 <-Coords(video, pmaskb, nbga2, coordtaba=coordtab, tn=2, 
-                threshold=thresholda, maxDista=maxDistb)
-  pdt3 <-Coords(video, pmaskc, nbga3, coordtaba=coordtab, tn=3, 
-                threshold=thresholda, maxDista=maxDistb)
-  pdt4 <-Coords(video, pmaskd, nbga4, coordtaba=coordtab, tn=4, 
-                threshold=thresholda, maxDista=maxDistb)
-  pdt5 <-Coords(video, pmaske, nbga5, coordtaba=coordtab, tn=5, 
-                threshold=thresholda, maxDista=maxDistb)
-  pdt6 <-Coords(video, pmaskf, nbga6, coordtaba=coordtab, tn=6, 
-                threshold=thresholda, maxDista=maxDistb)
-  
-  # Bind All the tables
+  for (m in 1:6) {
+    temp_pdt <- paste("pdt", m, sep = "")
+    assign(temp_pdt, Coords(video, imask=get(paste("imask", m, sep = "")),
+                            maskBG=get(paste("maskBG", m, sep = "")), 
+                            coordtaba = coordtab, tn = m, 
+                            threshold = thresholda, maxDista = maxDistb))
+  }
+  # Binds into master table
   MasterTab<-rbind(pdt1, pdt2, pdt3, pdt4, pdt5, pdt6)
-
-  # Indicate which camera this is
   MasterTab$camera <- cam
-  # Indicate which repetition
   MasterTab$rep <- rep
   MasterTab$trial <- trial
-  MasterTab$position <- (MasterTab$trayn)+(6*(cam-1))
-
-  #Output as single data table
+  MasterTab$position <- (MasterTab$trayn) + (6 * (cam - 1))
   return(MasterTab)
 }
 
-######################################################
-######## Running VidAnalysis for all videos ##########
-
-#### Repetition 1
-DR1T1C1 <- VidAnalysis(video=R1T1C1, bg= bga, coordtab=CoTbR1T1C1, 
-                       thresholda=25, maxDistb=1000, cam=1, rep=1, trial=1)
-  #write.csv(DR1T1C1, "Rep1Trial1Cam1RawData.csv")
-
-DR1T1C2 <- VidAnalysis(video=R1T1C2, bg= bgb, coordtab=CoTbR1T1C2, 
-                       thresholda=30, maxDistb=1000, cam=2, rep=1, trial=1)
-  #write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
-
-DR1T2C1 <- VidAnalysis(video=R1T2C1, bg= bgc, coordtab=CoTbR1T2C1,
-                       thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
-  #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+## Running VidAnalysis for all videos
+## Repetition 1
+# DR1T1C1 <- VidAnalysis(video=R1T1C1, bg= bgR1T1C1, coordtab=CoTbR1T1C1, 
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=1)
+#   #write.csv(DR1T1C1, "Rep1Trial1Cam1RawData.csv")
+# 
+# DR1T1C2 <- VidAnalysis(video=R1T1C2, bg= bgR1T1C2, coordtab=CoTbR1T1C2, 
+#                        thresholda=30, maxDistb=1000, cam=2, rep=1, trial=1)
+#   #write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
+# 
+# DR1T2C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T2C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+#   #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T2C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T2C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T3C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T3C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T3C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T3C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T4C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T4C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T4C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T4C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T5C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T5C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T5C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T5C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T6C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T6C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T6C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T6C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
 
 ## Repetition 2
-DR2T1C1 <- VidAnalysis(video=R2T1C1, bg= bgaRB, coordtab=CoTbR2T1C1, 
+DR2T1C1 <- VidAnalysis(video=vidR2T1C1, bg= bgR2T1C1, coordtab=CoTbR2T1C1, 
                        thresholda=25, maxDistb=1000, cam=1, rep=2, trial=1)
            write.csv(DR2T1C1, "Rep2Trial1Cam1RawData.csv")
 
-DR2T1C2 <- VidAnalysis(video=R2T1C2, bg= bgbRB, coordtab=CoTbR2T1C2, 
+DR2T1C2 <- VidAnalysis(video=vidR2T1C2, bg= bgR2T1C2, coordtab=CoTbR2T1C2, 
                        thresholda=30, maxDistb=1000, cam=2, rep=2, trial=1)
           write.csv(DR2T1C2, "Rep2Trial1Cam2RawData.csv")
 
-DR2T2C1 <- VidAnalysis(video=R2T2C1, bg= bgcRB, coordtab=CoTbR2T2C1, 
+DR2T2C1 <- VidAnalysis(video=vidR2T2C1, bg= bgR2T2C1, coordtab=CoTbR2T2C1, 
                        thresholda=25, maxDistb=1000, cam=1, rep=2, trial=2)
            write.csv(DR2T2C1, "Rep2Trial2Cam1RawData.csv")
 
-DR2T2C2 <- VidAnalysis(video=R2T2C2, bg= bgdRB, coordtab=CoTbR2T2C2,
+DR2T2C2 <- VidAnalysis(video=vidR2T2C2, bg= bgR2T2C2, coordtab=CoTbR2T2C2,
                        thresholda=30, maxDistb=1000, cam=2, rep=2, trial=2)
            write.csv(DR2T2C2, "Rep2Trial2Cam2RawData.csv")
 
-DR2T3C1 <- VidAnalysis(video=R2T3C1, bg= bgeRB, coordtab=CoTbR2T3C1, 
+DR2T3C1 <- VidAnalysis(video=vidR2T3C1, bg= bgR2T3C1, coordtab=CoTbR2T3C1, 
                        thresholda=25, maxDistb=1000, cam=1, rep=2, trial=3)
            write.csv(DR2T3C1, "Rep2Trial3Cam1RawData.csv")
 
-DR2T3C2 <- VidAnalysis(video=R2T3C2, bg= bgfRB, coordtab=CoTbR2T3C2, 
+DR2T3C2 <- VidAnalysis(video=vidR2T3C2, bg= bgR2T3C2, coordtab=CoTbR2T3C2, 
                        thresholda=30, maxDistb=1000, cam=2, rep=2, trial=3)
           write.csv(DR2T3C2, "Rep2Trial3Cam2RawData.csv")
 

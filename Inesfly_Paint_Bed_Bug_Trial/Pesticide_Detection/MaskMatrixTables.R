@@ -1,7 +1,6 @@
-
 #Repeat the above code to find the points and 
 #manually enter them in the dataframes below.
-tester<-getpoint(FR1T2C2)
+tester <- getpoint(FR1T2C2)
 tester
 
 #Video FR1T1C1
