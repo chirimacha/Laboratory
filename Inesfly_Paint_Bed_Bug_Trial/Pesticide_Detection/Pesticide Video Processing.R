@@ -106,17 +106,17 @@ for (i in 2:repetition) {
 # tester <- getpoint(FR1T2C1)
 # tester
 
-# visualize<-function(CD, frame){
-#   imshow(frame)
-#   for(i in 1:6){
-#     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
-#     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
-#     lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-#     lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-#     lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
-#     lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
-#   }
-# }
+visualize<-function(CD, frame){
+  imshow(frame)
+  for(i in 1:6){
+    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
+    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
+    lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+    lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+    lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
+    lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
+  }
+}
 
 ## Simple Tracker (package not available for new R)
 pdiff <- function(a, b) {
@@ -290,11 +290,13 @@ VidAnalysis<-function(video, bg, coordtab, thresholda,
        coordtab$MXL[5]:coordtab$MXR[5]] <- 1
   mat6[((bg$dim[1])-coordtab$MYT[6]):((bg$dim[1])-coordtab$MYB[6]), 
        coordtab$MXL[6]:coordtab$MXR[6]] <- 1
+  
   # Make mask matrix into an image
   for (j in 1:6) {
     temp_imask <- paste("imask", j, sep = "")
-    assign(temp_imask, r2img(get(paste("mat", j, sep = "")))) # here we are getting the value of mat, which is different from the above which is trying to get the ORIGINAL mat
+    assign(temp_imask, r2img(get(paste("mat", j, sep = ""))))
   }
+  
   # Now bring the mask and the background together
   for (k in 1:6) {
     temp_maskBG <- paste("maskBG", k, sep = "")
@@ -328,9 +330,6 @@ VidAnalysis<-function(video, bg, coordtab, thresholda,
                                    # gets coordinates
       # add track # to data frame only if a change is detected
       
-      ############Commenting and uncommenting here makes an error
-      ############Since this now produces the same result as the old code, I
-      ############believe I have debugged the for loops.
       if (nrow(bugcords) > 0) {
         bugcords <- mutate(bugcords, frame = l, track = NA) 
         # determines what points are linked. Optimally each insect given 1 track 
@@ -382,6 +381,25 @@ VidAnalysis<-function(video, bg, coordtab, thresholda,
   MasterTab$trial <- trial
   MasterTab$position <- (MasterTab$trayn) + (6 * (cam - 1))
   return(MasterTab)
+}
+
+###### TODO
+user_thresh = 25
+user_max = 1000
+for (i in 2:repetition) { 
+  for (j in 1:trial) {
+    for (k in 1:camera) {
+      temp_name <- paste("DR", i, "T", j, "C", k, sep = "")
+      vid_name <- paste("vidR", i, "T", j, "C", k, sep = "")
+      bg_name <- paste("bgR", i, "T", j, "C", k, sep = "")
+      coord_name <- paste("CoTbR", i, "T", j, "C", k, sep = "")
+      assign(temp_name, VidAnalysis(video <- get(vid_name), bg <- get(bg_name), 
+                                    coordtab <- get(coord_name), 
+                                    thresholda <- user_thresh,
+                                    maxDistb <- user_max,
+                                    cam <- k, rep <- i, trial <- j))
+    }
+  }
 }
 
 ## Running VidAnalysis for all videos
@@ -436,7 +454,7 @@ VidAnalysis<-function(video, bg, coordtab, thresholda,
 
 ## Repetition 2
 DR2T1C1 <- VidAnalysis(video=vidR2T1C1, bg= bgR2T1C1, coordtab=CoTbR2T1C1, 
-                       thresholda=25, maxDistb=1000, cam=1, rep=2, trial=1)
+                       thresholda=30, maxDistb=1000, cam=1, rep=2, trial=1)
            write.csv(DR2T1C1, "Rep2Trial1Cam1RawData.csv")
 
 DR2T1C2 <- VidAnalysis(video=vidR2T1C2, bg= bgR2T1C2, coordtab=CoTbR2T1C2, 

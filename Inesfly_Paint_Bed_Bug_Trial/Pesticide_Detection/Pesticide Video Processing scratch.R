@@ -490,3 +490,186 @@ pdt6 <-Coords(video, pmaskf, nbga6, coordtaba=coordtab, tn=6,
          threshold = thresholda, maxDista = maxDistb) 
 1 VidAnalysis(video = vidR2T1C1, bg = bgR2T1C1, coordtab = CoTbR2T1C1, 
               thresholda = 25, maxDistb = 1000, cam = 1, rep = 2, trial = 1) 
+
+################################################################################
+# OLD VidAnalysis for all videos
+## Running VidAnalysis for all videos
+## Repetition 1
+# DR1T1C1 <- VidAnalysis(video=R1T1C1, bg= bgR1T1C1, coordtab=CoTbR1T1C1, 
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=1)
+#   #write.csv(DR1T1C1, "Rep1Trial1Cam1RawData.csv")
+# 
+# DR1T1C2 <- VidAnalysis(video=R1T1C2, bg= bgR1T1C2, coordtab=CoTbR1T1C2, 
+#                        thresholda=30, maxDistb=1000, cam=2, rep=1, trial=1)
+#   #write.csv(DR1T1C2, "Rep1Trial1Cam2RawData.csv")
+# 
+# DR1T2C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T2C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+#   #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T2C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T2C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T3C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T3C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T3C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T3C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T4C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T4C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T4C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T4C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T5C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T5C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T5C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T5C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T6C1 <- VidAnalysis(video=R1T2C1, bg= bgR1T6C1, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+# 
+# DR1T6C2 <- VidAnalysis(video=R1T2C1, bg= bgR1T6C2, coordtab=CoTbR1T2C1,
+#                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
+# #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
+
+## Repetition 2
+DR2T1C1 <- VidAnalysis(video=vidR2T1C1, bg= bgR2T1C1, coordtab=CoTbR2T1C1, 
+                       thresholda=30, maxDistb=1000, cam=1, rep=2, trial=1)
+write.csv(DR2T1C1, "Rep2Trial1Cam1RawData.csv")
+
+DR2T1C2 <- VidAnalysis(video=vidR2T1C2, bg= bgR2T1C2, coordtab=CoTbR2T1C2, 
+                       thresholda=30, maxDistb=1000, cam=2, rep=2, trial=1)
+write.csv(DR2T1C2, "Rep2Trial1Cam2RawData.csv")
+
+DR2T2C1 <- VidAnalysis(video=vidR2T2C1, bg= bgR2T2C1, coordtab=CoTbR2T2C1, 
+                       thresholda=25, maxDistb=1000, cam=1, rep=2, trial=2)
+write.csv(DR2T2C1, "Rep2Trial2Cam1RawData.csv")
+
+DR2T2C2 <- VidAnalysis(video=vidR2T2C2, bg= bgR2T2C2, coordtab=CoTbR2T2C2,
+                       thresholda=30, maxDistb=1000, cam=2, rep=2, trial=2)
+write.csv(DR2T2C2, "Rep2Trial2Cam2RawData.csv")
+
+DR2T3C1 <- VidAnalysis(video=vidR2T3C1, bg= bgR2T3C1, coordtab=CoTbR2T3C1, 
+                       thresholda=25, maxDistb=1000, cam=1, rep=2, trial=3)
+write.csv(DR2T3C1, "Rep2Trial3Cam1RawData.csv")
+
+DR2T3C2 <- VidAnalysis(video=vidR2T3C2, bg= bgR2T3C2, coordtab=CoTbR2T3C2, 
+                       thresholda=30, maxDistb=1000, cam=2, rep=2, trial=3)
+write.csv(DR2T3C2, "Rep2Trial3Cam2RawData.csv")
+
+# DR2T4C1 <- VidAnalysis(video=R2T4C1, bg= bgeRB, coordtab=CoTbR2T4C1, thresholda=50, 
+#                        maxDistb=1000, cam=1, rep=2, trial=4)
+#            write.csv(DR2T4C1, "Rep2Trial4Cam1RawData.csv")
+# 
+# DR2T4C2 <- VidAnalysis(video=R2T4C1, bg= bgfRB, coordtab=CoTbR2T4C2, thresholda=50, 
+#                        maxDistb=1000, cam=2, rep=2, trial=4)
+#            write.csv(DR2T4C2, "Rep2Trial4Cam2RawData.csv")
+# 
+# DR2T5C1 <- VidAnalysis(video=R2T5C1, bg= bgeRB, coordtab=CoTbR2T5C1, thresholda=50, 
+#                        maxDistb=1000, cam=1, rep=2, trial=5)
+#            write.csv(DR2T5C1, "Rep2Trial5Cam1RawData.csv")
+# 
+# DR2T5C2 <- VidAnalysis(video=R2T5C1, bg= bgfRB, coordtab=CoTbR2T5C2, thresholda=50, 
+#                        maxDistb=1000, cam=2, rep=2, trial=5)
+#            write.csv(DR2T5C2, "Rep2Trial5Cam2RawData.csv")
+# 
+# DR2T6C1 <- VidAnalysis(video=R2T6C1, bg= bgeRB, coordtab=CoTbR2T6C1, thresholda=50, 
+#                        maxDistb=1000, cam=1, rep=2, trial=6)
+#           write.csv(DR2T6C1, "Rep2Trial6Cam1RawData.csv")
+# 
+# DR2T6C2 <- VidAnalysis(video=R2T6C1, bg= bgfRB, coordtab=CoTbR2T6C2, thresholda=50, 
+#                        maxDistb=1000, cam=2, rep=2, trial=6)
+#            write.csv(DR2T6C2, "Rep2Trial6Cam2RawData.csv")
+
+######################################################################
+# The Code below should be able to be used on a PC
+
+#If running from PC run these codes
+# DR2T1C1 <- read.csv("Rep2Trial1Cam1RawData.csv")
+# DR2T1C2 <- read.csv("Rep2Trial1Cam2RawData.csv")
+# DR2T2C1 <- read.csv("Rep2Trial2Cam1RawData.csv")
+# DR2T2C2 <- read.csv("Rep2Trial2Cam2RawData.csv")
+# DR2T3C1 <- read.csv("Rep2Trial3Cam1RawData.csv")
+# DR2T3C2 <- read.csv("Rep2Trial3Cam2RawData.csv")
+
+# DR2T4C1 <- read.csv("Rep2Trial4Cam1RawData.csv")
+# DR2T4C2 <- read.csv("Rep2Trial4Cam2RawData.csv")
+# DR2T5C1 <- read.csv("Rep2Trial5Cam1RawData.csv")
+# DR2T5C2 <- read.csv("Rep2Trial5Cam2RawData.csv")
+# DR2T6C1 <- read.csv("Rep2Trial6Cam1RawData.csv")
+# DR2T6C2 <- read.csv("Rep2Trial6Cam2RawData.csv")
+
+######################################################################
+# Old quadrant assignments
+#write.csv( CompVid,"CompiledRawVideoData.csv")
+####create function that takes in data set and adds quadrant assignments
+#determine if bug is above or below line (differnet from predicted y)
+# Assign<-function(VidData, CoordData, trayData){    
+#     belowa <- which((VidData$y) <  (VidData$pred1))
+#     abovea <- which((VidData$y) >= (VidData$pred1))
+#     belowb <- which((VidData$y) <  (VidData$pred2))
+#     aboveb <- which((VidData$y) >= (VidData$pred2))
+#     
+#     NegSlope <- which(CoordData$TPX <  CoordData$BPX )
+#     PosSlope <- which(CoordData$TPX >= CoordData$BPX )
+#     
+#     negs<-which(is.na(match(NegSlope, VidData$trayn))==FALSE)
+#     poss<-which(is.na(match(PosSlope, VidData$trayn))==FALSE)
+#     
+# # Determine Quadrants #change depending on slope of verticle line
+# # In cases of positive slopes
+# VidData$quad<-NA
+# VidData$quad[intersect( poss, (intersect(belowa,aboveb)))]<-1
+# VidData$quad[intersect( poss, (intersect(abovea,aboveb)))]<-4
+# VidData$quad[intersect( poss, (intersect(belowa,belowb)))]<-2
+# VidData$quad[intersect( poss, (intersect(abovea,belowb)))]<-3
+# VidData$quad[intersect( negs, (intersect(abovea,aboveb)))]<-1
+# VidData$quad[intersect( negs, (intersect(belowa,aboveb)))]<-4
+# VidData$quad[intersect( negs, (intersect(abovea,belowb)))]<-2
+# VidData$quad[intersect( negs, (intersect(belowa,belowb)))]<-3
+#       
+# ###Create function that determines which quadrants have pesticide
+# for (i in 1:length(VidData$quad)){
+#    r <- which(trayData$Repetition==VidData$rep[i])
+#    t <- which(trayData$Trial==VidData$trial[i])
+#    p <- which(trayData$Position==VidData$position[i])
+#    id <- intersect( p, intersect(r, t))
+# 
+#     VidData$DishID[i] <- trayData$DishID[id]
+#     VidData$Orientation[i] <- trayData$Orientation[id]
+#   
+#   #there has to be a better way to do this
+#     one   <- c(1,2,3,4)
+#     two   <- c(2,3,4,1)
+#     three <- c(3,4,1,2)
+#     four  <- c(4,1,2,3)
+#     OTab  <- data.frame(one, two, three, four)
+#     Or    <- which(OTab$one==VidData$Orientation[i])
+#   VidData$PQuad[i] <- OTab[Or, VidData$quad[i]]
+#   #I'm pretty sure the above 7 lines could be two.
+#   }
+# 
+#   uno <- which(VidData$PQuad==1)  
+#   dos <- which(VidData$PQuad==2)  
+#   tres <- which(VidData$PQuad==3)  
+#   cuatro <- which(VidData$PQuad==4)  
+#   PTrays <- which(VidData$DishID <=6)
+# 
+#   VidData$Pesticide <- 0
+#   VidData$Pesticide[intersect( PTrays, dos)] <- 1
+#   VidData$Pesticide[intersect( PTrays, cuatro)] <- 1
+#   
+#   return(VidData)
+# 
+# }
