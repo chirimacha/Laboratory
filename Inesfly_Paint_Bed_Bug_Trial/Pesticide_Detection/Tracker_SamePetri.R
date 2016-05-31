@@ -1,0 +1,176 @@
+###Lets get video processing going for film on 5 insects in the same petri dish
+#WARNING: DO NOT CHANGE QUARTZ WINDOW DIMENSIONS DURING ANALYSIS
+
+###Code for video tracking
+#To determine if bed bugs can detect pesticides.
+
+###Install Packages and open libraries.
+#Install VideoPlayR
+# if (!require(devtools)) {
+#   install.packages("devtools")
+# }
+# 
+# devtools::install_github("swarm-lab/videoplayR")
+# 
+# #install Other packages:
+# install.packages("dplyr")
+# install.packages("clue")
+# install.packages("shiny")
+# install.packages("splancs")
+# install.packages("grid")
+#Open Libraries
+library(videoplayR)
+library(dplyr)
+library(clue)
+library(shiny)
+library(splancs)
+library(grid)
+###Simple Tracker
+pdiff <- function(a, b) {
+  nr <- length(a)
+  nc <- length(b)
+  
+  ma <- matrix(a, nrow = nr, ncol = nc)
+  mb <- matrix(b, nrow = nr, ncol = nc, byrow = TRUE)
+  
+  ma - mb
+}
+
+# declare variables in the function name
+# what are current and past? defined elsewhere?
+simpleTracker <- function(current, past, lookBack = 30, maxDist = 10) { #assign lookBack and maxDist w/ immutable numbers?
+  if (nrow(past) == 0) {
+    current$track <- 1:nrow(current)
+    return(current)
+  }
+  
+  i <- current$frame[1]
+  trackCounter <- max(past$track)
+  # past <- dplyr::filter(past, frame > (i - lookBack), frame < i)
+  
+  mat <- abs(pdiff(current$x, past$x)) + abs(pdiff(current$y, past$y))
+  maxMat <- matrix(maxDist * (i - past$frame), nrow = nrow(current), ncol = nrow(past), byrow = TRUE)
+  validMat <- mat <= maxMat
+  
+  h <- as.vector(clue::solve_LSAP(mat))
+  tracks <- past$track[h]
+  
+  valid <- validMat[(h - 1) * nrow(mat) + 1:nrow(mat)]
+  if (any(!valid)) {
+    nNew <- sum(!valid)
+    tracks[!valid] <- trackCounter + 1:nNew
+    trackCounter <- trackCounter + nNew
+  }
+  
+  dup <- duplicated(tracks) | duplicated(tracks, fromLast = TRUE)
+  safe <- !dup
+  h[safe] <- 0
+  while (any(dup)) {
+    safe[which.max(h)] <- TRUE
+    h[safe] <- 0
+    
+    newCurrent <- current[!safe, ]
+    newPast <- dplyr::filter(past, !(track %in% tracks[safe]))
+    
+    if (nrow(newCurrent) > nrow(newPast)) {
+      n <- nrow(newCurrent) - nrow(newPast)
+      newPast <- rbind(newPast, data.frame(id = NA, x = rep(-9999, n), y = rep(-9999, n),
+                                           alpha = NA, major = NA, minor = NA, area = NA,
+                                           frame = newCurrent$frame[1], track = NA))
+    }
+    
+    mat <- abs(pdiff(newCurrent$x, newPast$x)) + abs(pdiff(newCurrent$y, newPast$y))
+    maxMat <- matrix(maxDist * (i - newPast$frame), nrow = nrow(newCurrent),
+                     ncol = nrow(newPast), byrow = TRUE)
+    validMat <- mat <= maxMat
+    
+    newH <- as.vector(clue::solve_LSAP(mat))
+    newTracks <- newPast$track[newH]
+    
+    valid <- validMat[(newH - 1) * nrow(mat) + 1:nrow(mat)]
+    if (any(!valid)) {
+      nNew <- sum(!valid)
+      newTracks[!valid] <- trackCounter + 1:nNew
+      trackCounter <- trackCounter + nNew
+    }
+    
+    tracks[!safe] <- newTracks
+    
+    dup <- duplicated(tracks) | duplicated(tracks, fromLast = TRUE)
+    safe <- !dup
+    h[safe] <- 0
+  }
+  
+  current$track <- tracks
+  current
+}
+
+pipeline <- function(video, begin, end, background, mask = NULL,
+                     threshold, minSize, lookBack, maxDist, progress = FALSE) {
+  
+  n <- (end - begin + 1)
+  tracks <- data.frame(id = numeric(n), x = numeric(n), y = numeric(n),
+                       alpha = numeric(n), major = numeric(n), minor = numeric(n),
+                       area = numeric(n), frame = numeric(n) - 2 * lookBack, track = numeric(n))
+  pos <- 0
+  
+  if (progress) {
+    pb <- shiny::Progress$new()
+    on.exit(pb$close())
+    pb$set(message = "Computing tracks", value = 0, detail = "0%")
+    nFrames <- length(begin:end)
+    old <- 0
+    oldFrame <- begin
+    oldTime <- Sys.time()
+  }
+  
+  for (i in begin:end) {
+    past <- dplyr::filter(tracks, frame > (i - lookBack) & frame < i)
+    
+    tmp <- getFrame(video, i) %>%
+      ddd2d() %>%
+      blend(background, ., "-") %>%
+{if (is.null(mask)) . else blend(., mask, "*")} %>%
+  thresholding(threshold, "binary") %>%
+  blobDetector() %>%
+  dplyr::filter(area >= minSize) %>%
+  dplyr::mutate(frame = i, track = NA) %>%
+{if (length(.$x) > 0)
+  trackR::simpleTracker(., past, lookBack = lookBack, maxDist = maxDist)
+ else . }
+
+nRows <- nrow(tmp)
+if (nRows > 0) {
+  if ((pos + nRows) > n) {
+    tracks[(n + 1):(2 * n + nRows), ] <- 0
+    n <- nrow(tracks)
+  }
+  tracks[(pos + 1):(pos + nRows), ] <- tmp
+  pos <- pos + nRows
+}
+
+if (progress) {
+  new <- floor(100 * (i - begin + 1) / nFrames)
+  if (new > old) {
+    newTime <- Sys.time()
+    fps <- (i - oldFrame + 1) / as.numeric(difftime(newTime, oldTime, unit = "secs"))
+    old <- new
+    oldFrame <- i
+    oldTime <- newTime
+    pb$set(value = old / 100, detail = paste0(old, "% - ", round(fps, digits = 2), "fps"))
+  }
+}
+  }
+
+tracks[1:pos, ]
+}
+
+##########################
+###Set Working Directory
+setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+##############
+
+#Bring in the video
+R1T1C1<- readVid("Project.mp4")
+
+
