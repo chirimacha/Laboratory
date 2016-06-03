@@ -10,7 +10,6 @@
 
 #load packages
 library(reshape) #Used to change data between short and long formats.
-library(survival) #for cox proportional hazaard
 library(tables)
 library(doBy)#use summaryBy function
 library(ggplot2)
@@ -23,26 +22,6 @@ setwd("C:/Users/dtrac/OneDrive/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug
 #MAC for Mike
 #setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")")
 
-
-###############################################################################
-#Tutorial on Cox Models from
-# http://rstudio-pubs-static.s3.amazonaws.com/5896_8f0fed2ccbbd42489276e554a05af87e.html
-#may also be helpful:
-#https://stat.ethz.ch/education/semesters/ss2011/seminar/contents/presentation_3.pdf
-data(package = "survival")
-
-## Load lung data
-data(lung)
-## Show first 6 rows
-head(lung)
-
-#Each row is comprised of one insect, with the follow up duration (until death),
-#and indicator if died or not (event=(status==2)
-lung$SurvObj <- with(lung, Surv(time, status == 2))
-
-?Surv
-
-
 ###############################################################################
 ###bring in data
 ###============================================================================
@@ -52,26 +31,270 @@ lung$SurvObj <- with(lung, Surv(time, status == 2))
 ##or ~Dropbox\Inesfly Paint for Bed Bugs\Data Entry\InesflyPilotData4_10_Updated_LM (1)
 ##data was saved as CSV then moved to repository.
 
-#Pilot Data 
-##Bring in Pilot Data
-#Pilot1D <- read.csv("DATA/InesflyPilot_1D.csv")
-#Pilot100D <- read.csv("DATA/InesflyPilot_100D.csv")
-#250 Days <- read.csv("DATA/")
-#1 Year <- read.csv("DATA/")
-
-#Data For Full Study: Individual Data for 1 Month
+#Data For Full Study: Individual Data for 1 Month (4 weeks)
 #for exposure 1 day post paint with individual measurements
-D1Ind <- read.csv("DATA/Inesfly_Ind_1D.csv")
+D1FSA <- read.csv("DATA/1DFSA.csv")
+D1FSB <- read.csv("DATA/1DFSB.csv")
+
 #for exposure 90 day post paint with individual measurements
-D90Ind <- read.csv("DATA/Inesfly_Ind_90DA.csv")
+D90FSA <- read.csv("DATA/90DFSA.csv")
+D90FSB <- read.csv("DATA/90DFSB.csv")
+
 #for exposure 180 days post painting with indivual measurements
-#D180Ind <- read.csv("DATA/Inesfly_Ind_180DA.csv")
+D180FSA <- read.csv("DATA/180DFSA.csv")
+D180FSB <- read.csv("DATA/180DFSB.csv")
 
 #bring in paint data
 PAINTDIST<- read.csv("DATA/InesflyPaintDistribution.csv")
 
 #bring in temperature data
-TEMPHUM<- read.csv("DATA/InesflyTempHum.csv")
+TEMPHUM<- read.csv("DATA/TempHumData.csv")
+
+###Put data set names into a vector so they can be looped through
+datasets <- c("D1FSA","D1FSB", "D90FSA", "D90FSB", "D180FSA", "D180FSB")
+
+########################################################################
+###Compare A and B versions of each data set and see where errors were made.
+
+###dimensions
+#remove any unused rows
+removeblank<-function(dataframe){
+  nulls<-which(dataframe$INSECT=="")
+  if( length(nulls) > 0) {
+    override <- dataframe[-nulls,]
+    dataframe<-override
+  } 
+  dataframe
+}
+
+#applie over all functions
+for(i in 1:length(datasets)){
+ reduced<-removeblank(get(datasets[i]))
+ assign(datasets[i], reduced)
+}
+
+dimequal <-data.frame()
+  
+for(j in 1:2){
+  if (dim(get(datasets[1]))[j] == dim(get(datasets[2]))[j]){print(TRUE)} else{print(FALSE)}
+  if (dim(get(datasets[3]))[j] == dim(get(datasets[4]))[j]){print(TRUE)} else{print(FALSE)}
+  if (dim(get(datasets[5]))[j] == dim(get(datasets[6]))[j]){print(TRUE)} else{print(FALSE)}
+  }
+ 
+###4=False means that dataset 1 and 2 have different columns
+names(get(datasets[1]))
+names(get(datasets[2]))
+
+###X1 should be "Days.Post.Painting"
+dsp<-which(names(get(datasets[2]))=="X1")
+names(D1FSB)[dsp] <- "Days.Post.Painting"
+
+###X should be removed
+xrm<-which(names(get(datasets[2]))=="X")
+D1FSB<-D1FSB[,-xrm]
+
+#################################################################
+###Now that the big each have the right dimensions, lets check individual values
+
+###Lets check Stage_start
+D1FSA$STAGE_START<-as.character(D1FSA$STAGE_START)
+D1FSB$STAGE_START<-as.character(D1FSB$STAGE_START)
+D180FSA$STAGE_START<-as.character(D180FSA$STAGE_START)
+D180FSB$STAGE_START<-as.character(D180FSB$STAGE_START)
+
+
+
+errors1<-which(D1FSA$STAGE_START != D1FSB$STAGE_START)
+errors2<-which(D90FSA$STAGE_START != D90FSB$STAGE_START)
+errors3<-which(D180FSA$STAGE_START != D180FSB$STAGE_START)
+
+
+###an AM. is introduced #error 3 below
+pe<-which(D1FSB$STAGE_START=="AM.")
+D1FSB$STAGE_START[pe]<-"AM"
+
+###lets take a look at the error data
+
+D1stageError<-data.frame(D1FSA$INSECT[errors1], D1FSA$STAGE_START[errors1], D1FSB$STAGE_START[errors1], 
+                         D1FSA$STAGE_END[errors1], D1FSB$STAGE_END[errors1], D1FSA$NOTES[errors1], D1FSB$NOTES[errors1])
+
+D90stageError<-data.frame(D90FSA$INSECT[errors2], D90FSA$STAGE_START[errors2], D90FSB$STAGE_START[errors2], 
+                         D90FSA$STAGE_END[errors2], D90FSB$STAGE_END[errors2], D90FSA$NOTES[errors2], D90FSB$NOTES[errors2])
+
+D180stageError<-data.frame(D180FSA$INSECT[errors3], D180FSA$STAGE_START[errors3], D180FSB$STAGE_START[errors3], 
+                         D180FSA$STAGE_END[errors3], D180FSA$NOTES[errors3])
+
+####Fixing D1 Stage Start Errors
+ #12 errors
+  #error 1:  5 not AF
+    sra <- errors1[1] 
+    D1FSA$STAGE_START[sra] <- "5"
+    D1FSA$STAGE_END[sra] <- "5"
+  #error 2: Molt 4 to 5
+    srb <- errors1[2] 
+    D1FSA$STAGE_START[srb] <- "4"
+  #error 3: Point added, fixed above
+  #error 4: Both completely wrong?
+    src <- errors1[4] 
+    D1FSB$STAGE_START[src] <- "5"
+    D1FSB$STAGE_END[src] <- "5"
+  #error 5: say comment that it laid eggs so assumed AF. 
+    #But note was ment for bug under it.
+    srd <- errors1[5] 
+    D1FSA$STAGE_START[srd]#<-"5"
+    D1FSA$STAGE_END[srd]#<-"5"
+    # D1FSA$NOTES[srd+1] <- D1FSA$NOTES[srd+1]
+    # D1FSA$NOTES[srd] <- ""
+  #error 6
+    sre<-errors1[6] 
+    D1FSA$STAGE_START[sre]<-"AF"
+  #error 7: Entered stages for quadrant 4 not 3
+    srf<-errors1[7] 
+    D1FSA$STAGE_START[srf]<-"4"
+    D1FSA$STAGE_END[srf]<-"4"
+  #error 8
+    srg<-errors1[8] 
+    D1FSA$STAGE_START[srg]<-"4"
+    D1FSA$STAGE_END[srg]<-"4"
+  #error 9
+    srh<-errors1[9] 
+    D1FSA$STAGE_START[srh]<-"AM"
+    D1FSA$STAGE_END[srh]<-"AM"
+  #error 10
+    sri<-errors1[10] 
+    D1FSA$STAGE_START[sri]<-"AM"
+    D1FSA$STAGE_END[sri]<-"AM"
+  #error 11
+    srj<-errors1[11] 
+    D1FSA$STAGE_START[srj]<-"5"
+    D1FSA$STAGE_END[srj]<-"5"
+  #error 12
+    srk<-errors1[12] 
+    D1FSA$STAGE_START[srk]<-"AM"
+    D1FSA$STAGE_END[srk]<-"AM"
+
+
+####Fixing D90 Stage Start Errors
+ #8 errors
+  #error 1: did not molt
+    e1_90 <-errors2[1] 
+    D90FSA$STAGE_START[e1_90]<-"5"
+  #error 2:
+    e2_90 <-errors2[2] 
+    D90FSA$STAGE_START[e2_90] <- "4"
+    D90FSA$STAGE_END[e2_90] <- "4"
+  #error 3 Marked AM when note denotes that it molted
+    e3_90<-which(D90FSA$INSECT=="03H-CO-4-08")
+    D90FSA$STAGE_START[e3_90] <- "5"
+  #error 4: Died in Molt, so 4
+    e4_90 <-errors2[4] 
+    D90FSA$STAGE_START[e4_90] <- "4"
+    D90FSA$STAGE_END[e4_90] <- "4"
+  #error 5: Marked as AF on B when it molted
+    e5_90<-which(D90FSB$INSECT=="24H-CO-3-4")
+    D90FSB$STAGE_START[e5_90] <- "5"
+  #error 6:
+    e6_90<-which(D90FSB$INSECT=="24H-CO-3-6")
+    D90FSB$STAGE_START[e6_90] <- "5"
+  #error 7:switch molt with 7 and 8
+    e7_90<-errors2[7]
+    D90FSB$STAGE_START[e7_90] <- "AF"
+  #error 8:
+    e8_90<-which(D90FSB$INSECT=="24H-CO-4-4")
+    D90FSB$STAGE_START[e8_90] <- "5"
+    
+####Fixing D180 Stage Start Errors
+  #4 errors
+  #error 1: Molted, so should be 5 for FSB
+  eo<-errors3[1] 
+  D180FSB$STAGE_START[eo]<-"5"
+  #error 2: Entered incorrectly on FSA as AF
+  et<-errors3[2] 
+  D180FSB$STAGE_START[et]<-"AM"
+  #error 3: Molted 
+  bm<-errors3[3]  
+  D180FSB$STAGE_START[bm]<-"5"
+  #error 4: Just an extra space in D180FSB
+  dk<-errors3[4]  
+  D180FSB$STAGE_START[dk]<-"AM"
+##############################################################################
+###Now to clean up the Living Status data
+##D1FS
+  inderrors1_1<-which(D1FSA$X2015.09.11 != D1FSB$X2015.09.11)
+  inderrors2_1<-which(D1FSA$X2015.09.12 != D1FSB$X2015.09.12)
+  inderrors3_1<-which(D1FSA$X2015.09.13 != D1FSB$X2015.09.13)
+  inderrors4_1<-which(D1FSA$X2015.09.18 != D1FSB$X2015.09.18)
+  inderrors5_1<-which(D1FSA$X2015.09.25 != D1FSB$X2015.09.25)
+  inderrors6_1<-which(D1FSA$X2015.10.02 != D1FSB$X2015.10.02)
+  inderrors7_1<-which(D1FSA$X2015.10.09 != D1FSB$X2015.10.09)
+  
+
+##9/11 errors 
+ #1 error  
+  error<-rbind(D1FSA[inderrors1_1,], D1FSB[inderrors1_1,])
+ #K should be A
+  D1FSA$X2015.09.11[inderrors1_1] <- "A"
+##9/12 errors #mostly due to entering in 3's data again
+  error2<-rbind(D1FSA[inderrors2_1,], D1FSB[inderrors2_1,])
+ #4 errors
+  #error 1
+  D1FSA$X2015.09.12[inderrors2_1[1]] <- "K"
+  D1FSA$X2015.09.18[inderrors2_1[1]] <- "K"
+  
+  #error 2
+  D1FSA$X2015.09.12[inderrors2_1[2]] <- "K"
+  D1FSA$X2015.09.13[inderrors2_1[2]] <- "K"
+  
+  #error 3
+  D1FSA$X2015.09.12[inderrors2_1[3]] <- "K"
+  D1FSA$X2015.09.13[inderrors2_1[3]] <- "K"
+  
+  #error 4
+  D1FSA$X2015.09.12[inderrors2_1[4]] <- "K"
+  
+##9/13 errors
+  error3<-rbind(D1FSA[inderrors3_1,], D1FSB[inderrors3_1,])
+ #5 errors #2 fixed above
+  #error1
+  D1FSB$X2015.09.13[inderrors3_1[1]] <- "K"
+  #error2
+  D1FSA$X2015.09.13[inderrors3_1[2]] <- "K"
+  #errors 3 and 4 are fixed above
+  #error 5
+  D1FSA$X2015.09.13[inderrors3_1[5]] <- "K"
+  
+##9/18 errors
+ #2 errors 364
+  error4<-rbind(D1FSA[inderrors4_1,], D1FSB[inderrors4_1,])
+  #error1 already corrected above
+  #error2:
+  D1FSA$X2015.09.18[inderrors4_1[2]] <- "D"
+  
+##9/25 errors#No errors :)
+##10/2 errors
+  #1 error
+  D1FSB$X2015.10.02[inderrors6_1] <- "K"
+  D1FSB$X2015.10.09[inderrors6_1] <- "D"
+  
+##10/9 errors
+ #3 error #1 fixed above
+  error7<-rbind(D1FSA[inderrors7_1,], D1FSB[inderrors7_1,])
+  #error 1 
+  D1FSA$X2015.10.09[inderrors7_1[1]] <- "D"
+  #error 2
+  D1FSA$X2015.10.09[inderrors7_1[2]] <- "D"
+  #error 3 fixed above
+  
+  
+  
+  inderrors1_1a<-which(D1FSA$X2015.09.11 != D1FSB$X2015.09.11)
+  inderrors2_1a<-which(D1FSA$X2015.09.12 != D1FSB$X2015.09.12)
+  inderrors3_1a<-which(D1FSA$X2015.09.13 != D1FSB$X2015.09.13) #
+  inderrors4_1a<-which(D1FSA$X2015.09.18 != D1FSB$X2015.09.18)
+  inderrors5_1a<-which(D1FSA$X2015.09.25 != D1FSB$X2015.09.25)
+  inderrors6_1a<-which(D1FSA$X2015.10.02 != D1FSB$X2015.10.02)
+  inderrors7_1a<-which(D1FSA$X2015.10.09 != D1FSB$X2015.10.09)
+  
 
 ###############################################################################
 ### Extract and Clean Individual Data and then Merge
@@ -86,28 +309,6 @@ D1Ind$QUAD <- substr(D1Ind$INSECT, 8, 8)
 D1Ind$EXPOSE<-substr(D1Ind$INSECT, 1, 6)
 #Split the exposure code into relevant information for
 #the group level observations
-
-#substring that character to split the exposure time by paint
-igr <- grep("5A",D1Jar$Exposure)
-cloro <- grep("CF", D1Jar$Exposure )
-control <- grep("CO", D1Jar$Exposure )
-D1Jar$paint <- (c(1:length(D1Jar$Exposure))*0)
-D1Jar$paint[igr] <- "5A"
-D1Jar$paint[cloro] <- "CF"
-D1Jar$paint[control] <- "CO"
-#and by length of time
-#make vector of indecies for each time
-oneh <- grep("1",D1Jar$Exposure)
-threeh <- grep("3", D1Jar$Exposure )
-sixh <- grep("6", D1Jar$Exposure )
-oned <- grep("24", D1Jar$Exposure )
-#make a blank table
-D1Jar$time <- c(1:length(D1Jar$Exposure))*0
-#Insert the corresponding time into the table
-D1Jar$time[oneh] <- 1
-D1Jar$time[threeh] <- 3
-D1Jar$time[sixh] <- 6
-D1Jar$time[oned] <- 24
 
 #Remove blank column
 chop <- which(names(D1Ind)=="X")
@@ -207,328 +408,3 @@ LD1Ind$living[living] <- 1
 #also add back collective data to 1H-5A 2015-09-2015
 
 #==============================================================================
-
-#Survival Analysis
-#Create Kaplan Meier Curves
-#Put date into numeric format
-LD1Ind$julian<-julian(LD1Ind$DATE)
-LD1Ind$DAY<-as.numeric(LD1Ind$julian-min(LD1Ind$julian))
-#First create Survival object
-Surv(time=LD1Ind$DAY, event=LD1Ind$dead)
-
-#lets do simple calculations finding the number and proportion by group
-
-##Use the summary By funciton on Expose and Date to get counts
-treatmentsum<-summaryBy(alive+dead+knockdown+unviable+living~EXPOSE+DATE+
-                        TIME+TREATMENT,data=LD1Ind, FUN=sum,na.rm=TRUE,
-                        keep.names=TRUE)
-
-#create column for total insect
-treatmentsum$totalbug<-(treatmentsum$alive+treatmentsum$unviable)
-
-#remove rows with totalbug=0
-nobug<-which(treatmentsum$totalbug==0)
-treatmentsum<-treatmentsum[-nobug,]
-
-##add rows for total on each treatment and the total for each day
-#treatment
-sumpaint <- summaryBy(alive+dead+knockdown+unviable+living+totalbug~TREATMENT+DATE,
-                      data=treatmentsum, FUN=sum,na.rm=TRUE, keep.names=TRUE)
-#day
-sumtdate <-summaryBy(alive+dead+knockdown+unviable+living+totalbug~DATE,
-                     data=treatmentsum, FUN=sum,na.rm=TRUE, keep.names=TRUE)
-##now add empty rows so you can join both tables together.
-#treatment
-sumpaint$EXPOSE<-sumpaint$alive*NA
-#sumpaint$DATE<-sumpaint$alive*NA
-#sumpaint$DATE<-as.Date(sumpaint$DATE, origin="1970-01-01")
-sumpaint$TIME<-sumpaint$alive*NA
-#DATE
-sumtdate$EXPOSE<-sumtdate$alive*NA
-sumtdate$TREATMENT<-sumtdate$alive*NA
-sumtdate$TIME<-sumtdate$alive*NA
-
-##join the three tables together
-joined<-rbind(treatmentsum, sumtdate)
-sumtab<-rbind(joined, sumpaint)
-
-#make proportionality
-treatmentsum$palive<-treatmentsum$alive/treatmentsum$totalbug
-treatmentsum$pdead<-treatmentsum$dead/treatmentsum$totalbug
-treatmentsum$pKD<-treatmentsum$knockdown/treatmentsum$totalbug
-treatmentsum$pUV<- treatmentsum$unviable/treatmentsum$totalbug
-treatmentsum$pliving<-treatmentsum$living/treatmentsum$totalbug
-
-#==============================================================================
-#Create Nice table with summary 
-
-#==============================================================================
-###Lets create curves showing the proportion of status seperated by treatment.
-#Create indecies for each paint
-fiveA <-which(treatmentsum$TREATMENT=="5A")
-cnt <- which(treatmentsum$TREATMENT=="CO")
-Clf <- which(treatmentsum$TREATMENT=="CF")
-
-##Make plots
-#pdf()
-#5a
-par(mfrow=c(1,3))
-a<-ggplot(data= treatmentsum[fiveA,], aes( y=pdead , x= DATE, group= TIME, color=TIME, 
-                                   na.rm=TRUE))+geom_line()+geom_point()
-a<-a+ggtitle("5A-IGR")
-a<-a+scale_fill_manual(values=c("blue", "red"))
-a
-#control
-b<-ggplot(data= treatmentsum[cnt,], aes( y=pdead , x= DATE, group= TIME, color=TIME, 
-                                   na.rm=TRUE))+geom_line()+geom_point()
-b<-b+ggtitle("Control")
-b<-b+scale_fill_manual(values=c("blue", "red"))
-b
-#cf
-c<-ggplot(data= treatmentsum[Clf,], aes( y=pdead , x= DATE, group= TIME, color=TIME, 
-                                   na.rm=TRUE))+geom_line()+geom_point()
-c<-c+ggtitle("Clorofenapyr")
-c<-c+scale_fill_manual(values=c("blue", "red"))
-c
-#dev.off()
-#Clorofenapyr
-par(mfrow=c(1,1))
-##Lets plot death and unviable by time on each data set 
-#DEATH
-#pdf("TABLES_GRAPHS/DeathCurve_1DAY_PostPaint.pdf")
-g<-ggplot(data= treatmentsum, aes( y=pdead , x= DATE, group= EXPOSE, color=TREATMENT,linetype= TIME, 
-                                   na.rm=TRUE))+geom_line() +geom_point(aes(shape = TIME))
-g<-g+ggtitle("Percentage Dead Over Time")+ylab("Percent Dead")
-g<-g+scale_fill_manual(values=c("blue", "red"))
-g
-#dev.off()
-#Unviable
-#pdf("PerUV.pdf")
-h<-ggplot(data= treatmentsum, aes(y = pUV , x = DATE, group = EXPOSE, color = TREATMENT, 
-                             linetype = TIME,  na.rm=TRUE))+geom_line()+geom_point(aes(shape = TIME))
-h<-h+ggtitle("Percentage Unviable Over Time")+ylab("Percentage Dead or Knockdown")
-h<-h+scale_fill_manual(values=c("blue", "red"))
-h
-#dev.off()
-
-pdf("TABLES_GRAPHS/SurvivalCurve_1DAY_PostPaint.pdf")
-k<-ggplot(data= treatmentsum, aes( y=palive , x= DATE, group= EXPOSE, color=TREATMENT,linetype= TIME, 
-                                   na.rm=TRUE))+geom_line() +geom_point(aes(shape = TIME))
-k<-k+ggtitle("Percentage Alive Over Time")+ylab("Percent Alive")
-k<-k+scale_fill_manual(values=c("blue", "red"))
-k
-#dev.off()
-#Unviable
-#pdf("PerUV.pdf")
-l<-ggplot(data= treatmentsum, aes(y = pliving , x = DATE, group = EXPOSE, color = TREATMENT, 
-                                  linetype = TIME,  na.rm=TRUE))+geom_line()+geom_point(aes(shape = TIME))
-l<-l+ggtitle("Percentage Living Over Time")+ylab("Percentage Alive or Knockdown")
-l<-l+scale_fill_manual(values=c("blue", "red"))
-l
-dev.off()
-
-#==============================================================================
-#90 Day Replicate
-###bring in data
-#for exposure 1 day post paint with individual measurements
-D90Ind <- read.csv("DATA/Inesfly_Ind_90DA.csv")
-#for exposure 1 day post paint with jar counts
-#D90Jar <- read.csv("DATA/Inesfly_Jar_1D.csv")
-
-#Split the unicode into relevant information for Individual observations
-D90Ind$INSECT <- as.character(D90Ind$INSECT)
-D90Ind$TIME <- substr(D90Ind$INSECT, 1, 3)
-D90Ind$TREATMENT <- substr(D90Ind$INSECT, 5, 6)
-D90Ind$QUAD <- substr(D90Ind$INSECT, 8, 8)
-D90Ind$EXPOSE<-substr(D90Ind$INSECT, 1, 6)
-
-#substring that character to split the exposure time by paint
-igr <- grep("5A",D90Jar$Exposure)
-cloro <- grep("CF", D90Jar$Exposure )
-control <- grep("CO", D90Jar$Exposure )
-D90Jar$paint <- (c(1:length(D90Jar$Exposure))*0)
-D90Jar$paint[igr] <- "5A"
-D90Jar$paint[cloro] <- "CF"
-D90Jar$paint[control] <- "CO"
-#and by length of time
-#make vector of indecies for each time
-oneh <- grep("1",D90Jar$Exposure)
-threeh <- grep("3", D90Jar$Exposure )
-sixh <- grep("6", D90Jar$Exposure )
-oned <- grep("24", D90Jar$Exposure )
-#make a blank table
-D90Jar$time <- c(1:length(D1Jar$Exposure))*0
-#Insert the corresponding time into the table
-D90Jar$time[oneh] <- 1
-D90Jar$time[threeh] <- 3
-D90Jar$time[sixh] <- 6
-D90Jar$time[oned] <- 24
-
-#Remove blank column
-#chop <- which(names(D90Ind)=="X")
-#D90Ind <- D90Ind[,-chop]
-
-LD90Ind<-melt(D90Ind, id=c("INSECT","STAGE_START","STAGE_END","TIME","EXPOSE", "QUAD", "NOTES",
-                         "TREATMENT", "DAYS.SINCE.PAINT"))
-
-#the variable needs to be turned into a date object
-#so first make it a character
-LD90Ind$variable<-as.character(LD90Ind$variable)
-#remove the X's
-LD90Ind$variable <- gsub("X","",LD90Ind$variable)
-#replace the "." with "-"
-LD90Ind$variable <- gsub("[.]","-", LD90Ind$variable)
-#idk why dots are introduced in 90 but not 1, but lets remove the estras at ends
-LD90Ind$variable<-substring(LD90Ind$variable, 2, 11)
-
-LD90Ind$variable<-as.Date(LD90Ind$variable)
-
-#to prevent confusion lets rename "variable" to "date"
-chngname<-which(names(LD90Ind)=="variable")
-names(LD90Ind)[chngname] <- "DATE"
-#lets also rename "value" to "status"
-chval<-which(names(LD90Ind)=="value")
-names(LD90Ind)[chval] <- "STATUS"
-
-#==============================================================================
-###Now that we have the data in a usable table, lets split the status into binary
-#find 
-alive <- which(LD90Ind$STATUS== "A")
-knockdown <- which(LD90Ind$STATUS=="K")
-dead <- which(LD90Ind$STATUS=="D")
-unviable <- c(dead, knockdown)
-living <- c(alive, knockdown)
-
-##create columns 
-#make Quad numeric in order to create blank columns
-LD90Ind$QUAD<-as.numeric(LD90Ind$QUAD)
-
-#create blank columns for each status.
-LD90Ind$alive <- LD90Ind$QUAD*0
-LD90Ind$alive[alive] <- 1
-LD90Ind$knockdown <- LD90Ind$QUAD*0
-LD90Ind$knockdown[knockdown] <- 1
-LD90Ind$dead <- LD90Ind$QUAD*0
-LD90Ind$dead[dead] <- 1
-LD90Ind$unviable <- LD90Ind$QUAD*0
-LD90Ind$unviable[unviable] <- 1
-LD90Ind$living <- LD90Ind$QUAD*0
-LD90Ind$living[living] <- 1
-
-#==============================================================================
-##Lets clean up the data so that we get smooth transitions
-#If dead, then becomes knockdown mark as knock down.
-
-#also consider case where knock down went to alive.
-
-#consider removing 2015-09-11 and 13 since data not available for 24hr.
-
-#also add back collective data to 1H-5A 2015-09-2015
-
-#==============================================================================
-#lets do simple calculations finding the number and proportion by group
-
-##Use the summary By funciton on Expose and Date to get counts
-treatmentsum90<-summaryBy(alive+dead+knockdown+unviable+living~EXPOSE+DATE+
-                          TIME+TREATMENT,data=LD90Ind, FUN=sum,na.rm=TRUE,
-                        keep.names=TRUE)
-
-#create column for total insect
-treatmentsum90$totalbug<-(treatmentsum90$alive+treatmentsum90$unviable)
-
-#remove rows with totalbug=0
-nobug<-which(treatmentsum90$totalbug==0)
-treatmentsum<-treatmentsum90[-nobug,]
-
-##add rows for total on each treatment and the total for each day
-#treatment
-sumpaint90 <- summaryBy(alive+dead+knockdown+unviable+living+totalbug~TREATMENT+DATE,
-                      data=treatmentsum90, FUN=sum,na.rm=TRUE, keep.names=TRUE)
-#day
-sumtdate90 <-summaryBy(alive+dead+knockdown+unviable+living+totalbug~DATE,
-                     data=treatmentsum90, FUN=sum,na.rm=TRUE, keep.names=TRUE)
-##now add empty rows so you can join both tables together.
-#treatment
-sumpaint90$EXPOSE<-sumpaint90$alive*NA
-#sumpaint90$DATE<-sumpaint90$alive*NA
-#sumpaint90$DATE<-as.Date(sumpaint90$DATE, origin="1970-01-01")
-sumpaint90$TIME<-sumpaint90$alive*NA
-#DATE
-sumtdate90$EXPOSE<-sumtdate90$alive*NA
-sumtdate90$TREATMENT<-sumtdate90$alive*NA
-sumtdate90$TIME<-sumtdate90$alive*NA
-
-##join the three tables together
-joined90<-rbind(treatmentsum90, sumtdate90)
-sumtab90<-rbind(joined90, sumpaint90)
-
-#make proportionality
-treatmentsum90$palive<-treatmentsum90$alive/treatmentsum90$totalbug
-treatmentsum90$pdead<-treatmentsum90$dead/treatmentsum90$totalbug
-treatmentsum90$pKD<-treatmentsum90$knockdown/treatmentsum90$totalbug
-treatmentsum90$pUV<- treatmentsum90$unviable/treatmentsum90$totalbug
-treatmentsum90$pliving<-treatmentsum90$living/treatmentsum90$totalbug
-
-###Lets create curves showing the proportion of status seperated by treatment.
-#Create indecies for each paint
-fiveA <-which(treatmentsum90$TREATMENT=="5A")
-cnt <- which(treatmentsum90$TREATMENT=="CO")
-Clf <- which(treatmentsum90$TREATMENT=="CF")
-
-##Make plots
-#pdf()
-#5a
-par(mfrow=c(1,3))
-m<-ggplot(data= treatmentsum90[fiveA,], aes( y=pdead , x= DATE, group= TIME, color=TIME, 
-                                           na.rm=TRUE))+geom_line()+geom_point()
-m<-m+ggtitle("5A-IGR")
-m<-m+scale_fill_manual(values=c("blue", "red"))
-m
-#control
-n<-ggplot(data= treatmentsum90[cnt,], aes( y=pdead , x= DATE, group= TIME, color=TIME, 
-                                         na.rm=TRUE))+geom_line()+geom_point()
-n<-n+ggtitle("Control")
-n<-n+scale_fill_manual(values=c("blue", "red"))
-n
-#cf
-o<-ggplot(data= treatmentsum90[Clf,], aes( y=pdead , x= DATE, group= TIME, color=TIME, 
-                                         na.rm=TRUE))+geom_line()+geom_point()
-o<-o+ggtitle("Clorofenapyr")
-o<-o+scale_fill_manual(values=c("blue", "red"))
-o
-#dev.off()
-#Clorofenapyr
-par(mfrwo=c(1,1))
-##Lets plot death and unviable by time on each data set 
-#DEATH
-pdf("TABLES_GRAPHS/DeathCurve_90DAYs_PostPaint.pdf")
-p<-ggplot(data= treatmentsum90, aes( y=pdead , x= DATE, group= EXPOSE, color=TREATMENT,linetype= TIME, 
-                                   na.rm=TRUE))+geom_line() +geom_point(aes(shape = TIME))
-p<-p+ggtitle("Percentage Dead Over Time")+ylab("Percent Dead")
-p<-p+scale_fill_manual(values=c("blue", "red"))
-p
-#dev.off()
-#Unviable
-#pdf("PerUV.pdf")
-r<-ggplot(data= treatmentsum90, aes(y = pUV , x = DATE, group = EXPOSE, color = TREATMENT, 
-                                  linetype = TIME,  na.rm=TRUE))+geom_line()+geom_point(aes(shape = TIME))
-r<-r+ggtitle("Percentage Unviable Over Time")+ylab("Percentage Dead or Knockdown")
-r<-r+scale_fill_manual(values=c("blue", "red"))
-h
-dev.off()
-
-pdf("TABLES_GRAPHS/SurvivalCurve_90DAY_PostPaint.pdf")
-s<-ggplot(data= treatmentsum90, aes( y=palive , x= DATE, group= EXPOSE, color=TREATMENT,linetype= TIME, 
-                                   na.rm=TRUE))+geom_line() +geom_point(aes(shape = TIME))
-s<-s+ggtitle("Percentage Alive Over Time")+ylab("Percent Alive")
-s<-s+scale_fill_manual(values=c("blue", "red"))
-s
-#dev.off()
-#Unviable
-#pdf("PerUV.pdf")
-t<-ggplot(data= treatmentsum90, aes(y = pliving , x = DATE, group = EXPOSE, color = TREATMENT, 
-                                  linetype = TIME,  na.rm=TRUE))+geom_line()+geom_point(aes(shape = TIME))
-t<-t+ggtitle("Percentage Living Over Time")+ylab("Percentage Alive or Knockdown")
-t<-t+scale_fill_manual(values=c("blue", "red"))
-t
-dev.off()
