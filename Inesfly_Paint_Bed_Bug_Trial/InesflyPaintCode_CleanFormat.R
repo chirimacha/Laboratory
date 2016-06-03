@@ -108,7 +108,6 @@ errors1<-which(D1FSA$STAGE_START != D1FSB$STAGE_START)
 errors2<-which(D90FSA$STAGE_START != D90FSB$STAGE_START)
 errors3<-which(D180FSA$STAGE_START != D180FSB$STAGE_START)
 
-
 ###an AM. is introduced #error 3 below
 pe<-which(D1FSB$STAGE_START=="AM.")
 D1FSB$STAGE_START[pe]<-"AM"
@@ -132,17 +131,17 @@ D180stageError<-data.frame(D180FSA$INSECT[errors3], D180FSA$STAGE_START[errors3]
     D1FSA$STAGE_END[sra] <- "5"
   #error 2: Molt 4 to 5
     srb <- errors1[2] 
-    D1FSA$STAGE_START[srb] <- "4"
+    D1FSB$STAGE_START[srb] <- "4"
   #error 3: Point added, fixed above
-  #error 4: Both completely wrong?
+  #error 4:
     src <- errors1[4] 
-    D1FSB$STAGE_START[src] <- "5"
-    D1FSB$STAGE_END[src] <- "5"
+    D1FSA$STAGE_START[src] <- "5"
+    D1FSA$STAGE_END[src] <- "5"
   #error 5: say comment that it laid eggs so assumed AF. 
     #But note was ment for bug under it.
     srd <- errors1[5] 
-    D1FSA$STAGE_START[srd]#<-"5"
-    D1FSA$STAGE_END[srd]#<-"5"
+    D1FSA$STAGE_START[srd] <- "5"
+    D1FSA$STAGE_END[srd] <- "5"
     # D1FSA$NOTES[srd+1] <- D1FSA$NOTES[srd+1]
     # D1FSA$NOTES[srd] <- ""
   #error 6
@@ -179,18 +178,18 @@ D180stageError<-data.frame(D180FSA$INSECT[errors3], D180FSA$STAGE_START[errors3]
   #error 1: did not molt
     e1_90 <-errors2[1] 
     D90FSA$STAGE_START[e1_90]<-"5"
-  #error 2:
+#  #error 2:
     e2_90 <-errors2[2] 
     D90FSA$STAGE_START[e2_90] <- "4"
     D90FSA$STAGE_END[e2_90] <- "4"
   #error 3 Marked AM when note denotes that it molted
     e3_90<-which(D90FSA$INSECT=="03H-CO-4-08")
     D90FSA$STAGE_START[e3_90] <- "5"
-  #error 4: Died in Molt, so 4
+#  #error 4: Died in Molt, so 4
     e4_90 <-errors2[4] 
     D90FSA$STAGE_START[e4_90] <- "4"
     D90FSA$STAGE_END[e4_90] <- "4"
-  #error 5: Marked as AF on B when it molted
+#  #error 5: Marked as AF on B when it molted
     e5_90<-which(D90FSB$INSECT=="24H-CO-3-4")
     D90FSB$STAGE_START[e5_90] <- "5"
   #error 6:
@@ -209,14 +208,98 @@ D180stageError<-data.frame(D180FSA$INSECT[errors3], D180FSA$STAGE_START[errors3]
   eo<-errors3[1] 
   D180FSB$STAGE_START[eo]<-"5"
   #error 2: Entered incorrectly on FSA as AF
-  et<-errors3[2] 
-  D180FSB$STAGE_START[et]<-"AM"
+  et<-errors3[2]  
+  D180FSA$STAGE_START[et] <- "AM"
+  D180FSA$STAGE_END[et] <- "AM"
+  
   #error 3: Molted 
   bm<-errors3[3]  
   D180FSB$STAGE_START[bm]<-"5"
   #error 4: Just an extra space in D180FSB
   dk<-errors3[4]  
   D180FSB$STAGE_START[dk]<-"AM"
+  
+  
+###Lets check to make sure all errors were corrected  
+  errors1a<-which(D1FSA$STAGE_START != D1FSB$STAGE_START) #3 not fixed (e2,4,5)
+  errors2a<-which(D90FSA$STAGE_START != D90FSB$STAGE_START) #good to go
+  errors3a<-which(D180FSA$STAGE_START != D180FSB$STAGE_START)
+  
+#############################################################################  
+###for stage_end
+  D1FSA$STAGE_END<-as.character(D1FSA$STAGE_END)
+  D1FSB$STAGE_END<-as.character(D1FSB$STAGE_END)
+  D90FSA$STAGE_END<-as.character(D90FSA$STAGE_END)
+  D90FSB$STAGE_END<-as.character(D90FSB$STAGE_END)
+  D180FSA$STAGE_END<-as.character(D180FSA$STAGE_END)
+  D180FSB$STAGE_END<-as.character(D180FSB$STAGE_END)
+  
+  eerrors1<-which(D1FSA$STAGE_END != D1FSB$STAGE_END)
+  eerrors2<-which(D90FSA$STAGE_END != D90FSB$STAGE_END)
+  eerrors3<-which(D180FSA$STAGE_END != D180FSB$STAGE_END)  
+  
+  #Tables to visualize errors
+  D1stageErrorE<-data.frame(D1FSA$INSECT[eerrors1], D1FSA$STAGE_START[eerrors1], D1FSB$STAGE_START[eerrors1], 
+                           D1FSA$STAGE_END[eerrors1], D1FSB$STAGE_END[eerrors1], D1FSA$NOTES[eerrors1], D1FSB$NOTES[eerrors1])
+  
+  D90stageErrorE<-data.frame(D90FSA$INSECT[eerrors2], D90FSA$STAGE_START[eerrors2], D90FSB$STAGE_START[eerrors2], 
+                            D90FSA$STAGE_END[eerrors2], D90FSB$STAGE_END[eerrors2], D90FSA$NOTES[eerrors2], D90FSB$NOTES[eerrors2])
+  
+  D180stageErrorE<-data.frame(D180FSA$INSECT[eerrors3], D180FSA$STAGE_START[eerrors3], D180FSB$STAGE_START[eerrors3], 
+                             D180FSA$STAGE_END[eerrors3],D180FSB$STAGE_END[eerrors3], D180FSA$NOTES[eerrors3])
+  
+###Errors for 1
+ ## 3 errors
+  #error 1: Extra Space
+  D1FSB$STAGE_END[eerrors1[1]] <- "AM" 
+  #error 2: Comma introduced
+  D1FSB$STAGE_END[eerrors1[2]] <- "AM" 
+  #error 3: SM instead of Am
+  D1FSB$STAGE_END[eerrors1[3]] <- "AM" 
+  
+###Errors for 90
+ ## 5 errors
+  #error 1: Died in molt so should be 5 for FSA
+  D90FSB$STAGE_END[eerrors2[c(4,5)]] <- "5"
+  #error 2: space?
+  D90FSA$STAGE_END[eerrors2[2]] <- "AM"
+  #error 3: Died in molth so record as 5
+  D90FSA$STAGE_END[eerrors2[3]] <- "5"
+  #errors 4 and 5 are missing values
+  D90FSB$STAGE_END[eerrors2[4]] <- "5"
+  D90FSB$STAGE_END[eerrors2[5]] <- "5"
+  
+###Errors for 180
+ ## 10 errors
+  #error1: No entry. Stuck in molt?
+  D180FSB$STAGE_END[eerrors3[1]] <- "5"
+  #error2: No entry, died in molt
+  D180FSB$STAGE_END[eerrors3[2]] <- "5"
+  #error3: Died in molt
+  D180FSA$STAGE_END[eerrors3[3]] <- "5"
+  #error4: checked jar record, said most likely male
+  D180FSA$STAGE_END[eerrors3[4]] <- "AM"
+  D180FSB$STAGE_END[eerrors3[4]] <- "AM"
+  D180FSA$NOTES<-as.character(D180FSA$NOTES)
+  D180FSA$NOTES[eerrors3[4]] <- "Checked jar record; most likely male"
+  #error5: type error
+  D180FSB$STAGE_END[eerrors3[5]] <- "5"
+  #error6: added an extra A
+  D180FSB$STAGE_END[eerrors3[6]] <- "AM"
+  #error7: added 0 to 5
+  D180FSB$STAGE_END[eerrors3[7]] <- "5"
+  #error8:  #Unidentified(checked jar record)
+  D180FSA$STAGE_END[eerrors3[8]] <- "AU"
+  D180FSB$STAGE_END[eerrors3[8]] <- "AU"
+  D180FSA$NOTES[eerrors3[8]] <- "Adult; sex unidentified"
+  #error9: not entered
+  D180FSB$STAGE_END[eerrors3[9]] <- "5"
+
+###Check that the no errors are occuring anymore
+  eerrors1a<-which(D1FSA$STAGE_END != D1FSB$STAGE_END)
+  eerrors2a<-which(D90FSA$STAGE_END != D90FSB$STAGE_END)
+  eerrors3a<-which(D180FSA$STAGE_END != D180FSB$STAGE_END)  
+  
 ##############################################################################
 ###Now to clean up the Living Status data
 ##D1FS
