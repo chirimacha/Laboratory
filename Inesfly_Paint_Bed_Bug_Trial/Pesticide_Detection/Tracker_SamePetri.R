@@ -166,11 +166,122 @@ tracks[1:pos, ]
 }
 
 ##########################
+frfbvid<-getFrame(fbvid, 20)
+getpoint<-function(frame) { # Do not change Quartz size
+    rto <- frame$dim[1]/frame$dim[2]
+    print(rto)
+    ht<-rto*6
+    quartz(width=6, height=ht)
+  
+    imshow(frame)
+    a<-grid.locator(unit = "npc")
+    gcx<-as.numeric(a$x)
+    gcy<-as.numeric(a$y)
+    X <- ceiling(gcx*frame$dim[2])
+    Y <- ceiling(gcy*frame$dim[1])
+    imshow(frame)
+    points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
+    coord<-c(X,Y)
+    output=coord
+    }
+  # #Repeat the above code to find points. Manually enter them in the data frames.
+   tester <- getpoint(frfbvid)
+  # tester
+
+##########################
 ###Set Working Directory
+setwd("/Users/mzlevy")
+###Bring in video'
+#File is 108MB. Too large for Github
+fbvid <- readVid("5bugs.mp4")  
+#MP4 and WMV can be found on Google Drive
+#https://drive.google.com/open?id=0BymPutRx4sc2Yjh3YXJXVXV6QzA
+
+###Reset the working director
 setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+
 ##############
+#create the background; serves as comparison or "bugless" control
+bg<-backgrounder(fbvid, n=150, method="median", color= TRUE)
+##create a colorless background
+#bgcl<-backgrounder(fbvid, n=150, method="median", color= TRUE)
 
-#Bring in the video
-R1T1C1<- readVid("Project.mp4")
 
+#create a mask to reduce glare and other issues simple tracker
+mat1 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
+# Create white hole for each petri dish in complete mask. The matrix works 
+# left to right, BUT top to bottom. Graph works bottom to top so we need 
+# correction.
+mat1[((bg$dim[1])-418):((bg$dim[1])-204), 312:504] <- 1
+imask <- d2ddd(r2img(mat1))
+# Blend mask and background to get a masked background
+mbg<-(blend(bg, imask, "*"))
+#number of frames (iterations of loop)
+fr<-fbvid$length
+
+#create empty data frame for loop output
+bugpos<-data.frame()
+
+#loop through each frame to do video processing
+for (l in 1:fr){
+res <- getFrame(fbvid, l) # extract individual frames
+#gryscl <- ddd2d(res) # put frame into grey scale.
+mask <- blend(res, imask, "*") # mask other petri dishes
+sub <- blend(mbg, res, "-") # subtract background from the mask 
+# (previous image). Only movement shows
+bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+# to remove changes due to 
+# glare/noise
+bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+# gets coordinates
+# add track # to data frame only if a change is detected
+
+#++++++++++++++++
+# res1 <- getFrame(fbvid, 5) # extract individual frames
+# #gryscl <- ddd2d(res) # put frame into grey scale.
+# mask1 <- blend(res1, imask, "*") # mask other petri dishes
+# sub <- blend(mbg, res, "-") # subtract background from the mask 
+# # (previous image). Only movement shows
+# bw <- thresholding(sub, thres = 200, "binary") # set a threshold difference 
+# # to remove changes due to 
+# # glare/noise
+# bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+# 
+
+
+
+if (nrow(bugcords) > 0) {
+  bugcords <- mutate(bugcords, frame = l, track = NA) 
+  # determines what points are linked. Optimally each insect given 1 track 
+  # each because there is only one object, we can max out maxDist. 
+  stout <- simpleTracker(past = bugpos, current = bugcords, 
+                         maxDist = 20) 
+  # combine tables previous in the loop.
+  bugpos<- rbind(bugpos, stout)
+  #bugpos <- bugcords
+}
+if (l==3){
+  print(l)
+}
+
+if (l==fr/4){
+  print(l)
+}
+
+if (l==fr/2){
+  print(l)
+  }
+}
+
+if (l==((3*fr)/4){
+  print(l)
+}
+
+imshow(bg)
+  for(i in 1:max(bugpos$track)){
+    insect<-which(bugpos$track==i)
+    lines(x = c(bugpos$x[insect]),y=c(bugpos$y[insect]), col=i) 
+  }
+
+write.csv(bugpos, "fullviddata.csv")
 

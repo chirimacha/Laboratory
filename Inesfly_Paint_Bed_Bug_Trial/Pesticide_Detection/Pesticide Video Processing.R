@@ -656,5 +656,5 @@ CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2)
 CompVidRep2$Pesticide <- 0  
 CompVidRep2$Pesticide[uno] <- 0
 CompVidRep2$Pesticide[intersect( PTrays, dos)] <- 1
-CompVidRep2$Pesticide[tres] <- 0
+CompVidRep2$Pesticide[tres] <- 0f
 CompVidRep2$Pesticide[intersect( PTrays, cuatro)] <- 1
