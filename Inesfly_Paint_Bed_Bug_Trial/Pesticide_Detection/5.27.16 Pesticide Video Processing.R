@@ -267,15 +267,13 @@ tracks[1:pos, ]
 
 # Coords helper function finds which quadrant 
 # each of the blobs are in for each frame
-Coords<-function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
-  # determine loop length
-  #     if (video$length < 1800) {
-  #       fr <- video$length
-  #     } else {
-  #       fr <- 1800
-  #     }
-  # Temporarily set fr to 20 to speed up code while debugging. Usually 1800.
-  fr <- 20 # when i switch this to 20, it throws the error
+Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
+ if (video$length < 1800) {  # determine loop length
+   fr <- video$length
+   } else {
+   fr <- 1800
+   }
+  # fr <- 20
   
   # Looks at each video frame and finds the coordinates of each blob
   bugpos <- data.frame()
@@ -326,9 +324,16 @@ Coords<-function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
   return(bugpos) # Return the data table.
 }
 
+ImputeData <- function(compVid) {
+  if (nrow(compVid) < 1800) {
+    
+  }
+}
+  
+
 # VidAnalysis takes in the video and coordinate table to output the coordinates
 # of the insect in each frame for all 6 bugs.
-VidAnalysis<-function(video, bg, coordtab, thresholda,
+VidAnalysis <- function(video, bg, coordtab, thresholda,
                       maxDistb, cam, rep, trial) {
   # Creates black masks over each petri dish, giving black rectangle
   for (i in 1:6) {
@@ -395,6 +400,7 @@ for (i in 2:repetition) {
                                     thresholda <- user_thresh,
                                     maxDistb <- user_max,
                                     cam <- k, rep <- i, trial <- j))
+      print(paste(temp_name,"....Completed!", sep = "")
       # write.csv(DR_T_C_, "Rep_Trial_Cam_RawData.csv") <- needs to be defined
     }
   }
