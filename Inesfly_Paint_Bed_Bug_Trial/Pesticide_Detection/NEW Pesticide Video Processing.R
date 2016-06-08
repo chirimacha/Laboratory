@@ -268,12 +268,12 @@ tracks[1:pos, ]
 # Coords helper function finds which quadrant 
 # each of the blobs are in for each frame
 Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
- if (video$length < 1800) {  # determine loop length
-   fr <- video$length
-   } else {
-   fr <- 1800
-   }
-  # fr <- 20
+#  if (video$length < 1800) {  # determine loop length
+#    fr <- video$length
+#    } else {
+#    fr <- 1800
+#    }
+   fr <- 200
   
   # Looks at each video frame and finds the coordinates of each blob
   bugpos <- data.frame()
@@ -323,13 +323,6 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
   bugpos$trayn <- tn # Indicate the tray in data table.
   return(bugpos) # Return the data table.
 }
-
-ImputeData <- function(compVid) {
-  if (nrow(compVid) < 1800) {
-    
-  }
-}
-  
 
 # VidAnalysis takes in the video and coordinate table to output the coordinates
 # of the insect in each frame for all 6 bugs.
@@ -406,9 +399,73 @@ for (i in 2:repetition) {
   }
 }
 
-#Combining all data tables of repetition 2
+# Combining all data tables of repetition 2
 CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
                      DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
+
+
+## Duplicate correction
+num_of_ones <- length(DR2T1C1$id[DR2T1C1$id == 1])
+num_of_twos <- length(DR2T1C1$id[DR2T1C1$id == 2])
+num_of_threes <- length(DR2T1C1$id[DR2T1C1$id == 3])
+num_of_six <- length(DR2T1C1$id[DR2T1C1$id == 6])
+
+# Multiple frames with 2's
+cnt_dup <- 0
+for (i in (1:nrow(DR2T1C1))) {
+  if (identical(DR2T1C1$id[i], 2)) {
+    if (identical(DR2T1C1$id[i - 2], 2)) {
+      cnt_dup <- cnt_dup + 1
+    }
+  }
+}
+
+for (i in (1:nrow(DR2T1C1))) {
+  if (identical(DR2T1C1$id[i], 2)) {
+    fir_x_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$x[i - 2])
+    fir_y_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$y[i - 2])
+    sec_x_diff <- abs(DR2T1C1$id[i] - DR2T1C1$x[i - 2])
+    sec_y_diff <- abs(DR2T1C1$id[i] - DR2T1C1$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      DR2T1C1$id[i] <- 1
+      DR2T1C1 <- DR2T1C1[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      DR2T1C1 <- DR2T1C1[-i,]
+    }
+  }
+  else if (identical(DR2T1C1$id[i], 3)) {
+    fir_x_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$x[i - 2])
+    fir_y_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$y[i - 2])
+    sec_x_diff <- abs(DR2T1C1$id[i] - DR2T1C1$x[i - 2])
+    sec_y_diff <- abs(DR2T1C1$id[i] - DR2T1C1$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      DR2T1C1$id[i] <- 1
+      DR2T1C1 <- DR2T1C1[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      DR2T1C1 <- DR2T1C1[-i,]
+    }
+  }
+}
+
+## Missing data correction
+cnt_miss <- 0
+for (i in (1:nrow(DR2T1C1))) {
+  if (identical(DR2T1C1$id[i], 2)) {
+    if (identical(DR2T1C1$id[i - 2], 2)) {
+      cnt_miss <- cnt_miss + 1
+    }
+  }
+}
 
 # a = vertical
 # b = horizontal

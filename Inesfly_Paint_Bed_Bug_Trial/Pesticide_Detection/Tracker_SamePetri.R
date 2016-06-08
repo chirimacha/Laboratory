@@ -190,15 +190,15 @@ getpoint<-function(frame) { # Do not change Quartz size
 
 ##########################
 ###Set Working Directory
-setwd("/Users/mzlevy")
+setwd("/Users/Justin/Desktop")
 ###Bring in video'
-#File is 108MB. Too large for Github
+# File is 108MB. Too large for Github
 fbvid <- readVid("5bugs.mp4")  
 #MP4 and WMV can be found on Google Drive
 #https://drive.google.com/open?id=0BymPutRx4sc2Yjh3YXJXVXV6QzA
 
 ###Reset the working director
-setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
 ##############
 #create the background; serves as comparison or "bugless" control
