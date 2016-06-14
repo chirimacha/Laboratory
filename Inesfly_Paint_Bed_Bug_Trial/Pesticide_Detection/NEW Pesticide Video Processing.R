@@ -268,12 +268,12 @@ tracks[1:pos, ]
 # Coords helper function finds which quadrant 
 # each of the blobs are in for each frame
 Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
-#  if (video$length < 1800) {  # determine loop length
-#    fr <- video$length
-#    } else {
-#    fr <- 1800
-#    }
-   fr <- 200
+ if (video$length < 1800) {  # determine loop length
+   fr <- video$length
+   } else {
+   fr <- 1800
+   }
+#    fr <- 200
   
   # Looks at each video frame and finds the coordinates of each blob
   bugpos <- data.frame()
@@ -293,6 +293,16 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
     
     if (nrow(bugcords) > 0) {
       bugcords <- mutate(bugcords, frame = l, track = NA) # add frame and track
+      # determines what points are linked. Optimally each insect given 1 track 
+      # each because there is only one object, we can max out maxDist. 
+      stout <- simpleTracker(past = bugpos, current = bugcords, 
+                             maxDist = maxDista) 
+      # combine tables previous in the loop.
+      bugpos <- rbind(bugpos, stout)
+      # bugpos <- bugcords
+    }
+    else if (identical(nrow(bugcords), 0)) {
+      bugcords <- mutate(bugcords, frame = NA, track = NA) # add frame and track
       # determines what points are linked. Optimally each insect given 1 track 
       # each because there is only one object, we can max out maxDist. 
       stout <- simpleTracker(past = bugpos, current = bugcords, 
@@ -455,18 +465,28 @@ for (i in (1:nrow(DR2T1C1))) {
       DR2T1C1 <- DR2T1C1[-i,]
     }
   }
-}
-
-## Missing data correction
-cnt_miss <- 0
-for (i in (1:nrow(DR2T1C1))) {
-  if (identical(DR2T1C1$id[i], 2)) {
-    if (identical(DR2T1C1$id[i - 2], 2)) {
-      cnt_miss <- cnt_miss + 1
+  else if (identical(DR2T1C1$id[i], 4)) {
+    fir_x_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$x[i - 2])
+    fir_y_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$y[i - 2])
+    sec_x_diff <- abs(DR2T1C1$id[i] - DR2T1C1$x[i - 2])
+    sec_y_diff <- abs(DR2T1C1$id[i] - DR2T1C1$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      DR2T1C1$id[i] <- 1
+      DR2T1C1 <- DR2T1C1[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      DR2T1C1 <- DR2T1C1[-i,]
     }
   }
 }
 
+CompVidRep2 <- DR2T1C1 # temporary
+
+## Finding quadrants
 # a = vertical
 # b = horizontal
 
@@ -535,3 +555,56 @@ CompVidRep2$Pesticide[uno] <- 0
 CompVidRep2$Pesticide[intersect( PTrays, dos)] <- 1
 CompVidRep2$Pesticide[tres] <- 0
 CompVidRep2$Pesticide[intersect( PTrays, cuatro)] <- 1
+
+# 
+# ## Missing data correction
+# insertRow <- function(existingDF, newrow, r) {
+#   existingDF[seq(r+1,nrow(existingDF)+1),] <- existingDF[seq(r,nrow(existingDF)),]
+#   existingDF[r,] <- newrow
+#   existingDF
+# }
+# 
+# m <- as.data.frame(matrix(seq(10), nrow = 5, ncol = 2))
+# test <- c(7,4)
+# 
+# cnt_miss <- 1
+# for (i in (1:nrow(CompVidRep2))) {
+#   if (identical(cnt_miss, CompVidRep2$frame[i]) &&
+#         !(identical(CompVidRep2$frame[i], 200))) {
+#           cnt_miss <- cnt_miss + 1
+#         }
+#   else if (identical(cnt_miss, CompVidRep2$frame[i]) && 
+#                  identical(CompVidRep2$frame[i], 200)) {
+#           cnt_miss <- 1
+#         }
+#   else if (!(identical(cnt_miss, CompVidRep2$frame[i]))) {
+#       diff <- (CompVidRep2$frame[i] - cnt_miss)  # number of rows missing
+#                                                  # for now only concerned with 
+#                                                  # small diff and same quadrant 
+#       if (identical(diff, 1) && 
+#             (identical(CompVidRep2$quad[i], CompVidRep2$quad[i - 1]))) {
+#         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+#         
+#         CompVidRep2$frame[i] <- (CompVidRep2$frame[i + 1] - 1)
+#         cnt_miss <- cnt_miss + 1
+#         print("hi1")
+#         }
+#       else if (identical(diff, 2) && 
+#             (identical(CompVidRep2$quad[i], CompVidRep2$quad[i - 1]))) {                              
+#         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+#         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+#         
+#         CompVidRep2$frame[i] <- (CompVidRep2$frame[i + 2] - 2)
+#         CompVidRep2$frame[i + 1] <- (CompVidRep2$frame[i + 2] - 1)
+#         cnt_miss <- cnt_miss + 1
+#         print("hi2")
+#         }
+#       else if (identical(diff, 3) && 
+#              (identical(CompVidRep2$quad[i], CompVidRep2$quad[i - 1]))){
+# #         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+# #         CompVidRep2$frame[i] <- (CompVidRep2$frame[i + 1] - 1)
+# #         cnt_miss <- cnt_miss + 1
+#         print("hi3")                  
+#     }
+#    }
+# }

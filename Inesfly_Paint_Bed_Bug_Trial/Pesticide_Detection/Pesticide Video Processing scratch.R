@@ -673,3 +673,28 @@ write.csv(DR2T3C2, "Rep2Trial3Cam2RawData.csv")
 #   return(VidData)
 # 
 # }
+
+
+###### making sure the missing frame works 6.13.16
+cnt_miss2 <- 1
+for (i in (1:nrow(m))) {
+  if (identical(cnt_miss2, m$V1[i]) &&
+        !(identical(m$V1[i], 200))) {
+    cnt_miss2 <- cnt_miss2 + 1
+  }
+  else if (identical(cnt_miss2, m$V1[i]) && 
+             identical(m$V1[i], 200)) {
+    cnt_miss2 <- 1
+  }
+  else if (!(identical(cnt_miss2, m$V1[i]))) {
+    diff <- (m$V1[i] - cnt_miss2)  # number of rows missing
+    # for now only concerned with 
+    # small diff and same quadrant 
+    if (identical(diff, 1)) {
+      m <- insertRow(m, m[i,], i)
+      
+      m$V1[i] <- (m$V1[i + 1] - 1)
+      cnt_miss2 <- cnt_miss2 + 1
+      print("hi1")
+    }
+  }}
