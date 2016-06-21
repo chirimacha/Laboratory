@@ -221,45 +221,85 @@ imask <- d2ddd(r2img(mat1))
 mbg <- (blend(bg, imask, "*"))
 
 ## Data collection from video
-# Figure out number of for loops needed
-fr <- fbvid$length
-min <- (fr / 60)
-
-# Empty data frame for loop output
-bugpos <- data.frame(matrix(0, ncol = 9, nrow = 3000))
-  # matrix(0, nrow <- 3000, ncol <- 9)
-colnames(bugpos) <- c("id","x", "y", "alpha", "major", "minor",
-                      "area", "frame", "track")
-
-# Loop through each frame to do video processing
-for (l in 1:fr){
-  res <- getFrame(fbvid, l) # extract individual frames
-  #gryscl <- ddd2d(res) # put frame into grey scale.
-  mask <- blend(res, imask, "*") # mask other petri dishes
-  sub <- blend(mbg, res, "-") # subtract background from the mask 
-  # (previous image). Only movement shows
-  bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
-  # to remove changes due to 
-  # glare/noise
-  bugcords <- blobDetector(bw) # detect the white blobs that are created; 
-  # gets coordinates
-  # add track # to data frame only if a change is detected
-  bugcords <- mutate(bugcords, frame = l, track = NA) 
-  # determines what points are linked. Optimally each insect given 1 track 
-  # each because there is only one object, we can max out maxDist. 
-  stout <- simpleTracker(past = bugpos, current = bugcords, 
-                         maxDist = 20) 
-  bugpos<- rbind(bugpos, stout)
+# Good up to iteration 200
+my.list <- vector('list', 556) # this length doesn't matter much
+for (j in 1:199) {
+  tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+  end.frame <- (j * 100)
+  begin.frame <- (end.frame - 99)
+  bugpos <- data.frame()
+  for (l in begin.frame:end.frame) {
+    res <- getFrame(fbvid, l) # extract individual frames
+    mask <- blend(res, imask, "*") # mask other petri dishes
+    sub <- blend(mbg, res, "-") # subtract background from the mask 
+    bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+    bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+    bugcords <- mutate(bugcords, frame = l, track = NA)
+    stout <- simpleTracker(past = bugpos, current = bugcords, 
+                             maxDist = 20) 
+    bugpos<- rbind(bugpos, stout)
+  }
+  my.list[[j]] <- bugpos
+  toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
 }
+my.df <- do.call('rbind', my.list)
+
+## Skip 200, do the rest 
+# For some reason, there is just something wrong with iteration 200
+my.list2 <- vector('list', 556)
+for (j in 201:241) {
+  tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+  end.frame <- (j * 100)
+  begin.frame <- (end.frame - 99)
+  bugpos <- data.frame()
+  for (l in begin.frame:end.frame) {
+    res <- getFrame(fbvid, l) # extract individual frames
+    mask <- blend(res, imask, "*") # mask other petri dishes
+    sub <- blend(mbg, res, "-") # subtract background from the mask 
+    bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+    bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+    bugcords <- mutate(bugcords, frame = l, track = NA)
+    stout <- simpleTracker(past = bugpos, current = bugcords, 
+                           maxDist = 20) 
+    bugpos<- rbind(bugpos, stout)
+  }
+  my.list2[[j]] <- bugpos
+  toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
+}
+my.df2 <- do.call('rbind', my.list2)
+
+## Skip 242, do the rest 
+# For some reason, there is just something wrong with iteration 242
+my.list3 <- vector('list', 556)
+for (j in 243:555) {
+  tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+  end.frame <- (j * 100)
+  begin.frame <- (end.frame - 99)
+  bugpos <- data.frame()
+  for (l in begin.frame:end.frame) {
+    res <- getFrame(fbvid, l) # extract individual frames
+    mask <- blend(res, imask, "*") # mask other petri dishes
+    sub <- blend(mbg, res, "-") # subtract background from the mask 
+    bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+    bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+    bugcords <- mutate(bugcords, frame = l, track = NA)
+    stout <- simpleTracker(past = bugpos, current = bugcords, 
+                           maxDist = 20) 
+    bugpos<- rbind(bugpos, stout)
+  }
+  my.list3[[j]] <- bugpos
+  toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
+}
+my.df3 <- do.call('rbind', my.list3)
 
 # tic(msg = NULL, quiet = TRUE, func.tic = NULL)
 # toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
 
 imshow(bg)
-  for(i in 1:max(bugpos$track)){
-    insect<-which(bugpos$track==i)
-    lines(x = c(bugpos$x[insect]),y=c(bugpos$y[insect]), col=i) 
-  }
+for(i in 1:max(my.df.final$track)){
+  insect<-which(bugpos$track==i)
+  lines(x = c(bugpos$x[insect]),y=c(bugpos$y[insect]), col=i) 
+}
 
-write.csv(bugpos, "fullviddata.csv")
+write.csv(my.df.final, "fullviddata.csv")
 

@@ -747,3 +747,24 @@ for (l in 1:2){
 # # glare/noise
 # bugcords <- blobDetector(bw) # detect the white blobs that are created; 
 ##########################################
+
+
+bugpos <- data.frame() # Empty data frame for loop output
+# data.frame(matrix(0, ncol = 9, nrow = 3000))
+# matrix(0, nrow <- 3000, ncol <- 9)
+
+# Loop through each frame to do video processing
+for (l in 1:fr){
+  res <- getFrame(fbvid, l) # extract individual frames
+  #gryscl <- ddd2d(res) # put frame into grey scale.
+  mask <- blend(res, imask, "*") # mask other petri dishes
+  sub <- blend(mbg, res, "-") # subtract background from the mask 
+  bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+  bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+  bugcords <- mutate(bugcords, frame = l, track = NA) 
+  # determines what points are linked. Optimally each insect given 1 track 
+  # each because there is only one object, we can max out maxDist. 
+  stout <- simpleTracker(past = bugpos, current = bugcords, 
+                         maxDist = 20) 
+  bugpos<- rbind(bugpos, stout)
+}
