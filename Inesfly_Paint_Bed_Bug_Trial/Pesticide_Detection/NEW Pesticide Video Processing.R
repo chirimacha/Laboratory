@@ -37,9 +37,9 @@ setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
 
 ## Set number of repetitions, trials, cameras
 # WARNING: as of May 25, 2016 only using repetition 2 trials
-repetition = 2
-trial = 6
-camera = 2
+repetition <- 2
+trial <- 6
+camera <- 2
 
 ## Bring in videos, coordinate tables (frames), TrayPlace
 # Repetition 1 recorded on 2016-04-21; repetition 2 recorded 2016-05-12

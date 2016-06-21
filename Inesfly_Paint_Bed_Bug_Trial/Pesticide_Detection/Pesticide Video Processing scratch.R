@@ -698,3 +698,52 @@ for (i in (1:nrow(m))) {
       print("hi1")
     }
   }}
+
+#### same petri dish 6.20.16
+if (identical(l, 3)){
+  print(l)
+}
+
+if (identical(l, fr/4)){
+  print(l)
+}
+
+if (identical(l, fr/2)){
+  print(l)
+}
+
+if (l==((3*fr)/4){
+  print(l)
+}
+
+# Loop through each frame to do video processing
+for (l in 1:2){
+  res <- getFrame(fbvid, l) # extract individual frames
+  #gryscl <- ddd2d(res) # put frame into grey scale.
+  mask <- blend(res, imask, "*") # mask other petri dishes
+  sub <- blend(mbg, res, "-") # subtract background from the mask
+  bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+  bugcords <- blobDetector(bw) # detect white blobs, gets coords, adds track #
+  bugcords <- mutate(bugcords, frame = l, track = NA) 
+  # determines what points are linked. Optimally each insect given 1 track 
+  # each because there is only one object, we can max out maxDist.
+  stout <- simpleTracker(past = bugpos, current = bugcords, maxDist = 20)
+  x <- (5 * (l - 1))
+  for (m in 1:5) {
+    for (n in 1:9) {
+      bugpos[(m + x), n] <- stout[m, n]
+    }
+  }
+}
+
+############## extra code ################
+# res1 <- getFrame(fbvid, 5) # extract individual frames
+# #gryscl <- ddd2d(res) # put frame into grey scale.
+# mask1 <- blend(res1, imask, "*") # mask other petri dishes
+# sub <- blend(mbg, res, "-") # subtract background from the mask 
+# # (previous image). Only movement shows
+# bw <- thresholding(sub, thres = 200, "binary") # set a threshold difference 
+# # to remove changes due to 
+# # glare/noise
+# bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+##########################################

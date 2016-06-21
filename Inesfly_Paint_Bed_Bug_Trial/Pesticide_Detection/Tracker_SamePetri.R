@@ -18,14 +18,17 @@
 # install.packages("shiny")
 # install.packages("splancs")
 # install.packages("grid")
-#Open Libraries
+## Open Libraries
 library(videoplayR)
 library(dplyr)
 library(clue)
 library(shiny)
 library(splancs)
 library(grid)
-###Simple Tracker
+library(tictoc)
+library(compiler)
+
+## Simple Tracker
 pdiff <- function(a, b) {
   nr <- length(a)
   nc <- length(b)
@@ -36,9 +39,7 @@ pdiff <- function(a, b) {
   ma - mb
 }
 
-# declare variables in the function name
-# what are current and past? defined elsewhere?
-simpleTracker <- function(current, past, lookBack = 30, maxDist = 10) { #assign lookBack and maxDist w/ immutable numbers?
+simpleTracker <- function(current, past, lookBack = 30, maxDist = 20) { 
   if (nrow(past) == 0) {
     current$track <- 1:nrow(current)
     return(current)
@@ -110,8 +111,10 @@ pipeline <- function(video, begin, end, background, mask = NULL,
   
   n <- (end - begin + 1)
   tracks <- data.frame(id = numeric(n), x = numeric(n), y = numeric(n),
-                       alpha = numeric(n), major = numeric(n), minor = numeric(n),
-                       area = numeric(n), frame = numeric(n) - 2 * lookBack, track = numeric(n))
+                       alpha = numeric(n), major = numeric(n),
+                       minor = numeric(n),
+                       area = numeric(n), frame = numeric(n) - 2 * lookBack,
+                       track = numeric(n))
   pos <- 0
   
   if (progress) {
@@ -153,17 +156,19 @@ if (progress) {
   new <- floor(100 * (i - begin + 1) / nFrames)
   if (new > old) {
     newTime <- Sys.time()
-    fps <- (i - oldFrame + 1) / as.numeric(difftime(newTime, oldTime, unit = "secs"))
+    fps <- (i - oldFrame + 1) / as.numeric(difftime(newTime, oldTime,
+                                                    unit = "secs"))
     old <- new
     oldFrame <- i
     oldTime <- newTime
-    pb$set(value = old / 100, detail = paste0(old, "% - ", round(fps, digits = 2), "fps"))
+    pb$set(value = old / 100, detail = paste0(old, "% - ",
+                                              round(fps, digits = 2), "fps"))
   }
 }
   }
-
 tracks[1:pos, ]
 }
+
 
 ##########################
 frfbvid<-getFrame(fbvid, 20)
@@ -200,14 +205,12 @@ fbvid <- readVid("5bugs.mp4")
 ###Reset the working director
 setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
-##############
-#create the background; serves as comparison or "bugless" control
-bg<-backgrounder(fbvid, n=150, method="median", color= TRUE)
-##create a colorless background
-#bgcl<-backgrounder(fbvid, n=150, method="median", color= TRUE)
-
-
-#create a mask to reduce glare and other issues simple tracker
+##########################
+# Create the background; serves as comparison or "bugless" control
+bg <- backgrounder(fbvid, n=150, method="median", color= TRUE)
+# Create a colorless background
+# bgcl<-backgrounder(fbvid, n=150, method="median", color= TRUE)
+# Create a mask to reduce glare and other issues simple tracker
 mat1 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
 # Create white hole for each petri dish in complete mask. The matrix works 
 # left to right, BUT top to bottom. Graph works bottom to top so we need 
@@ -215,67 +218,42 @@ mat1 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
 mat1[((bg$dim[1])-418):((bg$dim[1])-204), 312:504] <- 1
 imask <- d2ddd(r2img(mat1))
 # Blend mask and background to get a masked background
-mbg<-(blend(bg, imask, "*"))
-#number of frames (iterations of loop)
-fr<-fbvid$length
+mbg <- (blend(bg, imask, "*"))
 
-#create empty data frame for loop output
-bugpos<-data.frame()
+## Data collection from video
+# Figure out number of for loops needed
+fr <- fbvid$length
+min <- (fr / 60)
 
-#loop through each frame to do video processing
+# Empty data frame for loop output
+bugpos <- data.frame(matrix(0, ncol = 9, nrow = 3000))
+  # matrix(0, nrow <- 3000, ncol <- 9)
+colnames(bugpos) <- c("id","x", "y", "alpha", "major", "minor",
+                      "area", "frame", "track")
+
+# Loop through each frame to do video processing
 for (l in 1:fr){
-res <- getFrame(fbvid, l) # extract individual frames
-#gryscl <- ddd2d(res) # put frame into grey scale.
-mask <- blend(res, imask, "*") # mask other petri dishes
-sub <- blend(mbg, res, "-") # subtract background from the mask 
-# (previous image). Only movement shows
-bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
-# to remove changes due to 
-# glare/noise
-bugcords <- blobDetector(bw) # detect the white blobs that are created; 
-# gets coordinates
-# add track # to data frame only if a change is detected
-
-#++++++++++++++++
-# res1 <- getFrame(fbvid, 5) # extract individual frames
-# #gryscl <- ddd2d(res) # put frame into grey scale.
-# mask1 <- blend(res1, imask, "*") # mask other petri dishes
-# sub <- blend(mbg, res, "-") # subtract background from the mask 
-# # (previous image). Only movement shows
-# bw <- thresholding(sub, thres = 200, "binary") # set a threshold difference 
-# # to remove changes due to 
-# # glare/noise
-# bugcords <- blobDetector(bw) # detect the white blobs that are created; 
-# 
-
-
-
-if (nrow(bugcords) > 0) {
+  res <- getFrame(fbvid, l) # extract individual frames
+  #gryscl <- ddd2d(res) # put frame into grey scale.
+  mask <- blend(res, imask, "*") # mask other petri dishes
+  sub <- blend(mbg, res, "-") # subtract background from the mask 
+  # (previous image). Only movement shows
+  bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+  # to remove changes due to 
+  # glare/noise
+  bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+  # gets coordinates
+  # add track # to data frame only if a change is detected
   bugcords <- mutate(bugcords, frame = l, track = NA) 
   # determines what points are linked. Optimally each insect given 1 track 
   # each because there is only one object, we can max out maxDist. 
   stout <- simpleTracker(past = bugpos, current = bugcords, 
                          maxDist = 20) 
-  # combine tables previous in the loop.
   bugpos<- rbind(bugpos, stout)
-  #bugpos <- bugcords
-}
-if (l==3){
-  print(l)
 }
 
-if (l==fr/4){
-  print(l)
-}
-
-if (l==fr/2){
-  print(l)
-  }
-}
-
-if (l==((3*fr)/4){
-  print(l)
-}
+# tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+# toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
 
 imshow(bg)
   for(i in 1:max(bugpos$track)){
