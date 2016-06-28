@@ -313,7 +313,8 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
       # bugpos <- bugcords
     }
     toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
-  }
+ }
+
   # Defines the lines of the quadrants on the petri dish
   ya <- c(coordtaba$BPY[tn],coordtaba$TPY[tn])
   xa <- c(coordtaba$BPX[tn],coordtaba$TPX[tn])   
