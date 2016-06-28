@@ -753,6 +753,7 @@ bugpos <- data.frame() # Empty data frame for loop output
 # data.frame(matrix(0, ncol = 9, nrow = 3000))
 # matrix(0, nrow <- 3000, ncol <- 9)
 
+fr <- 500
 # Loop through each frame to do video processing
 for (l in 1:fr){
   res <- getFrame(fbvid, l) # extract individual frames
@@ -768,3 +769,118 @@ for (l in 1:fr){
                          maxDist = 20) 
   bugpos<- rbind(bugpos, stout)
 }
+
+plot.new()
+imshow(bg)
+for (i in 3:3){
+  insect <- which(bugpos$track == i)
+  lines(x = c(bugpos$x[insect]), y = c(bugpos$y[insect]), col = i) 
+}
+
+my.list.test <- vector('list', 556) # this length doesn't matter much
+. <- data.frame()
+for (j in 1:19900) {
+  tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+  res <- getFrame(fbvid, j) %>%
+    ddd2d() %>%
+    blend(imask, "*") %>%
+    blend(mbg, ., "-") %>% 
+    thresholding(thres = 50, "binary") %>%
+    blobDetector() %>% 
+    dplyr::mutate(frame = l, track = NA) %>%
+    simpleTracker(past = res, lookBack = 60, maxDist = 10) %>%
+    rbind(res, .)
+  toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
+}
+my.df.test <- do.call('rbind', my.list.test)
+
+my.list.test <- vector('list', 556)
+my.df.test <- data.frame()
+bugpos_save <- data.frame()
+for (j in 1:100) {
+  tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+  end.frame <- (j * 100)
+  begin.frame <- (end.frame - 99)
+  bugpos <- data.frame()
+  for (l in begin.frame:end.frame) {
+    res <- getFrame(fbvid, l) # extract individual frames
+    mask <- blend(res, imask, "*") # mask other petri dishes
+    sub <- blend(mbg, res, "-") # subtract background from the mask 
+    bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+    bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+    bugcords <- mutate(bugcords, frame = l, track = NA)
+    stout <- simpleTracker(past = bugpos_save, current = bugcords, 
+                           maxDist = 20) 
+    bugpos <- rbind(bugpos, stout)
+  }
+  bugpos_save <- bugpos
+  my.list.test[[j]] <- bugpos
+  toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
+}
+my.df.test <- do.call('rbind', my.list.test)
+
+# my.list <- vector('list', 556)
+# for (j in 1:199) {
+#   tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+#   end.frame <- (j * 100)
+#   begin.frame <- (end.frame - 99)
+#   bugpos <- data.frame()
+#   for (l in begin.frame:end.frame) {
+#     res <- getFrame(fbvid, l) # extract individual frames
+#     mask <- blend(res, imask, "*") # mask other petri dishes
+#     sub <- blend(mbg, res, "-") # subtract background from the mask 
+#     bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+#     bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+#     bugcords <- mutate(bugcords, frame = l, track = NA)
+#     stout <- simpleTracker(past = bugpos, current = bugcords, 
+#                            maxDist = 20) 
+#     bugpos <- rbind(bugpos, stout)
+#   }
+#   my.list[[j]] <- bugpos
+#   toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
+# }
+# my.df <- do.call('rbind', my.list)
+
+# my.list2 <- vector('list', 556)
+# for (j in 201:241) {
+#   tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+#   end.frame <- (j * 100)
+#   begin.frame <- (end.frame - 99)
+#   bugpos <- data.frame()
+#   for (l in begin.frame:end.frame) {
+#     res <- getFrame(fbvid, l) # extract individual frames
+#     mask <- blend(res, imask, "*") # mask other petri dishes
+#     sub <- blend(mbg, res, "-") # subtract background from the mask 
+#     bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+#     bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+#     bugcords <- mutate(bugcords, frame = l, track = NA)
+#     stout <- simpleTracker(past = bugpos, current = bugcords, 
+#                            maxDist = 20) 
+#     bugpos<- rbind(bugpos, stout)
+#   }
+#   my.list2[[j]] <- bugpos
+#   toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
+# }
+# my.df2 <- do.call('rbind', my.list2)
+
+# my.list3 <- vector('list', 556)
+# for (j in 243:555) {
+#   tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+#   end.frame <- (j * 100)
+#   begin.frame <- (end.frame - 99)
+#   bugpos <- data.frame()
+#   for (l in begin.frame:end.frame) {
+#     res <- getFrame(fbvid, l) # extract individual frames
+#     mask <- blend(res, imask, "*") # mask other petri dishes
+#     sub <- blend(mbg, res, "-") # subtract background from the mask 
+#     bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
+#     bugcords <- blobDetector(bw) # detect the white blobs that are created; 
+#     bugcords <- mutate(bugcords, frame = l, track = NA)
+#     stout <- simpleTracker(past = bugpos, current = bugcords, 
+#                            maxDist = 20) 
+#     bugpos<- rbind(bugpos, stout)
+#   }
+#   my.list3[[j]] <- bugpos
+#   toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
+# }
+# my.df3 <- do.call('rbind', my.list3)

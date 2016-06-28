@@ -221,13 +221,41 @@ imask <- d2ddd(r2img(mat1))
 mbg <- (blend(bg, imask, "*"))
 
 ## Data collection from video
-# Good up to iteration 200
-my.list <- vector('list', 556) # this length doesn't matter much
-for (j in 1:199) {
+# Good up to iteration 686
+my.list <- vector('list', 1000)
+my.df <- data.frame()
+bugpos_past <- data.frame()
+bugpos_save1 <- data.frame()
+bugpos_save2 <- data.frame()
+bugpos_save3 <- data.frame()
+bugpos_save4 <- data.frame()
+bugpos_save5 <- data.frame()
+bugpos_save6 <- data.frame()
+for (j in 1:686) {
   tic(msg = NULL, quiet = TRUE, func.tic = NULL)
-  end.frame <- (j * 100)
-  begin.frame <- (end.frame - 99)
-  bugpos <- data.frame()
+  end.frame <- (j * 29)
+  begin.frame <- (end.frame - 28)
+  bugpos <- data.frame() 
+  if (identical(j, 2)) {
+    bugpos_past <- bugpos_save1
+  }
+  else if (identical(j, 3)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2)
+  }
+  else if (identical(j, 4)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3)
+  }
+  else if (identical(j, 5)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3, bugpos_save4)
+  }
+  else if (identical(j, 6)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3, bugpos_save4,
+                         bugpos_save5)
+  }
+  else if (j > 6) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3, bugpos_save4,
+                         bugpos_save5, bugpos_save6)
+  }
   for (l in begin.frame:end.frame) {
     res <- getFrame(fbvid, l) # extract individual frames
     mask <- blend(res, imask, "*") # mask other petri dishes
@@ -235,23 +263,79 @@ for (j in 1:199) {
     bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
     bugcords <- blobDetector(bw) # detect the white blobs that are created; 
     bugcords <- mutate(bugcords, frame = l, track = NA)
-    stout <- simpleTracker(past = bugpos, current = bugcords, 
-                             maxDist = 20) 
-    bugpos<- rbind(bugpos, stout)
+    stout <- simpleTracker(past = bugpos_past, current = bugcords, maxDist = 20) 
+    bugpos <- rbind(bugpos, stout)
+  }
+  if (identical(j, 1)) {
+    bugpos_save1 <- bugpos
+  }
+  else if (identical(j, 2)) {
+    bugpos_save2 <- bugpos
+  }
+  else if (identical(j, 3)) {
+    bugpos_save3 <- bugpos
+  }
+  else if (identical(j, 4)) {
+    bugpos_save4 <- bugpos
+  }
+  else if (identical(j, 5)) {
+    bugpos_save5 <- bugpos
+  }
+  else if (identical(j, 6)) {
+    bugpos_save6 <- bugpos
+  }
+  else if (j > 6) {
+    bugpos_save1 <- bugpos_save2
+    bugpos_save2 <- bugpos_save3
+    bugpos_save3 <- bugpos_save4
+    bugpos_save4 <- bugpos_save5
+    bugpos_save5 <- bugpos_save6
+    bugpos_save6 <- bugpos
   }
   my.list[[j]] <- bugpos
   toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
 }
 my.df <- do.call('rbind', my.list)
 
-## Skip 200, do the rest 
-# For some reason, there is just something wrong with iteration 200
-my.list2 <- vector('list', 556)
-for (j in 201:241) {
+## Skip 686.2 -> 689.6, do the rest 
+# For some reason, there is just something wrong with iteration 686.2->689.6
+my.list2 <- vector('list', 1000)
+my.df2 <- data.frame()
+bugpos_past <- data.frame()
+bugpos_save1 <- data.frame()
+bugpos_save2 <- data.frame()
+bugpos_save3 <- data.frame()
+bugpos_save4 <- data.frame()
+bugpos_save5 <- data.frame()
+bugpos_save6 <- data.frame()
+for (j in 690:831) {
   tic(msg = NULL, quiet = TRUE, func.tic = NULL)
-  end.frame <- (j * 100)
-  begin.frame <- (end.frame - 99)
-  bugpos <- data.frame()
+  end.frame <- (j * 29)
+  begin.frame <- (end.frame - 28)
+  bugpos <- data.frame() 
+  if (identical(j, 1)) {
+    bugpos_past <- my.df
+  }
+  if (identical(j, 2)) {
+    bugpos_past <- bugpos_save1
+  }
+  else if (identical(j, 3)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2)
+  }
+  else if (identical(j, 4)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3)
+  }
+  else if (identical(j, 5)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3, bugpos_save4)
+  }
+  else if (identical(j, 6)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3, bugpos_save4,
+                         bugpos_save5)
+  }
+  else if (j > 6) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3, bugpos_save4,
+                         bugpos_save5, bugpos_save6)
+  }
   for (l in begin.frame:end.frame) {
     res <- getFrame(fbvid, l) # extract individual frames
     mask <- blend(res, imask, "*") # mask other petri dishes
@@ -259,23 +343,76 @@ for (j in 201:241) {
     bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
     bugcords <- blobDetector(bw) # detect the white blobs that are created; 
     bugcords <- mutate(bugcords, frame = l, track = NA)
-    stout <- simpleTracker(past = bugpos, current = bugcords, 
-                           maxDist = 20) 
-    bugpos<- rbind(bugpos, stout)
+    stout <- simpleTracker(past = bugpos_past, current = bugcords, maxDist = 20) 
+    bugpos <- rbind(bugpos, stout)
+  }
+  if (identical(j, 1)) {
+    bugpos_save1 <- bugpos
+  }
+  else if (identical(j, 2)) {
+    bugpos_save2 <- bugpos
+  }
+  else if (identical(j, 3)) {
+    bugpos_save3 <- bugpos
+  }
+  else if (identical(j, 4)) {
+    bugpos_save4 <- bugpos
+  }
+  else if (identical(j, 5)) {
+    bugpos_save5 <- bugpos
+  }
+  else if (identical(j, 6)) {
+    bugpos_save6 <- bugpos
+  }
+  else if (j > 6) {
+    bugpos_save1 <- bugpos_save2
+    bugpos_save2 <- bugpos_save3
+    bugpos_save3 <- bugpos_save4
+    bugpos_save4 <- bugpos_save5
+    bugpos_save5 <- bugpos_save6
+    bugpos_save6 <- bugpos
   }
   my.list2[[j]] <- bugpos
   toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
 }
 my.df2 <- do.call('rbind', my.list2)
 
-## Skip 242, do the rest 
-# For some reason, there is just something wrong with iteration 242
-my.list3 <- vector('list', 556)
-for (j in 243:555) {
+## Skip 831.06->834.48, do the rest 
+# For some reason, there is just something wrong with iteration 831.05->834.48
+my.list3 <- vector('list', 1000)
+my.df3 <- data.frame()
+bugpos_past <- data.frame()
+bugpos_save1 <- data.frame()
+bugpos_save2 <- data.frame()
+bugpos_save3 <- data.frame()
+bugpos_save4 <- data.frame()
+bugpos_save5 <- data.frame()
+bugpos_save6 <- data.frame()
+for (j in 835:1913) {
   tic(msg = NULL, quiet = TRUE, func.tic = NULL)
-  end.frame <- (j * 100)
-  begin.frame <- (end.frame - 99)
-  bugpos <- data.frame()
+  end.frame <- (j * 29)
+  begin.frame <- (end.frame - 28)
+  bugpos <- data.frame() 
+  if (identical(j, 2)) {
+    bugpos_past <- bugpos_save1
+  }
+  else if (identical(j, 3)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2)
+  }
+  else if (identical(j, 4)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3)
+  }
+  else if (identical(j, 5)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3, bugpos_save4)
+  }
+  else if (identical(j, 6)) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3, bugpos_save4,
+                         bugpos_save5)
+  }
+  else if (j > 6) {
+    bugpos_past <- rbind(bugpos_save1, bugpos_save2, bugpos_save3, bugpos_save4,
+                         bugpos_save5, bugpos_save6)
+  }
   for (l in begin.frame:end.frame) {
     res <- getFrame(fbvid, l) # extract individual frames
     mask <- blend(res, imask, "*") # mask other petri dishes
@@ -283,9 +420,34 @@ for (j in 243:555) {
     bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
     bugcords <- blobDetector(bw) # detect the white blobs that are created; 
     bugcords <- mutate(bugcords, frame = l, track = NA)
-    stout <- simpleTracker(past = bugpos, current = bugcords, 
-                           maxDist = 20) 
-    bugpos<- rbind(bugpos, stout)
+    stout <- simpleTracker(past = bugpos_past, current = bugcords, maxDist = 20) 
+    bugpos <- rbind(bugpos, stout)
+  }
+  if (identical(j, 1)) {
+    bugpos_save1 <- bugpos
+  }
+  else if (identical(j, 2)) {
+    bugpos_save2 <- bugpos
+  }
+  else if (identical(j, 3)) {
+    bugpos_save3 <- bugpos
+  }
+  else if (identical(j, 4)) {
+    bugpos_save4 <- bugpos
+  }
+  else if (identical(j, 5)) {
+    bugpos_save5 <- bugpos
+  }
+  else if (identical(j, 6)) {
+    bugpos_save6 <- bugpos
+  }
+  else if (j > 6) {
+    bugpos_save1 <- bugpos_save2
+    bugpos_save2 <- bugpos_save3
+    bugpos_save3 <- bugpos_save4
+    bugpos_save4 <- bugpos_save5
+    bugpos_save5 <- bugpos_save6
+    bugpos_save6 <- bugpos
   }
   my.list3[[j]] <- bugpos
   toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
@@ -295,11 +457,31 @@ my.df3 <- do.call('rbind', my.list3)
 # tic(msg = NULL, quiet = TRUE, func.tic = NULL)
 # toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
 
+# Show lines for test data
+plot.new()
 imshow(bg)
-for(i in 1:max(my.df.final$track)){
-  insect<-which(bugpos$track==i)
-  lines(x = c(bugpos$x[insect]),y=c(bugpos$y[insect]), col=i) 
+for (i in 1:5){
+  insect <- which(my.df$track == i)
+  lines(x = c(my.df$x[insect]), y = c(my.df$y[insect]), col = i) 
 }
+
+# Show lines
+plot.new()
+imshow(bg)
+for (i in 1:5){
+  insect <- which(df.simon$track == i)
+  lines(x = c(df.simon$x[insect]), y = c(df.simon$y[insect]), col = i) 
+}
+
+plot.new()
+imshow(bg)
+for (i in 1:4){
+  insect <- which(simon.edit.df$track == i)
+  lines(x = c(simon.edit.df$x[insect]), y = c(simon.edit.df$y[insect]), col = i) 
+}
+
+# Notes
+# track 7 looks to be all useless information
 
 write.csv(my.df.final, "fullviddata.csv")
 

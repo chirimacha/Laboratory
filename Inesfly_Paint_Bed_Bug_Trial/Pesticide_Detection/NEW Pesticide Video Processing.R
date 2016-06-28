@@ -278,6 +278,7 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
   # Looks at each video frame and finds the coordinates of each blob
   bugpos <- data.frame()
   for (l in 1:fr){
+    tic(msg = NULL, quiet = TRUE, func.tic = NULL)
     res <- getFrame(video, l) # extract individual frames
     gryscl <- ddd2d(res) # put frame into grey scale.
     mask <- blend(gryscl, imask, "*") # mask other petri dishes
@@ -311,6 +312,7 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
       bugpos <- rbind(bugpos, stout)
       # bugpos <- bugcords
     }
+    toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
   }
   # Defines the lines of the quadrants on the petri dish
   ya <- c(coordtaba$BPY[tn],coordtaba$TPY[tn])
@@ -418,7 +420,9 @@ CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
 num_of_ones <- length(DR2T1C1$id[DR2T1C1$id == 1])
 num_of_twos <- length(DR2T1C1$id[DR2T1C1$id == 2])
 num_of_threes <- length(DR2T1C1$id[DR2T1C1$id == 3])
-num_of_six <- length(DR2T1C1$id[DR2T1C1$id == 6])
+num_of_six <- length(my.df.final2$id[my.df.final2$id == 6])
+num_of_seven <- length(my.df.final2$id[my.df.final2$id == 7])
+num_of_eight <- length(my.df.final2$id[my.df.final2$id == 8])
 
 # Multiple frames with 2's
 cnt_dup <- 0
