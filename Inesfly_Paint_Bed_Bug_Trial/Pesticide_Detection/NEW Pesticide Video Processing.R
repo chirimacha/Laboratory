@@ -16,6 +16,7 @@
 # install.packages("shiny")
 # install.packages("splancs")
 # install.packages("grid")
+# install.packages("tictoc")
 
 # Open Libraries
 library(videoplayR)
@@ -24,13 +25,13 @@ library(clue)
 library(shiny)
 library(splancs)
 library(grid)
+library(tictoc)
 
 ## Set Working Directory
 # Lab computer
-# setwd("/Users/mzlevy/Laboratory/
-#     Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+ setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 # Justin's Computer
-setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
+#setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
                 "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
 # Gian Franco's
 # setwd(".../Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
@@ -278,7 +279,6 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
   # Looks at each video frame and finds the coordinates of each blob
   bugpos <- data.frame()
   for (l in 1:fr){
-    tic(msg = NULL, quiet = TRUE, func.tic = NULL)
     res <- getFrame(video, l) # extract individual frames
     gryscl <- ddd2d(res) # put frame into grey scale.
     mask <- blend(gryscl, imask, "*") # mask other petri dishes
@@ -312,9 +312,7 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
       bugpos <- rbind(bugpos, stout)
       # bugpos <- bugcords
     }
-    toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
- }
-
+  }
   # Defines the lines of the quadrants on the petri dish
   ya <- c(coordtaba$BPY[tn],coordtaba$TPY[tn])
   xa <- c(coordtaba$BPX[tn],coordtaba$TPX[tn])   
@@ -397,6 +395,7 @@ user_max = 1000
 for (i in 2:repetition) { 
   for (j in 1:trial) {
     for (k in 1:camera) {
+      tic(msg = NULL, quiet = TRUE, func.tic = NULL)
       temp_name <- paste("DR", i, "T", j, "C", k, sep = "")
       vid_name <- paste("vidR", i, "T", j, "C", k, sep = "")
       bg_name <- paste("bgR", i, "T", j, "C", k, sep = "")
@@ -406,8 +405,9 @@ for (i in 2:repetition) {
                                     thresholda <- user_thresh,
                                     maxDistb <- user_max,
                                     cam <- k, rep <- i, trial <- j))
-      print(paste(temp_name,"....Completed!", sep = "")
-      # write.csv(DR_T_C_, "Rep_Trial_Cam_RawData.csv") <- needs to be defined
+      write.csv(temp_name, file = paste("DR", i, "T", j, "C", k, ".csv", sep = ""))
+      print(paste(temp_name,"....Completed!", sep = ""))
+      toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
     }
   }
 }
@@ -421,9 +421,7 @@ CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
 num_of_ones <- length(DR2T1C1$id[DR2T1C1$id == 1])
 num_of_twos <- length(DR2T1C1$id[DR2T1C1$id == 2])
 num_of_threes <- length(DR2T1C1$id[DR2T1C1$id == 3])
-num_of_six <- length(my.df.final2$id[my.df.final2$id == 6])
-num_of_seven <- length(my.df.final2$id[my.df.final2$id == 7])
-num_of_eight <- length(my.df.final2$id[my.df.final2$id == 8])
+num_of_six <- length(DR2T1C1$id[DR2T1C1$id == 6])
 
 # Multiple frames with 2's
 cnt_dup <- 0
