@@ -543,6 +543,13 @@ pdt6 <-Coords(video, pmaskf, nbga6, coordtaba=coordtab, tn=6,
 #                        thresholda=25, maxDistb=1000, cam=1, rep=1, trial=2)
 # #write.csv(DR1T2C1, "Rep1Trial2Cam1RawData.csv")
 
+plot.new()
+imshow(bgR2T3C1)
+for (i in 1:5){
+  insect <- which(DR2T3C1$track == i)
+  lines(x = c(DR2T3C1$x[insect]), y = c(DR2T3C1$y[insect]), col = i) 
+}
+
 ## Repetition 2
 DR2T1C1 <- VidAnalysis(video=vidR2T1C1, bg= bgR2T1C1, coordtab=CoTbR2T1C1, 
                        thresholda=30, maxDistb=1000, cam=1, rep=2, trial=1)
@@ -553,7 +560,7 @@ DR2T1C2 <- VidAnalysis(video=vidR2T1C2, bg= bgR2T1C2, coordtab=CoTbR2T1C2,
 write.csv(DR2T1C2, "Rep2Trial1Cam2RawData.csv")
 
 DR2T2C1 <- VidAnalysis(video=vidR2T2C1, bg= bgR2T2C1, coordtab=CoTbR2T2C1, 
-                       thresholda=25, maxDistb=1000, cam=1, rep=2, trial=2)
+                       thresholda=30, maxDistb=1000, cam=1, rep=2, trial=2)
 write.csv(DR2T2C1, "Rep2Trial2Cam1RawData.csv")
 
 DR2T2C2 <- VidAnalysis(video=vidR2T2C2, bg= bgR2T2C2, coordtab=CoTbR2T2C2,
@@ -561,36 +568,36 @@ DR2T2C2 <- VidAnalysis(video=vidR2T2C2, bg= bgR2T2C2, coordtab=CoTbR2T2C2,
 write.csv(DR2T2C2, "Rep2Trial2Cam2RawData.csv")
 
 DR2T3C1 <- VidAnalysis(video=vidR2T3C1, bg= bgR2T3C1, coordtab=CoTbR2T3C1, 
-                       thresholda=25, maxDistb=1000, cam=1, rep=2, trial=3)
+                       thresholda=30, maxDistb=1000, cam=1, rep=2, trial=3)
 write.csv(DR2T3C1, "Rep2Trial3Cam1RawData.csv")
 
 DR2T3C2 <- VidAnalysis(video=vidR2T3C2, bg= bgR2T3C2, coordtab=CoTbR2T3C2, 
                        thresholda=30, maxDistb=1000, cam=2, rep=2, trial=3)
 write.csv(DR2T3C2, "Rep2Trial3Cam2RawData.csv")
 
-# DR2T4C1 <- VidAnalysis(video=R2T4C1, bg= bgeRB, coordtab=CoTbR2T4C1, thresholda=50, 
-#                        maxDistb=1000, cam=1, rep=2, trial=4)
-#            write.csv(DR2T4C1, "Rep2Trial4Cam1RawData.csv")
-# 
-# DR2T4C2 <- VidAnalysis(video=R2T4C1, bg= bgfRB, coordtab=CoTbR2T4C2, thresholda=50, 
-#                        maxDistb=1000, cam=2, rep=2, trial=4)
-#            write.csv(DR2T4C2, "Rep2Trial4Cam2RawData.csv")
-# 
-# DR2T5C1 <- VidAnalysis(video=R2T5C1, bg= bgeRB, coordtab=CoTbR2T5C1, thresholda=50, 
-#                        maxDistb=1000, cam=1, rep=2, trial=5)
-#            write.csv(DR2T5C1, "Rep2Trial5Cam1RawData.csv")
-# 
-# DR2T5C2 <- VidAnalysis(video=R2T5C1, bg= bgfRB, coordtab=CoTbR2T5C2, thresholda=50, 
-#                        maxDistb=1000, cam=2, rep=2, trial=5)
-#            write.csv(DR2T5C2, "Rep2Trial5Cam2RawData.csv")
-# 
-# DR2T6C1 <- VidAnalysis(video=R2T6C1, bg= bgeRB, coordtab=CoTbR2T6C1, thresholda=50, 
-#                        maxDistb=1000, cam=1, rep=2, trial=6)
-#           write.csv(DR2T6C1, "Rep2Trial6Cam1RawData.csv")
-# 
-# DR2T6C2 <- VidAnalysis(video=R2T6C1, bg= bgfRB, coordtab=CoTbR2T6C2, thresholda=50, 
-#                        maxDistb=1000, cam=2, rep=2, trial=6)
-#            write.csv(DR2T6C2, "Rep2Trial6Cam2RawData.csv")
+DR2T4C1 <- VidAnalysis(video=vidR2T4C1, bg= bgR2T4C1, coordtab=CoTbR2T4C1, 
+                       thresholda=30, maxDistb=1000, cam=1, rep=2, trial=4)
+write.csv(DR2T4C1, "Rep2Trial4Cam1RawData.csv")
+
+DR2T4C2 <- VidAnalysis(video=vidR2T4C2, bg= bgR2T4C2, coordtab=CoTbR2T4C2, 
+                       thresholda=30, maxDistb=1000, cam=2, rep=2, trial=4)
+write.csv(DR2T4C2, "Rep2Trial4Cam2RawData.csv")
+
+DR2T5C1 <- VidAnalysis(video=vidR2T5C1, bg= bgR2T5C1, coordtab=CoTbR2T5C1, 
+                       thresholda=50, maxDistb=1000, cam=1, rep=2, trial=5)
+write.csv(DR2T5C1, "Rep2Trial5Cam1RawData.csv")
+
+DR2T5C2 <- VidAnalysis(video=vidR2T5C2, bg= bgR2T5C2, coordtab=CoTbR2T5C2,
+                       thresholda=50, maxDistb=1000, cam=2, rep=2, trial=5)
+write.csv(DR2T5C2, "Rep2Trial5Cam2RawData.csv")
+ 
+DR2T6C1 <- VidAnalysis(video=vidR2T6C1, bg= bgR2T6C1, coordtab=CoTbR2T6C1, 
+                       thresholda=50, maxDistb=1000, cam=1, rep=2, trial=6)
+write.csv(DR2T6C1, "Rep2Trial6Cam1RawData.csv")
+
+DR2T6C2 <- VidAnalysis(video=vidR2T6C2, bg= bgR2T6C2, coordtab=CoTbR2T6C2, 
+                       thresholda=50, maxDistb=1000, cam=2, rep=2, trial=6)
+write.csv(DR2T6C2, "Rep2Trial6Cam2RawData.csv")
 
 ######################################################################
 # The Code below should be able to be used on a PC

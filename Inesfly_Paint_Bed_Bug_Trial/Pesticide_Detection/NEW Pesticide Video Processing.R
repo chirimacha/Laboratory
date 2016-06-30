@@ -416,78 +416,94 @@ for (i in 2:repetition) {
 CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
                      DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
 
-
 ## Duplicate correction
+# Prelim: find number of deviations
+num_of_ones <- length(CompVidRep2$id[CompVidRep2$id == 1])
+num_of_twos <- length(CompVidRep2$id[CompVidRep2$id == 2])
+num_of_threes <- length(CompVidRep2$id[CompVidRep2$id == 3])
+num_of_fours <- length(CompVidRep2$id[CompVidRep2$id == 4])
+num_of_fives <- length(CompVidRep2$id[CompVidRep2$id == 5])
+num_of_ones
+num_of_twos
+num_of_threes
+num_of_fours
+num_of_fives
+
+# Prelim: multiple frames with 2's
+=======
 num_of_ones <- length(DR2T1C1$id[DR2T1C1$id == 1])
 num_of_twos <- length(DR2T1C1$id[DR2T1C1$id == 2])
 num_of_threes <- length(DR2T1C1$id[DR2T1C1$id == 3])
 num_of_six <- length(DR2T1C1$id[DR2T1C1$id == 6])
 
 # Multiple frames with 2's
+>>>>>>> origin/master
 cnt_dup <- 0
-for (i in (1:nrow(DR2T1C1))) {
-  if (identical(DR2T1C1$id[i], 2)) {
-    if (identical(DR2T1C1$id[i - 2], 2)) {
+for (i in (1:nrow(CompVidRep2))) {
+  if (identical(CompVidRep2$id[i], 2)) {
+    if (identical(CompVidRep2$id[i - 2], 2)) {
       cnt_dup <- cnt_dup + 1
     }
   }
 }
+cnt_dup
 
-for (i in (1:nrow(DR2T1C1))) {
-  if (identical(DR2T1C1$id[i], 2)) {
-    fir_x_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$x[i - 2])
-    fir_y_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$y[i - 2])
-    sec_x_diff <- abs(DR2T1C1$id[i] - DR2T1C1$x[i - 2])
-    sec_y_diff <- abs(DR2T1C1$id[i] - DR2T1C1$y[i - 2])
+# Duplicate correction
+for (i in (1:nrow(CompVidRep2))) {
+  if (identical(CompVidRep2$id[i], 2)) {
+    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
     
     fir_diff <- (fir_x_diff + fir_y_diff)
     sec_diff <- (sec_x_diff + sec_y_diff)
     
     if (fir_diff > sec_diff) {
-      DR2T1C1$id[i] <- 1
-      DR2T1C1 <- DR2T1C1[-(i - 1),]
+      CompVidRep2$id[i] <- 1
+      CompVidRep2 <- CompVidRep2[-(i - 1),]
     }
     else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      DR2T1C1 <- DR2T1C1[-i,]
+      CompVidRep2 <- CompVidRep2[-i,]
     }
   }
   else if (identical(DR2T1C1$id[i], 3)) {
-    fir_x_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$x[i - 2])
-    fir_y_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$y[i - 2])
-    sec_x_diff <- abs(DR2T1C1$id[i] - DR2T1C1$x[i - 2])
-    sec_y_diff <- abs(DR2T1C1$id[i] - DR2T1C1$y[i - 2])
+    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
     
     fir_diff <- (fir_x_diff + fir_y_diff)
     sec_diff <- (sec_x_diff + sec_y_diff)
     
     if (fir_diff > sec_diff) {
-      DR2T1C1$id[i] <- 1
-      DR2T1C1 <- DR2T1C1[-(i - 1),]
+      CompVidRep2$id[i] <- 1
+      CompVidRep2 <- CompVidRep2[-(i - 1),]
     }
     else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      DR2T1C1 <- DR2T1C1[-i,]
+      CompVidRep2 <- CompVidRep2[-i,]
     }
   }
-  else if (identical(DR2T1C1$id[i], 4)) {
-    fir_x_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$x[i - 2])
-    fir_y_diff <- abs(DR2T1C1$id[i - 1] - DR2T1C1$y[i - 2])
-    sec_x_diff <- abs(DR2T1C1$id[i] - DR2T1C1$x[i - 2])
-    sec_y_diff <- abs(DR2T1C1$id[i] - DR2T1C1$y[i - 2])
+  else if (identical(CompVidRep2$id[i], 4)) {
+    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
     
     fir_diff <- (fir_x_diff + fir_y_diff)
     sec_diff <- (sec_x_diff + sec_y_diff)
     
     if (fir_diff > sec_diff) {
-      DR2T1C1$id[i] <- 1
-      DR2T1C1 <- DR2T1C1[-(i - 1),]
+      CompVidRep2$id[i] <- 1
+      CompVidRep2 <- CompVidRep2[-(i - 1),]
     }
     else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      DR2T1C1 <- DR2T1C1[-i,]
+      CompVidRep2 <- CompVidRep2[-i,]
     }
   }
 }
 
-CompVidRep2 <- DR2T1C1 # temporary
+## 2.7% of missing data
 
 ## Finding quadrants
 # a = vertical
