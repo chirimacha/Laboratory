@@ -717,10 +717,11 @@ Result_Mat<-matrix(data=c(CN,CP,TN,TP), nrow = 2, ncol = 2,  byrow = FALSE)
 
 chisq.test(Result_Mat, correct = TRUE)
 
+## Create insect id for cast function
+iid<- paste(CompiledData$,CompiledData$,CompiledData$,CompiledData$,)
 
-##############################################################################
-# Analyze data
 
+##
 insectdata<-cast()
 
 
