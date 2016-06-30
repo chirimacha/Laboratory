@@ -17,6 +17,7 @@
 # install.packages("splancs")
 # install.packages("grid")
 # install.packages("tictoc")
+# install.packages("reshape2")
 
 # Open Libraries
 library(videoplayR)
@@ -26,6 +27,7 @@ library(shiny)
 library(splancs)
 library(grid)
 library(tictoc)
+library(reshape2)
 
 ## Set Working Directory
 # Lab computer
@@ -575,55 +577,151 @@ CompVidRep2$Pesticide[intersect( PTrays, dos)] <- 1
 CompVidRep2$Pesticide[tres] <- 0
 CompVidRep2$Pesticide[intersect( PTrays, cuatro)] <- 1
 
+# ############## Dylan's code 6.30.16
 # 
-# ## Missing data correction
-# insertRow <- function(existingDF, newrow, r) {
-#   existingDF[seq(r+1,nrow(existingDF)+1),] <- existingDF[seq(r,nrow(existingDF)),]
-#   existingDF[r,] <- newrow
-#   existingDF
-# }
-# 
-# m <- as.data.frame(matrix(seq(10), nrow = 5, ncol = 2))
-# test <- c(7,4)
-# 
-# cnt_miss <- 1
-# for (i in (1:nrow(CompVidRep2))) {
-#   if (identical(cnt_miss, CompVidRep2$frame[i]) &&
-#         !(identical(CompVidRep2$frame[i], 200))) {
-#           cnt_miss <- cnt_miss + 1
-#         }
-#   else if (identical(cnt_miss, CompVidRep2$frame[i]) && 
-#                  identical(CompVidRep2$frame[i], 200)) {
-#           cnt_miss <- 1
-#         }
-#   else if (!(identical(cnt_miss, CompVidRep2$frame[i]))) {
-#       diff <- (CompVidRep2$frame[i] - cnt_miss)  # number of rows missing
-#                                                  # for now only concerned with 
-#                                                  # small diff and same quadrant 
-#       if (identical(diff, 1) && 
-#             (identical(CompVidRep2$quad[i], CompVidRep2$quad[i - 1]))) {
-#         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+# ## Duplicate correction
+# Dup_Correct <- Function(VData){
+#   #For every value in the Video Data frame
+#   for (i in (1:nrow(VData))) {
+#     #and every possible track larger than one
+#     for( j in 2:max(VData$ID)){
+#       #Identify if the value is larger than one
+#       if (identical(VData$ID[i], j)) {
+#         #if so determine the previous frame, the first frame and the duplicate
+#         frame_num <- VData$frame[i]
+#         share_frame <- which(VData$frame == frame_num)
+#         org_frames <- which(Vdata$ID == 1)
+#         prev <- which(VData$frame == (frame_num-1))
 #         
-#         CompVidRep2$frame[i] <- (CompVidRep2$frame[i + 1] - 1)
-#         cnt_miss <- cnt_miss + 1
-#         print("hi1")
-#         }
-#       else if (identical(diff, 2) && 
-#             (identical(CompVidRep2$quad[i], CompVidRep2$quad[i - 1]))) {                              
-#         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
-#         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+#         first_frame <- intersect(share_frames, org_frames)
+#         prev_frame <- intersect(prev, org_frames)
 #         
-#         CompVidRep2$frame[i] <- (CompVidRep2$frame[i + 2] - 2)
-#         CompVidRep2$frame[i + 1] <- (CompVidRep2$frame[i + 2] - 1)
-#         cnt_miss <- cnt_miss + 1
-#         print("hi2")
+#         fir_x_diff <- abs(VData$x[first_frame] - VData$x[prev_frame])
+#         fir_y_diff <- abs(VData$y[first_frame] - VData$y[prev_frame])
+#         sec_x_diff <- abs(VData$x[i] - VData$x[prev_frame])
+#         sec_y_diff <- abs(VData$y[i] - VData$y[prev_frame])
+#         
+#         fir_diff <- (fir_x_diff + fir_y_diff)
+#         sec_diff <- (sec_x_diff + sec_y_diff)
+#         
+#         if (fir_diff > sec_diff) {
+#           VData$id[i] <- 1
+#           VData <- VData[-(first_frame),]
 #         }
-#       else if (identical(diff, 3) && 
-#              (identical(CompVidRep2$quad[i], CompVidRep2$quad[i - 1]))){
-# #         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
-# #         CompVidRep2$frame[i] <- (CompVidRep2$frame[i + 1] - 1)
-# #         cnt_miss <- cnt_miss + 1
-#         print("hi3")                  
+#         else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+#           VData <- VData[-i,]
+#         }
+#       }
 #     }
-#    }
+#   }
+#   return(VData)  
+# }  
+# 
+# 
+# ###Run Dup_Correct then Compile the Videos together
+# CompiledData <- data.frame()  
+# for (i in 2:repetition) { 
+#   for (j in 1:trial) {
+#     for (k in 1:camera) {
+#       temp_name <- paste("DR", i, "T", j, "C", k, sep = "")
+#       Fixed <-Dup_Correct(get(temp_name))
+#       CompileData<-rbind(CompiledData, Fixed)
+#     }
+#   }
 # }
+
+CompiledData <- CompVidRep2
+
+## Finding quadrants
+# a = vertical
+# b = horizontal
+
+belowa <- which((CompiledData$y) <  (CompiledData$pred1))
+abovea <- which((CompiledData$y) >= (CompiledData$pred1))
+belowb <- which((CompiledData$y) <  (CompiledData$pred2))
+aboveb <- which((CompiledData$y) >= (CompiledData$pred2))
+
+NegSlope <- which(CompiledData$TPX <  CompiledData$BPX )
+PosSlope <- which(CompiledData$TPX >= CompiledData$BPX )
+
+# Determine Quadrants change depending on slope of vertical line
+# In cases of positive slopes
+
+# Instead of counter-clockwise numbering of quadrants (from the perspective
+# of the video, not considering pesticide), quadrants were labeled clockwise
+# starting form the top right as 1
+CompiledData$quad <- 0
+CompiledData$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
+CompiledData$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 2
+CompiledData$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 4
+CompiledData$quad[intersect( PosSlope, (intersect(abovea,belowb)))] <- 3
+CompiledData$quad[intersect( NegSlope, (intersect(abovea,aboveb)))] <- 1
+CompiledData$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 2
+CompiledData$quad[intersect( NegSlope, (intersect(abovea,belowb)))] <- 4
+CompiledData$quad[intersect( NegSlope, (intersect(belowa,belowb)))] <- 3
+
+# Create function that determines which quadrants have pesticide
+CompiledData$PQuad <- 0
+CompiledData$DishID <- 0
+CompiledData$Orientation <- 0
+
+#Table to determine the painted quadrants given orientation
+one   <- c(1,2,3,4)
+two   <- c(2,3,4,1)
+three <- c(3,4,1,2)
+four  <- c(4,1,2,3)
+OTab  <- data.frame(one, two, three, four)
+
+# Input data from TrayPlace into CompVidRep2
+for (i in 1:nrow(CompiledData)) {
+  # r, t and p are the INDICES within TrayPlace
+  # by themselves, r, t and p are vectors but we then find the intersection
+  # of all three to arrive at the id
+  r <- which(TrayPlace$Repetition == CompiledData$rep[i]) 
+  t <- which(TrayPlace$Trial == CompiledData$trial[i])
+  p <- which(TrayPlace$Position == CompiledData$position[i])
+  id <- intersect(p, intersect(r, t))
+  
+  CompiledData$DishID[i] <- TrayPlace$DishID[id]
+  CompiledData$Orientation[i] <- TrayPlace$Orientation[id]
+  
+  # Setting up orientations
+  CompiledData$PQuad[i] <- OTab[CompiledData$Orientation[i], 
+                                CompiledData$quad[i]]
+}
+
+uno <- which(CompiledData$PQuad == 1)  
+dos <- which(CompiledData$PQuad == 2)  
+tres <- which(CompiledData$PQuad == 3)  
+cuatro <- which(CompiledData$PQuad == 4)  
+PTrays<- which(CompiledData$DishID <= 6)
+
+CompiledData$PTray <- CompiledData$PQuad*0
+CompiledData$PTray[PTrays] <- 1
+
+CompiledData$Pesticide[intersect( PTrays, dos)] <- 1
+CompiledData$Pesticide[intersect( PTrays, cuatro)] <- 1
+
+CompiledData$Treat_Quad <- 0  
+CompiledData$Treat_Quad[union(dos, cuatro)] <- 1
+
+CompiledData$Result <- paste(CompiledData$Treat_Quad,
+                             CompiledData$PTray, sep="-")
+CN <- length(which(CompiledData$Result=="0-0"))
+CP <- length(which(CompiledData$Result=="0-1"))
+TN <- length(which(CompiledData$Result=="1-0"))
+TP <- length(which(CompiledData$Result=="1-1"))
+sum(CN, CP, TN, TP)
+dim(CompiledData)
+Result_Mat<-matrix(data=c(CN,CP,TN,TP), nrow = 2, ncol = 2,  byrow = FALSE)
+
+chisq.test(Result_Mat, correct = TRUE)
+
+
+##############################################################################
+# Analyze data
+
+insectdata<-cast()
+
+
+

@@ -891,3 +891,56 @@ my.df.test <- do.call('rbind', my.list.test)
 #   toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
 # }
 # my.df3 <- do.call('rbind', my.list3)
+
+# 
+# ## Missing data correction
+# insertRow <- function(existingDF, newrow, r) {
+#   existingDF[seq(r+1,nrow(existingDF)+1),] <- existingDF[seq(r,nrow(existingDF)),]
+#   existingDF[r,] <- newrow
+#   existingDF
+# }
+# 
+# m <- as.data.frame(matrix(seq(10), nrow = 5, ncol = 2))
+# test <- c(7,4)
+# 
+# cnt_miss <- 1
+# for (i in (1:nrow(CompVidRep2))) {
+#   if (identical(cnt_miss, CompVidRep2$frame[i]) &&
+#         !(identical(CompVidRep2$frame[i], 200))) {
+#           cnt_miss <- cnt_miss + 1
+#         }
+#   else if (identical(cnt_miss, CompVidRep2$frame[i]) && 
+#                  identical(CompVidRep2$frame[i], 200)) {
+#           cnt_miss <- 1
+#         }
+#   else if (!(identical(cnt_miss, CompVidRep2$frame[i]))) {
+#       diff <- (CompVidRep2$frame[i] - cnt_miss)  # number of rows missing
+#                                                  # for now only concerned with 
+#                                                  # small diff and same quadrant 
+#       if (identical(diff, 1) && 
+#             (identical(CompVidRep2$quad[i], CompVidRep2$quad[i - 1]))) {
+#         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+#         
+#         CompVidRep2$frame[i] <- (CompVidRep2$frame[i + 1] - 1)
+#         cnt_miss <- cnt_miss + 1
+#         print("hi1")
+#         }
+#       else if (identical(diff, 2) && 
+#             (identical(CompVidRep2$quad[i], CompVidRep2$quad[i - 1]))) {                              
+#         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+#         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+#         
+#         CompVidRep2$frame[i] <- (CompVidRep2$frame[i + 2] - 2)
+#         CompVidRep2$frame[i + 1] <- (CompVidRep2$frame[i + 2] - 1)
+#         cnt_miss <- cnt_miss + 1
+#         print("hi2")
+#         }
+#       else if (identical(diff, 3) && 
+#              (identical(CompVidRep2$quad[i], CompVidRep2$quad[i - 1]))){
+# #         CompVidRep2 <- insertRow(CompVidRep2, CompVidRep2[i,], i)
+# #         CompVidRep2$frame[i] <- (CompVidRep2$frame[i + 1] - 1)
+# #         cnt_miss <- cnt_miss + 1
+#         print("hi3")                  
+#     }
+#    }
+# }
