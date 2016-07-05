@@ -709,7 +709,37 @@ Result_Mat<-matrix(data=c(CN,CP,TN,TP), nrow = 2, ncol = 2,  byrow = FALSE)
 
 chisq.test(Result_Mat, correct = TRUE)
 
-## Create insect id for cast function
+###############################################################################
+#Make plots that track the bugs across time
+#==============================================================================
+###
+frs <- 1
+fre <- 300
+#
+for(i in 2:rep){
+ii <- which(CompiledData$rep==i)
+for(j in 1:1)
+ji <- which(CompiledData$trial==j)
+#for k in 1:2
+ki <- which(CompiledData$camera==k)
+plot(get(paste(background for video)))
+
+for(l in 1:6){
+  positions<-which(CompiledData$position==l)
+  ij<-intersect(ii, ji)
+  kl<-intersect(ki, li)
+  ijkl<-intersect(ij, kl)
+  points(CompiledData$x[ijkl], CompiledData$y[ijkl], col = heat.colors(n=length(CompiledData$x[ijlkl])))
+}
+}
+}
+}
+
+
+
+
+
+## Create insect id for new data table aggregating data by insect.
 CompiledData$iid<- paste(CompiledData$rep, CompiledData$trial, CompiledData$camera, CompiledData$DishID, sep="-")
 
 iids<-unique(CompiledData$iid)
