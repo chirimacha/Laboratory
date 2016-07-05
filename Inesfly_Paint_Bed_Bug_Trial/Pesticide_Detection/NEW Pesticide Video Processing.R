@@ -728,10 +728,37 @@ for( i in 1:length(iids)){
   treat_quads<-sum(CompiledData$Treat_Quad[insect])
   insectdata$Perc_Treatment_Frames[i] <- treat_quads/length(CompiledData$Treat_Quad[insect])
   insectdata$Pesticide_Tray[i] <- CompiledData$PTray[min(insect)]
+  insectdata$tray_number[i] <- CompiledData$trayn[min(insect)]
+  insectdata$trial[i] <- CompiledData$trial[min(insect)]
+  insectdata$tray_position[i] <- CompiledData$position[min(insect)]
 }
 
 pesticide <- which(insectdata$Pesticide_Tray==1)
 control <- which(insectdata$Pesticide_Tray==0)
+
+jpeg(filename= "PercFramesonPesticideByExposure_Scatter.jpeg")
+plot(x=(insectdata$Pesticide_Tray+rnorm(n=length(insectdata$Pesticide_Tray), mean=0, sd=0.15)),
+     y=insectdata$Perc_Treatment_Frames, col = insectdata$Pesticide_Tray+1, 
+    ylab= "Proportion of Time Spent on Treatment Quadrants",
+    xlab= "Treatment Status (Black = Controls, Red= Exposed to Pesticide)")
+dev.off()
+
+jpeg("PercFramesonPesticideByExposure_Violin.jpeg")
+plot(-3,-3,type="n",xlim=c(.5, 2.5 ),ylim=c(0,1),axes=FALSE,ann=FALSE)
+vioplot(insectdata$Perc_Treatment_Frames[control], insectdata$Perc_Treatment_Frames[pesticide], add = TRUE)
+        axis(side= 1, labels=c("Only Control Paint", "With Pesticidal Paint"), at=1:2)
+        axis(side= 2, labels=paste(seq(0, 100, by =10), "%", sep=""), at=seq(0, 1, by =0.1))
+dev.off()   
+#now look at trays as a covariate
+        
+plot(x=as.factor(insectdata$Pesticide_Tray), y=insectdata$Perc_Treatment_Frames, col = insectdata$tray_number)
+plot(-3,-3,type="n",xlim=c(.5, 2.5 ),ylim=c(0,1),axes=FALSE,ann=FALSE)
+
+points(x=as.factor(insectdata$Pesticide_Tray), y=insectdata$Perc_Treatment_Frames, col= insectdata$tray_number)
+
+plot(x=insectdata$Pesticide_Tray, y=insectdata$Perc_Treatment_Frames, col = insectdata$trial)
+plot(x=insectdata$Pesticide_Tray, y=insectdata$Perc_Treatment_Frames, col = insectdata$tray_position)
+
 
 t.test(insectdata$Perc_Treatment_Frames[pesticide], insectdata$Perc_Treatment_Frames[control])
 
