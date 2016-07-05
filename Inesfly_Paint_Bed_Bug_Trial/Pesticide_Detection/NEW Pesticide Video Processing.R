@@ -11,13 +11,12 @@
 # devtools::install_github("swarm-lab/videoplayR")
 # 
 # #install Other packages:
-# install.packages("dplyr")
-# install.packages("clue")
-# install.packages("shiny")
-# install.packages("splancs")
-# install.packages("grid")
-# install.packages("tictoc")
-# install.packages("reshape2")
+install.packages("dplyr")
+install.packages("clue")
+install.packages("shiny")
+install.packages("splancs")
+install.packages("tictoc")
+install.packages("reshape2")
 
 # Open Libraries
 library(videoplayR)
@@ -30,6 +29,9 @@ library(tictoc)
 library(reshape2)
 
 ## Set Working Directory
+#Dylan's PC
+setwd("/Users/dtrac/OneDrive/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+
 # Lab computer
  setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 # Justin's Computer
@@ -414,96 +416,80 @@ for (i in 2:repetition) {
   }
 }
 
+###
+#Bring Data in for 
+CompVidRep2<- read.csv("CompVidRep2.csv")
+
+
 # Combining all data tables of repetition 2
-CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
-                     DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
+# CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
+#                      DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
 
-## Duplicate correction
-# Prelim: find number of deviations
-num_of_ones <- length(CompVidRep2$id[CompVidRep2$id == 1])
-num_of_twos <- length(CompVidRep2$id[CompVidRep2$id == 2])
-num_of_threes <- length(CompVidRep2$id[CompVidRep2$id == 3])
-num_of_fours <- length(CompVidRep2$id[CompVidRep2$id == 4])
-num_of_fives <- length(CompVidRep2$id[CompVidRep2$id == 5])
-num_of_ones
-num_of_twos
-num_of_threes
-num_of_fours
-num_of_fives
 
-# Prelim: multiple frames with 2's
-=======
-num_of_ones <- length(DR2T1C1$id[DR2T1C1$id == 1])
-num_of_twos <- length(DR2T1C1$id[DR2T1C1$id == 2])
-num_of_threes <- length(DR2T1C1$id[DR2T1C1$id == 3])
-num_of_six <- length(DR2T1C1$id[DR2T1C1$id == 6])
-
-# Multiple frames with 2's
->>>>>>> origin/master
-cnt_dup <- 0
-for (i in (1:nrow(CompVidRep2))) {
-  if (identical(CompVidRep2$id[i], 2)) {
-    if (identical(CompVidRep2$id[i - 2], 2)) {
-      cnt_dup <- cnt_dup + 1
-    }
-  }
-}
-cnt_dup
-
-# Duplicate correction
-for (i in (1:nrow(CompVidRep2))) {
-  if (identical(CompVidRep2$id[i], 2)) {
-    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
-    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
-    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
-    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep2$id[i] <- 1
-      CompVidRep2 <- CompVidRep2[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep2 <- CompVidRep2[-i,]
-    }
-  }
-  else if (identical(DR2T1C1$id[i], 3)) {
-    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
-    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
-    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
-    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep2$id[i] <- 1
-      CompVidRep2 <- CompVidRep2[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep2 <- CompVidRep2[-i,]
-    }
-  }
-  else if (identical(CompVidRep2$id[i], 4)) {
-    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
-    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
-    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
-    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep2$id[i] <- 1
-      CompVidRep2 <- CompVidRep2[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep2 <- CompVidRep2[-i,]
-    }
-  }
-}
+# cnt_dup <- 0
+# for (i in (1:nrow(CompVidRep2))) {
+#   if (identical(CompVidRep2$id[i], 2)) {
+#     if (identical(CompVidRep2$id[i - 2], 2)) {
+#       cnt_dup <- cnt_dup + 1
+#     }
+#   }
+# }
+# cnt_dup
+# 
+# # Duplicate correction
+# for (i in (1:nrow(CompVidRep2))) {
+#   if (identical(CompVidRep2$id[i], 2)) {
+#     fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+#     fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+#     sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+#     sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
+#     
+#     fir_diff <- (fir_x_diff + fir_y_diff)
+#     sec_diff <- (sec_x_diff + sec_y_diff)
+#     
+#     if (fir_diff > sec_diff) {
+#       CompVidRep2$id[i] <- 1
+#       CompVidRep2 <- CompVidRep2[-(i - 1),]
+#     }
+#     else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+#       CompVidRep2 <- CompVidRep2[-i,]
+#     }
+#   }
+#   else if (identical(DR2T1C1$id[i], 3)) {
+#     fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+#     fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+#     sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+#     sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
+#     
+#     fir_diff <- (fir_x_diff + fir_y_diff)
+#     sec_diff <- (sec_x_diff + sec_y_diff)
+#     
+#     if (fir_diff > sec_diff) {
+#       CompVidRep2$id[i] <- 1
+#       CompVidRep2 <- CompVidRep2[-(i - 1),]
+#     }
+#     else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+#       CompVidRep2 <- CompVidRep2[-i,]
+#     }
+#   }
+#   else if (identical(CompVidRep2$id[i], 4)) {
+#     fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+#     fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+#     sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+#     sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
+#     
+#     fir_diff <- (fir_x_diff + fir_y_diff)
+#     sec_diff <- (sec_x_diff + sec_y_diff)
+#     
+#     if (fir_diff > sec_diff) {
+#       CompVidRep2$id[i] <- 1
+#       CompVidRep2 <- CompVidRep2[-(i - 1),]
+#     }
+#     else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+#       CompVidRep2 <- CompVidRep2[-i,]
+#     }
+#   }
+# }
 
 ## 2.7% of missing data
 
@@ -525,6 +511,12 @@ PosSlope <- which(CompVidRep2$TPX >= CompVidRep2$BPX )
 # Instead of counter-clockwise numbering of quadrants (from the perspective
 # of the video, not considering pesticide), quadrants were labeled clockwise
 # starting form the top right as 1
+
+###
+#Bring Data in for 
+CompVidRep2<- read.csv(CompVidRep2.csv)
+
+
 CompVidRep2$quad <- 0
 CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
 CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 2
@@ -718,11 +710,30 @@ Result_Mat<-matrix(data=c(CN,CP,TN,TP), nrow = 2, ncol = 2,  byrow = FALSE)
 chisq.test(Result_Mat, correct = TRUE)
 
 ## Create insect id for cast function
-iid<- paste(CompiledData$,CompiledData$,CompiledData$,CompiledData$,)
+CompiledData$iid<- paste(CompiledData$rep, CompiledData$trial, CompiledData$camera, CompiledData$DishID, sep="-")
 
+iids<-unique(CompiledData$iid)
 
-##
-insectdata<-cast()
+#create insect based data frame
+insectdata <- data.frame(iids)
+##create blank colomns for loop 
+#The percentage of treatment frame
+insectdata$Perc_Treatment_Frames <- c(1:length(insectdata$iids)*NA)
+#Whether or not the tray is exposed to pesticide
+insectdata$Pesticide_Tray <- c(1:length(insectdata$iids)*NA)
+
+#run a loop to create data table to fill
+for( i in 1:length(iids)){
+  insect<-which(CompiledData$iid==insectdata$iids[i])
+  treat_quads<-sum(CompiledData$Treat_Quad[insect])
+  insectdata$Perc_Treatment_Frames[i] <- treat_quads/length(CompiledData$Treat_Quad[insect])
+  insectdata$Pesticide_Tray[i] <- CompiledData$PTray[min(insect)]
+}
+
+pesticide <- which(insectdata$Pesticide_Tray==1)
+control <- which(insectdata$Pesticide_Tray==0)
+
+t.test(insectdata$Perc_Treatment_Frames[pesticide], insectdata$Perc_Treatment_Frames[control])
 
 
 
