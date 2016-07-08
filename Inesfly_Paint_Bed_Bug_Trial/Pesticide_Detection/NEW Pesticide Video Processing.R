@@ -56,20 +56,33 @@ camera <- 2
 # Repetition 1 recorded on 2016-04-21; repetition 2 recorded 2016-05-12
 # CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
 TrayPlace<- read.csv("TraysRep1y2.csv") # times, dates, humidity quadrant 
-# assignments as TrayPlace
+#if using PC, run this loop instead of the one below
 for (i in 2:repetition) { 
   for (j in 1:trial) {
     for (k in 1:camera) {
-      temp_name1 <- paste("vidR", i, "T", j, "C", k, sep = "")
-      video_name <- paste("R", i, "T", j, "C", k, ".mp4", sep = "")
-      assign(temp_name1, readVid(video_name))
-      
       temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
       csv_name <- paste("CoTbR", i, "T", j, "C", k, ".csv", sep = "")
       assign(temp_name2, read.csv(csv_name))
     }
   }
 }
+
+
+
+# assignments as TrayPlace
+# for (i in 2:repetition) { 
+#   for (j in 1:trial) {
+#     for (k in 1:camera) {
+#       temp_name1 <- paste("vidR", i, "T", j, "C", k, sep = "")
+#       video_name <- paste("R", i, "T", j, "C", k, ".mp4", sep = "")
+#       assign(temp_name1, readVid(video_name))
+#       
+#       temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
+#       csv_name <- paste("CoTbR", i, "T", j, "C", k, ".csv", sep = "")
+#       assign(temp_name2, read.csv(csv_name))
+#     }
+#   }
+# }
 
 ## Create background (this will take awhile, ~30-40 minutes)
 # WARNING: Do this step only once
@@ -775,23 +788,38 @@ pointtype<-c(18,20)
 sf<-1
 fl<-300
 plot(x=CompiledData$x, y=CompiledData$y, type="n")
+c_two<-which(TrayPlace$Position>6)
+c_one<-which(TrayPlace$Position<=6)
+TrayPlace$camera[c_two]<-2
+TrayPlace$camera[c_one]<-1
 
 for(i in 2:2){
   ii <- which(CompiledData$rep==i)
+  ti <- which(TrapPlace$Repetition==i)
   for(j in 1:6){
     ji <- which(CompiledData$trial==j)
     ij<-intersect(ii, ji)
+    tj<- which(TrayPlace$Trial==j)
+    tij<-intersect(ti, tj)
     for(k in 1:2){
       ki <- which(CompiledData$camera==k)
       ijk<-intersect(ij, ki)
-      temp_name<-paste("trackplot", i, j, k,".pdf", sep="")
+      tk <- which(TrayPlace$camera == k)
+      tijk<-intersect(tij, tk)
+      temp_name <- paste("trackplot", i, j, k,".pdf", sep="")
       pdf(file=temp_name)
       plot(x=CompiledData$x, y=CompiledData$y, type="n")
-      points(x =( 1:length(sf:fl)/5)+200, y = rep(80, times=length(sf:fl)), 
+      points(x =( 1:length(sf:fl)/3)+200, y = rep(120, times=length(sf:fl)), 
                col= alpha(topo.colors(n=length(sf:fl)),0.2))
+      Ctname<-paste("CoTbR", i, "T", j, "C", k, sep = "")
       for(l in 1:6){
         li<-which(CompiledData$trayn==l)
         ijkl<-intersect(ijk, li)
+        tl<-which(CompiledData$trayn==l)
+        tijkl<-intersect(tijk, tl)
+        lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
+        lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
+        points()
         for(f in sf:fl){
           #tic()
           fi <- which(CompiledData$frame==f)
@@ -799,6 +827,7 @@ for(i in 2:2){
           points(x = CompiledData$x[fijkl], y = CompiledData$y[fijkl], 
             col = alpha(topo.colors(n=(fl-sf))[f],0.2),
             pch=pointtype[CompiledData$PTray[fijkl]+1])
+
          # points(x =( 1:length(frame_limit)/5)+200, y = rep(80, times=length(frame_limit)), 
           #  col= alpha(topo.colors(n=length(fijkl)),0.2))
           #toc()
@@ -809,7 +838,14 @@ for(i in 2:2){
 }
 }
 
-
+for(i in 1:6){
+  lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]),col=i) 
+  lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
+  lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+  lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+  lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
+  lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
+}
 
 ## Create insect id for new data table aggregating data by insect.
 CompiledData$iid<- paste(CompiledData$rep, CompiledData$trial, CompiledData$camera, CompiledData$DishID, sep="-")
