@@ -715,6 +715,58 @@ Result_Mat<-matrix(data=c(CN,CP,TN,TP), nrow = 2, ncol = 2,  byrow = FALSE)
 
 chisq.test(Result_Mat, correct = TRUE)
 
+###
+#lets look at speed (distance traveled from previous frame)
+CompiledData$speed<-CompiledData$PQuad*0
+for(i in 2:2){
+  ii <- which(CompiledData$rep==i)
+  for(j in 1:6){
+    ji <- which(CompiledData$trial==j)
+    ij<-intersect(ii, ji)
+    for(k in 1:2){
+      ki <- which(CompiledData$camera==k)
+      ijk<-intersect(ij, ki)
+      for(l in 1:6){
+        li<-which(CompiledData$trayn==l)
+        ijkl<-intersect(ijk, li)
+        rev_frames<-CompiledData$frame[ijkl]
+        print(length(rev_frames))
+for(f in 2:length(rev_frames)){
+  frmn<-rev_frames[f]
+  cfr<-which(CompiledData==frmn)
+  lessframes<-which(rev_frames < frmn)
+  pfmn <- max(rev_frames[lessframes])
+  pfr<-which(CompiledData==pfmn)
+  cf <- intersect(cfr, ijkl)
+  pf <- intersect(pfr, ijkl)
+  print(paste(i,j,k,l, sep=""))
+  print(cf)
+
+#CompiledData$speed[cf]<-sqrt((CompiledData$x[cf]-CompiledData$x[pf])^2+(CompiledData$y[cf]-CompiledData$y[pf])^2)/(cf-pf)
+        }
+      }
+    }
+  }
+}
+
+CompiledData$speed<-CompiledData$PQuad*0
+iia <- which(CompiledData$rep==2)
+    jia <- which(CompiledData$trial==1)
+    ija<-intersect(iia, jia)
+      kia <- which(CompiledData$camera==1)
+      ijka<-intersect(ija, kia)
+        lia<-which(CompiledData$trayn==1)
+        ijkla<-intersect(ijka, lia)
+        rev_frames<-CompiledData$frame[ijkla]
+          frmna<-rev_frames[2]
+          cfra<-which(CompiledData==frmna)
+          pfmna <- rev_frames[2-1]
+          pfra<-which(CompiledData==pfmna)
+          cfa <- intersect(cfra, ijkla)
+          pfa <- intersect(pfra, ijkla)
+          CompiledData$speed[cfa]<-sqrt((CompiledData$x[cfa]-CompiledData$x[pfa])^2+(CompiledData$y[cfa]-CompiledData$y[pfa])^2)/(cfa-pfa)
+
+
 ###############################################################################
 #Make plots that track the bugs across time
 #==============================================================================
@@ -722,8 +774,6 @@ chisq.test(Result_Mat, correct = TRUE)
 pointtype<-c(18,20)
 sf<-1
 fl<-300
-plot(x=c(190, (max(CompiledData$x)+10)), y=c(50, (max(CompiledData$y)+10)), 
-     col=6)
 plot(x=CompiledData$x, y=CompiledData$y, type="n")
 
 for(i in 2:2){
@@ -734,11 +784,13 @@ for(i in 2:2){
     for(k in 1:2){
       ki <- which(CompiledData$camera==k)
       ijk<-intersect(ij, ki)
-      temp_name<-paste("trackplot", i,j,k,".pdf", sep="")
+      temp_name<-paste("trackplot", i, j, k,".pdf", sep="")
       pdf(file=temp_name)
-  
+      plot(x=CompiledData$x, y=CompiledData$y, type="n")
+      points(x =( 1:length(sf:fl)/5)+200, y = rep(80, times=length(sf:fl)), 
+               col= alpha(topo.colors(n=length(sf:fl)),0.2))
       for(l in 1:6){
-        li<-which(CompiledData$position==l)
+        li<-which(CompiledData$trayn==l)
         ijkl<-intersect(ijk, li)
         for(f in sf:fl){
           #tic()
@@ -746,7 +798,7 @@ for(i in 2:2){
           fijkl<-intersect(fi, ijkl)
           points(x = CompiledData$x[fijkl], y = CompiledData$y[fijkl], 
             col = alpha(topo.colors(n=(fl-sf))[f],0.2),
-            pch=pointtype[CompiledData$PTray+1])
+            pch=pointtype[CompiledData$PTray[fijkl]+1])
          # points(x =( 1:length(frame_limit)/5)+200, y = rep(80, times=length(frame_limit)), 
           #  col= alpha(topo.colors(n=length(fijkl)),0.2))
           #toc()
@@ -756,6 +808,7 @@ for(i in 2:2){
 }
 }
 }
+
 
 
 ## Create insect id for new data table aggregating data by insect.
