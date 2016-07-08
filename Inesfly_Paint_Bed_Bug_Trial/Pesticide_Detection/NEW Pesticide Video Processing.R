@@ -11,12 +11,15 @@
 # devtools::install_github("swarm-lab/videoplayR")
 # 
 # #install Other packages:
-install.packages("dplyr")
-install.packages("clue")
-install.packages("shiny")
-install.packages("splancs")
-install.packages("tictoc")
-install.packages("reshape2")
+# install.packages("dplyr")
+# install.packages("clue")
+# install.packages("shiny")
+# install.packages("splancs")
+# install.packages("tictoc")
+# install.packages("reshape2")
+# install.packages("vioplot")
+# install.packages("scales")
+# install.packages("tictoc")
 
 # Open Libraries
 library(videoplayR)
@@ -27,6 +30,9 @@ library(splancs)
 library(grid)
 library(tictoc)
 library(reshape2)
+library(vioplot)
+library(scales)
+library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
@@ -514,7 +520,7 @@ PosSlope <- which(CompVidRep2$TPX >= CompVidRep2$BPX )
 
 ###
 #Bring Data in for 
-CompVidRep2<- read.csv(CompVidRep2.csv)
+#CompVidRep2<- read.csv("CompVidRep2.csv")
 
 
 CompVidRep2$quad <- 0
@@ -713,30 +719,43 @@ chisq.test(Result_Mat, correct = TRUE)
 #Make plots that track the bugs across time
 #==============================================================================
 ###
-frs <- 1
-fre <- 300
-#
-for(i in 2:rep){
-ii <- which(CompiledData$rep==i)
-for(j in 1:1)
-ji <- which(CompiledData$trial==j)
-#for k in 1:2
-ki <- which(CompiledData$camera==k)
-plot(get(paste(background for video)))
+pointtype<-c(18,20)
+sf<-1
+fl<-300
+plot(x=c(190, (max(CompiledData$x)+10)), y=c(50, (max(CompiledData$y)+10)), 
+     col=6)
+plot(x=CompiledData$x, y=CompiledData$y, type="n")
 
-for(l in 1:6){
-  positions<-which(CompiledData$position==l)
-  ij<-intersect(ii, ji)
-  kl<-intersect(ki, li)
-  ijkl<-intersect(ij, kl)
-  points(CompiledData$x[ijkl], CompiledData$y[ijkl], col = heat.colors(n=length(CompiledData$x[ijlkl])))
+for(i in 2:2){
+  ii <- which(CompiledData$rep==i)
+  for(j in 1:6){
+    ji <- which(CompiledData$trial==j)
+    ij<-intersect(ii, ji)
+    for(k in 1:2){
+      ki <- which(CompiledData$camera==k)
+      ijk<-intersect(ij, ki)
+      temp_name<-paste("trackplot", i,j,k,".pdf", sep="")
+      pdf(file=temp_name)
+  
+      for(l in 1:6){
+        li<-which(CompiledData$position==l)
+        ijkl<-intersect(ijk, li)
+        for(f in sf:fl){
+          #tic()
+          fi <- which(CompiledData$frame==f)
+          fijkl<-intersect(fi, ijkl)
+          points(x = CompiledData$x[fijkl], y = CompiledData$y[fijkl], 
+            col = alpha(topo.colors(n=(fl-sf))[f],0.2),
+            pch=pointtype[CompiledData$PTray+1])
+         # points(x =( 1:length(frame_limit)/5)+200, y = rep(80, times=length(frame_limit)), 
+          #  col= alpha(topo.colors(n=length(fijkl)),0.2))
+          #toc()
+        }
+      }
+      dev.off()
 }
 }
 }
-}
-
-
-
 
 
 ## Create insect id for new data table aggregating data by insect.
