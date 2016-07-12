@@ -42,7 +42,7 @@ setwd("/Users/dtrac/OneDrive/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_T
  setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 # Justin's Computer
 #setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
-                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
+#                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
 # Gian Franco's
 # setwd(".../Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
@@ -752,8 +752,8 @@ for(f in 2:length(rev_frames)){
   pfr<-which(CompiledData==pfmn)
   cf <- intersect(cfr, ijkl)
   pf <- intersect(pfr, ijkl)
-  print(paste(i,j,k,l, sep=""))
-  print(cf)
+  #print(paste(i,j,k,l, sep=""))
+  #print(cf)
 
 #CompiledData$speed[cf]<-sqrt((CompiledData$x[cf]-CompiledData$x[pf])^2+(CompiledData$y[cf]-CompiledData$y[pf])^2)/(cf-pf)
         }
@@ -761,23 +761,23 @@ for(f in 2:length(rev_frames)){
     }
   }
 }
-
-CompiledData$speed<-CompiledData$PQuad*0
-iia <- which(CompiledData$rep==2)
-    jia <- which(CompiledData$trial==1)
-    ija<-intersect(iia, jia)
-      kia <- which(CompiledData$camera==1)
-      ijka<-intersect(ija, kia)
-        lia<-which(CompiledData$trayn==1)
-        ijkla<-intersect(ijka, lia)
-        rev_frames<-CompiledData$frame[ijkla]
-          frmna<-rev_frames[2]
-          cfra<-which(CompiledData==frmna)
-          pfmna <- rev_frames[2-1]
-          pfra<-which(CompiledData==pfmna)
-          cfa <- intersect(cfra, ijkla)
-          pfa <- intersect(pfra, ijkla)
-          CompiledData$speed[cfa]<-sqrt((CompiledData$x[cfa]-CompiledData$x[pfa])^2+(CompiledData$y[cfa]-CompiledData$y[pfa])^2)/(cfa-pfa)
+# 
+# CompiledData$speed<-CompiledData$PQuad*0
+# iia <- which(CompiledData$rep==2)
+#     jia <- which(CompiledData$trial==1)
+#     ija<-intersect(iia, jia)
+#       kia <- which(CompiledData$camera==1)
+#       ijka<-intersect(ija, kia)
+#         lia<-which(CompiledData$trayn==1)
+#         ijkla<-intersect(ijka, lia)
+#         rev_frames<-CompiledData$frame[ijkla]
+#           frmna<-rev_frames[2]
+#           cfra<-which(CompiledData==frmna)
+#           pfmna <- rev_frames[2-1]
+#           pfra<-which(CompiledData==pfmna)
+#           cfa <- intersect(cfra, ijkla)
+#           pfa <- intersect(pfra, ijkla)
+#           CompiledData$speed[cfa]<-sqrt((CompiledData$x[cfa]-CompiledData$x[pfa])^2+(CompiledData$y[cfa]-CompiledData$y[pfa])^2)/(cfa-pfa)
 
 
 ###############################################################################
@@ -793,10 +793,20 @@ c_one<-which(TrayPlace$Position<=6)
 TrayPlace$camera[c_two]<-2
 TrayPlace$camera[c_one]<-1
 
-for(i in 2:2){
+TrayPlace$CamPos <- TrayPlace$Position-(6*(TrayPlace$camera-1))
+
+#Table to determine the painted quadrants given orientation
+one   <- c(1,2,3,4)
+two   <- c(2,3,4,1)
+three <- c(3,4,1,2)
+four  <- c(4,1,2,3)
+OTab  <- data.frame(one, two, three, four)
+
+
+for(i in 2:2) {
   ii <- which(CompiledData$rep==i)
-  ti <- which(TrapPlace$Repetition==i)
-  for(j in 1:6){
+  ti <- which(TrayPlace$Repetition==i)
+  for(j in 1:6) {
     ji <- which(CompiledData$trial==j)
     ij<-intersect(ii, ji)
     tj<- which(TrayPlace$Trial==j)
@@ -807,19 +817,29 @@ for(i in 2:2){
       tk <- which(TrayPlace$camera == k)
       tijk<-intersect(tij, tk)
       temp_name <- paste("trackplot", i, j, k,".pdf", sep="")
-      pdf(file=temp_name)
-      plot(x=CompiledData$x, y=CompiledData$y, type="n")
-      points(x =( 1:length(sf:fl)/3)+200, y = rep(120, times=length(sf:fl)), 
-               col= alpha(topo.colors(n=length(sf:fl)),0.2))
+      #pdf(file=temp_name)
       Ctname<-paste("CoTbR", i, "T", j, "C", k, sep = "")
+      temp_plot_name<-paste("R", i, "T", j, "C", k, sep = "")
+      plot(x=CompiledData$x, y=CompiledData$y, type="n", main= temp_plot_name)
+      points(x = ( (1:length(sf:fl)/3)+175), y = (rep(((get(Ctname)$TPY[1])+10), times = length(sf:fl))), 
+               col = alpha(topo.colors(n=length(sf:fl)),0.2))
+      
       for(l in 1:6){
         li<-which(CompiledData$trayn==l)
         ijkl<-intersect(ijk, li)
-        tl<-which(CompiledData$trayn==l)
+        tl<-which(TrayPlace$CamPos==l)
         tijkl<-intersect(tijk, tl)
         lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
         lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
-        points()
+        tpos<-0
+        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[2,4]")}
+          tpossec<-tpos
+          tpos<-as.character(tpos)
+          tpossec<-as.character(tpossec)
+        text(x=(get(Ctname)$BPX[l]), y=(get(Ctname)$BPY[l]-15), labels= tpos)
         for(f in sf:fl){
           #tic()
           fi <- which(CompiledData$frame==f)
@@ -828,23 +848,69 @@ for(i in 2:2){
             col = alpha(topo.colors(n=(fl-sf))[f],0.2),
             pch=pointtype[CompiledData$PTray[fijkl]+1])
 
-         # points(x =( 1:length(frame_limit)/5)+200, y = rep(80, times=length(frame_limit)), 
-          #  col= alpha(topo.colors(n=length(fijkl)),0.2))
-          #toc()
+        
         }
       }
-      dev.off()
-}
+      #dev.off()
+    }
 }
 }
 
-for(i in 1:6){
-  lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]),col=i) 
-  lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
-  lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-  lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-  lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
-  lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
+
+sf<-1500
+fl<-1800
+
+for(i in 2:2) {
+  ii <- which(CompiledData$rep==i)
+  ti <- which(TrayPlace$Repetition==i)
+  for(j in 1:6) {
+    ji <- which(CompiledData$trial==j)
+    ij<-intersect(ii, ji)
+    tj<- which(TrayPlace$Trial==j)
+    tij<-intersect(ti, tj)
+    for(k in 1:2){
+      ki <- which(CompiledData$camera==k)
+      ijk<-intersect(ij, ki)
+      tk <- which(TrayPlace$camera == k)
+      tijk<-intersect(tij, tk)
+      temp_name <- paste("trackplot", i, j, k,".pdf", sep="")
+      #pdf(file=temp_name)
+      Ctname<-paste("CoTbR", i, "T", j, "C", k, sep = "")
+      temp_plot_name<-paste("R", i, "T", j, "C", k, sep = "")
+      plot(x=CompiledData$x, y=CompiledData$y, type="n", main= temp_plot_name)
+      points(x = ( (1:length(sf:fl)/3)+175), y = (rep(((get(Ctname)$TPY[1])+10), times = length(sf:fl))), 
+             col = alpha(topo.colors(n=length(sf:fl)),0.2))
+      
+      for(l in 1:6){
+        li<-which(CompiledData$trayn==l)
+        ijkl<-intersect(ijk, li)
+        tl<-which(TrayPlace$CamPos==l)
+        tijkl<-intersect(tijk, tl)
+        lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
+        lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
+        tpos<-0
+        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[2,4]")}
+        tpossec<-tpos
+        tpos<-as.character(tpos)
+        tpossec<-as.character(tpossec)
+        text(x=(get(Ctname)$BPX[l]), y=(get(Ctname)$BPY[l]-15), labels= tpos)
+        for(f in sf:fl){
+          #tic()
+          fi <- which(CompiledData$frame==f)
+          fijkl<-intersect(fi, ijkl)
+          points(x = CompiledData$x[fijkl], y = CompiledData$y[fijkl], 
+                 col = alpha(topo.colors(n=(fl-sf))[f],0.2),
+                 pch=pointtype[CompiledData$PTray[fijkl]+1])
+          
+          
+        }
+      }
+      #dev.off()
+    }
+  }
 }
 
 ## Create insect id for new data table aggregating data by insect.
