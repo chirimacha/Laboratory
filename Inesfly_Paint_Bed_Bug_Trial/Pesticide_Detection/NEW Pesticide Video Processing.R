@@ -39,7 +39,7 @@ library(tictoc)
 setwd("/Users/dtrac/OneDrive/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
 # Lab computer
- setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 # Justin's Computer
 #setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
 #                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
@@ -816,7 +816,7 @@ for(i in 2:2) {
       ijk<-intersect(ij, ki)
       tk <- which(TrayPlace$camera == k)
       tijk<-intersect(tij, tk)
-      temp_name <- paste("trackplot", i, j, k,".pdf", sep="")
+      temp_name <- paste("Trackplots/trackplot", i,"-", j,"-", k, ".pdf", sep="")
       #pdf(file=temp_name)
       Ctname<-paste("CoTbR", i, "T", j, "C", k, sep = "")
       temp_plot_name<-paste("R", i, "T", j, "C", k, sep = "")
@@ -873,7 +873,7 @@ for(i in 2:2) {
       ijk<-intersect(ij, ki)
       tk <- which(TrayPlace$camera == k)
       tijk<-intersect(tij, tk)
-      temp_name <- paste("trackplot", i, j, k,".pdf", sep="")
+      temp_name <- paste("Trackplots/trackplot", i,"-", j,"-", k, ".pdf", sep="")
       #pdf(file=temp_name)
       Ctname<-paste("CoTbR", i, "T", j, "C", k, sep = "")
       temp_plot_name<-paste("R", i, "T", j, "C", k, sep = "")
@@ -902,7 +902,7 @@ for(i in 2:2) {
           fi <- which(CompiledData$frame==f)
           fijkl<-intersect(fi, ijkl)
           points(x = CompiledData$x[fijkl], y = CompiledData$y[fijkl], 
-                 col = alpha(topo.colors(n=(fl-sf))[f],0.2),
+                 col = alpha(topo.colors(n=(fl-sf))[f-sf],0.2),
                  pch=pointtype[CompiledData$PTray[fijkl]+1])
           
           
