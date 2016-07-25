@@ -35,9 +35,13 @@ library(scales)
 library(tictoc)
 
 ## Set Working Directory
+<<<<<<< Updated upstream
 #Dylan's PC
 setwd("/Users/dtrac/OneDrive/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
+=======
+setwd("/Users/Justin/Desktop/")
+>>>>>>> Stashed changes
 # Lab computer
 #setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 # Justin's Computer

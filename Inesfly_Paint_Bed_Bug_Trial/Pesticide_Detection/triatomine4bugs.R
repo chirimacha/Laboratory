@@ -1,8 +1,4 @@
-###Lets get video processing going for film on 5 insects in the same petri dish
-#WARNING: DO NOT CHANGE QUARTZ WINDOW DIMENSIONS DURING ANALYSIS
-
-###Code for video tracking
-#To determine if bed bugs can detect pesticides.
+# Triatomines
 
 ###Install Packages and open libraries.
 #Install VideoPlayR
@@ -171,7 +167,7 @@ tracks[1:pos, ]
 
 
 ##########################
-frfbvid<-getFrame(fbvid, 20)
+frtriatomine<-getFrame(triatomine, 20)
 getpoint<-function(frame) { # Do not change Quartz size
   rto <- frame$dim[1]/frame$dim[2]
   print(rto)
@@ -190,35 +186,35 @@ getpoint<-function(frame) { # Do not change Quartz size
   output=coord
 }
 # #Repeat the above code to find points. Manually enter them in the data frames.
-tester <- getpoint(frfbvid)
+  tester <- getpoint(frtriatomine)
 # tester
 
 ##########################
 ###Set Working Directory
 setwd("/Users/Justin/Desktop")
 ###Bring in video'
-# File is 108MB. Too large for Github
-fbvid <- readVid("5bugs.mp4")  
-fbvid_secondpart <- readVid("5bugs_secondpart.mp4")
+# File is 108MB. Too large for Github\
 triatomine <- readVid("chiris-iphone4.mov")
 #MP4 and WMV can be found on Google Drive
 #https://drive.google.com/open?id=0BymPutRx4sc2Yjh3YXJXVXV6QzA
-
 ###Reset the working director
 setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
 ##########################
 # Create the background; serves as comparison or "bugless" control
-bg <- backgrounder(fbvid, n=150, method="median", color= TRUE)
+bg <- backgrounder(triatomine, n=150, method="median", color= TRUE)
 # Create a colorless background
 # bgcl<-backgrounder(fbvid, n=150, method="median", color= TRUE)
 # Create a mask to reduce glare and other issues simple tracker
 mat1 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
+
+mat2 <- matrix(1, nrow = bg$dim[1], ncol = bg$dim[2])
 # Create white hole for each petri dish in complete mask. The matrix works 
 # left to right, BUT top to bottom. Graph works bottom to top so we need 
 # correction.
 mat1[((bg$dim[1])-418):((bg$dim[1])-204), 312:504] <- 1
-imask <- d2ddd(r2img(mat1))
+
+imask <- d2ddd(r2img(mat2))
 # Blend mask and background to get a masked background
 mbg <- (blend(bg, imask, "*"))
 
@@ -233,7 +229,7 @@ bugpos_save3 <- data.frame()
 bugpos_save4 <- data.frame()
 bugpos_save5 <- data.frame()
 bugpos_save6 <- data.frame()
-for (j in 1:383) {
+for (j in 1:7) {
   tic(msg = NULL, quiet = TRUE, func.tic = NULL)
   end.frame <- (j * 29)
   begin.frame <- (end.frame - 28)
@@ -259,13 +255,13 @@ for (j in 1:383) {
                          bugpos_save5, bugpos_save6)
   }
   for (l in begin.frame:end.frame) {
-    res <- getFrame(fbvid, l) # extract individual frames
+    res <- getFrame(triatomine, l) # extract individual frames
     mask <- blend(res, imask, "*") # mask other petri dishes
     sub <- blend(mbg, res, "-") # subtract background from the mask 
     bw <- thresholding(sub, thres = 50, "binary") # set a threshold difference 
     bugcords <- blobDetector(bw) # detect the white blobs that are created; 
     bugcords <- mutate(bugcords, frame = l, track = NA)
-    stout <- simpleTracker(past = bugpos_past, current = bugcords, maxDist = 20) 
+    stout <- simpleTracker(past = bugpos_past, current = bugcords, maxDist = 100) 
     bugpos <- rbind(bugpos, stout)
   }
   if (identical(j, 1)) {
@@ -759,7 +755,7 @@ my.df6 <- do.call('rbind', my.list6)
 # Show lines (Our code)
 plot.new()
 imshow(bg)
-for (i in 1:6){
+for (i in 1:400){
   insect <- which(my.df$track == i)
   lines(x = c(my.df$x[insect]), y = c(my.df$y[insect]), col = i) 
 }
@@ -796,10 +792,10 @@ for (i in 1:5){
 
 # Show lines (Simon's code)
 plot.new()
-imshow(chiri.bg)
+imshow(bg)
 for (i in 1:5){
-  insect <- which(chiris$track == i)
-  lines(x = c(chiris$x[insect]), y = c(chiris$y[insect]), col = i) 
+  insect <- which(df.simon$track == i)
+  lines(x = c(df.simon$x[insect]), y = c(df.simon$y[insect]), col = i) 
 }
 
 plot.new()
@@ -810,5 +806,6 @@ for (i in 1:4){
 }
 
 write.csv(my.df.final, "fullviddata.csv")
+
 
 
