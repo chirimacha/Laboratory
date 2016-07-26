@@ -28,6 +28,18 @@ for (i in 4) {
   }
 }
 
+visualize<-function(CD, frame){
+  imshow(frame)
+  for(i in 1:6){
+    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
+    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
+    lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+    lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
+    lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
+    lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
+  }
+}
+
 #FRAMES
 #Repetition 2 Frame 5
 FR4T1C1 <- getFrame(vidR4T1C1, 5)
@@ -52,7 +64,7 @@ tester
 Tray<-c(1,2,3,4,5,6)
 Camerac(1,1,1,1,1,1)
 Trial <-c(1,1,1,1,1,1)
-Rep <-c(2,2,2,2,2,2)
+Rep <-c(4,4,4,4,4,4)
 cMXL <-c(173,374,568,173,374,568)
 cMXR <-c(374,568,780,374,568,762)
 cMYT <-c(468,468,468,271,271,271)
