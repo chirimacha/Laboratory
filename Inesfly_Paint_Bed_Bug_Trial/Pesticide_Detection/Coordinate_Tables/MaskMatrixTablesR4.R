@@ -1,4 +1,5 @@
-#For Tester Function, load "Pesticide Video Processing.R"
+library(videoplayR)
+
 getpoint<-function(frame){
   rto <- frame$dim[1]/frame$dim[2]
   print(rto)
@@ -17,7 +18,7 @@ getpoint<-function(frame){
 }
 
 #Bring in Videos
-for (i in 2) { 
+for (i in 4) { 
   for (j in 1:6) {
     for (k in 1:2) {
       temp_name1 <- paste("vidR", i, "T", j, "C", k, sep = "")
@@ -29,24 +30,22 @@ for (i in 2) {
 
 #FRAMES
 #Repetition 2 Frame 5
-FR2T1C1 <- getFrame(R2T1C1, 5)
-FR2T1C2 <- getFrame(R2T1C2, 5)
-FR2T2C1 <- getFrame(R2T2C1, 5)
-FR2T2C2 <- getFrame(R2T2C2, 5)
-FR2T3C1 <- getFrame(R2T3C1, 5)
-FR2T3C2 <- getFrame(R2T3C2, 5)
-FR2T4C1 <- getFrame(R2T4C1, 5)
-FR2T4C2 <- getFrame(R2T4C2, 5)
-FR2T5C1 <- getFrame(R2T5C1, 5)
-FR2T5C2 <- getFrame(R2T5C2, 5)
-FR2T6C1 <- getFrame(R2T6C1, 5)
-FR2T6C2 <- getFrame(R2T6C2, 5)
-
-
+FR4T1C1 <- getFrame(vidR4T1C1, 5)
+FR4T1C2 <- getFrame(vidR4T1C2, 5)
+FR4T2C1 <- getFrame(vidR4T2C1, 5)
+FR4T2C2 <- getFrame(vidR4T2C2, 5)
+FR4T3C1 <- getFrame(vidR4T3C1, 5)
+FR4T3C2 <- getFrame(vidR4T3C2, 5)
+FR4T4C1 <- getFrame(vidR4T4C1, 5)
+FR4T4C2 <- getFrame(vidR4T4C2, 5)
+FR4T5C1 <- getFrame(vidR4T5C1, 5)
+FR4T5C2 <- getFrame(vidR4T5C2, 5)
+FR4T6C1 <- getFrame(vidR4T6C1, 5)
+FR4T6C2 <- getFrame(vidR4T6C2, 5)
 
 ###############################################################################
 #USE TESTER FUNCTION TO GET POINTS
-tester<-getpoint(FR2T1C1)
+tester<-getpoint(FR4T1C1)
 tester
 
 ###Trial 1 Cam 1
@@ -69,18 +68,19 @@ cRPY <-c(364,354,355,177,180,176)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T1C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T1C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
-#rename so that colums can be found in function
-names(CoTbR2T1C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
-                     "RPX", "RPY", "LPX", "LPY")
-#write.csv(CoTbR2T1C1, "Coordinate_Tables/CoTbR2T1C1.csv")
 
-visualize(frame = FR2T1C1, CD=CoTbR2T1C1)
+#rename so that colums can be found in function
+names(CoTbR4T1C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+                     "RPX", "RPY", "LPX", "LPY")
+#write.csv(CoTbR4T1C1, "Coordinate_Tables/CoTbR4T1C1.csv")
+
+visualize(frame = FR4T1C1, CD=CoTbR4T1C1)
 
 ###############################################################################
 ###Trial 1 Cam 2
-tester<-getpoint(FR2T1C2)
+tester<-getpoint(FR4T1C2)
 tester
 
 Tray<-c(1,2,3,4,5,6)
@@ -99,16 +99,16 @@ cRPY <-c(358,358,356,170,166,170)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T1C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T1C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T1C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T1C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-#write.csv(CoTbR2T1C2, "Coordinate_Tables/CoTbR2T1C2.csv")
+#write.csv(CoTbR4T1C2, "Coordinate_Tables/CoTbR4T1C2.csv")
 
-visualize(frame = FR2T1C2, CD=CoTbR2T1C2)
+visualize(frame = FR4T1C2, CD=CoTbR4T1C2)
 ###############################################################################
-#R2T2C1
+#R4T2C1
 #RECORD THE POINTS GATHERED
 Tray<-c(1,2,3,4,5,6)
 cMXL <-c(173,374,568,173,374,568)
@@ -126,17 +126,17 @@ cRPY <-c(373,368,359,184,185,178)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T2C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T2C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T2C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T2C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-#write.csv(CoTbR2T2C1, "Coordinate_Tables/CoTbR2T2C1.csv")
-visualize(frame = FR2T2C1, CD=CoTbR2T2C1)
+#write.csv(CoTbR4T2C1, "Coordinate_Tables/CoTbR4T2C1.csv")
+visualize(frame = FR4T2C1, CD=CoTbR4T2C1)
 
 
 ###############################################################################
-tester<-getpoint(FR2T2C2)
+tester<-getpoint(FR4T2C2)
 tester
 ###Trial 2 Cam 2
 Tray<-c(1,2,3,4,5,6)
@@ -155,17 +155,17 @@ cRPY <-c(360,362,365,175,172,172)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T2C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T2C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T2C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T2C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR2T2C2, "Coordinate_Tables/CoTbR2T2C2.csv")
-visualize(frame = FR2T2C2, CD=CoTbR2T2C2)
+write.csv(CoTbR4T2C2, "Coordinate_Tables/CoTbR4T2C2.csv")
+visualize(frame = FR4T2C2, CD=CoTbR4T2C2)
 
 ###############################################################################
 ###Trial 3 Cam 1
-tester<-getpoint(FR2T3C1)
+tester<-getpoint(FR4T3C1)
 tester
 
 Tray<-c(1,2,3,4,5,6)
@@ -184,18 +184,18 @@ cRPY <-c(375,369,371,179,187,180)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T3C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T3C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T3C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T3C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR2T3C1, "Coordinate_Tables/CoTbR2T3C1.csv")
-visualize(frame = FR2T3C1, CD=CoTbR2T3C1)
+write.csv(CoTbR4T3C1, "Coordinate_Tables/CoTbR4T3C1.csv")
+visualize(frame = FR4T3C1, CD=CoTbR4T3C1)
 
 
 ###############################################################################
 ###Trial 3 Cam 2
-tester<-getpoint(FR2T3C2)
+tester<-getpoint(FR4T3C2)
 tester
 
 Tray<-c(1,2,3,4,5,6)
@@ -214,17 +214,17 @@ cRPY <-c(371,369,365,178,175,172)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T3C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T3C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T3C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T3C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR2T3C2, "Coordinate_Tables/CoTbR2T3C2.csv")
-visualize(frame = FR2T3C2, CD=CoTbR2T3C2)
+write.csv(CoTbR4T3C2, "Coordinate_Tables/CoTbR4T3C2.csv")
+visualize(frame = FR4T3C2, CD=CoTbR4T3C2)
 
 ###############################################################################
 ###Trial 4 Cam 1
-tester<-getpoint(FR2T4C1)
+tester<-getpoint(FR4T4C1)
 tester
 
 Tray<-c(1,2,3,4,5,6)
@@ -243,18 +243,18 @@ cRPY <-c(370,362,363,187,182,180)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T4C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T4C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T4C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T4C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR2T4C1, "Coordinate_Tables/CoTbR2T4C1.csv")
-visualize(frame = FR2T4C1, CD=CoTbR2T4C1)
+write.csv(CoTbR4T4C1, "Coordinate_Tables/CoTbR4T4C1.csv")
+visualize(frame = FR4T4C1, CD=CoTbR4T4C1)
 
 
 ###############################################################################
 ###Trial 4 Cam 2
-tester<-getpoint(FR2T4C2)
+tester<-getpoint(FR4T4C2)
 tester
 
 Tray <- c(1,2,3,4,5,6)
@@ -274,18 +274,18 @@ cRPY <-c(372,364,373,177,175,169)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T4C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T4C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T4C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T4C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR2T4C2, "Coordinate_Tables/CoTbR2T4C2.csv")
-visualize(frame = FR2T4C2, CD=CoTbR2T4C2)
+write.csv(CoTbR4T4C2, "Coordinate_Tables/CoTbR4T4C2.csv")
+visualize(frame = FR4T4C2, CD=CoTbR4T4C2)
 
 
 ###############################################################################
 ###Trial 5 Cam 1
-tester<-getpoint(FR2T5C1)
+tester<-getpoint(FR4T5C1)
 tester
 Tray<-c(1,2,3,4,5,6)
 cMXL <-c(184,385,578,184,385,572)
@@ -303,18 +303,18 @@ cRPY <-c(376,368,364,183,191,183)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T5C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T5C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T5C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T5C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR2T5C1, "Coordinate_Tables/CoTbR2T5C1.csv")
-visualize(frame = FR2T5C1, CD=CoTbR2T5C1)
+write.csv(CoTbR4T5C1, "Coordinate_Tables/CoTbR4T5C1.csv")
+visualize(frame = FR4T5C1, CD=CoTbR4T5C1)
 
 
 ###############################################################################
 ###Trial 5 Cam 2
-tester<-getpoint(FR2T5C2)
+tester<-getpoint(FR4T5C2)
 tester
 Tray<-c(1,2,3,4,5,6)
 cMXL <-c(168,360,547,168,363,545)
@@ -332,17 +332,17 @@ cRPY <-c(368,368,374,179,175,175)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T5C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T5C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T5C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T5C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR2T5C2, "Coordinate_Tables/CoTbR2T5C2.csv")
-visualize(frame = FR2T5C2, CD=CoTbR2T5C2)
+write.csv(CoTbR4T5C2, "Coordinate_Tables/CoTbR4T5C2.csv")
+visualize(frame = FR4T5C2, CD=CoTbR4T5C2)
 
 ###############################################################################
 ###Trial 6 Cam 1
-tester<-getpoint(FR2T6C1)
+tester<-getpoint(FR4T6C1)
 tester
 Tray<-c(1,2,3,4,5,6)
 cMXL <-c(173,374,568,173,374,568)
@@ -360,17 +360,17 @@ cRPY <-c(373,370,364,187,180,181)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T6C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T6C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T6C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T6C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR2T6C1, "Coordinate_Tables/CoTbR2T6C1.csv")
-visualize(frame = FR2T6C1, CD=CoTbR2T6C1)
+write.csv(CoTbR4T6C1, "Coordinate_Tables/CoTbR4T6C1.csv")
+visualize(frame = FR4T6C1, CD=CoTbR4T6C1)
 
 ###############################################################################
 ###Trial 6 Cam 2
-tester<-getpoint(FR2T6C2)
+tester<-getpoint(FR4T6C2)
 tester
 Tray<-c(1,2,3,4,5,6)
 cMXL <-c(152,348,540,160,359,539)
@@ -388,12 +388,13 @@ cRPY <-c(366,371,374,177,180,177)
 #c(,,,,,)
 
 #create a coordinate table
-CoTbR2T6C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
+CoTbR4T6C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY, 
                        cRPX, cRPY, cLPX, cLPY)
 #rename so that colums can be found in function
-names(CoTbR2T6C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
+names(CoTbR4T6C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-write.csv(CoTbR2T6C2, "Coordinate_Tables/CoTbR2T6C2.csv")
-visualize(frame = FR2T6C2, CD=CoTbR2T6C2)
+write.csv(CoTbR4T6C2, "Coordinate_Tables/CoTbR4T6C2.csv")
+visualize(frame = FR4T6C2, CD=CoTbR4T6C2)
 
 ###############################################################################
+

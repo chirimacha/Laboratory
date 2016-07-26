@@ -35,16 +35,12 @@ library(scales)
 library(tictoc)
 
 ## Set Working Directory
-<<<<<<< Updated upstream
 #Dylan's PC
 #setwd("/Users/dtrac/OneDrive/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
-
-=======
-setwd("/Users/Justin/Desktop/")
->>>>>>> Stashed changes
+#setwd("/Users/Justin/Desktop/")
 # Lab computer
 setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
-# Justin's Computer
+#Justin's Computer
 #setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
 #                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
 # Gian Franco's
@@ -52,12 +48,14 @@ setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"
 
 ## Set number of repetitions, trials, cameras
 # WARNING: as of May 25, 2016 only using repetition 2 trials
-repetition <- 2
+repetition <- 4
 trial <- 6
 camera <- 2
 
-## Bring in videos, coordinate tables (frames), TrayPlace
+### Bring in data: videos, coordinate tables (frames), TrayPlace
 # Repetition 1 recorded on 2016-04-21; repetition 2 recorded 2016-05-12
+# Repetition 3 and 4 were recorded on 2016-07-14
+
 # CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
 TrayPlace<- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
 #if using PC, run this loop instead of the one below
@@ -65,7 +63,7 @@ for (i in 2:repetition) {
   for (j in 1:trial) {
     for (k in 1:camera) {
       temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
-      csv_name <- paste("CoTbR", i, "T", j, "C", k, ".csv", sep = "")
+      csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k, ".csv", sep = "")
       assign(temp_name2, read.csv(csv_name))
     }
   }
@@ -78,11 +76,11 @@ for (i in 2:repetition) {
 #   for (j in 1:trial) {
 #     for (k in 1:camera) {
 #       temp_name1 <- paste("vidR", i, "T", j, "C", k, sep = "")
-#       video_name <- paste("R", i, "T", j, "C", k, ".mp4", sep = "")
+#       video_name <- paste("Videos/R", i, "T", j, "C", k, ".mp4", sep = "")
 #       assign(temp_name1, readVid(video_name))
 #       
 #       temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
-#       csv_name <- paste("CoTbR", i, "T", j, "C", k, ".csv", sep = "")
+#       csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k, ".csv", sep = "")
 #       assign(temp_name2, read.csv(csv_name))
 #     }
 #   }
