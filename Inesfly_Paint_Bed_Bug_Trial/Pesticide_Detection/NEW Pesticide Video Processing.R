@@ -37,13 +37,13 @@ library(tictoc)
 ## Set Working Directory
 <<<<<<< Updated upstream
 #Dylan's PC
-setwd("/Users/dtrac/OneDrive/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+#setwd("/Users/dtrac/OneDrive/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
 =======
 setwd("/Users/Justin/Desktop/")
 >>>>>>> Stashed changes
 # Lab computer
-#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 # Justin's Computer
 #setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
 #                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
@@ -59,7 +59,7 @@ camera <- 2
 ## Bring in videos, coordinate tables (frames), TrayPlace
 # Repetition 1 recorded on 2016-04-21; repetition 2 recorded 2016-05-12
 # CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
-TrayPlace<- read.csv("TraysRep1y2.csv") # times, dates, humidity quadrant 
+TrayPlace<- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
 #if using PC, run this loop instead of the one below
 for (i in 2:repetition) { 
   for (j in 1:trial) {
