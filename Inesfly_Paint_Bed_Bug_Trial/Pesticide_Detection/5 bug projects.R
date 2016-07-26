@@ -754,63 +754,19 @@ for (j in 1601:1913) {
 }
 my.df6 <- do.call('rbind', my.list6)
 
-
-# Show lines (Our code)
+# Show lines
 plot.new()
-imshow(bg)
-for (i in 1:6){
-  insect <- which(my.df$track == i)
-  lines(x = c(my.df$x[insect]), y = c(my.df$y[insect]), col = i) 
-}
-plot.new()
-imshow(bg)
-for (i in 1:5){
-  insect <- which(my.df2$track == i)
-  lines(x = c(my.df2$x[insect]), y = c(my.df2$y[insect]), col = i) 
-}
-plot.new()
-imshow(bg)
-for (i in 1:5){
-  insect <- which(my.df3$track == i)
-  lines(x = c(my.df3$x[insect]), y = c(my.df3$y[insect]), col = i) 
-}
-plot.new()
-imshow(bg)
-for (i in 11:11){
-  insect <- which(my.df4$track == i)
-  lines(x = c(my.df4$x[insect]), y = c(my.df4$y[insect]), col = i) 
-}
-plot.new()
-imshow(bg)
-for (i in 1:5){
-  insect <- which(my.df5$track == i)
-  lines(x = c(my.df5$x[insect]), y = c(my.df5$y[insect]), col = i) 
-}
-plot.new()
-imshow(bg)
-for (i in 1:5){
-  insect <- which(my.df6$track == i)
-  lines(x = c(my.df6$x[insect]), y = c(my.df6$y[insect]), col = i) 
-}
-
-# Show lines (Simon's code)
-plot.new()
-imshow(chiri.bg)
-for (i in 1:1000){
-  insect <- which(chiris$track == i)
-  lines(x = c(chiris$x[insect]), y = c(chiris$y[insect]), col = i) 
-}
-
+imshow(fr.filter.vid)
 for (i in 1:1000){
   insect <- which(filter.tracks$track == i)
   lines(x = c(filter.tracks$x[insect]), y = c(filter.tracks$y[insect]), col = i) 
 }
 
 plot.new()
-imshow(bg)
-for (i in 1:4){
-  insect <- which(simon.edit.df$track == i)
-  lines(x = c(simon.edit.df$x[insect]), y = c(simon.edit.df$y[insect]), col = i) 
+imshow(fr.chiri.vid)
+for (i in 1:1000){
+  insect <- which(trial2.chiri$track == i)
+  lines(x = c(trial2.chiri$x[insect]), y = c(trial2.chiri$y[insect]), col = i) 
 }
 
 write.csv(my.df.final, "fullviddata.csv")
