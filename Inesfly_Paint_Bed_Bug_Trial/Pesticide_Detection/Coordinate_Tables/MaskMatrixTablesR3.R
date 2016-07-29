@@ -29,6 +29,8 @@ visualize<-function(CD, frame){
   }
 }
 
+#set working directory
+setwd("/Users/mzlevy/Desktop")
 #Bring in Videos
 for (i in 3) { 
   for (j in 1:6) {
@@ -39,6 +41,9 @@ for (i in 3) {
     }
   }
 }
+
+#reset wd()
+setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
 #FRAMES
 #Repetition 2 Frame 5
@@ -88,7 +93,7 @@ CoTbR3T1C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY,
 #rename so that colums can be found in function
 names(CoTbR3T1C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-#write.csv(CoTbR3T1C1, "Coordinate_Tables/CoTbR3T1C1.csv")
+write.csv(CoTbR3T1C1, "Coordinate_Tables/CoTbR3T1C1.csv")
 
 visualize(frame = FR3T1C1, CD=CoTbR3T1C1)
 
@@ -118,14 +123,13 @@ CoTbR3T1C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY,
 #rename so that colums can be found in function
 names(CoTbR3T1C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-#write.csv(CoTbR3T1C2, "Coordinate_Tables/CoTbR3T1C2.csv")
+write.csv(CoTbR3T1C2, "Coordinate_Tables/CoTbR3T1C2.csv")
 
 visualize(frame = FR3T1C2, CD=CoTbR3T1C2)
 ###############################################################################
 #R3T2C1
 tester<-getpoint(FR3T2C1)
 tester
-
 
 #RECORD THE POINTS GATHERED
 Tray<-c(1,2,3,4,5,6)
@@ -149,7 +153,7 @@ CoTbR3T2C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY,
 #rename so that colums can be found in function
 names(CoTbR3T2C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-#write.csv(CoTbR3T2C1, "Coordinate_Tables/CoTbR3T2C1.csv")
+write.csv(CoTbR3T2C1, "Coordinate_Tables/CoTbR3T2C1.csv")
 visualize(frame = FR3T2C1, CD=CoTbR3T2C1)
 
 
@@ -178,7 +182,7 @@ CoTbR3T2C2<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY,
 #rename so that colums can be found in function
 names(CoTbR3T2C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-#write.csv(CoTbR3T2C2, "Coordinate_Tables/CoTbR3T2C2.csv")
+write.csv(CoTbR3T2C2, "Coordinate_Tables/CoTbR3T2C2.csv")
 visualize(frame = FR3T2C2, CD=CoTbR3T2C2)
 
 ###############################################################################

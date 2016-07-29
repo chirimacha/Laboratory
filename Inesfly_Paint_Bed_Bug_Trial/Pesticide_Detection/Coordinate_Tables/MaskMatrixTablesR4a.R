@@ -1,7 +1,7 @@
 library(videoplayR)
 library(grid)
 
-setwd("/Users/mzlevy/Desktop")
+
 
 #Bring in Videos
 for (i in 4) { 
@@ -154,7 +154,7 @@ CoTbR4T2C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY,
 #rename so that colums can be found in function
 names(CoTbR4T2C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-#write.csv(CoTbR4T2C1, "Coordinate_Tables/CoTbR4T2C1.csv")
+write.csv(CoTbR4T2C1, "Coordinate_Tables/CoTbR4T2C1.csv")
 visualize(frame = FR4T2C1, CD=CoTbR4T2C1)
 
 ###############################################################################
@@ -220,10 +220,10 @@ tester<-getpoint(FR4T3C2)
 tester
 
 Tray<-c(1,2,3,4,5,6)
-cMXL <-c(149,348,540,149,359,536)
-cMXR <-c(348,540,734,359,536,720)
-cMYT <-c(456,456,456,258,258,258)
-cMYB <-c(258,258,258,069,069,069)
+cMXL <-c(168,348,521,168,343,518)
+cMXR <-c(348,521,701,343,518,701)
+cMYT <-c(430,430,430,251,248,248)
+cMYB <-c(251,248,248,069,069,069)
 cTPX <-c(268,436,609,257,428,604)
 cTPY <-c(413,407,408,243,234,233)
 cBPX <-c(270,434,603,258,432,595)
@@ -339,7 +339,7 @@ tester
 
 Tray<-c(1,2,3,4,5,6)
 cMXL <-c(170,348,519,170,340,519)
-cMXR <-c(348,519,702,340,519,702)
+cMXR <-c(348,519,702,340,519,690)
 cMYT <-c(435,435,435,250,250,250)
 cMYB <-c(250,250,250,069,069,069)
 cTPX <-c(266,431,604,262,432,600)
