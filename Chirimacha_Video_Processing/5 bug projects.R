@@ -27,6 +27,7 @@ library(splancs)
 library(grid)
 library(tictoc)
 library(compiler)
+library(splancs)
 
 ## Simple Tracker
 pdiff <- function(a, b) {
@@ -169,8 +170,6 @@ if (progress) {
 tracks[1:pos, ]
 }
 
-##
-#
 frfbvid<-getFrame(fbvid, 20)
 getpoint<-function(frame) { # Do not change Quartz size
   rto <- frame$dim[1]/frame$dim[2]
@@ -198,8 +197,8 @@ tester <- getpoint(frfbvid)
 setwd("/Users/Justin/Desktop")
 ###Bring in video'
 # File is 108MB. Too large for Github
-chiri.vid <- readVid("20160722 tablet2.mp4")
-filter.vid <- readVid("RedtoGrey.mp4")
+chiri.vid <- readVid("20160722 tablet3.mp4")
+# filter.vid <- readVid("RedtoGrey.mp4")
 #MP4 and WMV can be found on Google Drive
 #https://drive.google.com/open?id=0BymPutRx4sc2Yjh3YXJXVXV6QzA
 
@@ -210,17 +209,28 @@ setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Tria
 # Create the background; serves as comparison or "bugless" control
 bg <- backgrounder(filter.vid, n=150, method="median", color= TRUE)
 chiri.bg <- backgrounder(chiri.vid, n=150, method="median", color= TRUE)
-# Create a colorless background
-# bgcl<-backgrounder(fbvid, n=150, method="median", color= TRUE)
-# Create a mask to reduce glare and other issues simple tracker
-mat1 <- matrix(0, nrow = bg$dim[1], ncol = bg$dim[2])
-# Create white hole for each petri dish in complete mask. The matrix works 
-# left to right, BUT top to bottom. Graph works bottom to top so we need 
-# correction.
-mat1[((bg$dim[1])-418):((bg$dim[1])-204), 312:504] <- 1
-imask <- d2ddd(r2img(mat1))
-# Blend mask and background to get a masked background
-mbg <- (blend(bg, imask, "*"))
+
+# Mask creation
+poly.list <- vector('list', 1280)
+for (i in 1:1280) {
+  x <- rep(i, 720)
+  pts <- cbind(x, 720:1)
+  output <- inout(pts, poly, bound=NULL, quiet=TRUE)
+  poly.list[[i]] <- output
+}
+comb.output <- do.call('cbind', poly.list)
+false.vector <- which(comb.output == "FALSE")
+true.vector <- which(comb.output == "TRUE")
+comb.output[false.vector] <- 0 
+comb.output[true.vector] <- 1
+mask <- d2ddd(r2img(comb.output))
+imshow(blend(chiri.bg, mask, "*"))
+
+white.mat <- matrix(1, nrow = chiri.bg$dim[1], ncol = chiri.bg$dim[2])
+white.img <- r2img(white.mat)
+white.img <- d2ddd(r2img(white.mat))
+imshow(white.img)
+imshow(blend(white.img, mask, "*"))
 
 ## Data collection from video
 my.list <- vector('list', 1000)
@@ -301,29 +311,81 @@ my.df <- do.call('rbind', my.list)
 # Show lines
 plot.new()
 imshow(fr.filter.vid)
-for (i in 1:1000){
+for (i in 1:100){
   insect <- which(filter.tracks$track == i)
   lines(x = c(filter.tracks$x[insect]), y = c(filter.tracks$y[insect]), col = i) 
 }
 
 plot.new()
 imshow(fr.chiri.vid)
-for (i in 1:1000){
+for (i in 1:100){
   insect <- which(trial2.chiri$track == i)
   lines(x = c(trial2.chiri$x[insect]), y = c(trial2.chiri$y[insect]), col = i) 
 }
 
-# Testing inout function with polygon
-poly.list <- vector('list', 1280)
-for (i in 1:1280) {
-  x <- rep(i, 720)
-  pts <- cbind(x, 1:720)
-  output <- inout(pts, poly, bound=NULL, quiet=TRUE)
-  poly.list[[i]] <- output
+## Stitching
+# 4
+plot.new()
+imshow(chiri.bg)
+for (i in 4:4){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = i) 
 }
-comb.output <- do.call('rbind', poly.list)
 
-false.vector <- which(comb.output == "FALSE")
-true.vector <- which(comb.output == "TRUE")
-comb.output[false.vector] <-0 
-comb.output[true.vector] <-1
+# 2, 5, 8, 11
+# plot.new()
+# imshow(chiri.bg)
+for (i in 2:2){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = i) 
+}
+for (i in 5:5){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = "red") 
+}
+for (i in 8:8){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = "red") 
+}
+for (i in 11:11){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = "red") 
+}
+
+# 3, 6, 10
+# plot.new()
+# imshow(chiri.bg)
+for (i in 3:3){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = "green") 
+}
+for (i in 6:6){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = "green") 
+}
+for (i in 10:10){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = "green") 
+}
+for (i in 11:11){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = "green") 
+}
+
+# 1, 7, 9
+# plot.new()
+# imshow(chiri.bg)
+for (i in 1:1){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = i) 
+}
+for (i in 7:7){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = "black") 
+}
+for (i in 9:9){
+  insect <- which(chiri.tracks$track == i)
+  lines(x = c(chiri.tracks$x[insect]), y = c(chiri.tracks$y[insect]), col = "black") 
+}
+
+write.csv(chiri.tracks, file = "chiri.tracks.14th.csv")
