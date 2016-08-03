@@ -41,7 +41,7 @@ library(tictoc)
 # Lab computer
 setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 #Justin's Computer
-#setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
+# setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
 #                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
 # Gian Franco's
 # setwd(".../Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
@@ -56,6 +56,17 @@ camera <- 2
 # Repetition 1 recorded on 2016-04-21; repetition 2 recorded 2016-05-12
 # Repetition 3 and 4 were recorded on 2016-07-14
 
+#Bring in Videos
+for (i in 4:4) { 
+  for (j in 1:6) {
+    for (k in 1:2) {
+      temp_name1 <- paste("vidR", i, "T", j, "C", k, sep = "")
+      video_name <- paste("R", i, "T", j, "C", k, ".mp4", sep = "")
+      assign(temp_name1, readVid(video_name))
+    }
+  }
+}
+
 # CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
 TrayPlace<- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
 #if using PC, run this loop instead of the one below
@@ -68,8 +79,6 @@ for (i in 2:repetition) {
     }
   }
 }
-
-
 
 # assignments as TrayPlace
 # for (i in 2:repetition) { 
@@ -88,13 +97,37 @@ for (i in 2:repetition) {
 
 ## Create background (this will take awhile, ~30-40 minutes)
 # WARNING: Do this step only once
-for (i in 2:repetition) { 
+for (i in 2:2) { 
   for (j in 1:trial) {
     for (k in 1:camera) {
       temp_name <- paste("bgR", i, "T", j, "C", k, sep = "")
       vid_name <- paste("vidR", i, "T", j, "C", k, sep = "")
       assign(temp_name, backgrounder(get(vid_name),  n = 1800, 
                                      method = "median", color = FALSE))
+    }
+  }
+}
+for (i in 3:3) { 
+  for (j in 1:trial) {
+    for (k in 1:camera) {
+      tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+      temp_name <- paste("bgR", i, "T", j, "C", k, sep = "")
+      vid_name <- paste("vidR", i, "T", j, "C", k, sep = "")
+      assign(temp_name, backgrounder(get(vid_name),  n = 1700, 
+                                     method = "median", color = FALSE))
+      toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
+    }
+  }
+}
+for (i in 4:4) { 
+  for (j in 1:trial) {
+    for (k in 1:camera) {
+      tic(msg = NULL, quiet = TRUE, func.tic = NULL)
+      temp_name <- paste("bgR", i, "T", j, "C", k, sep = "")
+      vid_name <- paste("vidR", i, "T", j, "C", k, sep = "")
+      assign(temp_name, backgrounder(get(vid_name),  n = 1700, 
+                                     method = "median", color = FALSE))
+      toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
     }
   }
 }
