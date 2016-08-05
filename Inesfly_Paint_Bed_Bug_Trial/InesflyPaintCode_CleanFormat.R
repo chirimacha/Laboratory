@@ -381,16 +381,73 @@ inderrors7_1a<-which(D1FSA$X2015.10.09 != D1FSB$X2015.10.09)
 ####  
 
 ##D90FS
-inderrors1_90<-which(D90FSA$X.2015.12.10 != D90FSB$X.2015.12.10)  #6 errors
+inderrors1_90<-which(D90FSA$X.2015.12.10. != D90FSB$X.2015.12.10.)  #6 errors
 #in FSA 242 is blank.
-D90FSA$X.2015.12.16[242] <- D90FSB$X.2015.12.16[242]
-D90FSA$X.2015.12.16 <- as.character(D90FSA$X.2015.12.16)
-D90FSB$X.2015.12.16 <- as.character(D90FSB$X.2015.12.16)
-inderrors2_90<-which(D90FSA$X.2015.12.16 != D90FSB$X.2015.12.16)#7
-inderrors3_90<-which(D90FSA$X.2015.12.23 != D90FSB$X.2015.12.23)#5
-inderrors4_90<-which(D90FSA$X.2015.12.30 != D90FSB$X.2015.12.30)#2
-inderrors5_90<-which(D90FSA$X.2016.01.06 != D90FSB$X.2016.01.06)#4
+D90FSA$X.2015.12.16.[242] <- D90FSB$X.2015.12.16.[242]
+D90FSA$X.2015.12.16. <- as.character(D90FSA$X.2015.12.16.)
+D90FSB$X.2015.12.16. <- as.character(D90FSB$X.2015.12.16.)
+inderrors2_90<-which(D90FSA$X.2015.12.16. != D90FSB$X.2015.12.16.)#7
+#went home for Christmas so it was one day ahead of schedule. Should be 12/22
+names(D90FSA)[6] <- "X.2015.12.22."
+names(D90FSB)[6] <- "X.2015.12.22."
+inderrors3_90<-which(D90FSA$X.2015.12.22. != D90FSB$X.2015.12.22.)#5
+inderrors4_90<-which(D90FSA$X.2015.12.30. != D90FSB$X.2015.12.30.)#2
+inderrors5_90<-which(D90FSA$X.2016.01.06. != D90FSB$X.2016.01.06.)#4
 
+#errors on 12/10 (6 total)
+#first error orignal data shows all observations are dead
+D90FSA$X.2015.12.10.[inderrors1_90[1]] <- "D"
+#error 2: same error as above
+D90FSA$X.2015.12.10.[inderrors1_90[2]] <- "D"
+#error 3: same mistake
+D90FSA$X.2015.12.10.[inderrors1_90[3]] <- "D"
+#error 4: Should be K
+D90FSA$X.2015.12.10.[inderrors1_90[4]] <- "K"
+#error 5: 
+D90FSA$X.2015.12.10.[inderrors1_90[5]] <- "K"
+D90FSA$X.2015.12.16.[inderrors1_90[5]] <- "K"
+D90FSA$X.2015.12.22.[inderrors1_90[5]] <- "K"
+#also found errors in 03-51-4-11
+D90FSA$X.2015.12.16.[inderrors1_90[5]-1] <- "K"
+D90FSA$X.2015.12.22.[inderrors1_90[5]-1] <- "K"
+D90FSA$X.2015.12.30.[inderrors1_90[5]-1] <- "K"
+#error 6: B should be K
+D90FSB$X.2015.12.10.[inderrors1_90[6]] <- "K"
+
+#12/16 Errors (5 and 6 already solved above)
+
+#Error 1: Knock down from 12/10 to 12/22 on orignal.B is incorreect
+D90FSB$X.2015.12.16.[inderrors2_90[1]] <- "K" 
+D90FSB$X.2015.12.22.[inderrors2_90[1]] <- "K" 
+#error 2: FSA should be K
+D90FSA$X.2015.12.16.[inderrors2_90[2]] <- "K" 
+#error 3:Only one knock down observation recorded
+D90FSA$X.2015.12.16.[inderrors2_90[3]] <- "D" 
+D90FSA$X.2015.12.22.[inderrors2_90[3]] <- "D" 
+#error 4: No K observations
+D90FSA$X.2015.12.16.[inderrors2_90[4]] <- "D" 
+#error 7: Not all A as FSA shows
+D90FSA$X.2015.12.16.[inderrors2_90[7]] <- "D" 
+D90FSA$X.2015.12.22.[inderrors2_90[7]] <- "K" 
+D90FSA$X.2015.12.30.[inderrors2_90[7]] <- "D" 
+D90FSA$X.2016.01.06.[inderrors2_90[7]] <- "K" 
+
+#12/22 and 12/30 Errors all fixed above
+#1/06 errors(error 1 fixed above)
+#error2: Dead on final observation
+D90FSB$X.2016.01.06.[inderrors5_90[2]] <- "D" 
+#error3
+D90FSA$X.2016.01.06.[inderrors5_90[3]] <- "D" 
+#error4
+D90FSA$X.2016.01.06.[inderrors5_90[4]] <- "D" 
+
+
+#recheck for errors
+inderrors1_90a <- which(D90FSA$X.2015.12.10. != D90FSB$X.2015.12.10.)# 0 :)
+inderrors2_90a <- which(D90FSA$X.2015.12.16. != D90FSB$X.2015.12.16.)#7
+inderrors3_90a <- which(D90FSA$X.2015.12.22. != D90FSB$X.2015.12.22.)#5
+inderrors4_90a <- which(D90FSA$X.2015.12.30. != D90FSB$X.2015.12.30.)#2
+inderrors5_90a <- which(D90FSA$X.2016.01.06. != D90FSB$X.2016.01.06.)#4
 
 ####
 
@@ -399,12 +456,48 @@ names(D180FSA)[4:8] <- c("X.2016.03.09.","X.2016.03.15.", "X.2016.03.22.",
                        "X.2016.03.29.", "X.2016.04.05.")
 names(D180FSB)[4:8] <- c("X.2016.03.09.","X.2016.03.15.", "X.2016.03.22.",
                        "X.2016.03.29.", "X.2016.04.05.")
-inderrors1_180 <- which(D180FSA$X.2016.03.09. != D180FSB$X.2016.03.09.) #6 errors
-inderrors2_180 <- which(D180FSA$X.2016.03.15. != D180FSB$X.2016.03.15.)#7
-inderrors3_180 <- which(D180FSA$X.2016.03.22. != D180FSB$X.2016.03.22.)#5
-inderrors4_180 <- which(D180FSA$X.2016.03.29. != D180FSB$X.2016.03.29.)#2
-inderrors5_180 <- which(D180FSA$X.2016.04.05. != D180FSB$X.2016.04.05.)#2  ##D90FS
+inderrors1_180 <- which(D180FSA$X.2016.03.09. != D180FSB$X.2016.03.09.)#3 
+inderrors2_180 <- which(D180FSA$X.2016.03.15. != D180FSB$X.2016.03.15.)#3 (81)
+inderrors3_180 <- which(D180FSA$X.2016.03.22. != D180FSB$X.2016.03.22.)#4 (81,127)
+inderrors4_180 <- which(D180FSA$X.2016.03.29. != D180FSB$X.2016.03.29.)#1 (311)
+inderrors5_180 <- which(D180FSA$X.2016.04.05. != D180FSB$X.2016.04.05.)#1  ##D90FS
 
+#errors on 3/9
+D180FSA[inderrors1_180[1],] 
+D180FSB[inderrors1_180[1],] 
+
+#Error 1: all observations are dead
+D180FSB$X.2016.03.09.[inderrors1_180[1]] <- "D" 
+D180FSB$X.2016.03.15.[inderrors1_180[1]] <- "D" 
+D180FSB$X.2016.03.22.[inderrors1_180[1]] <- "D" 
+#Error 2: Should we K on FSA
+D180FSA$X.2016.03.09.[inderrors1_180[2]] <- "K" 
+#Error 3: Should be all dead
+D180FSB$X.2016.03.09.[inderrors1_180[3]] <- "D" 
+
+#Errors on 3/15 (Error 1 solved above)
+#error 2: should be as FSA: 
+D180FSB$X.2016.03.15.[inderrors2_180[2]] <- "D" 
+D180FSB$X.2016.03.22.[inderrors2_180[2]] <- "D" 
+#error 3
+D180FSB$X.2016.03.15.[inderrors2_180[3]] <- "D" 
+D180FSB$X.2016.03.22.[inderrors2_180[3]] <- "D" 
+D180FSB$X.2016.03.29.[inderrors2_180[3]] <- "D" 
+
+#Errors on 3/22 (Errors 1,3, and 4 solved above)
+#error2:
+D180FSB$X.2016.03.22.[inderrors3_180[2]] <- "D" 
+#Errors from 3/29 all solved
+
+#Errors from 4/5
+D180FSA$X.2016.04.05.[inderrors5_180[1]] <- "A" 
+
+
+inderrors1_180a <- which(D180FSA$X.2016.03.09. != D180FSB$X.2016.03.09.)#3 
+inderrors2_180a <- which(D180FSA$X.2016.03.15. != D180FSB$X.2016.03.15.)#3 (81)
+inderrors3_180a <- which(D180FSA$X.2016.03.22. != D180FSB$X.2016.03.22.)#4 (81,127)
+inderrors4_180a <- which(D180FSA$X.2016.03.29. != D180FSB$X.2016.03.29.)#1 (311)
+inderrors5_180a <- which(D180FSA$X.2016.04.05. != D180FSB$X.2016.04.05.)#1  
 
 ###############################################################################
 ### Extract and Clean Individual Data and then Merge
