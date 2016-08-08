@@ -209,8 +209,9 @@ setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Tria
 # Create the background; serves as comparison or "bugless" control
 bg <- backgrounder(filter.vid, n=150, method="median", color= TRUE)
 chiri.bg <- backgrounder(chiri.vid, n=150, method="median", color= TRUE)
+chiri.low.res.bg <- backgrounder(chiri.low.res.bg.vid, n=200, method="median", color= TRUE)
 
-# Mask creation
+# Mask creation (chiri.vid)
 poly.list <- vector('list', 1280)
 for (i in 1:1280) {
   x <- rep(i, 720)
@@ -230,6 +231,28 @@ white.mat <- matrix(1, nrow = chiri.bg$dim[1], ncol = chiri.bg$dim[2])
 white.img <- r2img(white.mat)
 white.img <- d2ddd(r2img(white.mat))
 imshow(white.img)
+imshow(blend(white.img, mask, "*"))
+
+# Mask creation (chiri.low.res)
+poly.list <- vector('list', 854)
+for (i in 1:854) {
+  x <- rep(i, 480)
+  pts <- cbind(x, 480:1)
+  output <- inout(pts, poly, bound=NULL, quiet=TRUE)
+  poly.list[[i]] <- output
+}
+comb.output <- do.call('cbind', poly.list)
+false.vector <- which(comb.output == "FALSE")
+true.vector <- which(comb.output == "TRUE")
+comb.output[false.vector] <- 0 
+comb.output[true.vector] <- 1
+mask <- d2ddd(r2img(comb.output))
+imshow(blend(chiri.low.res.bg, mask, "*"))
+
+white.mat <- matrix(1, nrow = chiri.low.res.bg$dim[1], ncol = chiri.low.res.bg$dim[2])
+white.img <- r2img(white.mat)
+imshow(white.img)
+white.img <- readImg("white.png")
 imshow(blend(white.img, mask, "*"))
 
 ## Data collection from video
@@ -321,6 +344,13 @@ imshow(fr.chiri.vid)
 for (i in 1:100){
   insect <- which(trial2.chiri$track == i)
   lines(x = c(trial2.chiri$x[insect]), y = c(trial2.chiri$y[insect]), col = i) 
+}
+
+plot.new()
+imshow(chiri.low.res.bg)
+for (i in 1:100){
+  insect <- which(tracks$track == i)
+  lines(x = c(tracks$x[insect]), y = c(tracks$y[insect]), col = i) 
 }
 
 ## Stitching

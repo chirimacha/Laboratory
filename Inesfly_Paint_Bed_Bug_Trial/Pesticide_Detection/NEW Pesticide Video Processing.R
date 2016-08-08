@@ -327,12 +327,12 @@ tracks[1:pos, ]
 # Coords helper function finds which quadrant 
 # each of the blobs are in for each frame
 Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
- if (video$length < 1800) {  # determine loop length
-   fr <- video$length
-   } else {
-   fr <- 1800
-   }
-#    fr <- 200
+  if (video$length < 1800) {  # determine loop length
+    fr <- video$length
+  } else {
+    fr <- 1800
+  }
+  #    fr <- 200
   
   # Looks at each video frame and finds the coordinates of each blob
   bugpos <- data.frame()
@@ -471,13 +471,25 @@ for (i in 2:repetition) {
 }
 
 ###
-#Bring Data in for 
-CompVidRep2<- read.csv("CompVidRep2.csv")
-
-
 # Combining all data tables of repetition 2
 # CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
 #                      DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
+# write.csv(CompVidRep2, "CompVidRep2.csv")
+
+# Combining all data tables of repetition 3
+# CompVidRep3 <- rbind(DR3T1C1, DR3T1C2, DR3T2C1, DR3T2C2, DR3T3C1, DR3T3C2,
+#                      DR3T4C1, DR3T4C2, DR3T5C1, DR3T5C2, DR3T6C1, DR3T6C2)
+# write.csv(CompVidRep3, "CompVidRep3.csv")
+
+# Combining all data tables of repetition 4
+# CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
+#                      DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
+# write.csv(CompVidRep4, "CompVidRep4.csv")
+
+# Bringing in data
+CompVidRep2<- read.csv("CompVidRep2.csv")
+CompVidRep3<- read.csv("CompVidRep3.csv")
+CompVidRep4<- read.csv("CompVidRep4.csv")
 
 
 # cnt_dup <- 0

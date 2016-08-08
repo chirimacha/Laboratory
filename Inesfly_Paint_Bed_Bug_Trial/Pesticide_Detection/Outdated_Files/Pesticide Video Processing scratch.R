@@ -655,7 +655,7 @@ DR4T1C1 <- VidAnalysis(video=vidR4T1C1, bg= bgR4T1C1, coordtab=CoTbR4T1C1,
 write.csv(DR4T1C1, "Rep4Trial1Cam1RawData.csv")
 
 DR4T1C2 <- VidAnalysis(video=vidR4T1C2, bg= bgR4T1C2, coordtab=CoTbR4T1C2, 
-                       thresholda=50, maxDistb=1000, cam=2, rep=4, trial=1)
+                       thresholda=50, maxDistb=500, cam=2, rep=4, trial=1)
 write.csv(DR4T1C2, "Rep4Trial1Cam2RawData.csv")
 
 DR4T2C1 <- VidAnalysis(video=vidR4T2C1, bg= bgR4T2C1, coordtab=CoTbR4T2C1, 
