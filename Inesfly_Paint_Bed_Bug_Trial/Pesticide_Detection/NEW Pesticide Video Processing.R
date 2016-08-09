@@ -855,8 +855,8 @@ for (i in 1:nrow(CompiledData)) {
   CompiledData$Orientation[i] <- TrayPlace$Orientation[id]
   
   # Setting up orientations
-  CompiledData$PQuad[i] <- OTab[CompiledData$Orientation[i], 
-                                CompiledData$quad[i]]
+  CompiledData$PQuad[i] <- OTab[CompiledData$quad[i], 
+                                CompiledData$orientation[i]]
 }
 
 uno <- which(CompiledData$PQuad == 1)  
@@ -1063,10 +1063,10 @@ for(i in 2:2) {
         lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
         lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
         tpos<-0
-        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[2,4]")}
-        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[2,4]")}
         tpossec<-tpos
         tpos<-as.character(tpos)
         tpossec<-as.character(tpossec)
