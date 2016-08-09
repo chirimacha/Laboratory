@@ -188,7 +188,7 @@ pdiff <- function(a, b) { # helper function
   ma - mb
 }
 
-simpleTracker <- function(current, past, lookBack = 30, maxDist = 10) {
+simpleTracker <- function(current, past, lookBack = 60, maxDist = 1000) {
   if (nrow(past) == 0) {
     current$track <- 1:nrow(current)
     return(current)
@@ -332,7 +332,7 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
   } else {
     fr <- 1800
   }
-  #    fr <- 200
+   #   fr <- 200
   
   # Looks at each video frame and finds the coordinates of each blob
   bugpos <- data.frame()
@@ -471,27 +471,6 @@ for (i in 2:repetition) {
 }
 
 ###
-# Combining all data tables of repetition 2
-# CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
-#                      DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
-# write.csv(CompVidRep2, "CompVidRep2.csv")
-
-# Combining all data tables of repetition 3
-# CompVidRep3 <- rbind(DR3T1C1, DR3T1C2, DR3T2C1, DR3T2C2, DR3T3C1, DR3T3C2,
-#                      DR3T4C1, DR3T4C2, DR3T5C1, DR3T5C2, DR3T6C1, DR3T6C2)
-# write.csv(CompVidRep3, "CompVidRep3.csv")
-
-# Combining all data tables of repetition 4
-# CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
-#                      DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
-# write.csv(CompVidRep4, "CompVidRep4.csv")
-
-# Bringing in data
-CompVidRep2<- read.csv("CompVidRep2.csv")
-CompVidRep3<- read.csv("CompVidRep3.csv")
-CompVidRep4<- read.csv("CompVidRep4.csv")
-
-
 # cnt_dup <- 0
 # for (i in (1:nrow(CompVidRep2))) {
 #   if (identical(CompVidRep2$id[i], 2)) {
@@ -502,74 +481,210 @@ CompVidRep4<- read.csv("CompVidRep4.csv")
 # }
 # cnt_dup
 # 
-# # Duplicate correction
-# for (i in (1:nrow(CompVidRep2))) {
-#   if (identical(CompVidRep2$id[i], 2)) {
-#     fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
-#     fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
-#     sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
-#     sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
-#     
-#     fir_diff <- (fir_x_diff + fir_y_diff)
-#     sec_diff <- (sec_x_diff + sec_y_diff)
-#     
-#     if (fir_diff > sec_diff) {
-#       CompVidRep2$id[i] <- 1
-#       CompVidRep2 <- CompVidRep2[-(i - 1),]
-#     }
-#     else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-#       CompVidRep2 <- CompVidRep2[-i,]
-#     }
-#   }
-#   else if (identical(DR2T1C1$id[i], 3)) {
-#     fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
-#     fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
-#     sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
-#     sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
-#     
-#     fir_diff <- (fir_x_diff + fir_y_diff)
-#     sec_diff <- (sec_x_diff + sec_y_diff)
-#     
-#     if (fir_diff > sec_diff) {
-#       CompVidRep2$id[i] <- 1
-#       CompVidRep2 <- CompVidRep2[-(i - 1),]
-#     }
-#     else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-#       CompVidRep2 <- CompVidRep2[-i,]
-#     }
-#   }
-#   else if (identical(CompVidRep2$id[i], 4)) {
-#     fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
-#     fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
-#     sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
-#     sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
-#     
-#     fir_diff <- (fir_x_diff + fir_y_diff)
-#     sec_diff <- (sec_x_diff + sec_y_diff)
-#     
-#     if (fir_diff > sec_diff) {
-#       CompVidRep2$id[i] <- 1
-#       CompVidRep2 <- CompVidRep2[-(i - 1),]
-#     }
-#     else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-#       CompVidRep2 <- CompVidRep2[-i,]
-#     }
-#   }
-# }
+# Duplicate correction (Repetition 2)
+for (i in (1:nrow(CompVidRep2))) {
+  if (identical(CompVidRep2$id[i], 2)) {
+    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep2$id[i] <- 1
+      CompVidRep2 <- CompVidRep2[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep2 <- CompVidRep2[-i,]
+    }
+  }
+  else if (identical(CompVidRep2$id[i], 3)) {
+    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep2$id[i] <- 1
+      CompVidRep2 <- CompVidRep2[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep2 <- CompVidRep2[-i,]
+    }
+  }
+  else if (identical(CompVidRep2$id[i], 4)) {
+    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep2$id[i] <- 1
+      CompVidRep2 <- CompVidRep2[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep2 <- CompVidRep2[-i,]
+    }
+  }
+}
 
-## 2.7% of missing data
+# Duplicate correction (Repetition 3)
+for (i in (1:nrow(CompVidRep3))) {
+  if (identical(CompVidRep3$id[i], 2)) {
+    fir_x_diff <- abs(CompVidRep3$x[i - 1] - CompVidRep3$x[i - 2])
+    fir_y_diff <- abs(CompVidRep3$y[i - 1] - CompVidRep3$y[i - 2])
+    sec_x_diff <- abs(CompVidRep3$x[i] - CompVidRep3$x[i - 2])
+    sec_y_diff <- abs(CompVidRep3$y[i] - CompVidRep3$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep3$id[i] <- 1
+      CompVidRep3 <- CompVidRep3[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep3 <- CompVidRep3[-i,]
+    }
+  }
+  else if (identical(CompVidRep3$id[i], 3)) {
+    fir_x_diff <- abs(CompVidRep3$x[i - 1] - CompVidRep3$x[i - 2])
+    fir_y_diff <- abs(CompVidRep3$y[i - 1] - CompVidRep3$y[i - 2])
+    sec_x_diff <- abs(CompVidRep3$x[i] - CompVidRep3$x[i - 2])
+    sec_y_diff <- abs(CompVidRep3$y[i] - CompVidRep3$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep3$id[i] <- 1
+      CompVidRep3 <- CompVidRep3[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep3 <- CompVidRep3[-i,]
+    }
+  }
+  else if (identical(CompVidRep3$id[i], 4)) {
+    fir_x_diff <- abs(CompVidRep3$x[i - 1] - CompVidRep3$x[i - 2])
+    fir_y_diff <- abs(CompVidRep3$y[i - 1] - CompVidRep3$y[i - 2])
+    sec_x_diff <- abs(CompVidRep3$x[i] - CompVidRep3$x[i - 2])
+    sec_y_diff <- abs(CompVidRep3$y[i] - CompVidRep3$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep3$id[i] <- 1
+      CompVidRep3 <- CompVidRep3[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep3 <- CompVidRep3[-i,]
+    }
+  }
+}
+
+# Duplicate correction (Repetition 4)
+for (i in (1:nrow(CompVidRep4))) {
+  if (identical(CompVidRep4$id[i], 2)) {
+    fir_x_diff <- abs(CompVidRep4$x[i - 1] - CompVidRep4$x[i - 2])
+    fir_y_diff <- abs(CompVidRep4$y[i - 1] - CompVidRep4$y[i - 2])
+    sec_x_diff <- abs(CompVidRep4$x[i] - CompVidRep4$x[i - 2])
+    sec_y_diff <- abs(CompVidRep4$y[i] - CompVidRep4$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep4$id[i] <- 1
+      CompVidRep4 <- CompVidRep4[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep4 <- CompVidRep4[-i,]
+    }
+  }
+  else if (identical(CompVidRep4$id[i], 3)) {
+    fir_x_diff <- abs(CompVidRep4$x[i - 1] - CompVidRep4$x[i - 2])
+    fir_y_diff <- abs(CompVidRep4$y[i - 1] - CompVidRep4$y[i - 2])
+    sec_x_diff <- abs(CompVidRep4$x[i] - CompVidRep4$x[i - 2])
+    sec_y_diff <- abs(CompVidRep4$y[i] - CompVidRep4$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep4$id[i] <- 1
+      CompVidRep4 <- CompVidRep4[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep4 <- CompVidRep4[-i,]
+    }
+  }
+  else if (identical(CompVidRep4$id[i], 4)) {
+    fir_x_diff <- abs(CompVidRep4$x[i - 1] - CompVidRep4$x[i - 2])
+    fir_y_diff <- abs(CompVidRep4$y[i - 1] - CompVidRep4$y[i - 2])
+    sec_x_diff <- abs(CompVidRep4$x[i] - CompVidRep4$x[i - 2])
+    sec_y_diff <- abs(CompVidRep4$y[i] - CompVidRep4$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep4$id[i] <- 1
+      CompVidRep4 <- CompVidRep4[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep4 <- CompVidRep4[-i,]
+    }
+  }
+}
+
+CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
+                     DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
+
+CompVidRep3 <- rbind(DR3T1C1, DR3T1C2, DR3T2C1, DR3T2C2, DR3T3C1, DR3T3C2,
+                     DR3T4C1, DR3T4C2, DR3T5C1, DR3T5C2, DR3T6C1, DR3T6C2)
+
+CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
+                     DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
 
 ## Finding quadrants
 # a = vertical
 # b = horizontal
 
-belowa <- which((CompVidRep2$y) <  (CompVidRep2$pred1))
-abovea <- which((CompVidRep2$y) >= (CompVidRep2$pred1))
-belowb <- which((CompVidRep2$y) <  (CompVidRep2$pred2))
-aboveb <- which((CompVidRep2$y) >= (CompVidRep2$pred2))
-
-NegSlope <- which(CompVidRep2$TPX <  CompVidRep2$BPX )
-PosSlope <- which(CompVidRep2$TPX >= CompVidRep2$BPX )
+# Repetition 2
+# belowa <- which((CompVidRep2$y) <  (CompVidRep2$pred1))
+# abovea <- which((CompVidRep2$y) >= (CompVidRep2$pred1))
+# belowb <- which((CompVidRep2$y) <  (CompVidRep2$pred2))
+# aboveb <- which((CompVidRep2$y) >= (CompVidRep2$pred2))
+# 
+# NegSlope <- which(CompVidRep2$TPX <  CompVidRep2$BPX )
+# PosSlope <- which(CompVidRep2$TPX >= CompVidRep2$BPX )
+# 
+# # Repetition 3
+# belowa <- which((CompVidRep3$y) <  (CompVidRep3$pred1))
+# abovea <- which((CompVidRep3$y) >= (CompVidRep3$pred1))
+# belowb <- which((CompVidRep3$y) <  (CompVidRep3$pred2))
+# aboveb <- which((CompVidRep3$y) >= (CompVidRep3$pred2))
+# 
+# NegSlope <- which(CompVidRep3$TPX <  CompVidRep3$BPX )
+# PosSlope <- which(CompVidRep3$TPX >= CompVidRep3$BPX )
+# 
+# # Repetition 4
+# belowa <- which((CompVidRep4$y) <  (CompVidRep4$pred1))
+# abovea <- which((CompVidRep4$y) >= (CompVidRep4$pred1))
+# belowb <- which((CompVidRep4$y) <  (CompVidRep4$pred2))
+# aboveb <- which((CompVidRep4$y) >= (CompVidRep4$pred2))
+# 
+# NegSlope <- which(CompVidRep4$TPX <  CompVidRep4$BPX )
+# PosSlope <- which(CompVidRep4$TPX >= CompVidRep4$BPX )
 
 # Determine Quadrants change depending on slope of vertical line
 # In cases of positive slopes
@@ -579,64 +694,60 @@ PosSlope <- which(CompVidRep2$TPX >= CompVidRep2$BPX )
 # starting form the top right as 1
 
 ###
-#Bring Data in for 
-#CompVidRep2<- read.csv("CompVidRep2.csv")
-
-
-CompVidRep2$quad <- 0
-CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
-CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 2
-CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 4
-CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,belowb)))] <- 3
-CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,aboveb)))] <- 1
-CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 2
-CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,belowb)))] <- 4
-CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,belowb)))] <- 3
-
-# Create function that determines which quadrants have pesticide
-CompVidRep2$PQuad <- 0
-CompVidRep2$DishID <- 0
-CompVidRep2$Orientation <- 0
-
-#Table to determine the painted quadrants given orientation
-one   <- c(1,2,3,4)
-two   <- c(2,3,4,1)
-three <- c(3,4,1,2)
-four  <- c(4,1,2,3)
-OTab  <- data.frame(one, two, three, four)
-
-# Input data from TrayPlace into CompVidRep2
-for (i in 1:length(CompVidRep2$quad)) {
-  # r, t and p are the INDICES within TrayPlace
-  # by themselves, r, t and p are vectors but we then find the intersection
-  # of all three to arrive at the id
-  r <- which(TrayPlace$Repetition == CompVidRep2$rep[i]) 
-  t <- which(TrayPlace$Trial == CompVidRep2$trial[i])
-  p <- which(TrayPlace$Position == CompVidRep2$position[i])
-  id <- intersect(p, intersect(r, t))
-  
-  CompVidRep2$DishID[i] <- TrayPlace$DishID[id]
-  CompVidRep2$Orientation[i] <- TrayPlace$Orientation[id]
-  
-  # Setting up orientations
-  CompVidRep2$PQuad[i] <- OTab[CompVidRep2$Orientation[i], 
-                               CompVidRep2$quad[i]]
-}
-
-uno <- which(CompVidRep2$PQuad == 1)  
-dos <- which(CompVidRep2$PQuad == 2)  
-tres <- which(CompVidRep2$PQuad == 3)  
-cuatro <- which(CompVidRep2$PQuad == 4)  
-PTrays<- which(CompVidRep2$DishID <= 6)
-
-CompVidRep2$Pesticide <- 0  
-CompVidRep2$Pesticide[uno] <- 0
-CompVidRep2$Pesticide[intersect( PTrays, dos)] <- 1
-CompVidRep2$Pesticide[tres] <- 0
-CompVidRep2$Pesticide[intersect( PTrays, cuatro)] <- 1
+# # Repetition 2
+# CompVidRep2$quad <- 0
+# CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
+# CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 2
+# CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 4
+# CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,belowb)))] <- 3
+# CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,aboveb)))] <- 1
+# CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 2
+# CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,belowb)))] <- 4
+# CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,belowb)))] <- 3
+# 
+# # Create function that determines which quadrants have pesticide
+# CompVidRep2$PQuad <- 0
+# CompVidRep2$DishID <- 0
+# CompVidRep2$Orientation <- 0
+# 
+# #Table to determine the painted quadrants given orientation
+# one   <- c(1,2,3,4)
+# two   <- c(2,3,4,1)
+# three <- c(3,4,1,2)
+# four  <- c(4,1,2,3)
+# OTab  <- data.frame(one, two, three, four)
+# 
+# # Input data from TrayPlace into CompVidRep2
+# for (i in 1:length(CompVidRep2$quad)) {
+#   # r, t and p are the INDICES within TrayPlace
+#   # by themselves, r, t and p are vectors but we then find the intersection
+#   # of all three to arrive at the id
+#   r <- which(TrayPlace$Repetition == CompVidRep2$rep[i]) 
+#   t <- which(TrayPlace$Trial == CompVidRep2$trial[i])
+#   p <- which(TrayPlace$Position == CompVidRep2$position[i])
+#   id <- intersect(p, intersect(r, t))
+#   
+#   CompVidRep2$DishID[i] <- TrayPlace$DishID[id]
+#   CompVidRep2$Orientation[i] <- TrayPlace$Orientation[id]
+#   
+#   # Setting up orientations
+#   CompVidRep2$PQuad[i] <- OTab[CompVidRep2$Orientation[i], 
+#                                CompVidRep2$quad[i]]
+# }
+# 
+# uno <- which(CompVidRep2$PQuad == 1)  
+# dos <- which(CompVidRep2$PQuad == 2)  
+# tres <- which(CompVidRep2$PQuad == 3)  
+# cuatro <- which(CompVidRep2$PQuad == 4)  
+# PTrays<- which(CompVidRep2$DishID <= 6)
+# 
+# CompVidRep2$Pesticide <- 0  
+# CompVidRep2$Pesticide[uno] <- 0
+# CompVidRep2$Pesticide[intersect( PTrays, dos)] <- 1
+# CompVidRep2$Pesticide[tres] <- 0
+# CompVidRep2$Pesticide[intersect( PTrays, cuatro)] <- 1
 
 # ############## Dylan's code 6.30.16
-# 
 # ## Duplicate correction
 # Dup_Correct <- Function(VData){
 #   #For every value in the Video Data frame
@@ -688,7 +799,7 @@ CompVidRep2$Pesticide[intersect( PTrays, cuatro)] <- 1
 #   }
 # }
 
-CompiledData <- CompVidRep2
+
 
 ## Finding quadrants
 # a = vertical
@@ -757,6 +868,7 @@ PTrays<- which(CompiledData$DishID <= 6)
 CompiledData$PTray <- CompiledData$PQuad*0
 CompiledData$PTray[PTrays] <- 1
 
+CompiledData$Pesticide <- 0
 CompiledData$Pesticide[intersect( PTrays, dos)] <- 1
 CompiledData$Pesticide[intersect( PTrays, cuatro)] <- 1
 
@@ -774,6 +886,20 @@ dim(CompiledData)
 Result_Mat<-matrix(data=c(CN,CP,TN,TP), nrow = 2, ncol = 2,  byrow = FALSE)
 
 chisq.test(Result_Mat, correct = TRUE)
+
+# Combining all data tables of repetition 2
+write.csv(CompVidRep2, "CompVidRep2.csv")
+
+# Combining all data tables of repetition 3
+write.csv(CompVidRep3, "CompVidRep3.csv")
+
+# Combining all data tables of repetition 4
+write.csv(CompVidRep4, "CompVidRep4.csv")
+
+# Bringing in data
+# CompVidRep2<- read.csv("CompVidRep2.csv")
+# CompVidRep3<- read.csv("CompVidRep3.csv")
+# CompVidRep4<- read.csv("CompVidRep4.csv")
 
 ###
 #lets look at speed (distance traveled from previous frame)
@@ -801,7 +927,7 @@ for(f in 2:length(rev_frames)){
   pf <- intersect(pfr, ijkl)
   #print(paste(i,j,k,l, sep=""))
   #print(cf)
-
+  
 #CompiledData$speed[cf]<-sqrt((CompiledData$x[cf]-CompiledData$x[pf])^2+(CompiledData$y[cf]-CompiledData$y[pf])^2)/(cf-pf)
         }
       }
@@ -1013,5 +1139,12 @@ plot(x=insectdata$Pesticide_Tray, y=insectdata$Perc_Treatment_Frames, col = inse
 
 t.test(insectdata$Perc_Treatment_Frames[pesticide], insectdata$Perc_Treatment_Frames[control])
 
-
-
+# Running average function (Rep2)
+ma <- function(d.f, length) {
+  for (i in 1:length) {
+    frame.num <- which(d.f$frame == i)
+    frame.num 
+    
+  }
+  
+}
