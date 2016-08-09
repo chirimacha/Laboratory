@@ -36,7 +36,7 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-#setwd("/Users/dtrac/OneDrive/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+#setwd("/Users/dtrac/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 #setwd("/Users/Justin/Desktop/")
 # Lab computer
 setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
@@ -835,10 +835,10 @@ CompiledData$DishID <- 0
 CompiledData$Orientation <- 0
 
 #Table to determine the painted quadrants given orientation
-one   <- c(1,2,3,4)
-two   <- c(2,3,4,1)
-three <- c(3,4,1,2)
-four  <- c(4,1,2,3)
+one   <- c(1,4,3,2)
+two   <- c(2,1,4,3)
+three <- c(3,2,1,4)
+four  <- c(4,3,2,1)
 OTab  <- data.frame(one, two, three, four)
 
 # Input data from TrayPlace into CompVidRep2
@@ -869,11 +869,11 @@ CompiledData$PTray <- CompiledData$PQuad*0
 CompiledData$PTray[PTrays] <- 1
 
 CompiledData$Pesticide <- 0
-CompiledData$Pesticide[intersect( PTrays, dos)] <- 1
-CompiledData$Pesticide[intersect( PTrays, cuatro)] <- 1
+CompiledData$Pesticide[intersect( PTrays, uno)] <- 1
+CompiledData$Pesticide[intersect( PTrays, tres)] <- 1
 
 CompiledData$Treat_Quad <- 0  
-CompiledData$Treat_Quad[union(dos, cuatro)] <- 1
+CompiledData$Treat_Quad[union(uno, tres)] <- 1
 
 CompiledData$Result <- paste(CompiledData$Treat_Quad,
                              CompiledData$PTray, sep="-")
@@ -884,6 +884,7 @@ TP <- length(which(CompiledData$Result=="1-1"))
 sum(CN, CP, TN, TP)
 dim(CompiledData)
 Result_Mat<-matrix(data=c(CN,CP,TN,TP), nrow = 2, ncol = 2,  byrow = FALSE)
+
 
 chisq.test(Result_Mat, correct = TRUE)
 
@@ -969,10 +970,10 @@ TrayPlace$camera[c_one]<-1
 TrayPlace$CamPos <- TrayPlace$Position-(6*(TrayPlace$camera-1))
 
 #Table to determine the painted quadrants given orientation
-one   <- c(1,2,3,4)
-two   <- c(2,3,4,1)
-three <- c(3,4,1,2)
-four  <- c(4,1,2,3)
+one   <- c(1,4,3,2)
+two   <- c(2,1,4,3)
+three <- c(3,2,1,4)
+four  <- c(4,3,2,1)
 OTab  <- data.frame(one, two, three, four)
 
 
@@ -1005,10 +1006,10 @@ for(i in 2:2) {
         lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
         lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
         tpos<-0
-        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[2,4]")}
-        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[2,4]")}
           tpossec<-tpos
           tpos<-as.character(tpos)
           tpossec<-as.character(tpossec)
@@ -1062,10 +1063,10 @@ for(i in 2:2) {
         lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
         lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
         tpos<-0
-        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[2,4]")}
-        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[2,4]")}
         tpossec<-tpos
         tpos<-as.character(tpos)
         tpossec<-as.character(tpossec)
