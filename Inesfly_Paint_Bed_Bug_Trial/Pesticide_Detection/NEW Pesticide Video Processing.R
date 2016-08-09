@@ -821,13 +821,15 @@ PosSlope <- which(CompiledData$TPX >= CompiledData$BPX )
 # starting form the top right as 1
 CompiledData$quad <- 0
 CompiledData$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
-CompiledData$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 2
-CompiledData$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 4
+CompiledData$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 2
 CompiledData$quad[intersect( PosSlope, (intersect(abovea,belowb)))] <- 3
+CompiledData$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 4
+
 CompiledData$quad[intersect( NegSlope, (intersect(abovea,aboveb)))] <- 1
-CompiledData$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 2
-CompiledData$quad[intersect( NegSlope, (intersect(abovea,belowb)))] <- 4
+CompiledData$quad[intersect( NegSlope, (intersect(abovea,belowb)))] <- 2
 CompiledData$quad[intersect( NegSlope, (intersect(belowa,belowb)))] <- 3
+CompiledData$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 4
+
 
 # Create function that determines which quadrants have pesticide
 CompiledData$PQuad <- 0
