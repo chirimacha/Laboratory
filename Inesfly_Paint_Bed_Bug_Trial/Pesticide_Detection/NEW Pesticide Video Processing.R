@@ -1140,6 +1140,7 @@ plot(x=insectdata$Pesticide_Tray, y=insectdata$Perc_Treatment_Frames, col = inse
 t.test(insectdata$Perc_Treatment_Frames[pesticide], insectdata$Perc_Treatment_Frames[control])
 
 ########### Plots ###########
+# Treatment
 af <- function(d.f, length) {
   my.list <- vector('list', length)
   for (i in 1:length) {
@@ -1177,7 +1178,45 @@ ma <- function(d.f, length) {
   return(final.df) 
 }
 
-# CompVidRep2
+# Control
+af.control <- function(d.f, length) {
+  my.list <- vector('list', length)
+  for (i in 1:length) {
+    frame.num <- which(d.f$frame == i)
+    one.zero <- which(d.f$Result == "0-0")
+    one.one <- which(d.f$Result == "0-1")
+    treatment.fr <- intersect(frame.num, union(one.zero, one.one))
+    pesticide.fr <- intersect(frame.num, one.one)
+    
+    my.list[[i]] <- length(pesticide.fr)/length(treatment.fr)
+  }
+  final.df <- do.call('rbind', my.list)
+  return(final.df) 
+}
+
+ma.control <- function(d.f, length) {
+  my.list <- vector('list', length)
+  pesticide.fr.past <- 0
+  treatment.fr.past <- 0
+  for (i in 1:length) {
+    frame.num <- which(d.f$frame == i)
+    one.zero <- which(d.f$Result == "0-0")
+    one.one <- which(d.f$Result == "0-1")
+    treatment.fr <- intersect(frame.num, union(one.zero, one.one))
+    pesticide.fr <- intersect(frame.num, one.one)
+    
+    pesticide.fr.rt <- (length(pesticide.fr) + pesticide.fr.past)
+    treatment.fr.rt <- (length(treatment.fr) + treatment.fr.past)
+    my.list[[i]] <- pesticide.fr.rt/treatment.fr.rt
+    
+    pesticide.fr.past <- pesticide.fr.rt
+    treatment.fr.past <- treatment.fr.rt
+  }
+  final.df <- do.call('rbind', my.list)
+  return(final.df) 
+}
+
+## CompVidRep2
 af.CompVidRep2 <- af(CompVidRep2, 1800)
 pdf("af.CompVidRep2.pdf")
 plot(x = 1:1800, y = af.CompVidRep2, pch = 20, xlab = "Time(sec)", 
@@ -1194,7 +1233,23 @@ plot(x = 1:1800, y = ma.CompVidRep2, pch = 20, xlab = "Time(sec)",
 # abline(linear.model)
 dev.off()
 
-# CompVidRep3
+af.control.CompVidRep2 <- af.control(CompVidRep2, 1800)
+pdf("af.control.CompVidRep2.pdf")
+plot(x = 1:1800, y = af.control.CompVidRep2, pch = 20, xlab = "Time(sec)", 
+     ylab = "Average number of bugs on pesticide", main = "CompVidRep2 average
+     number of bugs on pesticide (control)")
+dev.off()
+ma.control.CompVidRep2 <- ma.control(CompVidRep2, 1800)
+pdf("ma.control.CompVidRep2.pdf")
+plot(x = 1:1800, y = ma.control.CompVidRep2, pch = 20, xlab = "Time(sec)", 
+     ylab = "Running average of bugs on pesticide", main = "CompVidRep2 running
+     average number of bugs on pesticide (control)")
+# seconds <- 1:1800
+# linear.model <- lm(ma.CompVidRep2 ~ seconds)
+# abline(linear.model)
+dev.off()
+
+## CompVidRep3
 af.CompVidRep3 <- af(CompVidRep3, 1800)
 pdf("af.CompVidRep3.pdf")
 plot(x = 1:1800, y = af.CompVidRep3, pch = 20, xlab = "Time(sec)", 
@@ -1211,7 +1266,23 @@ plot(x = 1:1800, y = ma.CompVidRep3, pch = 20, xlab = "Time(sec)",
 # abline(linear.model)
 dev.off()
 
-# CompVidRep4
+af.control.CompVidRep3 <- af.control(CompVidRep3, 1800)
+pdf("af.control.CompVidRep3.pdf")
+plot(x = 1:1800, y = af.control.CompVidRep3, pch = 20, xlab = "Time(sec)", 
+     ylab = "Average number of bugs on pesticide", main = "CompVidRep3 average
+     number of bugs on pesticide (control)")
+dev.off()
+ma.control.CompVidRep3 <- ma.control(CompVidRep3, 1800)
+pdf("ma.control.CompVidRep3.pdf")
+plot(x = 1:1800, y = ma.control.CompVidRep3, pch = 20, xlab = "Time(sec)", 
+     ylab = "Running average of bugs on pesticide", main = "CompVidRep3 running
+     average number of bugs on pesticide (control)")
+# seconds <- 1:1800
+# linear.model <- lm(ma.CompVidRep3 ~ seconds)
+# abline(linear.model)
+dev.off()
+
+## CompVidRep4
 af.CompVidRep4 <- af(CompVidRep4, 1800)
 pdf("af.CompVidRep4.pdf")
 plot(x = 1:1800, y = af.CompVidRep4, pch = 20, xlab = "Time(sec)", 
@@ -1228,30 +1299,61 @@ plot(x = 1:1800, y = ma.CompVidRep4, pch = 20, xlab = "Time(sec)",
 # abline(linear.model)
 dev.off()
 
+af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
+pdf("af.control.CompVidRep4.pdf")
+plot(x = 1:1800, y = af.control.CompVidRep4, pch = 20, xlab = "Time(sec)", 
+     ylab = "Average number of bugs on pesticide", main = "CompVidRep4 average
+     number of bugs on pesticide (control)")
+dev.off()
+ma.control.CompVidRep4 <- ma.control(CompVidRep4, 1800)
+pdf("ma.control.CompVidRep4.pdf")
+plot(x = 1:1800, y = ma.control.CompVidRep4, pch = 20, xlab = "Time(sec)", 
+     ylab = "Running average of bugs on pesticide", main = "CompVidRep4 running
+     average number of bugs on pesticide (control)")
+# seconds <- 1:1800
+# linear.model <- lm(ma.CompVidRep4 ~ seconds)
+# abline(linear.model)
+dev.off()
+
+# Dylan's binning code
 ma.bin <- function(d.f, length, bin.size) {
-  my.list <- vector('list', length)
+  my.list.pest <- vector('list', length)
+  my.list.cont <- vector('list', length)
   periods<-length/bin.size
-  pesticide.fr.past <- 0
-  treatment.fr.past <- 0
+  
   for (i in 1:periods) {
     frames.max <- which(d.f$frame >= (1+(bin.size*(i-1))))
     frames.min <- which(d.f$frame <= (i*bin.size))
     frames.num <- intersect(frames.max, frames.min)
-                                            
     one.zero <- which(d.f$Result == "1-0")
     one.one <- which(d.f$Result == "1-1")
+    con.zero <- which(d.f$Result == "0-0")
+    con.one<- which(d.f$Result == "0-1")
     treatment.fr <- intersect(frames.num, union(one.zero, one.one))
     pesticide.fr <- intersect(frames.num, one.one)
-                                            
-    pesticide.fr.rt <- (length(pesticide.fr) + pesticide.fr.past)
-    treatment.fr.rt <- (length(treatment.fr) + treatment.fr.past)
-    my.list[[i]] <- pesticide.fr.rt/treatment.fr.rt
-                                            
-    pesticide.fr.past <- pesticide.fr.rt
-    treatment.fr.past <- treatment.fr.rt
+    control.fr <-intersect(frames.num, union(con.zero,con.one))
+    pestcon.fr <-intersect(frames.num, con.one)
+    
+    pesticide.fr.rt <- (length(pesticide.fr))
+    treatment.fr.rt <- (length(treatment.fr))
+    control.fr.rt <- (length(control.fr))
+    pestcon.fr.rt <- (length(pestcon.fr))
+    
+    
+    my.list.pest[[i]] <- pesticide.fr.rt/treatment.fr.rt
+    my.list.cont[[i]] <- pesticide.fr.rt/treatment.fr.rt
   }
-  final.df <- do.call('rbind', my.list)
+  final.pest <- do.call('rbind', my.list.pest)
+  final.cont <- do.call('rbind', my.list.cont)
+  both.df <-  cbind(final.pest, final.cont)
+  final.df <- cbind(both.df, (1:periods))
+  names(final.df)<-c("Pesticide", "Control", "Period")
   return(final.df) 
 }
 
 ma.bin.CompVidRep2 <- ma.bin(CompVidRep2, 1800, 60)
+names(ma.bin.CompVidRep2)<-c("Pesticide", "Control", "Period")
+
+plot(ma.bin.CompVidRep2$Pesticide, ma.bin.CompVidRep2$Period)
+
+names()
