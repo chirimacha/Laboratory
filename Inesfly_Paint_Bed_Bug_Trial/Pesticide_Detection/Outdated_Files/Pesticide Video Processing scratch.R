@@ -1043,3 +1043,242 @@ my.df.test <- do.call('rbind', my.list.test)
 #     }
 #    }
 # }
+
+###
+#lets look at speed (distance traveled from previous frame)
+CompiledData$speed<-CompiledData$PQuad*0
+for(i in 2:2){
+  ii <- which(CompiledData$rep==i)
+  for(j in 1:6){
+    ji <- which(CompiledData$trial==j)
+    ij<-intersect(ii, ji)
+    for(k in 1:2){
+      ki <- which(CompiledData$camera==k)
+      ijk<-intersect(ij, ki)
+      for(l in 1:6){
+        li<-which(CompiledData$trayn==l)
+        ijkl<-intersect(ijk, li)
+        rev_frames<-CompiledData$frame[ijkl]
+        print(length(rev_frames))
+        for(f in 2:length(rev_frames)){
+          frmn<-rev_frames[f]
+          cfr<-which(CompiledData==frmn)
+          lessframes<-which(rev_frames < frmn)
+          pfmn <- max(rev_frames[lessframes])
+          pfr<-which(CompiledData==pfmn)
+          cf <- intersect(cfr, ijkl)
+          pf <- intersect(pfr, ijkl)
+          #print(paste(i,j,k,l, sep=""))
+          #print(cf)
+          
+          #CompiledData$speed[cf]<-sqrt((CompiledData$x[cf]-CompiledData$x[pf])^2+(CompiledData$y[cf]-CompiledData$y[pf])^2)/(cf-pf)
+        }
+      }
+    }
+  }
+}
+# 
+# CompiledData$speed<-CompiledData$PQuad*0
+# iia <- which(CompiledData$rep==2)
+#     jia <- which(CompiledData$trial==1)
+#     ija<-intersect(iia, jia)
+#       kia <- which(CompiledData$camera==1)
+#       ijka<-intersect(ija, kia)
+#         lia<-which(CompiledData$trayn==1)
+#         ijkla<-intersect(ijka, lia)
+#         rev_frames<-CompiledData$frame[ijkla]
+#           frmna<-rev_frames[2]
+#           cfra<-which(CompiledData==frmna)
+#           pfmna <- rev_frames[2-1]
+#           pfra<-which(CompiledData==pfmna)
+#           cfa <- intersect(cfra, ijkla)
+#           pfa <- intersect(pfra, ijkla)
+#           CompiledData$speed[cfa]<-sqrt((CompiledData$x[cfa]-CompiledData$x[pfa])^2+(CompiledData$y[cfa]-CompiledData$y[pfa])^2)/(cfa-pfa)
+
+
+###############################################################################
+#Make plots that track the bugs across time
+#==============================================================================
+###
+pointtype<-c(18,20)
+sf<-1
+fl<-300
+plot(x=CompiledData$x, y=CompiledData$y, type="n")
+c_two<-which(TrayPlace$Position>6)
+c_one<-which(TrayPlace$Position<=6)
+TrayPlace$camera[c_two]<-2
+TrayPlace$camera[c_one]<-1
+
+TrayPlace$CamPos <- TrayPlace$Position-(6*(TrayPlace$camera-1))
+
+#Table to determine the painted quadrants given orientation
+one   <- c(1,4,3,2)
+two   <- c(2,1,4,3)
+three <- c(3,2,1,4)
+four  <- c(4,3,2,1)
+OTab  <- data.frame(one, two, three, four)
+
+
+for(i in 2:2) {
+  ii <- which(CompiledData$rep==i)
+  ti <- which(TrayPlace$Repetition==i)
+  for(j in 1:6) {
+    ji <- which(CompiledData$trial==j)
+    ij<-intersect(ii, ji)
+    tj<- which(TrayPlace$Trial==j)
+    tij<-intersect(ti, tj)
+    for(k in 1:2){
+      ki <- which(CompiledData$camera==k)
+      ijk<-intersect(ij, ki)
+      tk <- which(TrayPlace$camera == k)
+      tijk<-intersect(tij, tk)
+      temp_name <- paste("Trackplots/trackplot", i,"-", j,"-", k, ".pdf", sep="")
+      #pdf(file=temp_name)
+      Ctname<-paste("CoTbR", i, "T", j, "C", k, sep = "")
+      temp_plot_name<-paste("R", i, "T", j, "C", k, sep = "")
+      plot(x=CompiledData$x, y=CompiledData$y, type="n", main= temp_plot_name)
+      points(x = ( (1:length(sf:fl)/3)+175), y = (rep(((get(Ctname)$TPY[1])+10), times = length(sf:fl))), 
+             col = alpha(topo.colors(n=length(sf:fl)),0.2))
+      
+      for(l in 1:6){
+        li<-which(CompiledData$trayn==l)
+        ijkl<-intersect(ijk, li)
+        tl<-which(TrayPlace$CamPos==l)
+        tijkl<-intersect(tijk, tl)
+        lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
+        lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
+        tpos<-0
+        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[2,4]")}
+        tpossec<-tpos
+        tpos<-as.character(tpos)
+        tpossec<-as.character(tpossec)
+        text(x=(get(Ctname)$BPX[l]), y=(get(Ctname)$BPY[l]-15), labels= tpos)
+        for(f in sf:fl){
+          #tic()
+          fi <- which(CompiledData$frame==f)
+          fijkl<-intersect(fi, ijkl)
+          points(x = CompiledData$x[fijkl], y = CompiledData$y[fijkl], 
+                 col = alpha(topo.colors(n=(fl-sf))[f],0.2),
+                 pch=pointtype[CompiledData$PTray[fijkl]+1])
+          
+          
+        }
+      }
+      #dev.off()
+    }
+  }
+}
+
+
+sf<-1500
+fl<-1800
+
+for(i in 2:2) {
+  ii <- which(CompiledData$rep==i)
+  ti <- which(TrayPlace$Repetition==i)
+  for(j in 1:6) {
+    ji <- which(CompiledData$trial==j)
+    ij<-intersect(ii, ji)
+    tj<- which(TrayPlace$Trial==j)
+    tij<-intersect(ti, tj)
+    for(k in 1:2){
+      ki <- which(CompiledData$camera==k)
+      ijk<-intersect(ij, ki)
+      tk <- which(TrayPlace$camera == k)
+      tijk<-intersect(tij, tk)
+      temp_name <- paste("Trackplots/trackplot", i,"-", j,"-", k, ".pdf", sep="")
+      #pdf(file=temp_name)
+      Ctname<-paste("CoTbR", i, "T", j, "C", k, sep = "")
+      temp_plot_name<-paste("R", i, "T", j, "C", k, sep = "")
+      plot(x=CompiledData$x, y=CompiledData$y, type="n", main= temp_plot_name)
+      points(x = ( (1:length(sf:fl)/3)+175), y = (rep(((get(Ctname)$TPY[1])+10), times = length(sf:fl))), 
+             col = alpha(topo.colors(n=length(sf:fl)),0.2))
+      
+      for(l in 1:6){
+        li<-which(CompiledData$trayn==l)
+        ijkl<-intersect(ijk, li)
+        tl<-which(TrayPlace$CamPos==l)
+        tijkl<-intersect(tijk, tl)
+        lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
+        lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
+        tpos<-0
+        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[1,3]")}
+        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[2,4]")}
+        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[2,4]")}
+        tpossec<-tpos
+        tpos<-as.character(tpos)
+        tpossec<-as.character(tpossec)
+        text(x=(get(Ctname)$BPX[l]), y=(get(Ctname)$BPY[l]-15), labels= tpos)
+        for(f in sf:fl){
+          #tic()
+          fi <- which(CompiledData$frame==f)
+          fijkl<-intersect(fi, ijkl)
+          points(x = CompiledData$x[fijkl], y = CompiledData$y[fijkl], 
+                 col = alpha(topo.colors(n=(fl-sf))[f-sf],0.2),
+                 pch=pointtype[CompiledData$PTray[fijkl]+1])
+          
+          
+        }
+      }
+      #dev.off()
+    }
+  }
+}
+
+## Create insect id for new data table aggregating data by insect.
+CompiledData$iid<- paste(CompiledData$rep, CompiledData$trial, CompiledData$camera, CompiledData$DishID, sep="-")
+
+iids<-unique(CompiledData$iid)
+
+#create insect based data frame
+insectdata <- data.frame(iids)
+##create blank colomns for loop 
+#The percentage of treatment frame
+insectdata$Perc_Treatment_Frames <- c(1:length(insectdata$iids)*NA)
+#Whether or not the tray is exposed to pesticide
+insectdata$Pesticide_Tray <- c(1:length(insectdata$iids)*NA)
+
+#run a loop to create data table to fill
+for( i in 1:length(iids)){
+  insect<-which(CompiledData$iid==insectdata$iids[i])
+  treat_quads<-sum(CompiledData$Treat_Quad[insect])
+  insectdata$Perc_Treatment_Frames[i] <- treat_quads/length(CompiledData$Treat_Quad[insect])
+  insectdata$Pesticide_Tray[i] <- CompiledData$PTray[min(insect)]
+  insectdata$tray_number[i] <- CompiledData$trayn[min(insect)]
+  insectdata$trial[i] <- CompiledData$trial[min(insect)]
+  insectdata$tray_position[i] <- CompiledData$position[min(insect)]
+}
+
+pesticide <- which(insectdata$Pesticide_Tray==1)
+control <- which(insectdata$Pesticide_Tray==0)
+
+jpeg(filename= "PercFramesonPesticideByExposure_Scatter.jpeg")
+plot(x=(insectdata$Pesticide_Tray+rnorm(n=length(insectdata$Pesticide_Tray), mean=0, sd=0.15)),
+     y=insectdata$Perc_Treatment_Frames, col = insectdata$Pesticide_Tray+1, 
+     ylab= "Proportion of Time Spent on Treatment Quadrants",
+     xlab= "Treatment Status (Black = Controls, Red= Exposed to Pesticide)")
+dev.off()
+
+jpeg("PercFramesonPesticideByExposure_Violin.jpeg")
+plot(-3,-3,type="n",xlim=c(.5, 2.5 ),ylim=c(0,1),axes=FALSE,ann=FALSE)
+vioplot(insectdata$Perc_Treatment_Frames[control], insectdata$Perc_Treatment_Frames[pesticide], add = TRUE)
+axis(side= 1, labels=c("Only Control Paint", "With Pesticidal Paint"), at=1:2)
+axis(side= 2, labels=paste(seq(0, 100, by =10), "%", sep=""), at=seq(0, 1, by =0.1))
+dev.off()   
+#now look at trays as a covariate
+
+plot(x=as.factor(insectdata$Pesticide_Tray), y=insectdata$Perc_Treatment_Frames, col = insectdata$tray_number)
+plot(-3,-3,type="n",xlim=c(.5, 2.5 ),ylim=c(0,1),axes=FALSE,ann=FALSE)
+
+points(x=as.factor(insectdata$Pesticide_Tray), y=insectdata$Perc_Treatment_Frames, col= insectdata$tray_number)
+
+plot(x=insectdata$Pesticide_Tray, y=insectdata$Perc_Treatment_Frames, col = insectdata$trial)
+plot(x=insectdata$Pesticide_Tray, y=insectdata$Perc_Treatment_Frames, col = insectdata$tray_position)
+
+
+t.test(insectdata$Perc_Treatment_Frames[pesticide], insectdata$Perc_Treatment_Frames[control])
+

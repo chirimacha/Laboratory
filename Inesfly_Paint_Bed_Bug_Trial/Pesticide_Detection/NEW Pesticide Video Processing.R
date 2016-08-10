@@ -655,16 +655,14 @@ CompVidRep3 <- rbind(DR3T1C1, DR3T1C2, DR3T2C1, DR3T2C2, DR3T3C1, DR3T3C2,
 CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
                      DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
 
-CompiledData <- CompVidRep4
-
-## Finding quadrants
-# a = vertical
-# b = horizontal
-
-belowa <- which((CompiledData$y) <  (CompiledData$pred1))
-abovea <- which((CompiledData$y) >= (CompiledData$pred1))
-belowb <- which((CompiledData$y) <  (CompiledData$pred2))
-aboveb <- which((CompiledData$y) >= (CompiledData$pred2))
+addOrientation <- function(CompiledData) {
+  ## Finding quadrants
+  # a = vertical
+  # b = horizontal
+  belowa <- which((CompiledData$y) <  (CompiledData$pred1))
+  abovea <- which((CompiledData$y) >= (CompiledData$pred1))
+  belowb <- which((CompiledData$y) <  (CompiledData$pred2))
+  aboveb <- which((CompiledData$y) >= (CompiledData$pred2))
 
 NegSlope <- which(CompiledData$TPX <  CompiledData$BPX )
 PosSlope <- which(CompiledData$TPX >= CompiledData$BPX )
@@ -721,9 +719,9 @@ uno <- which(CompiledData$PQuad == 1)
 dos <- which(CompiledData$PQuad == 2)  
 tres <- which(CompiledData$PQuad == 3)  
 cuatro <- which(CompiledData$PQuad == 4)  
-PTrays<- which(CompiledData$DishID <= 6)
+PTrays <- which(CompiledData$DishID <= 6)
 
-CompiledData$PTray <- CompiledData$PQuad*0
+CompiledData$PTray <- CompiledData$PQuad * 0
 CompiledData$PTray[PTrays] <- 1
 
 CompiledData$Pesticide <- 0
@@ -733,270 +731,33 @@ CompiledData$Pesticide[intersect( PTrays, tres)] <- 1
 CompiledData$Treat_Quad <- 0  
 CompiledData$Treat_Quad[union(uno, tres)] <- 1
 
-CompiledData$Result <- paste(CompiledData$Treat_Quad,
-                             CompiledData$PTray, sep="-")
-CN <- length(which(CompiledData$Result=="0-0"))
-CP <- length(which(CompiledData$Result=="0-1"))
-TN <- length(which(CompiledData$Result=="1-0"))
-TP <- length(which(CompiledData$Result=="1-1"))
-sum(CN, CP, TN, TP)
-dim(CompiledData)
-Result_Mat<-matrix(data=c(CN,CP,TN,TP), nrow = 2, ncol = 2,  byrow = FALSE)
+CompiledData$Result <- paste(CompiledData$PTray,
+                             CompiledData$Treat_Quad, sep="-")
+return(CompiledData)
+}
+# sum(CN, CP, TN, TP)
+# dim(CompiledData)
 
+resultMat <- function(CompVidRep) {
+  CN <- length(which(CompVidRep$Result == "0-0"))
+  CP <- length(which(CompVidRep$Result == "0-1"))
+  TN <- length(which(CompVidRep$Result == "1-0"))
+  TP <- length(which(CompVidRep$Result == "1-1"))
+  
+  Result_Mat <- matrix(data = c(CN,CP,TN,TP), nrow = 2, ncol = 2,  
+                       byrow = FALSE)
+  return(Result_Mat)
+}
 
-chisq.test(Result_Mat, correct = TRUE)
-
-# Combining all data tables of repetition 2
+# Writing csv's
 write.csv(CompVidRep2, "CompVidRep2.csv")
-
-# Combining all data tables of repetition 3
 write.csv(CompVidRep3, "CompVidRep3.csv")
-
-# Combining all data tables of repetition 4
 write.csv(CompVidRep4, "CompVidRep4.csv")
 
 # Bringing in data
 # CompVidRep2<- read.csv("CompVidRep2.csv")
 # CompVidRep3<- read.csv("CompVidRep3.csv")
 # CompVidRep4<- read.csv("CompVidRep4.csv")
-
-###
-#lets look at speed (distance traveled from previous frame)
-CompiledData$speed<-CompiledData$PQuad*0
-for(i in 2:2){
-  ii <- which(CompiledData$rep==i)
-  for(j in 1:6){
-    ji <- which(CompiledData$trial==j)
-    ij<-intersect(ii, ji)
-    for(k in 1:2){
-      ki <- which(CompiledData$camera==k)
-      ijk<-intersect(ij, ki)
-      for(l in 1:6){
-        li<-which(CompiledData$trayn==l)
-        ijkl<-intersect(ijk, li)
-        rev_frames<-CompiledData$frame[ijkl]
-        print(length(rev_frames))
-for(f in 2:length(rev_frames)){
-  frmn<-rev_frames[f]
-  cfr<-which(CompiledData==frmn)
-  lessframes<-which(rev_frames < frmn)
-  pfmn <- max(rev_frames[lessframes])
-  pfr<-which(CompiledData==pfmn)
-  cf <- intersect(cfr, ijkl)
-  pf <- intersect(pfr, ijkl)
-  #print(paste(i,j,k,l, sep=""))
-  #print(cf)
-  
-#CompiledData$speed[cf]<-sqrt((CompiledData$x[cf]-CompiledData$x[pf])^2+(CompiledData$y[cf]-CompiledData$y[pf])^2)/(cf-pf)
-        }
-      }
-    }
-  }
-}
-# 
-# CompiledData$speed<-CompiledData$PQuad*0
-# iia <- which(CompiledData$rep==2)
-#     jia <- which(CompiledData$trial==1)
-#     ija<-intersect(iia, jia)
-#       kia <- which(CompiledData$camera==1)
-#       ijka<-intersect(ija, kia)
-#         lia<-which(CompiledData$trayn==1)
-#         ijkla<-intersect(ijka, lia)
-#         rev_frames<-CompiledData$frame[ijkla]
-#           frmna<-rev_frames[2]
-#           cfra<-which(CompiledData==frmna)
-#           pfmna <- rev_frames[2-1]
-#           pfra<-which(CompiledData==pfmna)
-#           cfa <- intersect(cfra, ijkla)
-#           pfa <- intersect(pfra, ijkla)
-#           CompiledData$speed[cfa]<-sqrt((CompiledData$x[cfa]-CompiledData$x[pfa])^2+(CompiledData$y[cfa]-CompiledData$y[pfa])^2)/(cfa-pfa)
-
-
-###############################################################################
-#Make plots that track the bugs across time
-#==============================================================================
-###
-pointtype<-c(18,20)
-sf<-1
-fl<-300
-plot(x=CompiledData$x, y=CompiledData$y, type="n")
-c_two<-which(TrayPlace$Position>6)
-c_one<-which(TrayPlace$Position<=6)
-TrayPlace$camera[c_two]<-2
-TrayPlace$camera[c_one]<-1
-
-TrayPlace$CamPos <- TrayPlace$Position-(6*(TrayPlace$camera-1))
-
-#Table to determine the painted quadrants given orientation
-one   <- c(1,4,3,2)
-two   <- c(2,1,4,3)
-three <- c(3,2,1,4)
-four  <- c(4,3,2,1)
-OTab  <- data.frame(one, two, three, four)
-
-
-for(i in 2:2) {
-  ii <- which(CompiledData$rep==i)
-  ti <- which(TrayPlace$Repetition==i)
-  for(j in 1:6) {
-    ji <- which(CompiledData$trial==j)
-    ij<-intersect(ii, ji)
-    tj<- which(TrayPlace$Trial==j)
-    tij<-intersect(ti, tj)
-    for(k in 1:2){
-      ki <- which(CompiledData$camera==k)
-      ijk<-intersect(ij, ki)
-      tk <- which(TrayPlace$camera == k)
-      tijk<-intersect(tij, tk)
-      temp_name <- paste("Trackplots/trackplot", i,"-", j,"-", k, ".pdf", sep="")
-      #pdf(file=temp_name)
-      Ctname<-paste("CoTbR", i, "T", j, "C", k, sep = "")
-      temp_plot_name<-paste("R", i, "T", j, "C", k, sep = "")
-      plot(x=CompiledData$x, y=CompiledData$y, type="n", main= temp_plot_name)
-      points(x = ( (1:length(sf:fl)/3)+175), y = (rep(((get(Ctname)$TPY[1])+10), times = length(sf:fl))), 
-               col = alpha(topo.colors(n=length(sf:fl)),0.2))
-      
-      for(l in 1:6){
-        li<-which(CompiledData$trayn==l)
-        ijkl<-intersect(ijk, li)
-        tl<-which(TrayPlace$CamPos==l)
-        tijkl<-intersect(tijk, tl)
-        lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
-        lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
-        tpos<-0
-        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[2,4]")}
-        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[2,4]")}
-          tpossec<-tpos
-          tpos<-as.character(tpos)
-          tpossec<-as.character(tpossec)
-        text(x=(get(Ctname)$BPX[l]), y=(get(Ctname)$BPY[l]-15), labels= tpos)
-        for(f in sf:fl){
-          #tic()
-          fi <- which(CompiledData$frame==f)
-          fijkl<-intersect(fi, ijkl)
-          points(x = CompiledData$x[fijkl], y = CompiledData$y[fijkl], 
-            col = alpha(topo.colors(n=(fl-sf))[f],0.2),
-            pch=pointtype[CompiledData$PTray[fijkl]+1])
-
-        
-        }
-      }
-      #dev.off()
-    }
-}
-}
-
-
-sf<-1500
-fl<-1800
-
-for(i in 2:2) {
-  ii <- which(CompiledData$rep==i)
-  ti <- which(TrayPlace$Repetition==i)
-  for(j in 1:6) {
-    ji <- which(CompiledData$trial==j)
-    ij<-intersect(ii, ji)
-    tj<- which(TrayPlace$Trial==j)
-    tij<-intersect(ti, tj)
-    for(k in 1:2){
-      ki <- which(CompiledData$camera==k)
-      ijk<-intersect(ij, ki)
-      tk <- which(TrayPlace$camera == k)
-      tijk<-intersect(tij, tk)
-      temp_name <- paste("Trackplots/trackplot", i,"-", j,"-", k, ".pdf", sep="")
-      #pdf(file=temp_name)
-      Ctname<-paste("CoTbR", i, "T", j, "C", k, sep = "")
-      temp_plot_name<-paste("R", i, "T", j, "C", k, sep = "")
-      plot(x=CompiledData$x, y=CompiledData$y, type="n", main= temp_plot_name)
-      points(x = ( (1:length(sf:fl)/3)+175), y = (rep(((get(Ctname)$TPY[1])+10), times = length(sf:fl))), 
-             col = alpha(topo.colors(n=length(sf:fl)),0.2))
-      
-      for(l in 1:6){
-        li<-which(CompiledData$trayn==l)
-        ijkl<-intersect(ijk, li)
-        tl<-which(TrayPlace$CamPos==l)
-        tijkl<-intersect(tijk, tl)
-        lines(x=c(get(Ctname)$BPX[l],get(Ctname)$TPX[l]), y=c(get(Ctname)$BPY[l],get(Ctname)$TPY[l]), col=6)
-        lines(x=c(get(Ctname)$RPX[l],get(Ctname)$LPX[l]), y=c(get(Ctname)$RPY[l],get(Ctname)$LPY[l]), col=6)
-        tpos<-0
-        if (TrayPlace$Orientation[tijkl] == 2) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 4) {tpos <- as.character("[1,3]")}
-        if (TrayPlace$Orientation[tijkl] == 1) {tpos <- as.character("[2,4]")}
-        if (TrayPlace$Orientation[tijkl] == 3) {tpos <- as.character("[2,4]")}
-        tpossec<-tpos
-        tpos<-as.character(tpos)
-        tpossec<-as.character(tpossec)
-        text(x=(get(Ctname)$BPX[l]), y=(get(Ctname)$BPY[l]-15), labels= tpos)
-        for(f in sf:fl){
-          #tic()
-          fi <- which(CompiledData$frame==f)
-          fijkl<-intersect(fi, ijkl)
-          points(x = CompiledData$x[fijkl], y = CompiledData$y[fijkl], 
-                 col = alpha(topo.colors(n=(fl-sf))[f-sf],0.2),
-                 pch=pointtype[CompiledData$PTray[fijkl]+1])
-          
-          
-        }
-      }
-      #dev.off()
-    }
-  }
-}
-
-## Create insect id for new data table aggregating data by insect.
-CompiledData$iid<- paste(CompiledData$rep, CompiledData$trial, CompiledData$camera, CompiledData$DishID, sep="-")
-
-iids<-unique(CompiledData$iid)
-
-#create insect based data frame
-insectdata <- data.frame(iids)
-##create blank colomns for loop 
-#The percentage of treatment frame
-insectdata$Perc_Treatment_Frames <- c(1:length(insectdata$iids)*NA)
-#Whether or not the tray is exposed to pesticide
-insectdata$Pesticide_Tray <- c(1:length(insectdata$iids)*NA)
-
-#run a loop to create data table to fill
-for( i in 1:length(iids)){
-  insect<-which(CompiledData$iid==insectdata$iids[i])
-  treat_quads<-sum(CompiledData$Treat_Quad[insect])
-  insectdata$Perc_Treatment_Frames[i] <- treat_quads/length(CompiledData$Treat_Quad[insect])
-  insectdata$Pesticide_Tray[i] <- CompiledData$PTray[min(insect)]
-  insectdata$tray_number[i] <- CompiledData$trayn[min(insect)]
-  insectdata$trial[i] <- CompiledData$trial[min(insect)]
-  insectdata$tray_position[i] <- CompiledData$position[min(insect)]
-}
-
-pesticide <- which(insectdata$Pesticide_Tray==1)
-control <- which(insectdata$Pesticide_Tray==0)
-
-jpeg(filename= "PercFramesonPesticideByExposure_Scatter.jpeg")
-plot(x=(insectdata$Pesticide_Tray+rnorm(n=length(insectdata$Pesticide_Tray), mean=0, sd=0.15)),
-     y=insectdata$Perc_Treatment_Frames, col = insectdata$Pesticide_Tray+1, 
-    ylab= "Proportion of Time Spent on Treatment Quadrants",
-    xlab= "Treatment Status (Black = Controls, Red= Exposed to Pesticide)")
-dev.off()
-
-jpeg("PercFramesonPesticideByExposure_Violin.jpeg")
-plot(-3,-3,type="n",xlim=c(.5, 2.5 ),ylim=c(0,1),axes=FALSE,ann=FALSE)
-vioplot(insectdata$Perc_Treatment_Frames[control], insectdata$Perc_Treatment_Frames[pesticide], add = TRUE)
-        axis(side= 1, labels=c("Only Control Paint", "With Pesticidal Paint"), at=1:2)
-        axis(side= 2, labels=paste(seq(0, 100, by =10), "%", sep=""), at=seq(0, 1, by =0.1))
-dev.off()   
-#now look at trays as a covariate
-        
-plot(x=as.factor(insectdata$Pesticide_Tray), y=insectdata$Perc_Treatment_Frames, col = insectdata$tray_number)
-plot(-3,-3,type="n",xlim=c(.5, 2.5 ),ylim=c(0,1),axes=FALSE,ann=FALSE)
-
-points(x=as.factor(insectdata$Pesticide_Tray), y=insectdata$Perc_Treatment_Frames, col= insectdata$tray_number)
-
-plot(x=insectdata$Pesticide_Tray, y=insectdata$Perc_Treatment_Frames, col = insectdata$trial)
-plot(x=insectdata$Pesticide_Tray, y=insectdata$Perc_Treatment_Frames, col = insectdata$tray_position)
-
-
-t.test(insectdata$Perc_Treatment_Frames[pesticide], insectdata$Perc_Treatment_Frames[control])
 
 ########### Plots ###########
 # Treatment
@@ -1012,7 +773,7 @@ af <- function(d.f, length) {
     my.list[[i]] <- length(pesticide.fr)/length(treatment.fr)
   }
   final.df <- do.call('rbind', my.list)
-  return(final.df) 
+  return(final.df)
 }
 
 ma <- function(d.f, length) {
@@ -1037,6 +798,22 @@ ma <- function(d.f, length) {
   return(final.df) 
 }
 
+# # Debugging
+# frame.num <- which(CompVidRep3$frame == 180)
+# one.zero <- which(CompVidRep3$Result == "1-0")
+# one.one <- which(CompVidRep3$Result == "1-1")
+# treatment.fr <- intersect(frame.num, union(one.zero, one.one))
+# pesticide.fr <- intersect(frame.num, one.one)
+# treatment.result <- length(pesticide.fr)/length(treatment.fr)
+# 
+# zero.zero <- which(CompVidRep3$Result == "0-0")
+# zero.one <- which(CompVidRep3$Result == "0-1")
+# control.fr <- intersect(frame.num, union(zero.zero, zero.one))
+# pesticide.pot.fr <- intersect(frame.num, zero.one)
+# control.result <- length(pesticide.pot.fr)/length(control.fr)
+# treatment.result
+# control.result
+
 # Control
 af.control <- function(d.f, length) {
   my.list <- vector('list', length)
@@ -1044,10 +821,10 @@ af.control <- function(d.f, length) {
     frame.num <- which(d.f$frame == i)
     zero.zero <- which(d.f$Result == "0-0")
     zero.one <- which(d.f$Result == "0-1")
-    treatment.fr <- intersect(frame.num, union(zero.zero, zero.one))
+    control.fr <- intersect(frame.num, union(zero.zero, zero.one))
     pesticide.fr <- intersect(frame.num, zero.one)
     
-    my.list[[i]] <- length(pesticide.fr)/length(treatment.fr)
+    my.list[[i]] <- length(pesticide.fr)/length(control.fr)
   }
   final.df <- do.call('rbind', my.list)
   return(final.df) 
@@ -1056,20 +833,20 @@ af.control <- function(d.f, length) {
 ma.control <- function(d.f, length) {
   my.list <- vector('list', length)
   pesticide.fr.past <- 0
-  treatment.fr.past <- 0
+  control.fr.past <- 0
   for (i in 1:length) {
     frame.num <- which(d.f$frame == i)
     zero.zero <- which(d.f$Result == "0-0")
     zero.one <- which(d.f$Result == "0-1")
-    treatment.fr <- intersect(frame.num, union(zero.zero, zero.one))
+    control.fr <- intersect(frame.num, union(zero.zero, zero.one))
     pesticide.fr <- intersect(frame.num, zero.one)
     
     pesticide.fr.rt <- (length(pesticide.fr) + pesticide.fr.past)
-    treatment.fr.rt <- (length(treatment.fr) + treatment.fr.past)
-    my.list[[i]] <- pesticide.fr.rt/treatment.fr.rt
+    control.fr.rt <- (length(control.fr) + control.fr.past)
+    my.list[[i]] <- pesticide.fr.rt/control.fr.rt
     
     pesticide.fr.past <- pesticide.fr.rt
-    treatment.fr.past <- treatment.fr.rt
+    control.fr.past <- control.fr.rt
   }
   final.df <- do.call('rbind', my.list)
   return(final.df) 
@@ -1077,122 +854,55 @@ ma.control <- function(d.f, length) {
 
 ## CompVidRep2
 af.CompVidRep2 <- af(CompVidRep2, 1800)
-pdf("af.CompVidRep2.pdf")
 plot(x = 1:1800, y = af.CompVidRep2, pch = 20, xlab = "Time(sec)", 
      ylab = "Average number of bugs on pesticide", main = "CompVidRep2 average
      number of bugs on pesticide")
-dev.off()
-ma.CompVidRep2 <- ma(CompVidRep2, 1800)
-pdf("ma.CompVidRep2.pdf")
-plot(x = 1:1800, y = ma.CompVidRep2, pch = 20, xlab = "Time(sec)", 
-     ylab = "Running average of bugs on pesticide", main = "CompVidRep2 running
-    average number of bugs on pesticide")
-dev.off()
-
 af.control.CompVidRep2 <- af.control(CompVidRep2, 1800)
-pdf("af.control.CompVidRep2.pdf")
 plot(x = 1:1800, y = af.control.CompVidRep2, pch = 20, xlab = "Time(sec)", 
      ylab = "Average number of bugs on pesticide", main = "CompVidRep2 average
      number of bugs on pesticide (control)")
-dev.off()
+ma.CompVidRep2 <- ma(CompVidRep2, 1800)
+plot(x = 1:1800, y = ma.CompVidRep2, pch = 20, xlab = "Time(sec)", 
+     ylab = "Running average of bugs on pesticide", main = "CompVidRep2 running
+    average number of bugs on pesticide")
 ma.control.CompVidRep2 <- ma.control(CompVidRep2, 1800)
-pdf("ma.control.CompVidRep2.pdf")
 plot(x = 1:1800, y = ma.control.CompVidRep2, pch = 20, xlab = "Time(sec)", 
      ylab = "Running average of bugs on pesticide", main = "CompVidRep2 running
      average number of bugs on pesticide (control)")
-dev.off()
 
 ## CompVidRep3
 af.CompVidRep3 <- af(CompVidRep3, 1800)
-pdf("af.CompVidRep3.pdf")
 plot(x = 1:1800, y = af.CompVidRep3, pch = 20, xlab = "Time(sec)", 
      ylab = "Average number of bugs on pesticide", main = "CompVidRep3 average
      number of bugs on pesticide")
-dev.off()
-ma.CompVidRep3 <- ma(CompVidRep3, 1800)
-pdf("ma.CompVidRep3.pdf")
-plot(x = 1:1800, y = ma.CompVidRep3, pch = 20, xlab = "Time(sec)", 
-     ylab = "Running average of bugs on pesticide", main = "CompVidRep3 running
-    average number of bugs on pesticide")
-dev.off()
-
 af.control.CompVidRep3 <- af.control(CompVidRep3, 1800)
-pdf("af.control.CompVidRep3.pdf")
 plot(x = 1:1800, y = af.control.CompVidRep3, pch = 20, xlab = "Time(sec)", 
      ylab = "Average number of bugs on pesticide", main = "CompVidRep3 average
      number of bugs on pesticide (control)")
-dev.off()
+ma.CompVidRep3 <- ma(CompVidRep3, 1800)
+points(x = 1:1800, y = ma.CompVidRep3, pch = 20, xlab = "Time(sec)", 
+     ylab = "Running average of bugs on pesticide", main = "CompVidRep3 running
+     average number of bugs on pesticide", col = "red")
 ma.control.CompVidRep3 <- ma.control(CompVidRep3, 1800)
-pdf("ma.control.CompVidRep3.pdf")
-plot(x = 1:1800, y = ma.control.CompVidRep3, pch = 20, xlab = "Time(sec)", 
+points(x = 1:1800, y = ma.control.CompVidRep3, pch = 20, xlab = "Time(sec)", 
      ylab = "Running average of bugs on pesticide", main = "CompVidRep3 running
      average number of bugs on pesticide (control)")
-dev.off()
+plot(x=c(0,1800),y=c(0.3,0.55),col=0)
 
 ## CompVidRep4
 af.CompVidRep4 <- af(CompVidRep4, 1800)
-pdf("af.CompVidRep4.pdf")
 plot(x = 1:1800, y = af.CompVidRep4, pch = 20, xlab = "Time(sec)", 
      ylab = "Average number of bugs on pesticide", main = "CompVidRep4 average
      number of bugs on pesticide")
-dev.off()
-ma.CompVidRep4 <- ma(CompVidRep4, 1800)
-pdf("ma.CompVidRep4.pdf")
-plot(x = 1:1800, y = ma.CompVidRep4, pch = 20, xlab = "Time(sec)", 
-     ylab = "Running average of bugs on pesticide", main = "CompVidRep4 running
-    average number of bugs on pesticide")
-dev.off()
-
 af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
-pdf("af.control.CompVidRep4.pdf")
 plot(x = 1:1800, y = af.control.CompVidRep4, pch = 20, xlab = "Time(sec)", 
      ylab = "Average number of bugs on pesticide", main = "CompVidRep4 average
      number of bugs on pesticide (control)")
-dev.off()
+ma.CompVidRep4 <- ma(CompVidRep4, 1800)
+plot(x = 1:1800, y = ma.CompVidRep4, pch = 20, xlab = "Time(sec)", 
+     ylab = "Running average of bugs on pesticide", main = "CompVidRep4 running
+     average number of bugs on pesticide")
 ma.control.CompVidRep4 <- ma.control(CompVidRep4, 1800)
-pdf("ma.control.CompVidRep4.pdf")
 plot(x = 1:1800, y = ma.control.CompVidRep4, pch = 20, xlab = "Time(sec)", 
      ylab = "Running average of bugs on pesticide", main = "CompVidRep4 running
      average number of bugs on pesticide (control)")
-dev.off()
-
-# Dylan's binning code
-ma.bin <- function(d.f, length, bin.size) {
-  my.list.pest <- vector('list', length)
-  my.list.cont <- vector('list', length)
-  periods<-length/bin.size
-  
-  for (i in 1:periods) {
-    frames.max <- which(d.f$frame >= (1+(bin.size*(i-1))))
-    frames.min <- which(d.f$frame <= (i*bin.size))
-    frames.num <- intersect(frames.max, frames.min)
-    one.zero <- which(d.f$Result == "1-0")
-    one.one <- which(d.f$Result == "1-1")
-    con.zero <- which(d.f$Result == "0-0")
-    con.one<- which(d.f$Result == "0-1")
-    treatment.fr <- intersect(frames.num, union(one.zero, one.one))
-    pesticide.fr <- intersect(frames.num, one.one)
-    control.fr <-intersect(frames.num, union(con.zero,con.one))
-    pestcon.fr <-intersect(frames.num, con.one)
-    
-    pesticide.fr.rt <- (length(pesticide.fr))
-    treatment.fr.rt <- (length(treatment.fr))
-    control.fr.rt <- (length(control.fr))
-    pestcon.fr.rt <- (length(pestcon.fr))
-    
-    
-    my.list.pest[[i]] <- pesticide.fr.rt/treatment.fr.rt
-    my.list.cont[[i]] <- pesticide.fr.rt/treatment.fr.rt
-  }
-  final.pest <- do.call('rbind', my.list.pest)
-  final.cont <- do.call('rbind', my.list.cont)
-  both.df <-  cbind(final.pest, final.cont)
-  final.df <- cbind(both.df, (1:periods))
-  names(final.df)<-c("Pesticide", "Control", "Period")
-  return(final.df) 
-}
-
-ma.bin.CompVidRep2 <- ma.bin(CompVidRep2, 1800, 60)
-names(ma.bin.CompVidRep2)<-c("Pesticide", "Control", "Period")
-
-plot(ma.bin.CompVidRep2$Pesticide, ma.bin.CompVidRep2$Period)
