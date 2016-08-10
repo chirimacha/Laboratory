@@ -655,151 +655,7 @@ CompVidRep3 <- rbind(DR3T1C1, DR3T1C2, DR3T2C1, DR3T2C2, DR3T3C1, DR3T3C2,
 CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
                      DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
 
-## Finding quadrants
-# a = vertical
-# b = horizontal
-
-# Repetition 2
-# belowa <- which((CompVidRep2$y) <  (CompVidRep2$pred1))
-# abovea <- which((CompVidRep2$y) >= (CompVidRep2$pred1))
-# belowb <- which((CompVidRep2$y) <  (CompVidRep2$pred2))
-# aboveb <- which((CompVidRep2$y) >= (CompVidRep2$pred2))
-# 
-# NegSlope <- which(CompVidRep2$TPX <  CompVidRep2$BPX )
-# PosSlope <- which(CompVidRep2$TPX >= CompVidRep2$BPX )
-# 
-# # Repetition 3
-# belowa <- which((CompVidRep3$y) <  (CompVidRep3$pred1))
-# abovea <- which((CompVidRep3$y) >= (CompVidRep3$pred1))
-# belowb <- which((CompVidRep3$y) <  (CompVidRep3$pred2))
-# aboveb <- which((CompVidRep3$y) >= (CompVidRep3$pred2))
-# 
-# NegSlope <- which(CompVidRep3$TPX <  CompVidRep3$BPX )
-# PosSlope <- which(CompVidRep3$TPX >= CompVidRep3$BPX )
-# 
-# # Repetition 4
-# belowa <- which((CompVidRep4$y) <  (CompVidRep4$pred1))
-# abovea <- which((CompVidRep4$y) >= (CompVidRep4$pred1))
-# belowb <- which((CompVidRep4$y) <  (CompVidRep4$pred2))
-# aboveb <- which((CompVidRep4$y) >= (CompVidRep4$pred2))
-# 
-# NegSlope <- which(CompVidRep4$TPX <  CompVidRep4$BPX )
-# PosSlope <- which(CompVidRep4$TPX >= CompVidRep4$BPX )
-
-# Determine Quadrants change depending on slope of vertical line
-# In cases of positive slopes
-
-# Instead of counter-clockwise numbering of quadrants (from the perspective
-# of the video, not considering pesticide), quadrants were labeled clockwise
-# starting form the top right as 1
-
-###
-# # Repetition 2
-# CompVidRep2$quad <- 0
-# CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
-# CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 2
-# CompVidRep2$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 4
-# CompVidRep2$quad[intersect( PosSlope, (intersect(abovea,belowb)))] <- 3
-# CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,aboveb)))] <- 1
-# CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 2
-# CompVidRep2$quad[intersect( NegSlope, (intersect(abovea,belowb)))] <- 4
-# CompVidRep2$quad[intersect( NegSlope, (intersect(belowa,belowb)))] <- 3
-# 
-# # Create function that determines which quadrants have pesticide
-# CompVidRep2$PQuad <- 0
-# CompVidRep2$DishID <- 0
-# CompVidRep2$Orientation <- 0
-# 
-# #Table to determine the painted quadrants given orientation
-# one   <- c(1,2,3,4)
-# two   <- c(2,3,4,1)
-# three <- c(3,4,1,2)
-# four  <- c(4,1,2,3)
-# OTab  <- data.frame(one, two, three, four)
-# 
-# # Input data from TrayPlace into CompVidRep2
-# for (i in 1:length(CompVidRep2$quad)) {
-#   # r, t and p are the INDICES within TrayPlace
-#   # by themselves, r, t and p are vectors but we then find the intersection
-#   # of all three to arrive at the id
-#   r <- which(TrayPlace$Repetition == CompVidRep2$rep[i]) 
-#   t <- which(TrayPlace$Trial == CompVidRep2$trial[i])
-#   p <- which(TrayPlace$Position == CompVidRep2$position[i])
-#   id <- intersect(p, intersect(r, t))
-#   
-#   CompVidRep2$DishID[i] <- TrayPlace$DishID[id]
-#   CompVidRep2$Orientation[i] <- TrayPlace$Orientation[id]
-#   
-#   # Setting up orientations
-#   CompVidRep2$PQuad[i] <- OTab[CompVidRep2$Orientation[i], 
-#                                CompVidRep2$quad[i]]
-# }
-# 
-# uno <- which(CompVidRep2$PQuad == 1)  
-# dos <- which(CompVidRep2$PQuad == 2)  
-# tres <- which(CompVidRep2$PQuad == 3)  
-# cuatro <- which(CompVidRep2$PQuad == 4)  
-# PTrays<- which(CompVidRep2$DishID <= 6)
-# 
-# CompVidRep2$Pesticide <- 0  
-# CompVidRep2$Pesticide[uno] <- 0
-# CompVidRep2$Pesticide[intersect( PTrays, dos)] <- 1
-# CompVidRep2$Pesticide[tres] <- 0
-# CompVidRep2$Pesticide[intersect( PTrays, cuatro)] <- 1
-
-# ############## Dylan's code 6.30.16
-# ## Duplicate correction
-# Dup_Correct <- Function(VData){
-#   #For every value in the Video Data frame
-#   for (i in (1:nrow(VData))) {
-#     #and every possible track larger than one
-#     for( j in 2:max(VData$ID)){
-#       #Identify if the value is larger than one
-#       if (identical(VData$ID[i], j)) {
-#         #if so determine the previous frame, the first frame and the duplicate
-#         frame_num <- VData$frame[i]
-#         share_frame <- which(VData$frame == frame_num)
-#         org_frames <- which(Vdata$ID == 1)
-#         prev <- which(VData$frame == (frame_num-1))
-#         
-#         first_frame <- intersect(share_frames, org_frames)
-#         prev_frame <- intersect(prev, org_frames)
-#         
-#         fir_x_diff <- abs(VData$x[first_frame] - VData$x[prev_frame])
-#         fir_y_diff <- abs(VData$y[first_frame] - VData$y[prev_frame])
-#         sec_x_diff <- abs(VData$x[i] - VData$x[prev_frame])
-#         sec_y_diff <- abs(VData$y[i] - VData$y[prev_frame])
-#         
-#         fir_diff <- (fir_x_diff + fir_y_diff)
-#         sec_diff <- (sec_x_diff + sec_y_diff)
-#         
-#         if (fir_diff > sec_diff) {
-#           VData$id[i] <- 1
-#           VData <- VData[-(first_frame),]
-#         }
-#         else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-#           VData <- VData[-i,]
-#         }
-#       }
-#     }
-#   }
-#   return(VData)  
-# }  
-# 
-# 
-# ###Run Dup_Correct then Compile the Videos together
-# CompiledData <- data.frame()  
-# for (i in 2:repetition) { 
-#   for (j in 1:trial) {
-#     for (k in 1:camera) {
-#       temp_name <- paste("DR", i, "T", j, "C", k, sep = "")
-#       Fixed <-Dup_Correct(get(temp_name))
-#       CompileData<-rbind(CompiledData, Fixed)
-#     }
-#   }
-# }
-
-
+CompiledData <- CompVidRep4
 
 ## Finding quadrants
 # a = vertical
@@ -858,7 +714,7 @@ for (i in 1:nrow(CompiledData)) {
   
   # Setting up orientations
   CompiledData$PQuad[i] <- OTab[CompiledData$quad[i], 
-                                CompiledData$orientation[i]]
+                                CompiledData$Orientation[i]]
 }
 
 uno <- which(CompiledData$PQuad == 1)  
@@ -1186,10 +1042,10 @@ af.control <- function(d.f, length) {
   my.list <- vector('list', length)
   for (i in 1:length) {
     frame.num <- which(d.f$frame == i)
-    one.zero <- which(d.f$Result == "0-0")
-    one.one <- which(d.f$Result == "0-1")
-    treatment.fr <- intersect(frame.num, union(one.zero, one.one))
-    pesticide.fr <- intersect(frame.num, one.one)
+    zero.zero <- which(d.f$Result == "0-0")
+    zero.one <- which(d.f$Result == "0-1")
+    treatment.fr <- intersect(frame.num, union(zero.zero, zero.one))
+    pesticide.fr <- intersect(frame.num, zero.one)
     
     my.list[[i]] <- length(pesticide.fr)/length(treatment.fr)
   }
@@ -1203,10 +1059,10 @@ ma.control <- function(d.f, length) {
   treatment.fr.past <- 0
   for (i in 1:length) {
     frame.num <- which(d.f$frame == i)
-    one.zero <- which(d.f$Result == "0-0")
-    one.one <- which(d.f$Result == "0-1")
-    treatment.fr <- intersect(frame.num, union(one.zero, one.one))
-    pesticide.fr <- intersect(frame.num, one.one)
+    zero.zero <- which(d.f$Result == "0-0")
+    zero.one <- which(d.f$Result == "0-1")
+    treatment.fr <- intersect(frame.num, union(zero.zero, zero.one))
+    pesticide.fr <- intersect(frame.num, zero.one)
     
     pesticide.fr.rt <- (length(pesticide.fr) + pesticide.fr.past)
     treatment.fr.rt <- (length(treatment.fr) + treatment.fr.past)
@@ -1231,9 +1087,6 @@ pdf("ma.CompVidRep2.pdf")
 plot(x = 1:1800, y = ma.CompVidRep2, pch = 20, xlab = "Time(sec)", 
      ylab = "Running average of bugs on pesticide", main = "CompVidRep2 running
     average number of bugs on pesticide")
-# seconds <- 1:1800
-# linear.model <- lm(ma.CompVidRep2 ~ seconds)
-# abline(linear.model)
 dev.off()
 
 af.control.CompVidRep2 <- af.control(CompVidRep2, 1800)
@@ -1247,9 +1100,6 @@ pdf("ma.control.CompVidRep2.pdf")
 plot(x = 1:1800, y = ma.control.CompVidRep2, pch = 20, xlab = "Time(sec)", 
      ylab = "Running average of bugs on pesticide", main = "CompVidRep2 running
      average number of bugs on pesticide (control)")
-# seconds <- 1:1800
-# linear.model <- lm(ma.CompVidRep2 ~ seconds)
-# abline(linear.model)
 dev.off()
 
 ## CompVidRep3
@@ -1264,9 +1114,6 @@ pdf("ma.CompVidRep3.pdf")
 plot(x = 1:1800, y = ma.CompVidRep3, pch = 20, xlab = "Time(sec)", 
      ylab = "Running average of bugs on pesticide", main = "CompVidRep3 running
     average number of bugs on pesticide")
-# seconds <- 1:1800
-# linear.model <- lm(ma.CompVidRep3 ~ seconds)
-# abline(linear.model)
 dev.off()
 
 af.control.CompVidRep3 <- af.control(CompVidRep3, 1800)
@@ -1280,9 +1127,6 @@ pdf("ma.control.CompVidRep3.pdf")
 plot(x = 1:1800, y = ma.control.CompVidRep3, pch = 20, xlab = "Time(sec)", 
      ylab = "Running average of bugs on pesticide", main = "CompVidRep3 running
      average number of bugs on pesticide (control)")
-# seconds <- 1:1800
-# linear.model <- lm(ma.CompVidRep3 ~ seconds)
-# abline(linear.model)
 dev.off()
 
 ## CompVidRep4
@@ -1297,9 +1141,6 @@ pdf("ma.CompVidRep4.pdf")
 plot(x = 1:1800, y = ma.CompVidRep4, pch = 20, xlab = "Time(sec)", 
      ylab = "Running average of bugs on pesticide", main = "CompVidRep4 running
     average number of bugs on pesticide")
-# seconds <- 1:1800
-# linear.model <- lm(ma.CompVidRep4 ~ seconds)
-# abline(linear.model)
 dev.off()
 
 af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
@@ -1313,9 +1154,6 @@ pdf("ma.control.CompVidRep4.pdf")
 plot(x = 1:1800, y = ma.control.CompVidRep4, pch = 20, xlab = "Time(sec)", 
      ylab = "Running average of bugs on pesticide", main = "CompVidRep4 running
      average number of bugs on pesticide (control)")
-# seconds <- 1:1800
-# linear.model <- lm(ma.CompVidRep4 ~ seconds)
-# abline(linear.model)
 dev.off()
 
 # Dylan's binning code
@@ -1358,5 +1196,3 @@ ma.bin.CompVidRep2 <- ma.bin(CompVidRep2, 1800, 60)
 names(ma.bin.CompVidRep2)<-c("Pesticide", "Control", "Period")
 
 plot(ma.bin.CompVidRep2$Pesticide, ma.bin.CompVidRep2$Period)
-
-names()

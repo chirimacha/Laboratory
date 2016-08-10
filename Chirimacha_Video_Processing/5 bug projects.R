@@ -255,6 +255,28 @@ imshow(white.img)
 white.img <- readImg("white.png")
 imshow(blend(white.img, mask, "*"))
 
+# Mask creation (red.high.res)
+poly.list <- vector('list', 854)
+for (i in 1:854) {
+  x <- rep(i, 480)
+  pts <- cbind(x, 480:1)
+  output <- inout(pts, poly, bound=NULL, quiet=TRUE)
+  poly.list[[i]] <- output
+}
+comb.output <- do.call('cbind', poly.list)
+false.vector <- which(comb.output == "FALSE")
+true.vector <- which(comb.output == "TRUE")
+comb.output[false.vector] <- 0 
+comb.output[true.vector] <- 1
+mask <- d2ddd(r2img(comb.output))
+imshow(blend(getFrame(red.high.res,20), mask, "*"))
+
+white.mat <- matrix(1, nrow = 480, ncol = 854)
+white.img <- r2img(white.mat)
+imshow(white.img)
+white.img <- readImg("white.png")
+imshow(blend(white.img, mask, "*"))
+
 ## Data collection from video
 my.list <- vector('list', 1000)
 my.df <- data.frame()
@@ -347,7 +369,7 @@ for (i in 1:100){
 }
 
 plot.new()
-imshow(chiri.low.res.bg)
+imshow(getFrame(red.high.res, 20))
 for (i in 1:100){
   insect <- which(tracks$track == i)
   lines(x = c(tracks$x[insect]), y = c(tracks$y[insect]), col = i) 
