@@ -742,8 +742,6 @@ CompiledData$Result <- paste(CompiledData$PTray,
                              CompiledData$Treat_Quad, sep="-")
 return(CompiledData)
 }
-# sum(CN, CP, TN, TP)
-# dim(CompiledData)
 
 resultMat <- function(CompVidRep) {
   CN <- length(which(CompVidRep$Result == "0-0"))
@@ -755,16 +753,6 @@ resultMat <- function(CompVidRep) {
                        byrow = FALSE)
   return(Result_Mat)
 }
-
-# Writing csv's
-write.csv(CompVidRep2, "CompVidRep2.csv")
-write.csv(CompVidRep3, "CompVidRep3.csv")
-write.csv(CompVidRep4, "CompVidRep4.csv")
-
-# Bringing in data
-# CompVidRep2<- read.csv("CompVidRep2.csv")
-# CompVidRep3<- read.csv("CompVidRep3.csv")
-# CompVidRep4<- read.csv("CompVidRep4.csv")
 
 ########### Plots ###########
 # Treatment
@@ -805,22 +793,6 @@ ma <- function(d.f, length) {
   return(final.df) 
 }
 
-# # Debugging
-# frame.num <- which(CompVidRep3$frame == 180)
-# one.zero <- which(CompVidRep3$Result == "1-0")
-# one.one <- which(CompVidRep3$Result == "1-1")
-# treatment.fr <- intersect(frame.num, union(one.zero, one.one))
-# pesticide.fr <- intersect(frame.num, one.one)
-# treatment.result <- length(pesticide.fr)/length(treatment.fr)
-# 
-# zero.zero <- which(CompVidRep3$Result == "0-0")
-# zero.one <- which(CompVidRep3$Result == "0-1")
-# control.fr <- intersect(frame.num, union(zero.zero, zero.one))
-# pesticide.pot.fr <- intersect(frame.num, zero.one)
-# control.result <- length(pesticide.pot.fr)/length(control.fr)
-# treatment.result
-# control.result
-
 # Control
 af.control <- function(d.f, length) {
   my.list <- vector('list', length)
@@ -859,57 +831,62 @@ ma.control <- function(d.f, length) {
   return(final.df) 
 }
 
-## CompVidRep2
+## CompVidRep2 (3 weeks post painting)
 af.CompVidRep2 <- af(CompVidRep2, 1800)
 plot(x = 1:1800, y = af.CompVidRep2, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide", main = "CompVidRep2 average
-     number of bugs on pesticide")
+     ylab = "Average number of bugs on pesticide quads", 
+     main = "CompVidRep2 avg. number of bugs on pesticide quads (treatment)",
+     col = "red")
 af.control.CompVidRep2 <- af.control(CompVidRep2, 1800)
 plot(x = 1:1800, y = af.control.CompVidRep2, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide", main = "CompVidRep2 average
-     number of bugs on pesticide (control)")
-ma.CompVidRep2 <- ma(CompVidRep2, 1800)
-plot(x = 1:1800, y = ma.CompVidRep2, pch = 20, xlab = "Time(sec)", 
-     ylab = "Running average of bugs on pesticide", main = "CompVidRep2 running
-    average number of bugs on pesticide")
-ma.control.CompVidRep2 <- ma.control(CompVidRep2, 1800)
-plot(x = 1:1800, y = ma.control.CompVidRep2, pch = 20, xlab = "Time(sec)", 
-     ylab = "Running average of bugs on pesticide", main = "CompVidRep2 running
-     average number of bugs on pesticide (control)")
+     ylab = "Average number of bugs on pesticide quads", 
+     main = "CompVidRep2 avg. number of bugs on pesticide quads (control)")
 
-## CompVidRep3
+ma.CompVidRep2 <- ma(CompVidRep2, 1800)
+ma.control.CompVidRep2 <- ma.control(CompVidRep2, 1800)
+plot(x = c(0,1800), y = c(0.3,0.6), col = 0, xlab = "Time(sec)",
+     ylab = "Average number of bugs on pesticide quads",
+     main = "CompVidRep2 running avg. number of bugs on pesticide quads")
+abline(h = 0.5, lty = 2)
+points(x = 1:1800, y = ma.CompVidRep2, pch = 20, col = "red")
+points(x = 1:1800, y = ma.control.CompVidRep2, pch = 20)
+
+## CompVidRep3 (12 weeks post painting)
 af.CompVidRep3 <- af(CompVidRep3, 1800)
 plot(x = 1:1800, y = af.CompVidRep3, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide", main = "CompVidRep3 average
-     number of bugs on pesticide")
+     ylab = "Average number of bugs on pesticide quads", 
+     main = "CompVidRep3 avg. number of bugs on pesticide quads (treatment)",
+     col = "red")
 af.control.CompVidRep3 <- af.control(CompVidRep3, 1800)
 plot(x = 1:1800, y = af.control.CompVidRep3, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide", main = "CompVidRep3 average
-     number of bugs on pesticide (control)")
-ma.CompVidRep3 <- ma(CompVidRep3, 1800)
-points(x = 1:1800, y = ma.CompVidRep3, pch = 20, xlab = "Time(sec)", 
-     ylab = "Running average of bugs on pesticide", main = "CompVidRep3 running
-     average number of bugs on pesticide", col = "red")
-ma.control.CompVidRep3 <- ma.control(CompVidRep3, 1800)
-points(x = 1:1800, y = ma.control.CompVidRep3, pch = 20, xlab = "Time(sec)", 
-     ylab = "Running average of bugs on pesticide", main = "CompVidRep3 running
-     average number of bugs on pesticide (control)")
-plot(x=c(0,1800),y=c(0.3,0.55),col=0)
+     ylab = "Average number of bugs on pesticide quads", 
+     main = "CompVidRep3 avg. number of bugs on pesticide quads (control)")
 
-## CompVidRep4
+ma.CompVidRep3 <- ma(CompVidRep3, 1800)
+ma.control.CompVidRep3 <- ma.control(CompVidRep3, 1800)
+plot(x = c(0,1800), y = c(0.3,0.55), col = 0,  xlab = "Time(sec)",
+     ylab = "Average number of bugs on pesticide quads",
+     main = "CompVidRep3 running avg. number of bugs on pesticide quads")
+abline(h = 0.5, lty = 2)
+points(x = 1:1800, y = ma.CompVidRep3, pch = 20, col = "red")
+points(x = 1:1800, y = ma.control.CompVidRep3, pch = 20)
+
+## CompVidRep4 (1 day post painting)
 af.CompVidRep4 <- af(CompVidRep4, 1800)
 plot(x = 1:1800, y = af.CompVidRep4, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide", main = "CompVidRep4 average
-     number of bugs on pesticide")
+     ylab = "Average number of bugs on pesticide quads", 
+     main = "CompVidRep4 avg. number of bugs on pesticide quads (treatment)",
+     col = "red")
 af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
 plot(x = 1:1800, y = af.control.CompVidRep4, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide", main = "CompVidRep4 average
-     number of bugs on pesticide (control)")
+     ylab = "Average number of bugs on pesticide quads", 
+     main = "CompVidRep4 avg. number of bugs on pesticide quads (control)")
+
 ma.CompVidRep4 <- ma(CompVidRep4, 1800)
-plot(x = 1:1800, y = ma.CompVidRep4, pch = 20, xlab = "Time(sec)", 
-     ylab = "Running average of bugs on pesticide", main = "CompVidRep4 running
-     average number of bugs on pesticide")
 ma.control.CompVidRep4 <- ma.control(CompVidRep4, 1800)
-plot(x = 1:1800, y = ma.control.CompVidRep4, pch = 20, xlab = "Time(sec)", 
-     ylab = "Running average of bugs on pesticide", main = "CompVidRep4 running
-     average number of bugs on pesticide (control)")
+plot(x = c(0,1800), y = c(0.45,0.65), col = 0, xlab = "Time(sec)",
+     ylab = "Average number of bugs on pesticide quads",
+     main = "CompVidRep4 running avg. number of bugs on pesticide quads")
+abline(h = 0.5, lty = 2)
+points(x = 1:1800, y = ma.CompVidRep4, pch = 20, col = "red")
+points(x = 1:1800, y = ma.control.CompVidRep4, pch = 20)
