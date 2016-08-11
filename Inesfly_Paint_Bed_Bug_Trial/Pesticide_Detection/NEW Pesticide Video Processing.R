@@ -36,10 +36,14 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-#setwd("/Users/dtrac/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+wd <- paste("/Users/dtrac/Documents/GitHub/Laboratory/",
+            "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
+setwd(wd)
 #setwd("/Users/Justin/Desktop/")
 # Lab computer
-setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
+wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+      "Pesticide_Detection", sep = "")
+setwd(wd)
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
 #                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
@@ -68,13 +72,14 @@ for (i in 4:4) {
 }
 
 # CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
-TrayPlace<- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
+TrayPlace <- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
 #if using PC, run this loop instead of the one below
 for (i in 2:repetition) { 
   for (j in 1:trial) {
     for (k in 1:camera) {
       temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
-      csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k, ".csv", sep = "")
+      csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k, ".csv",
+                        sep = "")
       assign(temp_name2, read.csv(csv_name))
     }
   }
@@ -89,7 +94,8 @@ for (i in 2:repetition) {
 #       assign(temp_name1, readVid(video_name))
 #       
 #       temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
-#       csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k, ".csv", sep = "")
+#       csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k,
+#                         ".csv", sep = "")
 #       assign(temp_name2, read.csv(csv_name))
 #     }
 #   }
@@ -144,16 +150,16 @@ for (i in 2:repetition) {
   }
 }
 
-# ##getpoint<-function(frame) { # Do not change Quartz size
+# ##getpoint <- function(frame) { # Do not change Quartz size
 #   rto <- frame$dim[1]/frame$dim[2]
 #   print(rto)
-#   ht<-rto*6
+#   ht <- rto*6
 #   quartz(width=6, height=ht)
 #
 #   imshow(frame)
-#   a<-grid.locator(unit = "npc")
-#   gcx<-as.numeric(a$x)
-#   gcy<-as.numeric(a$y)
+#   a <- grid.locator(unit = "npc")
+#   gcx <- as.numeric(a$x)
+#   gcy <- as.numeric(a$y)
 #   X <- ceiling(gcx*frame$dim[2])
 #   Y <- ceiling(gcy*frame$dim[1])
 #   imshow(frame)
@@ -165,7 +171,7 @@ for (i in 2:repetition) {
 # tester <- getpoint(FR1T2C1)
 # tester
 
-visualize<-function(CD, frame){
+visualize <- function(CD, frame){
   imshow(frame)
   for(i in 1:6){
     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
@@ -361,7 +367,7 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
       # bugpos <- bugcords
     }
     else if (identical(nrow(bugcords), 0)) {
-      bugcords <- mutate(bugcords, frame = NA, track = NA) # add frame and track
+      bugcords <- mutate(bugcords, frame = NA, track = NA) #add frame and track
       # determines what points are linked. Optimally each insect given 1 track 
       # each because there is only one object, we can max out maxDist. 
       stout <- simpleTracker(past = bugpos, current = bugcords, 
@@ -463,7 +469,8 @@ for (i in 2:repetition) {
                                     thresholda <- user_thresh,
                                     maxDistb <- user_max,
                                     cam <- k, rep <- i, trial <- j))
-      write.csv(temp_name, file = paste("DR", i, "T", j, "C", k, ".csv", sep = ""))
+      write.csv(temp_name, file = paste("DR", i, "T", j, "C", k, ".csv", 
+                                        sep = ""))
       print(paste(temp_name,"....Completed!", sep = ""))
       toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
     }
