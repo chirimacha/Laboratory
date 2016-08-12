@@ -867,6 +867,29 @@ ma.control.CompVidRep4 <- ma.control(CompVidRep4, 1800)
 
 ###############################################################################
 #### Running Average for Individual Insects ####
+ma <- function(d.f, length) {
+  my.list <- vector('list', length)
+  pesticide.fr.past <- 0
+  treatment.fr.past <- 0
+  for (i in 1:length) {
+    for(j in 1:length(unique(d.f$)))
+    frame.num <- which(d.f$frame == i)
+    one.zero <- which(d.f$Result == "1-0")
+    one.one <- which(d.f$Result == "1-1")
+    treatment.fr <- intersect(frame.num, union(one.zero, one.one))
+    pesticide.fr <- intersect(frame.num, one.one)
+    
+    pesticide.fr.rt <- (length(pesticide.fr) + pesticide.fr.past)
+    treatment.fr.rt <- (length(treatment.fr) + treatment.fr.past)
+    my.list[[i]] <- pesticide.fr.rt/treatment.fr.rt
+    
+    pesticide.fr.past <- pesticide.fr.rt
+    treatment.fr.past <- treatment.fr.rt
+  }
+  final.df <- do.call('rbind', my.list)
+  return(final.df) 
+}
+
 
 ###############################################################################
 #### Buckets ####
