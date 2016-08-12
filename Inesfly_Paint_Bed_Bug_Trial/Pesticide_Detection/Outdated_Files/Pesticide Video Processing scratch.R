@@ -1269,6 +1269,7 @@ vioplot(insectdata$Perc_Treatment_Frames[control], insectdata$Perc_Treatment_Fra
 axis(side= 1, labels=c("Only Control Paint", "With Pesticidal Paint"), at=1:2)
 axis(side= 2, labels=paste(seq(0, 100, by =10), "%", sep=""), at=seq(0, 1, by =0.1))
 dev.off()   
+
 #now look at trays as a covariate
 
 plot(x=as.factor(insectdata$Pesticide_Tray), y=insectdata$Perc_Treatment_Frames, col = insectdata$tray_number)

@@ -36,9 +36,9 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-wd <- paste("/Users/dtrac/Documents/GitHub/Laboratory/",
-            "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
-setwd(wd)
+# wd <- paste("/Users/dtrac/Documents/GitHub/Laboratory/",
+#             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
+# setwd(wd)
 #setwd("/Users/Justin/Desktop/")
 # Lab computer
 wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
@@ -47,8 +47,6 @@ setwd(wd)
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
 #                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
-# Gian Franco's
-# setwd(".../Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
 
 ## Set number of repetitions, trials, cameras
 # WARNING: as of May 25, 2016 only using repetition 2 trials
@@ -754,8 +752,18 @@ resultMat <- function(CompVidRep) {
   return(Result_Mat)
 }
 
-########### Plots ###########
-# Treatment
+###############################################################################
+###DO NOT DELETE: Read.csv to bring in Data tables from computer without 
+###data held as objects
+
+#CompVidRep2 <- read.csv("CompVidRep2.csv")
+#CompVidRep3 <- read.csv("CompVidRep3.csv")
+#CompVidRep4 <- read.csv("CompVidRep4.csv")
+
+###############################################################################
+################################ Averageing ###################################
+###Function to create plot for instantanious proportion on pesticide
+#Treatment
 af <- function(d.f, length) {
   my.list <- vector('list', length)
   for (i in 1:length) {
@@ -771,6 +779,36 @@ af <- function(d.f, length) {
   return(final.df)
 }
 
+# Control
+af.control <- function(d.f, length) {
+  my.list <- vector('list', length)
+  for (i in 1:length) {
+    frame.num <- which(d.f$frame == i)
+    zero.zero <- which(d.f$Result == "0-0")
+    zero.one <- which(d.f$Result == "0-1")
+    control.fr <- intersect(frame.num, union(zero.zero, zero.one))
+    pesticide.fr <- intersect(frame.num, zero.one)
+    
+    my.list[[i]] <- length(pesticide.fr)/length(control.fr)
+  }
+  final.df <- do.call('rbind', my.list)
+  return(final.df) 
+}
+
+#Run the Function of Rep 2
+af.CompVidRep2 <- af(CompVidRep2, 1800)
+af.control.CompVidRep2 <- af.control(CompVidRep2, 1800)
+
+#Run the Function of Rep 2
+af.CompVidRep3 <- af(CompVidRep3, 1800)
+af.control.CompVidRep3 <- af.control(CompVidRep3, 1800)
+
+#Run the Function of Rep 2
+af.CompVidRep4 <- af(CompVidRep4, 1800)
+af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
+
+###Functions to make a running average of proportion of bugs on pesticide
+#Treatment
 ma <- function(d.f, length) {
   my.list <- vector('list', length)
   pesticide.fr.past <- 0
@@ -788,22 +826,6 @@ ma <- function(d.f, length) {
     
     pesticide.fr.past <- pesticide.fr.rt
     treatment.fr.past <- treatment.fr.rt
-  }
-  final.df <- do.call('rbind', my.list)
-  return(final.df) 
-}
-
-# Control
-af.control <- function(d.f, length) {
-  my.list <- vector('list', length)
-  for (i in 1:length) {
-    frame.num <- which(d.f$frame == i)
-    zero.zero <- which(d.f$Result == "0-0")
-    zero.one <- which(d.f$Result == "0-1")
-    control.fr <- intersect(frame.num, union(zero.zero, zero.one))
-    pesticide.fr <- intersect(frame.num, zero.one)
-    
-    my.list[[i]] <- length(pesticide.fr)/length(control.fr)
   }
   final.df <- do.call('rbind', my.list)
   return(final.df) 
@@ -831,62 +853,93 @@ ma.control <- function(d.f, length) {
   return(final.df) 
 }
 
-## CompVidRep2 (3 weeks post painting)
-af.CompVidRep2 <- af(CompVidRep2, 1800)
-plot(x = 1:1800, y = af.CompVidRep2, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide quads", 
-     main = "CompVidRep2 avg. number of bugs on pesticide quads (treatment)",
-     col = "red")
-af.control.CompVidRep2 <- af.control(CompVidRep2, 1800)
-plot(x = 1:1800, y = af.control.CompVidRep2, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide quads", 
-     main = "CompVidRep2 avg. number of bugs on pesticide quads (control)")
-
+#Run Function over Rep 2
 ma.CompVidRep2 <- ma(CompVidRep2, 1800)
 ma.control.CompVidRep2 <- ma.control(CompVidRep2, 1800)
-plot(x = c(0,1800), y = c(0.3,0.6), col = 0, xlab = "Time(sec)",
-     ylab = "Average number of bugs on pesticide quads",
-     main = "CompVidRep2 running avg. number of bugs on pesticide quads")
-abline(h = 0.5, lty = 2)
-points(x = 1:1800, y = ma.CompVidRep2, pch = 20, col = "red")
-points(x = 1:1800, y = ma.control.CompVidRep2, pch = 20)
 
-## CompVidRep3 (12 weeks post painting)
-af.CompVidRep3 <- af(CompVidRep3, 1800)
-plot(x = 1:1800, y = af.CompVidRep3, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide quads", 
-     main = "CompVidRep3 avg. number of bugs on pesticide quads (treatment)",
-     col = "red")
-af.control.CompVidRep3 <- af.control(CompVidRep3, 1800)
-plot(x = 1:1800, y = af.control.CompVidRep3, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide quads", 
-     main = "CompVidRep3 avg. number of bugs on pesticide quads (control)")
-
+#Run Function over Rep 2
 ma.CompVidRep3 <- ma(CompVidRep3, 1800)
 ma.control.CompVidRep3 <- ma.control(CompVidRep3, 1800)
-plot(x = c(0,1800), y = c(0.3,0.55), col = 0,  xlab = "Time(sec)",
-     ylab = "Average number of bugs on pesticide quads",
-     main = "CompVidRep3 running avg. number of bugs on pesticide quads")
-abline(h = 0.5, lty = 2)
-points(x = 1:1800, y = ma.CompVidRep3, pch = 20, col = "red")
-points(x = 1:1800, y = ma.control.CompVidRep3, pch = 20)
 
-## CompVidRep4 (1 day post painting)
-af.CompVidRep4 <- af(CompVidRep4, 1800)
-plot(x = 1:1800, y = af.CompVidRep4, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide quads", 
-     main = "CompVidRep4 avg. number of bugs on pesticide quads (treatment)",
-     col = "red")
-af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
-plot(x = 1:1800, y = af.control.CompVidRep4, pch = 20, xlab = "Time(sec)", 
-     ylab = "Average number of bugs on pesticide quads", 
-     main = "CompVidRep4 avg. number of bugs on pesticide quads (control)")
-
+#Run Function over Rep 2
 ma.CompVidRep4 <- ma(CompVidRep4, 1800)
 ma.control.CompVidRep4 <- ma.control(CompVidRep4, 1800)
-plot(x = c(0,1800), y = c(0.45,0.65), col = 0, xlab = "Time(sec)",
-     ylab = "Average number of bugs on pesticide quads",
-     main = "CompVidRep4 running avg. number of bugs on pesticide quads")
+
+###############################################################################
+#### Running Average for Individual Insects ####
+
+###############################################################################
+#### Buckets ####
+
+###############################################################################
+#### Instantaneous Speed ####
+
+###############################################################################
+#### Average Speed within Bins ####
+
+###############################################################################
+############################## Plotting Averages ##############################
+###CompVidRep2 (3 weeks post painting)
+#Instantaneous proportion of bugs on pesticide 
+#pdf("InstPropCvT_3Weeks.pdf")
+plot(x = c(0,1800), y = c(0.3,0.6), type ="n", col = 0, xlab = "Time(sec)",
+     ylab = "Proportion of Bugs on Pesticide Quadrants",
+     main = "Instantaneous Proportion of Bugs on Pesticide Over Time: 3 Weeks")
+points(x = 1:1800, y = af.CompVidRep2, pch = 20, col = "red")
+points(x = 1:1800, y = af.control.CompVidRep2, pch = 20)
 abline(h = 0.5, lty = 2)
+#dev.off()
+
+#Running Average
+#pdf("RunAvgComp_3Weeks.pdf")
+plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
+     ylab = "Average Proportion of Bugs on Pesticide Quadrants",
+     main = "Running Average Proportion of Bugs on Pesticide: 3 Weeks")
+points(x = 1:1800, y = ma.CompVidRep2, pch = 20, col = "red")
+points(x = 1:1800, y = ma.control.CompVidRep2, pch = 20)
+abline(h = 0.5, lty = 2)
+#dev.off()
+
+### CompVidRep3 (12 weeks post painting)
+#Instantaneous proportion
+ttl <- c("Instantaneous Proportion of Bugs on Pesticide Over Time: 12 Weeks")
+#pdf("InstPropCvT_12Weeks.pdf")
+plot(x = c(0,1800), y = c(0.3,0.6), type ="n", col = 0, xlab = "Time(sec)",
+     ylab = "Proportion of Bugs on Pesticide Quadrants",
+     main = ttl)
+points(x = 1:1800, y = af.CompVidRep3, pch = 20, col = "red")
+points(x = 1:1800, y = af.control.CompVidRep3, pch = 20)
+abline(h = 0.5, lty = 2)
+#dev.off()
+
+#Running Average
+#pdf("RunAvgComp_12Weeks.pdf")
+plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
+     ylab = "Average Proportion of Bugs on Pesticide Quadrants",
+     main = "Running Average Proportion of Bugs on Pesticide: 12 Weeks")
+points(x = 1:1800, y = ma.CompVidRep3, pch = 20, col = "red")
+points(x = 1:1800, y = ma.control.CompVidRep3, pch = 20)
+abline(h = 0.5, lty = 2)
+#dev.off()
+
+### CompVidRep4 (1 day post painting)
+#Instantaneous proportion
+#pdf("InstPropCvT_1Day.pdf")
+plot(x = c(0,1800), y = c(0.3,0.6), type ="n", col = 0, xlab = "Time(sec)",
+     ylab = "Proportion of Bugs on Pesticide Quadrants",
+     main = "Instantaneous Proportion of Bugs on Pesticide Over Time: 1 Day")
+points(x = 1:1800, y = af.CompVidRep4, pch = 20, col = "red")
+points(x = 1:1800, y = af.control.CompVidRep4, pch = 20)
+abline(h = 0.5, lty = 2)
+
+#Running Average
+#pdf("RunAvgComp_1Day.pdf")
+plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
+     ylab = "Average Proportion of Bugs on Pesticide Quadrants",
+     main = "Running Average Proportion of Bugs on Pesticide: 1 Day")
 points(x = 1:1800, y = ma.CompVidRep4, pch = 20, col = "red")
 points(x = 1:1800, y = ma.control.CompVidRep4, pch = 20)
+abline(h = 0.5, lty = 2)
+#dev.off()
+
+
