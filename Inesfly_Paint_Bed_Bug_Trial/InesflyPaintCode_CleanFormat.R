@@ -1,5 +1,5 @@
 ###This code cleans up the data for the bed bug inesfly paint study
-## Review Read me at
+## Review Read me at ____
 
 ###############################################################################
 ###GENERAL SET UP###
@@ -18,9 +18,9 @@ library(ggplot2)
 #Surface for Dylan
 #("C:/Users/tradylan/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 #Envy for Dylan
-setwd("C:/Users/dtrac/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+#setwd("C:/Users/dtrac/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 #MAC for Mike
-#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")")
+setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 
 ###############################################################################
 ###bring in data
@@ -495,118 +495,268 @@ D180FSA$X.2016.04.05.[inderrors5_180[1]] <- "A"
 
 inderrors1_180a <- which(D180FSA$X.2016.03.09. != D180FSB$X.2016.03.09.)#3 
 inderrors2_180a <- which(D180FSA$X.2016.03.15. != D180FSB$X.2016.03.15.)#3 (81)
-inderrors3_180a <- which(D180FSA$X.2016.03.22. != D180FSB$X.2016.03.22.)#4 (81,127)
-inderrors4_180a <- which(D180FSA$X.2016.03.29. != D180FSB$X.2016.03.29.)#1 (311)
+inderrors3_180a <- which(D180FSA$X.2016.03.22. != D180FSB$X.2016.03.22.)#81,127
+inderrors4_180a <- which(D180FSA$X.2016.03.29. != D180FSB$X.2016.03.29.)#1(311)
 inderrors5_180a <- which(D180FSA$X.2016.04.05. != D180FSB$X.2016.04.05.)#1  
-
 ###############################################################################
 ### Extract and Clean Individual Data and then Merge
 ###============================================================================
+###Split the unicode into relevant information for Individual observations
+#first make name for days since painting consistent
+names(D1FSA)[12] <- "days.after.paint"
+names(D90FSA)[10] <- "days.after.paint"
+names(D180FSA)[10] <- "days.after.paint"
 
-#Split the unicode into relevant information for Individual observations
-D1Ind$INSECT <- as.character(D1Ind$INSECT)
-D1Ind$TIME <- substr(D1Ind$INSECT, 1, 3)
-D1Ind$TREATMENT <- substr(D1Ind$INSECT, 5, 6)
-D1Ind$QUAD <- substr(D1Ind$INSECT, 8, 8)
-#D1Ind$NUM <- substr(D1Ind$INSECT, 10, 11)
-D1Ind$EXPOSE<-substr(D1Ind$INSECT, 1, 6)
-#Split the exposure code into relevant information for
-#the group level observations
+SplitUnicode <- function(df) {
+df$INSECT <- as.character(df$INSECT)
+df$exp.time <- substr(df$INSECT, 1, 3)
+df$paint <- substr(df$INSECT, 5, 6)
+df$quad <- substr(df$INSECT, 8, 8)
+#df$NUM <- substr(df$INSECT, 10, 11)
+df$exposure <- substr(df$INSECT, 1, 6)
+df$treatment <- paste(substr(df$INSECT, 1, 6), df$days.after.paint, sep = "-")
+return(df)
+}
 
-#Remove blank column
-chop <- which(names(D1Ind)=="X")
-D1Ind <- D1Ind[,-chop]
+D1FSA <- SplitUnicode(D1FSA)
+D90FSA <- SplitUnicode(D90FSA)
+D180FSA <- SplitUnicode(D180FSA)
 
+###Last cleaning checks
+##If dead resurect 
+#1 day
+dead1.1 <- which(D1FSA$X2015.09.11 == "D")
+livin2.1 <- which(D1FSA$X2015.09.12 != "D")
+dead2.1 <- which(D1FSA$X2015.09.12 == "D")
+livin3.1 <- which(D1FSA$X2015.09.13 != "D")
+dead3.1 <- which(D1FSA$X2015.09.13 == "D")
+livin4.1 <- which(D1FSA$X2015.09.18 != "D")
+dead4.1<- which(D1FSA$X2015.09.18 == "D")
+livin5.1 <- which(D1FSA$X2015.09.25 != "D")
+dead5.1 <- which(D1FSA$X2015.09.25 == "D")
+livin6.1 <- which(D1FSA$X2015.10.02 != "D")
+dead6.1 <- which(D1FSA$X2015.10.02 == "D")
+livin7.1 <- which(D1FSA$X2015.10.09 != "D")
+
+resurect2.1 <- intersect(dead1.1, livin2.1)
+resurect3.1 <- intersect(dead2.1, livin3.1)
+resurect4.1 <- intersect(dead3.1, livin4.1)
+resurect5.1 <- intersect(dead4.1, livin5.1)
+resurect6.1 <- intersect(dead5.1, livin6.1)
+resurect7.1 <- intersect(dead6.1, livin7.1)
+
+D1FSA$X2015.09.11[resurect2.1] <- "K"
+D1FSA$X2015.09.12[resurect3.1] <- "K"
+D1FSA$X2015.09.13[resurect4.1] <- "K"
+D1FSA$X2015.09.18[resurect5.1] <- "K"
+D1FSA$X2015.09.25[resurect6.1] <- "K"
+
+#Only 1 is K then D. Others for this date are not recorded
+last <- length(D1FSA$X2015.10.02[resurect7.1])
+D1FSA$X2015.10.02[resurect7.1[last]] <- "K"
+
+#
+#1 day
+dead1.1 <- which(D1FSA$X2015.09.11 == "D")
+livin2.1 <- which(D1FSA$X2015.09.12 != "D")
+dead2.1 <- which(D1FSA$X2015.09.12 == "D")
+livin3.1 <- which(D1FSA$X2015.09.13 != "D")
+dead3.1 <- which(D1FSA$X2015.09.13 == "D")
+livin4.1 <- which(D1FSA$X2015.09.18 != "D")
+dead4.1<- which(D1FSA$X2015.09.18 == "D")
+livin5.1 <- which(D1FSA$X2015.09.25 != "D")
+dead5.1 <- which(D1FSA$X2015.09.25 == "D")
+livin6.1 <- which(D1FSA$X2015.10.02 != "D")
+dead6.1 <- which(D1FSA$X2015.10.02 == "D")
+livin7.1 <- which(D1FSA$X2015.10.09 != "D")
+
+resurect2.1 <- intersect(dead1.1, livin2.1)
+resurect3.1 <- intersect(dead2.1, livin3.1)
+resurect4.1 <- intersect(dead3.1, livin4.1)
+resurect5.1 <- intersect(dead4.1, livin5.1)
+resurect6.1 <- intersect(dead5.1, livin6.1)
+resurect7.1 <- intersect(dead6.1, livin7.1)
+
+D1FSA$X2015.09.11[resurect2.1] <- "K"
+D1FSA$X2015.09.12[resurect3.1] <- "K"
+D1FSA$X2015.09.13[resurect4.1] <- "K"
+D1FSA$X2015.09.18[resurect5.1] <- "K"
+D1FSA$X2015.09.25[resurect6.1] <- "K"
+
+###90 Days
+dead1.2 <- which(D90FSA$X.2015.12.10 == "D")
+livin2.2 <- which(D90FSA$.X2015.12.16 != "D")
+dead2.2 <- which(D90FSA$X.2015.12.16 == "D")
+livin3.2 <- which(D90FSA$X.2015.12.22 != "D")
+dead3.2 <- which(D90FSA$X.2015.12.22 == "D")
+livin4.2 <- which(D90FSA$X.2015.12.30 != "D")
+dead4.2 <- which(D90FSA$X.2015.12.30 == "D")
+livin5.2 <- which(D90FSA$X.2016.01.06 != "D")
+
+resurect2.2 <- intersect(dead1.2, livin2.2)
+resurect3.2 <- intersect(dead2.2, livin3.2)
+resurect4.2 <- intersect(dead3.2, livin4.2)
+resurect5.2 <- intersect(dead4.2, livin5.2)
+
+D90FSA$X.2015.12.10[resurect2.2] <- "K"
+D90FSA$X.2015.12.16[resurect3.2] <- "K"
+D90FSA$X.2015.12.22[resurect4.2] <- "K"
+D90FSA$X.2015.12.30[resurect5.2] <- "K"
+D90FSA$X.2016.01.06[resurect6.2] <- "K"
+
+#180 Days
+dead1.3 <- which(D180FSA$X.2016.03.09 == "D")
+livin2.3 <- which(D180FSA$X.2016.03.15 != "D")
+dead2.3 <- which(D180FSA$X.2016.03.15 == "D")
+livin3.3 <- which(D180FSA$X.2016.03.22 != "D")
+dead3.3 <- which(D180FSA$X.2016.03.22 == "D")
+livin4.3 <- which(D180FSA$X.2016.03.29 != "D")
+dead4.3 <- which(D180FSA$X.2016.04.05 == "D")
+livin5.3 <- which(D180FSA$X.2016.04.05 != "D")
+
+resurect2.3 <- intersect(dead1.3, livin2.3)
+resurect3.3 <- intersect(dead2.3, livin3.3)
+resurect4.3 <- intersect(dead3.3, livin4.3)
+resurect5.3 <- intersect(dead4.3, livin5.3)
+
+D180FSA$X.2016.03.09[resurect2.3] <- "K"
+D180FSA$X.2016.03.15[resurect3.3] <- "K"
+D180FSA$X.2016.03.22[resurect4.3] <- "K"
+D180FSA$X.2016.03.29[resurect5.3] <- "K"
+
+###############################################################################
+###Missing data
+#2 bugs escaped primary containment
+escaped <- which(D1FSA$X2015.10.02 == "")
+D1FSA <- D1FSA[-escaped, ]
+
+escaped.2 <- which(D1FSA$X2015.09.13 == "")
+escaped.3 <- which(D1FSA$X2015.09.18 == "")
+escaped.4 <- which(D1FSA$X2015.09.25 == "")
+escaped.5 <- which(D1FSA$X2015.10.02 == "")
+escaped.6 <- which(D1FSA$X2015.10.09 == "")
+
+escaped.2 <- which(D90FSA$X2015.12.10 == "")
+escaped.3 <- which(D90FSA$X2015.12.16 == "")
+escaped.4 <- which(D90FSA$X2015.12.22 == "")
+escaped.5 <- which(D90FSA$X2015.12.30 == "")
+escaped.6 <- which(D90FSA$X2016.01.06 == "")
+
+escaped.2 <- which(D180FSA$X2016.03.09 == "")
+escaped.3 <- which(D180FSA$X2016.03.15 == "")
+escaped.4 <- which(D180FSA$X2016.03.22 == "")
+escaped.5 <- which(D180FSA$X2016.03.29 == "")
+escaped.6 <- which(D180FSA$X2016.04.05 == "")
+
+#which(D1FSA == "")
+
+###############################################################################
+#See if we can infer missing date from Jar Data
+# #Identify missing
+# missing.jars <- which(D1FSA$X2015.10.09 == "")
+# #assume if dead still dead
+# dead.still.dead <- which(D1FSA$X2015.10.02 == "D")
+# dd <- intersect(missing.jars, dead.still.dead)
+# D1FSA$X2015.10.09[dd] <- "D"
+# 
+# #all remaining AF's survived to jar check on 10/16
+# not.dead <- which(D1FSA$X2015.10.02 != "D")
+# female <- which(D1FSA$STAGE_END == "AF")
+# livin.f <- intersect(not.dead, female)
+# liv.fm.miss <- intersect(livin.f, missing.jars)
+# 
+# length(liv.fm.miss)
+
+######################
 #In order to get to cox test, reshape the data.
-LD1Ind<-melt(D1Ind, id=c("INSECT","STAGE","TIME","EXPOSE", "QUAD", "NOTES",
-                         "TREATMENT"))
+D1.melt <- melt(D1FSA, id=c("INSECT", "STAGE_START", "STAGE_END", "NOTES", 
+                         "paint", "days.after.paint", "quad", "exposure", 
+                         "treatment", "exp.time"))
 
+D90.melt <- melt(D90FSA, id=c("INSECT", "STAGE_START", "STAGE_END", "NOTES", 
+                            "paint", "days.after.paint", "quad", "exposure", 
+                            "treatment", "exp.time"))
+
+D180.melt <- melt(D180FSA, id=c("INSECT", "STAGE_START", "STAGE_END", "NOTES", 
+                            "paint", "days.after.paint", "quad", "exposure", 
+                            "treatment", "exp.time"))
+
+#as.character(substr(D90.melt$variable, 2,2))
+#as.character(substr(D180.melt$variable, 2,2))
+
+
+#View(D90.melt$variable)
+
+#as.character(substr(D180.melt$variable, 1,1))
+D90.melt$variable <- gsub("X.", "X", D90.melt$variable)
+D180.melt$variable <- gsub("X.", "X", D180.melt$variable)
+
+MakeBinary <-function(LDInd){
 #the variable needs to be turned into a date object
 #so first make it a character
-LD1Ind$variable<-as.character(LD1Ind$variable)
+LD1Ind$variable <- as.character(LD1Ind$variable)
 #remove the X's
 LD1Ind$variable <- gsub("X","",LD1Ind$variable)
 #replace the "." with "-"
 LD1Ind$variable <- gsub("[.]","-", LD1Ind$variable)
-LD1Ind$variable<-as.Date(LD1Ind$variable)
+LD1Ind$variable <-as.Date(LD1Ind$variable)
 
 #to prevent confusion lets rename "variable" to "date"
 chngname<-which(names(LD1Ind)=="variable")
-names(LD1Ind)[chngname] <- "DATE"
+names(LD1Ind)[chngname] <- "date"
 #lets also rename "value" to "status"
 chval<-which(names(LD1Ind)=="value")
-names(LD1Ind)[chval] <- "STATUS"
+names(LD1Ind)[chval] <- "status"
 
 #==============================================================================
 ###Now that we have the data in a usable table, lets split the status into binary
 #find 
-alive <- which(LD1Ind$STATUS== "A")
-knockdown <- which(LD1Ind$STATUS=="K")
-dead <- which(LD1Ind$STATUS=="D")
+alive <- which(LD1Ind$status== "A")
+knockdown <- which(LD1Ind$status=="K")
+dead <- which(LD1Ind$status=="D")
 unviable <- c(dead, knockdown)
 living <- c(alive, knockdown)
 
-##create columns 
-#make Quad numeric in order to create blank columns
-LD1Ind$QUAD<-as.numeric(LD1Ind$QUAD)
-
 #create blank columns for each status.
-LD1Ind$alive <- LD1Ind$QUAD*0
+num <- as.numeric(LD1Ind$quad)*0
+LD1Ind$alive <- num
 LD1Ind$alive[alive] <- 1
-LD1Ind$knockdown <- LD1Ind$QUAD*0
+LD1Ind$knockdown <- num
 LD1Ind$knockdown[knockdown] <- 1
-LD1Ind$dead <- LD1Ind$QUAD*0
+LD1Ind$dead <- num
 LD1Ind$dead[dead] <- 1
-LD1Ind$unviable <- LD1Ind$QUAD*0
+LD1Ind$unviable <- num
 LD1Ind$unviable[unviable] <- 1
-LD1Ind$living <- LD1Ind$QUAD*0
+LD1Ind$living <- num
 LD1Ind$living[living] <- 1
+return(LD1Ind)
+}
 
-#==============================================================================
-##Lets clean up the data so that we get smooth transitions
-#lets make a copy of LD1Ind so that we have a clean and raw set
-# Cl1Ind<-LD1Ind
-# #If dead, then becomes knockdown mark as knock down.
-# #create vector of unique days
-# days<-unique(Cl1Ind$DAY)#made DAY below
-# mday<-max(days)
-# deadobs<-which(Cl1Ind$dead==1)
-# nmax<-which(Cl1Ind$DAY < mday)
-# testobs<-intersect(deadobs, nmax)
-# Cl1Ind$CC<-Cl1Ind$STAGE*NA
-# for(i in 1:length(testobs)){
-#   d<-Cl1Ind$DAY[testobs[i]]
-#   n<-which(days==d)
-#   nx<-days[n+1]
-#   ins<-Cl1Ind$INSECT[testobs[i]]
-#   ains<-which(Cl1Ind$INSECT==ins)
-#   anx<-which(Cl1Ind$DAY==nx)
-#   nextobv<-intersect(ains, anx)
-#   if(Cl1Ind$STATUS[testobs[i]] != Cl1Ind$STATUS[nextobv]){
-#     Cl1Ind$STATUS[testobs[i]]<- Cl1Ind$STATUS[nextobv]
-#     Cl1Ind$dead[testobs[i]]<- Cl1Ind$dead[nextobv]
-#     Cl1Ind$alive[testobs[i]]<- Cl1Ind$alive[nextobv]
-#     Cl1Ind$knockdown[testobs[i]]<- Cl1Ind$knockdown[nextobv]
-#     Cl1Ind$unviable[testobs[i]]<- Cl1Ind$unviable[nextobv]
-#     Cl1Ind$living[testobs[i]]<- Cl1Ind$living[nextobv]
-#     Cl1Ind$CC[testobs[i]]<-"STATUS CHANGED IN CODE- Died later than originally recorded"
-#   }
-# }
-# bug<-which(Cl1Ind$CC=="STATUS CHANGED IN CODE- Died later than originally recorded")
-# Cl1Ind$INSECT[bug]
-# #Check if these are data entry errors or other
-# 
-# 
-# 
-# Cl1Ind$INSECT[deadobs]
-# if(Cl1Ind$DAY[deadobs]>mday){
-#   if(Cl1$Ind)
-# }
+D1.melt <- MakeBinary(D1.melt)
+D90.melt <- MakeBinary(D90.melt)
+D180.melt <- MakeBinary(D180.melt)
 
+MakeJulianDate <- function(Data){
+  Data$date <- as.Date(Data$date)
+  Data$julian <- julian(Data$date)
+  Data$day <- as.numeric(Data$julian-min(Data$julian))
+  return(Data)
+}
 
-#also consider case where knock down went to alive.
+D1.melt <- MakeJulianDate(D1.melt)
+D90.melt <- MakeJulianDate(D90.melt)
+D180.melt <- MakeJulianDate(D180.melt)
 
-#consider removing 2015-09-11 and 13 since data not available for 24hr.
+DataMelt<- rbind(D1.melt, D90.melt, D180.melt)
+
+DataMelt$treat.group <- paste(DataMelt$treatment, DataMelt$days.after.paint, 
+                              sep = "-")
+
+#write.csv(D1.melt, file = "DATA/D1_melt.csv")
+#write.csv(D90.melt, file = "DATA/D90_melt.csv")
+#write.csv(D180.melt, file = "DATA/D180_melt.csv")
+write.csv(DataMelt, file = "DATA/DataMelt.csv")
+#=============================================================================+
 
 #also add back collective data to 1H-5A 2015-09-2015
 
