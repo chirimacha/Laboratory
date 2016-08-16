@@ -584,8 +584,12 @@ D1FSA$X2015.09.18[resurect5.1] <- "K"
 D1FSA$X2015.09.25[resurect6.1] <- "K"
 
 ###90 Days
+names(D90FSA)[4:8] <- c("X.2015.12.10","X.2015.12.16", "X.2015.12.22",
+                         "X.2015.12.30", "X.2016.01.06")
+names(D180FSA)[4:8] <- c("X.2016.03.09","X.2016.03.15", "X.2016.03.22",
+                         "X.2016.03.29", "X.2016.04.05")
 dead1.2 <- which(D90FSA$X.2015.12.10 == "D")
-livin2.2 <- which(D90FSA$.X2015.12.16 != "D")
+livin2.2 <- which(D90FSA$X.2015.12.16 != "D")
 dead2.2 <- which(D90FSA$X.2015.12.16 == "D")
 livin3.2 <- which(D90FSA$X.2015.12.22 != "D")
 dead3.2 <- which(D90FSA$X.2015.12.22 == "D")
@@ -691,45 +695,45 @@ D180.melt <- melt(D180FSA, id=c("INSECT", "STAGE_START", "STAGE_END", "NOTES",
 D90.melt$variable <- gsub("X.", "X", D90.melt$variable)
 D180.melt$variable <- gsub("X.", "X", D180.melt$variable)
 
-MakeBinary <-function(LDInd){
+MakeBinary <-function(dtf){
 #the variable needs to be turned into a date object
 #so first make it a character
-LD1Ind$variable <- as.character(LD1Ind$variable)
+dtf$variable <- as.character(dtf$variable)
 #remove the X's
-LD1Ind$variable <- gsub("X","",LD1Ind$variable)
+dtf$variable <- gsub("X","",dtf$variable)
 #replace the "." with "-"
-LD1Ind$variable <- gsub("[.]","-", LD1Ind$variable)
-LD1Ind$variable <-as.Date(LD1Ind$variable)
+dtf$variable <- gsub("[.]","-", dtf$variable)
+dtf$variable <-as.Date(dtf$variable)
 
 #to prevent confusion lets rename "variable" to "date"
-chngname<-which(names(LD1Ind)=="variable")
-names(LD1Ind)[chngname] <- "date"
+chngname<-which(names(dtf)=="variable")
+names(dtf)[chngname] <- "date"
 #lets also rename "value" to "status"
-chval<-which(names(LD1Ind)=="value")
-names(LD1Ind)[chval] <- "status"
+chval<-which(names(dtf)=="value")
+names(dtf)[chval] <- "status"
 
 #==============================================================================
 ###Now that we have the data in a usable table, lets split the status into binary
 #find 
-alive <- which(LD1Ind$status== "A")
-knockdown <- which(LD1Ind$status=="K")
-dead <- which(LD1Ind$status=="D")
+alive <- which(dtf$status== "A")
+knockdown <- which(dtf$status=="K")
+dead <- which(dtf$status=="D")
 unviable <- c(dead, knockdown)
 living <- c(alive, knockdown)
 
 #create blank columns for each status.
-num <- as.numeric(LD1Ind$quad)*0
-LD1Ind$alive <- num
-LD1Ind$alive[alive] <- 1
-LD1Ind$knockdown <- num
-LD1Ind$knockdown[knockdown] <- 1
-LD1Ind$dead <- num
-LD1Ind$dead[dead] <- 1
-LD1Ind$unviable <- num
-LD1Ind$unviable[unviable] <- 1
-LD1Ind$living <- num
-LD1Ind$living[living] <- 1
-return(LD1Ind)
+num <- as.numeric(dtf$quad)*0
+dtf$alive <- num
+dtf$alive[alive] <- 1
+dtf$knockdown <- num
+dtf$knockdown[knockdown] <- 1
+dtf$dead <- num
+dtf$dead[dead] <- 1
+dtf$unviable <- num
+dtf$unviable[unviable] <- 1
+dtf$living <- num
+dtf$living[living] <- 1
+return(dtf)
 }
 
 D1.melt <- MakeBinary(D1.melt)
@@ -740,6 +744,9 @@ MakeJulianDate <- function(Data){
   Data$date <- as.Date(Data$date)
   Data$julian <- julian(Data$date)
   Data$day <- as.numeric(Data$julian-min(Data$julian))
+  #1 day has observation the first day whereas 90 and 180 had first 24 hours later
+  rep2y3 <- which(Data$days.after.paint > 80)
+  Data$day[rep2y3] <- Data$day+1 
   return(Data)
 }
 
@@ -748,9 +755,6 @@ D90.melt <- MakeJulianDate(D90.melt)
 D180.melt <- MakeJulianDate(D180.melt)
 
 DataMelt<- rbind(D1.melt, D90.melt, D180.melt)
-
-DataMelt$treat.group <- paste(DataMelt$treatment, DataMelt$days.after.paint, 
-                              sep = "-")
 
 #write.csv(D1.melt, file = "DATA/D1_melt.csv")
 #write.csv(D90.melt, file = "DATA/D90_melt.csv")
