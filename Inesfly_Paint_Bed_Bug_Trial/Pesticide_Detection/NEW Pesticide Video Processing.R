@@ -738,6 +738,7 @@ CompiledData$Treat_Quad[union(uno, tres)] <- 1
 
 CompiledData$Result <- paste(CompiledData$PTray,
                              CompiledData$Treat_Quad, sep="-")
+
 return(CompiledData)
 }
 
@@ -910,25 +911,63 @@ ima <- function(d.f, length) {
 }
 
 #Run Function over Rep 2
-ima.CompVidRep2 <- ima(CompVidRep2, 1800)
-
-plot(x = c(1, 1800), y = c(0, 1), type = "n")
-filter <- which(ima.CompVidRep2[,2] == 1)
-for(i in 1:length(CompVidRep2[filter,1])){
-  lines(x = 1:1800, y = ima.CompVidRep2[filter[i], 3:1802], col = (ima.CompVidRep2[filter[i],2]+1))
-}
-
-plot(x = c(1, 1800), y = c(0, 1), type = "n")
-filter <- which(ima.CompVidRep2[,2] == 0)
-for(i in 1:length(CompVidRep2[filter,1])){
-  lines(x = 1:1800, y = ima.CompVidRep2[filter[i], 3:1802], col = (ima.CompVidRep2[filter[i],2]+1))
-}
+ima.CVR2 <- ima(CompVidRep2, 1800)
+ima.CVR3 <- ima(CompVidRep3, 1800)
+ima.CVR4 <- ima(CompVidRep4, 1800)
 
 ###############################################################################
 #### Buckets ####
 
 ###############################################################################
 #### Instantaneous Speed ####
+#lets look at speed (distance traveled from previous frame)
+ClockSpeed <-function(df){
+  insects <- unique(df$insect.id)
+  my.df <- data.frame(matrix(nrow = length(insects), ncol = (max(df$frame)+1)))
+  my.df[,1] <- unique(df$insect.id)
+  insects <- unique(df$insect.id)
+  for(i in 1:length(insects)){
+    ins <- which(df$insect.id == insects[i])
+    rev_frames <- df$frame[ins]
+    my.df[i,2] <- df$PTray[min(ins)]
+    for(f in 2:length(rev_frames)){
+      frmn <- rev_frames[f]
+      pfrmn <-rev_frames[f-1]
+      p.cf <- which(df$frame == frmn)
+      p.pf <- which(df$frame == pfrmn)
+      cf <- intersect(p.cf, ins)
+      pf <- intersect(p.pf, ins)
+    my.df[i,f+1]<-sqrt((df$x[cf]-df$x[pf])^2+(df$y[cf]-df$y[pf])^2)/(frmn-pfrmn)
+    }
+  }
+  return(my.df)
+}
+      
+csCVR2<-ClockSpeed(CompVidRep2)
+
+for(i in 1:1800){
+  
+}
+max(csCVR2[,i])
+
+#pdf("IndRrunning_avg.pdf")
+plot(x = c(1, 1800), y = c(0, 40), type = "n")
+filter <- which(csCVR2[,2] == 1)
+for(i in 1:length(filter)){
+  lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
+        col = i, lty = 3)
+}#(ima.CompVidRep2[filter[i],2]+1)
+
+plot(x = c(1, 1800), y = c(0, 40), type = "n")
+filter <- which(csCVR2[,2] == 0)
+for(i in 1:length(filter)){
+  lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
+        col = i, lty = 3)
+}#
+
+
+
+
 
 ###############################################################################
 #### Average Speed within Bins ####
@@ -996,6 +1035,26 @@ plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
 points(x = 1:1800, y = ma.CompVidRep4, pch = 20, col = "red")
 points(x = 1:1800, y = ma.control.CompVidRep4, pch = 20)
 abline(h = 0.5, lty = 2)
+#dev.off()
+
+#######################Plot Individual Running Averages########################
+#pdf("IndRrunning_avg.pdf")
+plot(x = c(1, 1800), y = c(0, 1), type = "n")
+filter <- which(ima.CompVidRep2[,2] == 1)
+for(i in 1:length(CompVidRep2[filter,1])){
+  lines(x = 1:1800, y = ima.CompVidRep2[filter[i], 3:1802], 
+        col = i, lty = 3)
+}#(ima.CompVidRep2[filter[i],2]+1)
+lines(x = 1:1800, y = ma.CompVidRep2, lty = 1, col = 2)
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n")
+filter <- which(ima.CompVidRep2[,2] == 0)
+for(i in 1:length(CompVidRep2[filter,1])){
+  lines(x = 1:1800, y = ima.CompVidRep2[filter[i], 3:1802], col = i, lty = 3)
+}
+lines(x = 1:1800, y = ma.control.CompVidRep2, lty = 1, col = 1)
+
+
 #dev.off()
 
 
