@@ -756,9 +756,9 @@ resultMat <- function(CompVidRep) {
 ###DO NOT DELETE: Read.csv to bring in Data tables from computer without 
 ###data held as objects
 
-#CompVidRep2 <- read.csv("CompVidRep2.csv")
-#CompVidRep3 <- read.csv("CompVidRep3.csv")
-#CompVidRep4 <- read.csv("CompVidRep4.csv")
+# CompVidRep2 <- read.csv("CompVidRep2.csv")
+# CompVidRep3 <- read.csv("CompVidRep3.csv")
+# CompVidRep4 <- read.csv("CompVidRep4.csv")
 
 ###############################################################################
 ################################ Averageing ###################################
@@ -831,6 +831,10 @@ ma <- function(d.f, length) {
   return(final.df) 
 }
 
+for(i in 1:10){
+list[i] <- i
+}
+
 ma.control <- function(d.f, length) {
   my.list <- vector('list', length)
   pesticide.fr.past <- 0
@@ -867,29 +871,58 @@ ma.control.CompVidRep4 <- ma.control(CompVidRep4, 1800)
 
 ###############################################################################
 #### Running Average for Individual Insects ####
-ma <- function(d.f, length) {
-  my.list <- vector('list', length)
-  pesticide.fr.past <- 0
-  treatment.fr.past <- 0
-  for (i in 1:length) {
-    for(j in 1:length(unique(d.f$)))
-    frame.num <- which(d.f$frame == i)
-    one.zero <- which(d.f$Result == "1-0")
-    one.one <- which(d.f$Result == "1-1")
-    treatment.fr <- intersect(frame.num, union(one.zero, one.one))
-    pesticide.fr <- intersect(frame.num, one.one)
-    
-    pesticide.fr.rt <- (length(pesticide.fr) + pesticide.fr.past)
-    treatment.fr.rt <- (length(treatment.fr) + treatment.fr.past)
-    my.list[[i]] <- pesticide.fr.rt/treatment.fr.rt
-    
-    pesticide.fr.past <- pesticide.fr.rt
-    treatment.fr.past <- treatment.fr.rt
+#make an insect identifier
+CompVidRep2$insect.id <- paste(CompVidRep2$rep, CompVidRep2$trial, 
+                               CompVidRep2$position, sep = "-")
+CompVidRep3$insect.id <- paste(CompVidRep3$rep, CompVidRep3$trial,
+                               CompVidRep3$position, sep = "-")
+CompVidRep4$insect.id <- paste(CompVidRep4$rep, CompVidRep4$trial, 
+                               CompVidRep4$position, sep = "-")
+insects2 <- unique(CompVidRep2$insect.id)
+  dfVR2 <- data.frame(1:800*0, 1:800*0)
+
+
+ima <- function(d.f, length) {
+  insects <- unique(d.f$insect.id)
+  my.df <- data.frame(matrix(nrow = length(insects), ncol = length+2))
+  my.df[,1] <- unique(d.f$insect.id)
+  zero <- which(d.f$Treat_Quad == 0)
+  one <- which(d.f$Treat_Quad == 1)
+  for(j in 1:length(unique(d.f$insect.id))){
+    pesticide.fr.past <- 0
+    treatment.fr.past <- 0
+    insect.fr <- which(d.f$insect.id == unique(d.f$insect.id)[j])
+    my.df[j,2] <- d.f$PTray[min(insect.fr)]
+    denom <- intersect(union(zero, one), insect.fr)
+    neum <- intersect(one, insect.fr)
+    for (i in 1:length) {
+      frame.num <- which(d.f$frame == i)
+      treatment.fr <- intersect(frame.num, denom)
+      pesticide.fr <- intersect(frame.num, neum)
+      pesticide.fr.rt <- (length(pesticide.fr) + pesticide.fr.past)
+      treatment.fr.rt <- (length(treatment.fr) + treatment.fr.past)
+      my.df[[j,i+2]] <- pesticide.fr.rt/treatment.fr.rt
+      pesticide.fr.past <- pesticide.fr.rt
+      treatment.fr.past <- treatment.fr.rt
+    }
   }
-  final.df <- do.call('rbind', my.list)
-  return(final.df) 
+  return(my.df)
 }
 
+#Run Function over Rep 2
+ima.CompVidRep2 <- ima(CompVidRep2, 1800)
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n")
+filter <- which(ima.CompVidRep2[,2] == 1)
+for(i in 1:length(CompVidRep2[filter,1])){
+  lines(x = 1:1800, y = ima.CompVidRep2[filter[i], 3:1802], col = (ima.CompVidRep2[filter[i],2]+1))
+}
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n")
+filter <- which(ima.CompVidRep2[,2] == 0)
+for(i in 1:length(CompVidRep2[filter,1])){
+  lines(x = 1:1800, y = ima.CompVidRep2[filter[i], 3:1802], col = (ima.CompVidRep2[filter[i],2]+1))
+}
 
 ###############################################################################
 #### Buckets ####
