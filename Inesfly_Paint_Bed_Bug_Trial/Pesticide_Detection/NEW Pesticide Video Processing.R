@@ -837,6 +837,8 @@ ima.CVR2 <- ima(CompVidRep2, 1800)
 ima.CVR3 <- ima(CompVidRep3, 1800)
 ima.CVR4 <- ima(CompVidRep4, 1800)
 
+
+
 ###############################################################################
 #### Buckets ####
 
@@ -958,20 +960,65 @@ abline(h = 0.5, lty = 2)
 
 #######################Plot Individual Running Averages########################
 #pdf("IndRrunning_avg.pdf")
-plot(x = c(1, 1800), y = c(0, 1), type = "n")
-filter <- which(ima.CompVidRep2[,2] == 1)
+# CompVidRep2
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
+     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
+     main = "CVR2: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Treatment)")
+filter <- which(ima.CVR2[,2] == 1)
 for(i in 1:length(CompVidRep2[filter,1])){
-  lines(x = 1:1800, y = ima.CompVidRep2[filter[i], 3:1802], 
+  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], 
         col = i, lty = 3)
 }#(ima.CompVidRep2[filter[i],2]+1)
-lines(x = 1:1800, y = ma.CompVidRep2, lty = 1, col = 2)
+lines(x = 1:1800, y = ima.CVR2, lty = 1, col = 2)
 
-plot(x = c(1, 1800), y = c(0, 1), type = "n")
-filter <- which(ima.CompVidRep2[,2] == 0)
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
+     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
+     main = "CVR2: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Control)")
+filter <- which(ima.CVR2[,2] == 0)
 for(i in 1:length(CompVidRep2[filter,1])){
-  lines(x = 1:1800, y = ima.CompVidRep2[filter[i], 3:1802], col = i, lty = 3)
+  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], col = i, lty = 3)
 }
-lines(x = 1:1800, y = ma.control.CompVidRep2, lty = 1, col = 1)
+lines(x = 1:1800, y = ima.control.CVR2, lty = 1, col = 1)
+
+# CompVidRep3
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
+     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
+     main = "CVR3: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Treatment)")
+filter <- which(ima.CVR3[,2] == 1)
+for(i in 1:length(CompVidRep3[filter,1])){
+  lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], 
+        col = i, lty = 3)
+}#(ima.CompVidRep2[filter[i],2]+1)
+lines(x = 1:1800, y = ima.CVR3, lty = 1, col = 2)
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
+     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
+     main = "CVR3: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Control)")
+filter <- which(ima.CVR3[,2] == 0)
+for(i in 1:length(CompVidRep3[filter,1])){
+  lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], col = i, lty = 3)
+}
+lines(x = 1:1800, y = ima.control.CVR3, lty = 1, col = 1)
+
+# CompVidRep4
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
+     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
+     main = "CVR4: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Treatment)")
+filter <- which(ima.CVR4[,2] == 1)
+for(i in 1:length(CompVidRep4[filter,1])){
+  lines(x = 1:1800, y = ima.CVR4[filter[i], 3:1802], 
+        col = i, lty = 3)
+}#(ima.CompVidRep2[filter[i],2]+1)
+lines(x = 1:1800, y = ima.CVR4, lty = 1, col = 2)
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
+     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
+     main = "CVR4: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Control)")
+filter <- which(ima.CVR4[,2] == 0)
+for(i in 1:length(CompVidRep4[filter,1])){
+  lines(x = 1:1800, y = ima.CVR4[filter[i], 3:1802], col = i, lty = 3)
+}
+lines(x = 1:1800, y = ima.control.CVR4, lty = 1, col = 1)
 
 
 #dev.off()
