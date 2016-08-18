@@ -486,6 +486,22 @@ for (i in 2:repetition) {
 # }
 # cnt_dup
 # 
+CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
+                     DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
+
+CompVidRep3 <- rbind(DR3T1C1, DR3T1C2, DR3T2C1, DR3T2C2, DR3T3C1, DR3T3C2,
+                     DR3T4C1, DR3T4C2, DR3T5C1, DR3T5C2, DR3T6C1, DR3T6C2)
+
+CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
+                     DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
+
+CompVidRep2$insect.id <- paste(CompVidRep2$rep, CompVidRep2$trial, 
+                               CompVidRep2$position, sep = "-")
+CompVidRep3$insect.id <- paste(CompVidRep3$rep, CompVidRep3$trial,
+                               CompVidRep3$position, sep = "-")
+CompVidRep4$insect.id <- paste(CompVidRep4$rep, CompVidRep4$trial, 
+                               CompVidRep4$position, sep = "-")
+
 # Duplicate correction (Repetition 2)
 for (i in (1:nrow(CompVidRep2))) {
   if (identical(CompVidRep2$id[i], 2)) {
@@ -651,15 +667,6 @@ for (i in (1:nrow(CompVidRep4))) {
   }
 }
 
-CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
-                     DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
-
-CompVidRep3 <- rbind(DR3T1C1, DR3T1C2, DR3T2C1, DR3T2C2, DR3T3C1, DR3T3C2,
-                     DR3T4C1, DR3T4C2, DR3T5C1, DR3T5C2, DR3T6C1, DR3T6C2)
-
-CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
-                     DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
-
 addOrientation <- function(CompiledData) {
   ## Finding quadrants
   # a = vertical
@@ -742,6 +749,10 @@ CompiledData$Result <- paste(CompiledData$PTray,
 return(CompiledData)
 }
 
+CompVidRep2<- addOrientation(CompVidRep2)
+CompVidRep3<- addOrientation(CompVidRep3)
+CompVidRep4<- addOrientation(CompVidRep4)
+
 resultMat <- function(CompVidRep) {
   CN <- length(which(CompVidRep$Result == "0-0"))
   CP <- length(which(CompVidRep$Result == "0-1"))
@@ -756,6 +767,10 @@ resultMat <- function(CompVidRep) {
 ###############################################################################
 ###DO NOT DELETE: Read.csv to bring in Data tables from computer without 
 ###data held as objects
+
+#write.csv( CompVidRep2, file = "CompVidRep2.csv")
+#write.csv( CompVidRep3, file = "CompVidRep3.csv")
+#write.csv( CompVidRep4, file = "CompVidRep4.csv")
 
 # CompVidRep2 <- read.csv("CompVidRep2.csv")
 # CompVidRep3 <- read.csv("CompVidRep3.csv")
@@ -942,49 +957,36 @@ ClockSpeed <-function(df){
   }
   return(my.df)
 }
-      
+
+  insects <- unique(CompVidRep3$insect.id)
+  my.df <- data.frame(matrix(nrow = length(insects), ncol = (max(CompVidRep3$frame)+1)))
+  my.df[,1] <- unique(CompVidRep3$insect.id)
+  insects <- unique(CompVidRep3$insect.id)
+  for(i in 1){
+    ins <- which(CompVidRep3$insect.id == insects[1])
+    rev_frames <- CompVidRep3$frame[ins]
+    my.df[i,2] <- CompVidRep3$PTray[min(ins)]
+    for(f in 2:length(rev_frames)){
+      frmn <- rev_frames[f]
+      pfrmn <-rev_frames[f-1]
+      p.cf <- which(CompVidRep3$frame == frmn)
+      p.pf <- which(CompVidRep3$frame == pfrmn)
+      cf <- intersect(p.cf, ins)
+      pf <- intersect(p.pf, ins)
+      my.df[i,f+1]<-sqrt((CompVidRep3$x[cf]-CompVidRep3$x[pf])^2+(CompVidRep3$y[cf]-CompVidRep3$y[pf])^2)/(frmn-pfrmn)
+    }
+  }
+my.df[1,1019:1023]
+nine <- CompVidRep3[intersect(which(CompVidRep3$frame == 1019), ins),]
+ten <- CompVidRep3[intersect(which(CompVidRep3$frame == 1020), ins),]
+      View(rbind(nine, ten))
+
 csCVR2<-ClockSpeed(CompVidRep2)
 csCVR3<-ClockSpeed(CompVidRep3)
 csCVR4<-ClockSpeed(CompVidRep4)
+csTest<-ClockSpeed(TestCVR3)
 
-filter <- which(csCVR2[,2] == 1)
-ConFilt <- which(csCVR2[,2] == 0)
-
-MeanSpeedPest <- csCVR2[1,]
-MeanSpeedCont <- csCVR2[1,]
-MeanSpeedPest[1] <- "MeanSpeedPest"
-MeanSpeedCont[1] <- "MeanSpeedCont"
-MeanSpeedPest[2] <- 1
-MeanSpeedCont[2] <- 0
-for(i in 3:1801){
-  MeanSpeedPest[i] <- mean(csCVR2[filter, i], na.rm = T)
-  MeanSpeedPest[i] <- mean(csCVR2[ConFilt, i], na.rm = T)
-}
-
-#pdf("InstSpeed_3weeks")
-plot(x = c(1, 1800), y = c(0, 40), type = "n", 
-     main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
-     xlab = "Frame (sec)")
-for(i in 1:length(filter)){
-  lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
-        col = alpha(i, 0.5), lty = 3)
-}
-lines(x = 2:1800, y = MeanSpeedPest[3:1801], 
-      col = 1, lty = 1)
-
-plot(x = c(1, 1800), y = c(0, 40), type = "n", 
-     main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
-     xlab = "Frame (sec)")
-
-filter <- which(csCVR2[,2] == 0)
-for(i in 1:length(filter)){
-  lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
-        col = alpha(i, 0.5), lty = 3)
-}
-lines(x = 2:1800, y = MeanSpeedCont[3:1801], 
-      col = 1, lty = 1)
-#dev.off()
-
+which(CompVidRep3$id == 2)
 ###############################################################################
 #### Average Speed within Bins ####
 
@@ -1073,4 +1075,41 @@ lines(x = 1:1800, y = ma.control.CompVidRep2, lty = 1, col = 1)
 
 #dev.off()
 
+###############################Ind. Speed Graph################################
+filter <- which(csCVR2[,2] == 1)
+ConFilt <- which(csCVR2[,2] == 0)
 
+MeanSpeedPest <- csCVR2[1,]
+MeanSpeedCont <- csCVR2[1,]
+MeanSpeedPest[1] <- "MeanSpeedPest"
+MeanSpeedCont[1] <- "MeanSpeedCont"
+MeanSpeedPest[2] <- 1
+MeanSpeedCont[2] <- 0
+for(i in 3:1801){
+  MeanSpeedPest[i] <- mean(csCVR2[filter, i], na.rm = T)
+  MeanSpeedPest[i] <- mean(csCVR2[ConFilt, i], na.rm = T)
+}
+
+#pdf("InstSpeed_3weeks")
+plot(x = c(1, 1800), y = c(0, 40), type = "n", 
+     main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
+     xlab = "Frame (sec)")
+for(i in 1:length(filter)){
+  lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
+        col = alpha(i, 0.5), lty = 3)
+}
+lines(x = 2:1800, y = MeanSpeedPest[3:1801], 
+      col = 1, lty = 1)
+
+plot(x = c(1, 1800), y = c(0, 40), type = "n", 
+     main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
+     xlab = "Frame (sec)")
+
+filter <- which(csCVR2[,2] == 0)
+for(i in 1:length(filter)){
+  lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
+        col = alpha(i, 0.5), lty = 3)
+}
+lines(x = 2:1800, y = MeanSpeedCont[3:1801], 
+      col = 1, lty = 1)
+#dev.off()
