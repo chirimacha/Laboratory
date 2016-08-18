@@ -944,30 +944,46 @@ ClockSpeed <-function(df){
 }
       
 csCVR2<-ClockSpeed(CompVidRep2)
+csCVR3<-ClockSpeed(CompVidRep3)
+csCVR4<-ClockSpeed(CompVidRep4)
 
-for(i in 1:1800){
-  
-}
-max(csCVR2[,i])
-
-#pdf("IndRrunning_avg.pdf")
-plot(x = c(1, 1800), y = c(0, 40), type = "n")
 filter <- which(csCVR2[,2] == 1)
+ConFilt <- which(csCVR2[,2] == 0)
+
+MeanSpeedPest <- csCVR2[1,]
+MeanSpeedCont <- csCVR2[1,]
+MeanSpeedPest[1] <- "MeanSpeedPest"
+MeanSpeedCont[1] <- "MeanSpeedCont"
+MeanSpeedPest[2] <- 1
+MeanSpeedCont[2] <- 0
+for(i in 3:1801){
+  MeanSpeedPest[i] <- mean(csCVR2[filter, i], na.rm = T)
+  MeanSpeedPest[i] <- mean(csCVR2[ConFilt, i], na.rm = T)
+}
+
+#pdf("InstSpeed_3weeks")
+plot(x = c(1, 1800), y = c(0, 40), type = "n", 
+     main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
+     xlab = "Frame (sec)")
 for(i in 1:length(filter)){
   lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
-        col = i, lty = 3)
-}#(ima.CompVidRep2[filter[i],2]+1)
+        col = alpha(i, 0.5), lty = 3)
+}
+lines(x = 2:1800, y = MeanSpeedPest[3:1801], 
+      col = 1, lty = 1)
 
-plot(x = c(1, 1800), y = c(0, 40), type = "n")
+plot(x = c(1, 1800), y = c(0, 40), type = "n", 
+     main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
+     xlab = "Frame (sec)")
+
 filter <- which(csCVR2[,2] == 0)
 for(i in 1:length(filter)){
   lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
-        col = i, lty = 3)
-}#
-
-
-
-
+        col = alpha(i, 0.5), lty = 3)
+}
+lines(x = 2:1800, y = MeanSpeedCont[3:1801], 
+      col = 1, lty = 1)
+#dev.off()
 
 ###############################################################################
 #### Average Speed within Bins ####
