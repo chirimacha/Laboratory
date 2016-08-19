@@ -144,7 +144,7 @@ for(i in 1:length(treatments)){
   )
 }
 
-
+cdf<- cast(treatmentsum, treatment + day~ prop.alive)
 
 ###Plot each proption by day
 SummaryData<- summaryBy(DataMelt, alive ~ treatment, fun.aggregate = mean)
