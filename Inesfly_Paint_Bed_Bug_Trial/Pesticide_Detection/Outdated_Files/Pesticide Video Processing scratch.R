@@ -1283,3 +1283,172 @@ plot(x=insectdata$Pesticide_Tray, y=insectdata$Perc_Treatment_Frames, col = inse
 
 t.test(insectdata$Perc_Treatment_Frames[pesticide], insectdata$Perc_Treatment_Frames[control])
 
+#Duplicate Correction
+
+
+
+# Duplicate correction (Repetition 2)
+for (i in (1:nrow(CompVidRep2))) {
+  if (identical(CompVidRep2$id[i], 2)) {
+    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep2$id[i] <- 1
+      CompVidRep2 <- CompVidRep2[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep2 <- CompVidRep2[-i,]
+    }
+  }
+  else if (identical(CompVidRep2$id[i], 3)) {
+    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep2$id[i] <- 1
+      CompVidRep2 <- CompVidRep2[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep2 <- CompVidRep2[-i,]
+    }
+  }
+  else if (identical(CompVidRep2$id[i], 4)) {
+    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
+    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
+    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
+    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep2$id[i] <- 1
+      CompVidRep2 <- CompVidRep2[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep2 <- CompVidRep2[-i,]
+    }
+  }
+}
+
+# Duplicate correction (Repetition 3)
+for (i in (1:nrow(CompVidRep3))) {
+  if (identical(CompVidRep3$id[i], 2)) {
+    fir_x_diff <- abs(CompVidRep3$x[i - 1] - CompVidRep3$x[i - 2])
+    fir_y_diff <- abs(CompVidRep3$y[i - 1] - CompVidRep3$y[i - 2])
+    sec_x_diff <- abs(CompVidRep3$x[i] - CompVidRep3$x[i - 2])
+    sec_y_diff <- abs(CompVidRep3$y[i] - CompVidRep3$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep3$id[i] <- 1
+      CompVidRep3 <- CompVidRep3[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep3 <- CompVidRep3[-i,]
+    }
+  }
+  else if (identical(CompVidRep3$id[i], 3)) {
+    fir_x_diff <- abs(CompVidRep3$x[i - 1] - CompVidRep3$x[i - 2])
+    fir_y_diff <- abs(CompVidRep3$y[i - 1] - CompVidRep3$y[i - 2])
+    sec_x_diff <- abs(CompVidRep3$x[i] - CompVidRep3$x[i - 2])
+    sec_y_diff <- abs(CompVidRep3$y[i] - CompVidRep3$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep3$id[i] <- 1
+      CompVidRep3 <- CompVidRep3[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep3 <- CompVidRep3[-i,]
+    }
+  }
+  else if (identical(CompVidRep3$id[i], 4)) {
+    fir_x_diff <- abs(CompVidRep3$x[i - 1] - CompVidRep3$x[i - 2])
+    fir_y_diff <- abs(CompVidRep3$y[i - 1] - CompVidRep3$y[i - 2])
+    sec_x_diff <- abs(CompVidRep3$x[i] - CompVidRep3$x[i - 2])
+    sec_y_diff <- abs(CompVidRep3$y[i] - CompVidRep3$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep3$id[i] <- 1
+      CompVidRep3 <- CompVidRep3[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep3 <- CompVidRep3[-i,]
+    }
+  }
+}
+
+# Duplicate correction (Repetition 4)
+for (i in (1:nrow(CompVidRep4))) {
+  if (identical(CompVidRep4$id[i], 2)) {
+    fir_x_diff <- abs(CompVidRep4$x[i - 1] - CompVidRep4$x[i - 2])
+    fir_y_diff <- abs(CompVidRep4$y[i - 1] - CompVidRep4$y[i - 2])
+    sec_x_diff <- abs(CompVidRep4$x[i] - CompVidRep4$x[i - 2])
+    sec_y_diff <- abs(CompVidRep4$y[i] - CompVidRep4$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep4$id[i] <- 1
+      CompVidRep4 <- CompVidRep4[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep4 <- CompVidRep4[-i,]
+    }
+  }
+  else if (identical(CompVidRep4$id[i], 3)) {
+    fir_x_diff <- abs(CompVidRep4$x[i - 1] - CompVidRep4$x[i - 2])
+    fir_y_diff <- abs(CompVidRep4$y[i - 1] - CompVidRep4$y[i - 2])
+    sec_x_diff <- abs(CompVidRep4$x[i] - CompVidRep4$x[i - 2])
+    sec_y_diff <- abs(CompVidRep4$y[i] - CompVidRep4$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep4$id[i] <- 1
+      CompVidRep4 <- CompVidRep4[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep4 <- CompVidRep4[-i,]
+    }
+  }
+  else if (identical(CompVidRep4$id[i], 4)) {
+    fir_x_diff <- abs(CompVidRep4$x[i - 1] - CompVidRep4$x[i - 2])
+    fir_y_diff <- abs(CompVidRep4$y[i - 1] - CompVidRep4$y[i - 2])
+    sec_x_diff <- abs(CompVidRep4$x[i] - CompVidRep4$x[i - 2])
+    sec_y_diff <- abs(CompVidRep4$y[i] - CompVidRep4$y[i - 2])
+    
+    fir_diff <- (fir_x_diff + fir_y_diff)
+    sec_diff <- (sec_x_diff + sec_y_diff)
+    
+    if (fir_diff > sec_diff) {
+      CompVidRep4$id[i] <- 1
+      CompVidRep4 <- CompVidRep4[-(i - 1),]
+    }
+    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
+      CompVidRep4 <- CompVidRep4[-i,]
+    }
+  }
+}
+

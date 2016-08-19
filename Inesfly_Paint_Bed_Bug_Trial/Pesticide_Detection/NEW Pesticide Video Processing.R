@@ -485,7 +485,24 @@ for (i in 2:repetition) {
 #   }
 # }
 # cnt_dup
-# 
+#
+
+#If running from PC run these codes
+# DR2T1C1 <- read.csv("Rep2Trial1Cam1RawData.csv")
+# DR2T1C2 <- read.csv("Rep2Trial1Cam2RawData.csv")
+# DR2T2C1 <- read.csv("Rep2Trial2Cam1RawData.csv")
+# DR2T2C2 <- read.csv("Rep2Trial2Cam2RawData.csv")
+# DR2T3C1 <- read.csv("Rep2Trial3Cam1RawData.csv")
+# DR2T3C2 <- read.csv("Rep2Trial3Cam2RawData.csv")
+
+# DR2T4C1 <- read.csv("Rep2Trial4Cam1RawData.csv")
+# DR2T4C2 <- read.csv("Rep2Trial4Cam2RawData.csv")
+# DR2T5C1 <- read.csv("Rep2Trial5Cam1RawData.csv")
+# DR2T5C2 <- read.csv("Rep2Trial5Cam2RawData.csv")
+# DR2T6C1 <- read.csv("Rep2Trial6Cam1RawData.csv")
+# DR2T6C2 <- read.csv("Rep2Trial6Cam2RawData.csv")
+
+
 CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
                      DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
 
@@ -502,170 +519,70 @@ CompVidRep3$insect.id <- paste(CompVidRep3$rep, CompVidRep3$trial,
 CompVidRep4$insect.id <- paste(CompVidRep4$rep, CompVidRep4$trial, 
                                CompVidRep4$position, sep = "-")
 
-# Duplicate correction (Repetition 2)
-for (i in (1:nrow(CompVidRep2))) {
-  if (identical(CompVidRep2$id[i], 2)) {
-    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
-    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
-    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
-    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep2$id[i] <- 1
-      CompVidRep2 <- CompVidRep2[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep2 <- CompVidRep2[-i,]
-    }
-  }
-  else if (identical(CompVidRep2$id[i], 3)) {
-    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
-    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
-    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
-    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep2$id[i] <- 1
-      CompVidRep2 <- CompVidRep2[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep2 <- CompVidRep2[-i,]
-    }
-  }
-  else if (identical(CompVidRep2$id[i], 4)) {
-    fir_x_diff <- abs(CompVidRep2$x[i - 1] - CompVidRep2$x[i - 2])
-    fir_y_diff <- abs(CompVidRep2$y[i - 1] - CompVidRep2$y[i - 2])
-    sec_x_diff <- abs(CompVidRep2$x[i] - CompVidRep2$x[i - 2])
-    sec_y_diff <- abs(CompVidRep2$y[i] - CompVidRep2$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep2$id[i] <- 1
-      CompVidRep2 <- CompVidRep2[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep2 <- CompVidRep2[-i,]
+#########################Duplicate Correction##################################
+###function can't deal with frame 1 with id >1
+#fortunately only CompVidRep4 has this occurance
+twomany<- which(CompVidRep4$id == 2)
+waytoomany <- which(CompVidRep4$id > 1)
+firstfr<- which(CompVidRep4$frame == 1)
+one.twos<- intersect(twomany, firstfr)
+intersect(waytoomany, firstfr)
+#fortunately they are only id=2 
+
+###Remove ones with area of 0
+noarea<- which(CompVidRep4$area[one.twos] == 0)
+CompVidRep4 <- CompVidRep4[-one.twos[noarea],]
+
+find.id <- which(CompVidRep4$insect.id == CompVidRep4$insect.id[one.twos[1]])
+found.it <- intersect(find.id, firstfr)
+no.area <- which(CompVidRep4$area[found.it] == 0)
+CompVidRep4 <- CompVidRep4[-found.it[no.area]]
+
+DupCorrect <- function(df){
+  df$delete <- df$x*0
+  #m.id <- max(df$id)
+  dups <- which(df$id > 1)
+  twos <- which(df$id == 2)
+  d.fr <- df$frame[dups]
+  d.in <- df$frame[dups]
+  ud.fr <- unique(d.fr)
+  for(i in 1:length(ud.fr)){
+    mal.fr <- which(df$frame == ud.fr[i])
+    mtwo.fr <- intersect(mal.fr, twos)
+    for(j in 1:length(mtwo.fr)){
+      jid <- which(df$insect.id == df$insect.id[mtwo.fr[j]] )
+      jf <- which(df$frame == df$frame[mtwo.fr[j]] )
+      less.fr <- which(df$frame < df$frame[mtwo.fr[j]])
+      less.ifr <- intersect(less.fr, jid)
+      rev.p.obv <- which(df$frame == max(df$frame[less.ifr]))
+      rev.obvs <- intersect(jid, jf)
+      px <- df$x[rev.p.obv]
+      py <- df$y[rev.p.obv]
+      dif.output <- rev.obvs*0
+      for(k in 1:length(rev.obvs)){
+        kx <- df$x[rev.obvs[k]]
+        ky <- df$y[rev.obvs[k]]
+        dif.output[k] <- sqrt((kx-px)^2+(ky-py)^2)
+      }
+      maxi<- which(dif.output == max(dif.output))
+      del.ob <- which(dif.output != max(dif.output))
+      df$id[rev.obvs[maxi]] <- 1
+      df$delete[rev.obvs[del.ob]] <- 1
     }
   }
+  duplicates <- which(df$delete == 1)
+  df <- df[-duplicates,]
 }
 
-# Duplicate correction (Repetition 3)
-for (i in (1:nrow(CompVidRep3))) {
-  if (identical(CompVidRep3$id[i], 2)) {
-    fir_x_diff <- abs(CompVidRep3$x[i - 1] - CompVidRep3$x[i - 2])
-    fir_y_diff <- abs(CompVidRep3$y[i - 1] - CompVidRep3$y[i - 2])
-    sec_x_diff <- abs(CompVidRep3$x[i] - CompVidRep3$x[i - 2])
-    sec_y_diff <- abs(CompVidRep3$y[i] - CompVidRep3$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep3$id[i] <- 1
-      CompVidRep3 <- CompVidRep3[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep3 <- CompVidRep3[-i,]
-    }
-  }
-  else if (identical(CompVidRep3$id[i], 3)) {
-    fir_x_diff <- abs(CompVidRep3$x[i - 1] - CompVidRep3$x[i - 2])
-    fir_y_diff <- abs(CompVidRep3$y[i - 1] - CompVidRep3$y[i - 2])
-    sec_x_diff <- abs(CompVidRep3$x[i] - CompVidRep3$x[i - 2])
-    sec_y_diff <- abs(CompVidRep3$y[i] - CompVidRep3$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep3$id[i] <- 1
-      CompVidRep3 <- CompVidRep3[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep3 <- CompVidRep3[-i,]
-    }
-  }
-  else if (identical(CompVidRep3$id[i], 4)) {
-    fir_x_diff <- abs(CompVidRep3$x[i - 1] - CompVidRep3$x[i - 2])
-    fir_y_diff <- abs(CompVidRep3$y[i - 1] - CompVidRep3$y[i - 2])
-    sec_x_diff <- abs(CompVidRep3$x[i] - CompVidRep3$x[i - 2])
-    sec_y_diff <- abs(CompVidRep3$y[i] - CompVidRep3$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep3$id[i] <- 1
-      CompVidRep3 <- CompVidRep3[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep3 <- CompVidRep3[-i,]
-    }
-  }
-}
+fake<-which(CompVidRep2$id == 5)
+five<-which(CompVidRep2$frame == 5)
+max(intersect(fake, five))
 
-# Duplicate correction (Repetition 4)
-for (i in (1:nrow(CompVidRep4))) {
-  if (identical(CompVidRep4$id[i], 2)) {
-    fir_x_diff <- abs(CompVidRep4$x[i - 1] - CompVidRep4$x[i - 2])
-    fir_y_diff <- abs(CompVidRep4$y[i - 1] - CompVidRep4$y[i - 2])
-    sec_x_diff <- abs(CompVidRep4$x[i] - CompVidRep4$x[i - 2])
-    sec_y_diff <- abs(CompVidRep4$y[i] - CompVidRep4$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep4$id[i] <- 1
-      CompVidRep4 <- CompVidRep4[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep4 <- CompVidRep4[-i,]
-    }
-  }
-  else if (identical(CompVidRep4$id[i], 3)) {
-    fir_x_diff <- abs(CompVidRep4$x[i - 1] - CompVidRep4$x[i - 2])
-    fir_y_diff <- abs(CompVidRep4$y[i - 1] - CompVidRep4$y[i - 2])
-    sec_x_diff <- abs(CompVidRep4$x[i] - CompVidRep4$x[i - 2])
-    sec_y_diff <- abs(CompVidRep4$y[i] - CompVidRep4$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep4$id[i] <- 1
-      CompVidRep4 <- CompVidRep4[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep4 <- CompVidRep4[-i,]
-    }
-  }
-  else if (identical(CompVidRep4$id[i], 4)) {
-    fir_x_diff <- abs(CompVidRep4$x[i - 1] - CompVidRep4$x[i - 2])
-    fir_y_diff <- abs(CompVidRep4$y[i - 1] - CompVidRep4$y[i - 2])
-    sec_x_diff <- abs(CompVidRep4$x[i] - CompVidRep4$x[i - 2])
-    sec_y_diff <- abs(CompVidRep4$y[i] - CompVidRep4$y[i - 2])
-    
-    fir_diff <- (fir_x_diff + fir_y_diff)
-    sec_diff <- (sec_x_diff + sec_y_diff)
-    
-    if (fir_diff > sec_diff) {
-      CompVidRep4$id[i] <- 1
-      CompVidRep4 <- CompVidRep4[-(i - 1),]
-    }
-    else if ((fir_diff < sec_diff) || identical(fir_diff,sec_diff)) {
-      CompVidRep4 <- CompVidRep4[-i,]
-    }
-  }
-}
+
+
+CompVidRep2 <- DupCorrect(CompVidRep2)
+CompVidRep3 <- DupCorrect(CompVidRep3)
+CompVidRep4 <- DupCorrect(CompVidRep4)
 
 addOrientation <- function(CompiledData) {
   ## Finding quadrants
@@ -685,7 +602,7 @@ PosSlope <- which(CompiledData$TPX >= CompiledData$BPX )
 # Instead of counter-clockwise numbering of quadrants (from the perspective
 # of the video, not considering pesticide), quadrants were labeled clockwise
 # starting form the top right as 1
-CompiledData$quad <- 0
+CompiledData$quad <- CompiledData$x * 0
 CompiledData$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
 CompiledData$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 2
 CompiledData$quad[intersect( PosSlope, (intersect(abovea,belowb)))] <- 3
@@ -698,9 +615,9 @@ CompiledData$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 4
 
 
 # Create function that determines which quadrants have pesticide
-CompiledData$PQuad <- 0
-CompiledData$DishID <- 0
-CompiledData$Orientation <- 0
+CompiledData$PQuad <- CompiledData$x * 0
+CompiledData$DishID <- CompiledData$x * 0
+CompiledData$Orientation <- CompiledData$x * 0
 
 #Table to determine the painted quadrants given orientation
 one   <- c(1,4,3,2)
@@ -736,11 +653,11 @@ PTrays <- which(CompiledData$DishID <= 6)
 CompiledData$PTray <- CompiledData$PQuad * 0
 CompiledData$PTray[PTrays] <- 1
 
-CompiledData$Pesticide <- 0
+CompiledData$Pesticide <- CompiledData$x * 0
 CompiledData$Pesticide[intersect( PTrays, uno)] <- 1
 CompiledData$Pesticide[intersect( PTrays, tres)] <- 1
 
-CompiledData$Treat_Quad <- 0  
+CompiledData$Treat_Quad <- CompiledData$x * 0  
 CompiledData$Treat_Quad[union(uno, tres)] <- 1
 
 CompiledData$Result <- paste(CompiledData$PTray,
@@ -773,8 +690,8 @@ resultMat <- function(CompVidRep) {
 #write.csv( CompVidRep4, file = "CompVidRep4.csv")
 
 # CompVidRep2 <- read.csv("CompVidRep2.csv")
-# CompVidRep3 <- read.csv("CompVidRep3.csv")
-# CompVidRep4 <- read.csv("CompVidRep4.csv")
+#  CompVidRep3 <- read.csv("CompVidRep3.csv")
+#  CompVidRep4 <- read.csv("CompVidRep4.csv")
 
 ###############################################################################
 ################################ Averageing ###################################
@@ -888,16 +805,6 @@ ma.control.CompVidRep4 <- ma.control(CompVidRep4, 1800)
 ###############################################################################
 #### Running Average for Individual Insects ####
 #make an insect identifier
-CompVidRep2$insect.id <- paste(CompVidRep2$rep, CompVidRep2$trial, 
-                               CompVidRep2$position, sep = "-")
-CompVidRep3$insect.id <- paste(CompVidRep3$rep, CompVidRep3$trial,
-                               CompVidRep3$position, sep = "-")
-CompVidRep4$insect.id <- paste(CompVidRep4$rep, CompVidRep4$trial, 
-                               CompVidRep4$position, sep = "-")
-insects2 <- unique(CompVidRep2$insect.id)
-  dfVR2 <- data.frame(1:800*0, 1:800*0)
-
-
 ima <- function(d.f, length) {
   insects <- unique(d.f$insect.id)
   my.df <- data.frame(matrix(nrow = length(insects), ncol = length+2))
@@ -976,17 +883,11 @@ ClockSpeed <-function(df){
       my.df[i,f+1]<-sqrt((CompVidRep3$x[cf]-CompVidRep3$x[pf])^2+(CompVidRep3$y[cf]-CompVidRep3$y[pf])^2)/(frmn-pfrmn)
     }
   }
-my.df[1,1019:1023]
-nine <- CompVidRep3[intersect(which(CompVidRep3$frame == 1019), ins),]
-ten <- CompVidRep3[intersect(which(CompVidRep3$frame == 1020), ins),]
-      View(rbind(nine, ten))
 
 csCVR2<-ClockSpeed(CompVidRep2)
 csCVR3<-ClockSpeed(CompVidRep3)
 csCVR4<-ClockSpeed(CompVidRep4)
-csTest<-ClockSpeed(TestCVR3)
 
-which(CompVidRep3$id == 2)
 ###############################################################################
 #### Average Speed within Bins ####
 
@@ -1076,18 +977,18 @@ lines(x = 1:1800, y = ma.control.CompVidRep2, lty = 1, col = 1)
 #dev.off()
 
 ###############################Ind. Speed Graph################################
-filter <- which(csCVR2[,2] == 1)
-ConFilt <- which(csCVR2[,2] == 0)
+filter <- which(csTest[,2] == 1)
+ConFilt <- which(csTest[,2] == 0)
 
-MeanSpeedPest <- csCVR2[1,]
-MeanSpeedCont <- csCVR2[1,]
+MeanSpeedPest <- csTest[1,]
+MeanSpeedCont <- csTest[1,]
 MeanSpeedPest[1] <- "MeanSpeedPest"
 MeanSpeedCont[1] <- "MeanSpeedCont"
 MeanSpeedPest[2] <- 1
 MeanSpeedCont[2] <- 0
 for(i in 3:1801){
-  MeanSpeedPest[i] <- mean(csCVR2[filter, i], na.rm = T)
-  MeanSpeedPest[i] <- mean(csCVR2[ConFilt, i], na.rm = T)
+  MeanSpeedPest[i] <- mean(csTest[filter, i], na.rm = T)
+  MeanSpeedPest[i] <- mean(csTest[ConFilt, i], na.rm = T)
 }
 
 #pdf("InstSpeed_3weeks")
@@ -1095,7 +996,7 @@ plot(x = c(1, 1800), y = c(0, 40), type = "n",
      main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
      xlab = "Frame (sec)")
 for(i in 1:length(filter)){
-  lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
+  lines(x = 2:1800, y = csTest[ filter[i], 3:1801], 
         col = alpha(i, 0.5), lty = 3)
 }
 lines(x = 2:1800, y = MeanSpeedPest[3:1801], 
@@ -1104,10 +1005,9 @@ lines(x = 2:1800, y = MeanSpeedPest[3:1801],
 plot(x = c(1, 1800), y = c(0, 40), type = "n", 
      main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
      xlab = "Frame (sec)")
-
-filter <- which(csCVR2[,2] == 0)
+filter <- which(csTest[,2] == 0)
 for(i in 1:length(filter)){
-  lines(x = 2:1800, y = csCVR2[ filter[i], 3:1801], 
+  lines(x = 2:1800, y = csTest[ filter[i], 3:1801], 
         col = alpha(i, 0.5), lty = 3)
 }
 lines(x = 2:1800, y = MeanSpeedCont[3:1801], 
