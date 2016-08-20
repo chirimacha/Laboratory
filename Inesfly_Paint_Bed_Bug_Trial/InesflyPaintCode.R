@@ -6,7 +6,7 @@
 ###============================================================================
 ##Install and load necessary packages
 #Install packages
-#install.packages(c("reshape","survival","tables", "doBy", "ggplot2"))
+#install.packages(c("reshape","survival","tables", "doBy", "ggplot2", "plyr"))
 
 #load packages
 library(reshape) #Used to change data between short and long formats.
@@ -14,12 +14,13 @@ library(survival) #for cox proportional hazaard
 library(tables)
 library(doBy)#use summaryBy function
 library(ggplot2)
+library(plyr)
 
 ##set up the working directory
 #PC for Dylan
-setwd("C:/Users/tradylan/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+#setwd("C:/Users/tradylan/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 #MAC for Mike
-#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 
 ###############################################################################
 ###bring in data
@@ -102,6 +103,7 @@ dia <- which(treatmentsum$days.after.paint == 1)
 tresmes <- which(treatmentsum$days.after.paint == 90)
 seismes <- which(treatmentsum$days.after.paint == 180)
 
+treatmentsum$pch <- treatmentsum$prop.alive * 0
 treatmentsum$pch[dia] <- 18
 treatmentsum$pch[tresmes] <- 20 
 treatmentsum$pch[seismes] <- 17
@@ -111,12 +113,17 @@ treshora <- which(treatmentsum$exp.time == "03H")
 seishora <- which(treatmentsum$exp.time == "06H")
 dias <- which(treatmentsum$exp.time == "24H")
 
+treatmentsum$lty <- treatmentsum$prop.alive * 0
 treatmentsum$lty[hora] <- 1
 treatmentsum$lty[treshora] <- 2 
 treatmentsum$lty[seishora] <- 3
 treatmentsum$lty[dias] <- 4
 
+#################################All Plot##################################
+treatmentsum$paint <- factor(treatmentsum$paint, levels = c("CO","5A","CF"))
+
 #Plot proportion alive
+par(mfrow = c(1,1)) #4 across 3 
 plot(y = treatmentsum$prop.alive, x = treatmentsum$day, 
      pch = treatmentsum$pch, col = treatmentsum$paint, type = "n")
 for(i in 1:length(treatments)){
@@ -130,21 +137,42 @@ for(i in 1:length(treatments)){
        )
 }
 
+###################################An Array####################################
 #Plot Prop Proportion living (alive+knockdown)
-plot(y = treatmentsum$prop.alive, x = treatmentsum$day, 
-     pch = treatmentsum$pch, col = treatmentsum$paint, type = "n")
-for(i in 1:length(treatments)){
-  tr <- which(treatmentsum$treatment == treatments[i])
-  temp <- treatmentsum[tr,]
-  points(y = temp$prop.liv, x = temp$day, 
-         pch = temp$pch[1], col = temp$paint[1]   
-  )
-  lines(y = temp$prop.liv, x = temp$day, 
-        col = temp$paint[1], lty = temp$lty[1]    
-  )
-}
+pdf("Bioassay_Graphs_Array.pdf")
+par(mfrow = c(3,4)) #4 across 3 
+dap <- unique(treatmentsum$days.after.paint)
+ext <- unique(treatmentsum$exp.time)
 
-cdf<- cast(treatmentsum, treatment + day~ prop.alive)
+
+for(k in 1:length(dap)){
+  tsdap <- which(treatmentsum$days.after.paint == dap[k])
+  for(j in 1:length(ext)){
+    tsext <- which(treatmentsum$exp.time == ext[j])
+    tsde <- intersect(tsdap, tsext)  
+    plot(y = treatmentsum$prop.alive, x = treatmentsum$day, 
+         pch = treatmentsum$pch, col = treatmentsum$paint,
+         type = "n", main = paste(dap[k],"Days After Paint and", ext[j], 
+                                  "Hours of Exposure", sep = " "), 
+         ylab = "Proportion Alive", xlab = "Days Since Exposure")
+    treatments.tmp <- unique(treatmentsum$treatment[tsde])
+    for(i in 1:length(treatments.tmp)){
+      tr <- which(treatmentsum$treatment == treatments.tmp[i])
+      temp <- treatmentsum[tr,]
+      points(y = temp$prop.liv, x = temp$day, pch = 17,
+             col = temp$paint[1])
+      lines(y = temp$prop.liv, x = temp$day, pch = 17, 
+            col = temp$paint[1])      
+    }
+  }
+}
+mtext("Proportion of Insects Alive", outer = TRUE, cex = 1.5)
+
+
+dev.off()
+
+
+cdf<- cast(treatmentsum, treatment ~ day, value = "prop.alive")
 
 ###Plot each proption by day
 SummaryData<- summaryBy(DataMelt, alive ~ treatment, fun.aggregate = mean)
