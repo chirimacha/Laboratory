@@ -58,6 +58,9 @@ camera <- 2
 # Repetition 1 recorded on 2016-04-21; repetition 2 recorded 2016-05-12
 # Repetition 3 and 4 were recorded on 2016-07-14
 
+# CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
+TrayPlace <- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
+
 #Bring in Videos
 for (i in 4:4) { 
   for (j in 1:6) {
@@ -69,8 +72,7 @@ for (i in 4:4) {
   }
 }
 
-# CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
-TrayPlace <- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
+
 #if using PC, run this loop instead of the one below
 for (i in 2:repetition) { 
   for (j in 1:trial) {
@@ -488,19 +490,19 @@ for (i in 2:repetition) {
 #
 
 #If running from PC run these codes
-# DR2T1C1 <- read.csv("Rep2Trial1Cam1RawData.csv")
-# DR2T1C2 <- read.csv("Rep2Trial1Cam2RawData.csv")
-# DR2T2C1 <- read.csv("Rep2Trial2Cam1RawData.csv")
-# DR2T2C2 <- read.csv("Rep2Trial2Cam2RawData.csv")
-# DR2T3C1 <- read.csv("Rep2Trial3Cam1RawData.csv")
-# DR2T3C2 <- read.csv("Rep2Trial3Cam2RawData.csv")
+DR2T1C1 <- read.csv("Video_Data/Rep2/Rep2Trial1Cam1RawData.csv")
+DR2T1C2 <- read.csv("Video_Data/Rep2/Rep2Trial1Cam2RawData.csv")
+DR2T2C1 <- read.csv("Video_Data/Rep2/Rep2Trial2Cam1RawData.csv")
+DR2T2C2 <- read.csv("Video_Data/Rep2/Rep2Trial2Cam2RawData.csv")
+DR2T3C1 <- read.csv("Video_Data/Rep2/Rep2Trial3Cam1RawData.csv")
+DR2T3C2 <- read.csv("Video_Data/Rep2/Rep2Trial3Cam2RawData.csv")
 
-# DR2T4C1 <- read.csv("Rep2Trial4Cam1RawData.csv")
-# DR2T4C2 <- read.csv("Rep2Trial4Cam2RawData.csv")
-# DR2T5C1 <- read.csv("Rep2Trial5Cam1RawData.csv")
-# DR2T5C2 <- read.csv("Rep2Trial5Cam2RawData.csv")
-# DR2T6C1 <- read.csv("Rep2Trial6Cam1RawData.csv")
-# DR2T6C2 <- read.csv("Rep2Trial6Cam2RawData.csv")
+DR2T4C1 <- read.csv("Video_Data/Rep2/Rep2Trial4Cam1RawData.csv")
+DR2T4C2 <- read.csv("Video_Data/Rep2/Rep2Trial4Cam2RawData.csv")
+DR2T5C1 <- read.csv("Video_Data/Rep2/Rep2Trial5Cam1RawData.csv")
+DR2T5C2 <- read.csv("Video_Data/Rep2/Rep2Trial5Cam2RawData.csv")
+DR2T6C1 <- read.csv("Video_Data/Rep2/Rep2Trial6Cam1RawData.csv")
+DR2T6C2 <- read.csv("Video_Data/Rep2/Rep2Trial6Cam2RawData.csv")
 
 
 CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
@@ -511,6 +513,11 @@ CompVidRep3 <- rbind(DR3T1C1, DR3T1C2, DR3T2C1, DR3T2C2, DR3T3C1, DR3T3C2,
 
 CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
                      DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
+###########
+###Temp Read.csv
+#CompVidRep2 <- read.csv("CompVidRep2.csv")
+CompVidRep3 <- read.csv("CompVidRep3.csv")
+CompVidRep4 <- read.csv("CompVidRep4.csv")
 
 CompVidRep2$insect.id <- paste(CompVidRep2$rep, CompVidRep2$trial, 
                                CompVidRep2$position, sep = "-")
@@ -520,47 +527,83 @@ CompVidRep4$insect.id <- paste(CompVidRep4$rep, CompVidRep4$trial,
                                CompVidRep4$position, sep = "-")
 
 #########################Duplicate Correction##################################
-###function can't deal with frame 1 with id >1
-#fortunately only CompVidRep4 has this occurance
+###function can't deal with frame 1 with id >1 and currently if there is no 1
+#check to make sure there is the correct number
+ones.rtwo<- which(CompVidRep2$frame == 1)
+ones.rthree<- which(CompVidRep3$frame == 1)
+ones.rfour<- which(CompVidRep4$frame == 1)
+#they should each ideallly have 72(6 trialsx12 bugs per trial)
+length(ones.rtwo) #70
+length(ones.rthree) #68
+length(ones.rfour) #77
+
+#fortunately only CompVidRep4 has multiple 1's
 twomany<- which(CompVidRep4$id == 2)
 waytoomany <- which(CompVidRep4$id > 1)
 firstfr<- which(CompVidRep4$frame == 1)
 one.twos<- intersect(twomany, firstfr)
-intersect(waytoomany, firstfr)
+first.twomany<- intersect(waytoomany, firstfr)
 #fortunately they are only id=2 
 
 ###Remove ones with area of 0
-noarea<- which(CompVidRep4$area[one.twos] == 0)
-CompVidRep4 <- CompVidRep4[-one.twos[noarea],]
+noarea <- which(CompVidRep4$area[one.twos] == 0)
+to.delete <- one.twos[noarea]
 
-find.id <- which(CompVidRep4$insect.id == CompVidRep4$insect.id[one.twos[1]])
+find.id <- which(CompVidRep4$insect.id == CompVidRep4$insect.id[first.twomany[1]])
 found.it <- intersect(find.id, firstfr)
 no.area <- which(CompVidRep4$area[found.it] == 0)
-CompVidRep4 <- CompVidRep4[-found.it[no.area]]
+todelete <- found.it[no.area]
+deletions <- union(to.delete, todelete)
+CompVidRep4$id[first.twomany] <- 1
+CompVidRep4 <- CompVidRep4[-deletions,]
 
+
+#the ones that survived need to have id set back to 1
+
+
+###Duplication correction for all other frames
 DupCorrect <- function(df){
+  #create a column as an indicator for later deletion
   df$delete <- df$x*0
-  #m.id <- max(df$id)
+  #Identify duplicates (id>1)
   dups <- which(df$id > 1)
   twos <- which(df$id == 2)
+  #identify the frames with duplicates
   d.fr <- df$frame[dups]
-  d.in <- df$frame[dups]
   ud.fr <- unique(d.fr)
+  ud.fr <- ud.fr[order(unique(ud.fr))]
+  #loop through each duplicate frame
   for(i in 1:length(ud.fr)){
+    #identify the individual error (mal.fr includes non-duplicate obs)
     mal.fr <- which(df$frame == ud.fr[i])
-    mtwo.fr <- intersect(mal.fr, twos)
+    mtwo.fr <- intersect(mal.fr, twos) 
+    #mtwo.fr identifies how many duplication insect obs are on this frame
+    #so loop through each observation
     for(j in 1:length(mtwo.fr)){
+      #identify the particular insect and frame number for this duplicate
       jid <- which(df$insect.id == df$insect.id[mtwo.fr[j]] )
       jf <- which(df$frame == df$frame[mtwo.fr[j]] )
+      #find the previous frame for this specific observation
       less.fr <- which(df$frame < df$frame[mtwo.fr[j]])
       less.ifr <- intersect(less.fr, jid)
-      rev.p.obv <- which(df$frame == max(df$frame[less.ifr]))
-      rev.obvs <- intersect(jid, jf)
+      if(length(less.ifr) < 1){print(paste("no prior frame", "i", i, "j", j))}
+      ##the max arguement is likely producing errors if no previous frame
+      #obtain the maximum frame that is less than the error frame 
+      lcf <- which(df$frame == max(df$frame[less.ifr]))
+      #lcf is all with that frame.Intersect with less.ifr for insect specific
+      ilcf<- intersect(lcf, less.ifr)
+      #remove duplicates, this assumes that prev. are already corrected
+      non.dup <- which(df$delete == 0)
+      rev.p.obv <- intersect(ilcf, non.dup)
+      ndjf <- intersect(jf, non.dup)
+      rev.obvs <- intersect(jid, ndjf)
       px <- df$x[rev.p.obv]
       py <- df$y[rev.p.obv]
+      if(length(px) > 1){print(paste("I", i, "j", j, length(py), sep = " "))}
       dif.output <- rev.obvs*0
       for(k in 1:length(rev.obvs)){
         kx <- df$x[rev.obvs[k]]
+        if(length(kx) > 1){ print(paste("K", k, length(kx), sep = " "))}    
         ky <- df$y[rev.obvs[k]]
         dif.output[k] <- sqrt((kx-px)^2+(ky-py)^2)
       }
@@ -572,17 +615,35 @@ DupCorrect <- function(df){
   }
   duplicates <- which(df$delete == 1)
   df <- df[-duplicates,]
+  return(df)
 }
 
-fake<-which(CompVidRep2$id == 5)
-five<-which(CompVidRep2$frame == 5)
-max(intersect(fake, five))
+#Identify duplicates (id>1)
+dups.t <- which(CompVidRep4$id > 1)
+twos.t <- which(CompVidRep4$id == 2)
+#identify the frames with duplicates
+d.fr.t <- CompVidRep4$frame[dups.t]
+ud.fr.t <- unique(d.fr.t)
+ud.fr.t <- ud.fr.t[order(unique(ud.fr.t))]
 
 
+remnant <- which(CompVidRep2$frame == 1503)
+prev <- which(CompVidRep2$frame == 1502)
+vprev <- which(CompVidRep2$frame == 1501)
+dos.test <- which(CompVidRep2$insect.id == "2-3-2")
+now <- intersect(dos.test, remnant)          
+pri <- intersect(dos.test, prev) 
+vpri <- intersect(dos.test, prev) 
+View(CompVidRep2a[now,])
+View(CompVidRep2a[pri,])
+View(CompVidRep2a[vpri,])
 
-CompVidRep2 <- DupCorrect(CompVidRep2)
-CompVidRep3 <- DupCorrect(CompVidRep3)
-CompVidRep4 <- DupCorrect(CompVidRep4)
+
+#still 1 observation creating two warnings.
+CompVidRep2a <- DupCorrect(CompVidRep2) 
+
+CompVidRep3 <- DupCorrect(CompVidRep3) #no warning
+CompVidRep4 <- DupCorrect(CompVidRep4) #only this works?
 
 addOrientation <- function(CompiledData) {
   ## Finding quadrants
@@ -705,7 +766,6 @@ af <- function(d.f, length) {
     one.one <- which(d.f$Result == "1-1")
     treatment.fr <- intersect(frame.num, union(one.zero, one.one))
     pesticide.fr <- intersect(frame.num, one.one)
-    
     my.list[[i]] <- length(pesticide.fr)/length(treatment.fr)
   }
   final.df <- do.call('rbind', my.list)

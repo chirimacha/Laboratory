@@ -140,11 +140,15 @@ for(i in 1:length(treatments)){
 ###################################An Array####################################
 #Plot Prop Proportion living (alive+knockdown)
 pdf("Bioassay_Graphs_Array.pdf")
-par(mfrow = c(3,4)) #4 across 3 
+treatmentsum$exp.time <- revalue(treatmentsum$exp.time, c("01H" = "1", 
+                                                          "03H" = "3", 
+                                                          "06H" = "6",
+                                                          "24H" = "24"))
 dap <- unique(treatmentsum$days.after.paint)
+dap <- dap[order(dap)]
 ext <- unique(treatmentsum$exp.time)
 
-
+par(mfrow = c(3,4)) #4 across 3 
 for(k in 1:length(dap)){
   tsdap <- which(treatmentsum$days.after.paint == dap[k])
   for(j in 1:length(ext)){
@@ -152,26 +156,26 @@ for(k in 1:length(dap)){
     tsde <- intersect(tsdap, tsext)  
     plot(y = treatmentsum$prop.alive, x = treatmentsum$day, 
          pch = treatmentsum$pch, col = treatmentsum$paint,
-         type = "n", main = paste(dap[k],"Days After Paint and", ext[j], 
-                                  "Hours of Exposure", sep = " "), 
+         type = "n", main = paste("J =", ext[j], "days:", "K =", dap[k], 
+                                  "hrs", sep = " "), 
          ylab = "Proportion Alive", xlab = "Days Since Exposure")
     treatments.tmp <- unique(treatmentsum$treatment[tsde])
     for(i in 1:length(treatments.tmp)){
       tr <- which(treatmentsum$treatment == treatments.tmp[i])
       temp <- treatmentsum[tr,]
-      points(y = temp$prop.liv, x = temp$day, pch = 17,
+      points(y = temp$prop.liv, x = temp$day, pch = 20,
              col = temp$paint[1])
-      lines(y = temp$prop.liv, x = temp$day, pch = 17, 
+      lines(y = temp$prop.liv, x = temp$day, pch = 20, 
             col = temp$paint[1])      
     }
   }
 }
-mtext("Proportion of Insects Alive", outer = TRUE, cex = 1.5)
-
-
+mtext(paste("Proportion of live bugs after 'J' hours of exposure and after",
+            "'K' days since painting", sep=" "), side = 3, line = -1.5, 
+      outer = TRUE, cex = 1.2)
 dev.off()
 
-
+#Create table with Proportion alive for each treatment at each day
 cdf<- cast(treatmentsum, treatment ~ day, value = "prop.alive")
 
 ###Plot each proption by day
