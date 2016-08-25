@@ -557,10 +557,6 @@ deletions <- union(to.delete, todelete)
 CompVidRep4$id[first.twomany] <- 1
 CompVidRep4 <- CompVidRep4[-deletions,]
 
-
-#the ones that survived need to have id set back to 1
-
-
 ###Duplication correction for all other frames
 DupCorrect <- function(df){
   #create a column as an indicator for later deletion
@@ -607,9 +603,9 @@ DupCorrect <- function(df){
         ky <- df$y[rev.obvs[k]]
         dif.output[k] <- sqrt((kx-px)^2+(ky-py)^2)
       }
-      maxi<- which(dif.output == max(dif.output))
-      del.ob <- which(dif.output != max(dif.output))
-      df$id[rev.obvs[maxi]] <- 1
+      mini <- which(dif.output == min(dif.output))
+      del.ob <- which(dif.output != min(dif.output))
+      df$id[rev.obvs[mini]] <- 1
       df$delete[rev.obvs[del.ob]] <- 1
     }
   }
@@ -618,32 +614,37 @@ DupCorrect <- function(df){
   return(df)
 }
 
-#Identify duplicates (id>1)
-dups.t <- which(CompVidRep4$id > 1)
-twos.t <- which(CompVidRep4$id == 2)
-#identify the frames with duplicates
-d.fr.t <- CompVidRep4$frame[dups.t]
-ud.fr.t <- unique(d.fr.t)
-ud.fr.t <- ud.fr.t[order(unique(ud.fr.t))]
-
-
-remnant <- which(CompVidRep2$frame == 1503)
-prev <- which(CompVidRep2$frame == 1502)
-vprev <- which(CompVidRep2$frame == 1501)
-dos.test <- which(CompVidRep2$insect.id == "2-3-2")
-now <- intersect(dos.test, remnant)          
-pri <- intersect(dos.test, prev) 
-vpri <- intersect(dos.test, prev) 
-View(CompVidRep2a[now,])
-View(CompVidRep2a[pri,])
-View(CompVidRep2a[vpri,])
+# #Identify duplicates (id>1)
+# dups.t <- which(CompVidRep4$id > 1)
+# twos.t <- which(CompVidRep4$id == 2)
+# #identify the frames with duplicates
+# d.fr.t <- CompVidRep4$frame[dups.t]
+# ud.fr.t <- unique(d.fr.t)
+# ud.fr.t <- ud.fr.t[order(unique(ud.fr.t))]
+# 
+# 
+# remnant <- which(CompVidRep2$frame == 1104)
+# prev <- which(CompVidRep2$frame == 1103)
+# #vprev <- which(CompVidRep2$frame == 1501)
+# dos.test <- which(CompVidRep2$insect.id == "2-3-2")
+# now <- intersect(dos.test, remnant)          
+# pri <- intersect(dos.test, prev) 
+# #vpri <- intersect(dos.test, prev) 
+# View(CompVidRep2a[now,])
+# View(CompVidRep2a[pri,])
+# #View(CompVidRep2a[vpri,])
 
 
 #still 1 observation creating two warnings.
-CompVidRep2a <- DupCorrect(CompVidRep2) 
+CompVidRep2 <- DupCorrect(CompVidRep2) 
 
-CompVidRep3 <- DupCorrect(CompVidRep3) #no warning
+CompVidRep3 <- DupCorrect(CompVidRep3) 
 CompVidRep4 <- DupCorrect(CompVidRep4) #only this works?
+
+#save as csv
+#write.csv( CompVidRep2, file = "CompVidRep2.csv")
+#write.csv( CompVidRep3, file = "CompVidRep3.csv")
+#write.csv( CompVidRep4, file = "CompVidRep4.csv")
 
 addOrientation <- function(CompiledData) {
   ## Finding quadrants
@@ -746,13 +747,13 @@ resultMat <- function(CompVidRep) {
 ###DO NOT DELETE: Read.csv to bring in Data tables from computer without 
 ###data held as objects
 
-#write.csv( CompVidRep2, file = "CompVidRep2.csv")
-#write.csv( CompVidRep3, file = "CompVidRep3.csv")
-#write.csv( CompVidRep4, file = "CompVidRep4.csv")
+# write.csv( CompVidRep2, file = "CompVidRep2.csv")
+# write.csv( CompVidRep3, file = "CompVidRep3.csv")
+# write.csv( CompVidRep4, file = "CompVidRep4.csv")
 
 # CompVidRep2 <- read.csv("CompVidRep2.csv")
-#  CompVidRep3 <- read.csv("CompVidRep3.csv")
-#  CompVidRep4 <- read.csv("CompVidRep4.csv")
+# CompVidRep3 <- read.csv("CompVidRep3.csv")
+# CompVidRep4 <- read.csv("CompVidRep4.csv")
 
 ###############################################################################
 ################################ Averageing ###################################
@@ -822,10 +823,6 @@ ma <- function(d.f, length) {
   }
   final.df <- do.call('rbind', my.list)
   return(final.df) 
-}
-
-for(i in 1:10){
-list[i] <- i
 }
 
 ma.control <- function(d.f, length) {
