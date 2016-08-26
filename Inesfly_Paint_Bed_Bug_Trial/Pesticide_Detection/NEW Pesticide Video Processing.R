@@ -970,6 +970,7 @@ for(i in 1:length(CompVidRep2[filter,1])){
         col = i, lty = 3)
 }#(ima.CompVidRep2[filter[i],2]+1)
 lines(x = 1:1800, y = ima.CVR2, lty = 1, col = 2)
+abline(h = 0.5, lty = 2)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
      ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
@@ -979,6 +980,7 @@ for(i in 1:length(CompVidRep2[filter,1])){
   lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], col = i, lty = 3)
 }
 lines(x = 1:1800, y = ima.control.CVR2, lty = 1, col = 1)
+abline(h = 0.5, lty = 2)
 
 # CompVidRep3
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
@@ -990,6 +992,7 @@ for(i in 1:length(CompVidRep3[filter,1])){
         col = i, lty = 3)
 }#(ima.CompVidRep2[filter[i],2]+1)
 lines(x = 1:1800, y = ima.CVR3, lty = 1, col = 2)
+abline(h = 0.5, lty = 2)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
      ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
@@ -999,6 +1002,7 @@ for(i in 1:length(CompVidRep3[filter,1])){
   lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], col = i, lty = 3)
 }
 lines(x = 1:1800, y = ima.control.CVR3, lty = 1, col = 1)
+abline(h = 0.5, lty = 2)
 
 # CompVidRep4
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
@@ -1010,6 +1014,7 @@ for(i in 1:length(CompVidRep4[filter,1])){
         col = i, lty = 3)
 }#(ima.CompVidRep2[filter[i],2]+1)
 lines(x = 1:1800, y = ima.CVR4, lty = 1, col = 2)
+abline(h = 0.5, lty = 2)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
      ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
@@ -1019,7 +1024,7 @@ for(i in 1:length(CompVidRep4[filter,1])){
   lines(x = 1:1800, y = ima.CVR4[filter[i], 3:1802], col = i, lty = 3)
 }
 lines(x = 1:1800, y = ima.control.CVR4, lty = 1, col = 1)
-
+abline(h = 0.5, lty = 2)
 
 #dev.off()
 
