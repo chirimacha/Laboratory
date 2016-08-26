@@ -925,7 +925,8 @@ ClockSpeed <-function(df){
 }
 
   insects <- unique(CompVidRep3$insect.id)
-  my.df <- data.frame(matrix(nrow = length(insects), ncol = (max(CompVidRep3$frame)+1)))
+  my.df <- data.frame(matrix(nrow = length(insects), 
+                             ncol = (max(CompVidRep3$frame)+1)))
   my.df[,1] <- unique(CompVidRep3$insect.id)
   insects <- unique(CompVidRep3$insect.id)
   for(i in 1){
@@ -939,13 +940,43 @@ ClockSpeed <-function(df){
       p.pf <- which(CompVidRep3$frame == pfrmn)
       cf <- intersect(p.cf, ins)
       pf <- intersect(p.pf, ins)
-      my.df[i,f+1]<-sqrt((CompVidRep3$x[cf]-CompVidRep3$x[pf])^2+(CompVidRep3$y[cf]-CompVidRep3$y[pf])^2)/(frmn-pfrmn)
+      my.df[i,f+1]<-sqrt((CompVidRep3$x[cf]-CompVidRep3$x[pf])^2 + 
+                        (CompVidRep3$y[cf]-CompVidRep3$y[pf])^2)/(frmn-pfrmn)
     }
   }
 
 csCVR2<-ClockSpeed(CompVidRep2)
 csCVR3<-ClockSpeed(CompVidRep3)
 csCVR4<-ClockSpeed(CompVidRep4)
+
+#insect average speed
+InsectAvSpeed <- function(csCVR){
+  csCVR$AvSpeed <- csCVR4[,3]*0
+  a <- apply(csCVR[,3:1801], 1:2, as.numeric)
+  means<- function(x){mean(x, na.rm = TRUE)}
+  b  <- apply(a, 1, means)
+  csCVR$AvSpeed <- b
+  return(csCVR)
+}
+
+csCVR2 <- InsectAvSpeed(csCVR2)
+csCVR3 <- InsectAvSpeed(csCVR3)
+csCVR4 <- InsectAvSpeed(csCVR4)
+
+exposed2 <- which(csCVR2[,2] == 1)
+exposed3 <- which(csCVR3[,2] == 1)
+exposed4 <- which(csCVR4[,2] == 1)
+control2 <- which(csCVR2[,2] == 0)
+control3 <- which(csCVR3[,2] == 0)
+control4 <- which(csCVR4[,2] == 0)
+
+ExAS2 <- mean(csCVR2$AvSpeed[exposed2])
+ExAS3 <- mean(csCVR3$AvSpeed[exposed3])
+ExAS4 <- mean(csCVR4$AvSpeed[exposed4])
+CoAS2 <- mean(csCVR2$AvSpeed[control2])
+CoAS3 <- mean(csCVR3$AvSpeed[control3])
+CoAS4 <- mean(csCVR4$AvSpeed[control4])
+
 
 ###############################################################################
 #### Average Speed within Bins ####
@@ -1026,7 +1057,7 @@ for(i in 1:length(CompVidRep2[filter,1])){
   lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], 
         col = i, lty = 3)
 }#(ima.CompVidRep2[filter[i],2]+1)
-lines(x = 1:1800, y = ima.CVR2, lty = 1, col = 2)
+lines(x = 1:1800, y = ma.CompVidRep2, lty = 1, col = 2)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
      ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
@@ -1035,7 +1066,7 @@ filter <- which(ima.CVR2[,2] == 0)
 for(i in 1:length(CompVidRep2[filter,1])){
   lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], col = i, lty = 3)
 }
-lines(x = 1:1800, y = ima.control.CVR2, lty = 1, col = 1)
+lines(x = 1:1800, y = ma.control.CompVidRep2, lty = 1, col = 1)
 
 # CompVidRep3
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
@@ -1046,7 +1077,7 @@ for(i in 1:length(CompVidRep3[filter,1])){
   lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], 
         col = i, lty = 3)
 }#(ima.CompVidRep2[filter[i],2]+1)
-lines(x = 1:1800, y = ima.CVR3, lty = 1, col = 2)
+lines(x = 1:1800, y = ma.CompVidRep3, lty = 1, col = 2)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
      ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
@@ -1055,7 +1086,7 @@ filter <- which(ima.CVR3[,2] == 0)
 for(i in 1:length(CompVidRep3[filter,1])){
   lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], col = i, lty = 3)
 }
-lines(x = 1:1800, y = ima.control.CVR3, lty = 1, col = 1)
+lines(x = 1:1800, y = ma.control.CompVidRep3, lty = 1, col = 1)
 
 # CompVidRep4
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
@@ -1066,7 +1097,7 @@ for(i in 1:length(CompVidRep4[filter,1])){
   lines(x = 1:1800, y = ima.CVR4[filter[i], 3:1802], 
         col = i, lty = 3)
 }#(ima.CompVidRep2[filter[i],2]+1)
-lines(x = 1:1800, y = ima.CVR4, lty = 1, col = 2)
+lines(x = 1:1800, y = ma.CompVidRep4, lty = 1, col = 2)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
      ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
@@ -1075,45 +1106,56 @@ filter <- which(ima.CVR4[,2] == 0)
 for(i in 1:length(CompVidRep4[filter,1])){
   lines(x = 1:1800, y = ima.CVR4[filter[i], 3:1802], col = i, lty = 3)
 }
-lines(x = 1:1800, y = ima.control.CVR4, lty = 1, col = 1)
-
+lines(x = 1:1800, y = ma.control.CompVidRep4, lty = 1, col = 1)
 
 #dev.off()
 
 ###############################Ind. Speed Graph################################
-filter <- which(csTest[,2] == 1)
-ConFilt <- which(csTest[,2] == 0)
-
-MeanSpeedPest <- csTest[1,]
-MeanSpeedCont <- csTest[1,]
-MeanSpeedPest[1] <- "MeanSpeedPest"
-MeanSpeedCont[1] <- "MeanSpeedCont"
-MeanSpeedPest[2] <- 1
-MeanSpeedCont[2] <- 0
-for(i in 3:1801){
-  MeanSpeedPest[i] <- mean(csTest[filter, i], na.rm = T)
-  MeanSpeedPest[i] <- mean(csTest[ConFilt, i], na.rm = T)
-}
-
-#pdf("InstSpeed_3weeks")
-plot(x = c(1, 1800), y = c(0, 40), type = "n", 
-     main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
+PlotSpeed <- function(csTest, num){
+  filter <- which(csTest[,2] == 1)
+  ConFilt <- which(csTest[,2] == 0)
+  MeanSpeedPest <- csTest[1,]
+  MeanSpeedCont <- csTest[1,]
+  MeanSpeedPest[1] <- "MeanSpeedPest"
+  MeanSpeedCont[1] <- "MeanSpeedCont"
+  MeanSpeedPest[2] <- 1
+  MeanSpeedCont[2] <- 0
+  for(i in 3:1801){
+    MeanSpeedPest[i] <- mean(csTest[filter, i], na.rm = T)
+    MeanSpeedCont[i] <- mean(csTest[ConFilt, i], na.rm = T)
+  }
+  if(num == 1){ 
+    d <- "day"
+  } else {d <- "days"}
+  mn.tile.t <- paste("Exposed insects", num, d, "after initial painting")
+  mn.tile.c <- paste("Control insects", num, d, "days after initial painting")
+  #pdf("InstSpeed_3weeks")
+  plot(x = c(1, 1800), y = c(0, 40), type = "n", 
+     main = mn.tile.t, ylab = "Speed (pixels/sec)",
      xlab = "Frame (sec)")
-for(i in 1:length(filter)){
-  lines(x = 2:1800, y = csTest[ filter[i], 3:1801], 
-        col = alpha(i, 0.5), lty = 3)
+  for(i in 1:length(filter)){
+    lines(x = 2:1800, y = csTest[ filter[i], 3:1801], 
+          col = alpha(i, 0.5), lty = 3)
+  }
+  lines(x = 2:1800, y = MeanSpeedPest[3:1801], 
+       col = 1, lty = 1)
+  plot(x = c(1, 1800), y = c(0, 40), type = "n", 
+       main = mn.tile.c, ylab = "Speed (pixels/sec)",
+       xlab = "Frame (sec)")
+  for(i in 1:length(ConFilt)){
+    lines(x = 2:1800, y = csTest[ ConFilt[i], 3:1801], 
+          col = alpha(i, 0.5), lty = 3)
+  }
+  lines(x = 2:1800, y = MeanSpeedCont[3:1801], 
+        col = 1, lty = 1)
+  #dev.off()
 }
-lines(x = 2:1800, y = MeanSpeedPest[3:1801], 
-      col = 1, lty = 1)
 
-plot(x = c(1, 1800), y = c(0, 40), type = "n", 
-     main = "Instantaneous Speed of Controls", ylab = "Speed (pixels/sec)",
-     xlab = "Frame (sec)")
-filter <- which(csTest[,2] == 0)
-for(i in 1:length(filter)){
-  lines(x = 2:1800, y = csTest[ filter[i], 3:1801], 
-        col = alpha(i, 0.5), lty = 3)
-}
-lines(x = 2:1800, y = MeanSpeedCont[3:1801], 
-      col = 1, lty = 1)
+#pdf(file = "SpeedPlots.pdf")
+par(mfrow = c(3,2))
+PlotSpeed(csCVR4, 1)
+PlotSpeed(csCVR2, 90)
+PlotSpeed(csCVR3, 180)
+mtext(paste("Speed of Insects Between Each Frame", sep=" "), side = 3, line = -1.5, 
+      outer = TRUE, cex = 1.2)
 #dev.off()
