@@ -977,7 +977,6 @@ CoAS2 <- mean(csCVR2$AvSpeed[control2])
 CoAS3 <- mean(csCVR3$AvSpeed[control3])
 CoAS4 <- mean(csCVR4$AvSpeed[control4])
 
-
 ###############################################################################
 #### Average Speed within Bins ####
 

@@ -125,7 +125,11 @@ treatmentsum$paint <- factor(treatmentsum$paint, levels = c("CO","5A","CF"))
 #Plot proportion alive
 par(mfrow = c(1,1)) #4 across 3 
 plot(y = treatmentsum$prop.alive, x = treatmentsum$day, 
-     pch = treatmentsum$pch, col = treatmentsum$paint, type = "n")
+     pch = treatmentsum$pch, col = treatmentsum$paint, type = "n",
+     xaxt = 'n') 
+udays <- c( 0, 1, 2, 7, 14, 21, 28)
+axis(2, at =((1:9) / 10), labels = as.character(1:9 / 10))
+axis(1, at = udays, labels = udays)
 for(i in 1:length(treatments)){
   tr <- which(treatmentsum$treatment == treatments[i])
   temp <- treatmentsum[tr,]
@@ -139,15 +143,14 @@ for(i in 1:length(treatments)){
 
 ###################################An Array####################################
 #Plot Prop Proportion living (alive+knockdown)
-pdf("Bioassay_Graphs_Array.pdf")
 treatmentsum$exp.time <- revalue(treatmentsum$exp.time, c("01H" = "1", 
                                                           "03H" = "3", 
                                                           "06H" = "6",
                                                           "24H" = "24"))
+pdf("Bioassay_Graphs_Array.pdf")
 dap <- unique(treatmentsum$days.after.paint)
 dap <- dap[order(dap)]
 ext <- unique(treatmentsum$exp.time)
-
 par(mfrow = c(3,4)) #4 across 3 
 for(k in 1:length(dap)){
   tsdap <- which(treatmentsum$days.after.paint == dap[k])
@@ -156,9 +159,14 @@ for(k in 1:length(dap)){
     tsde <- intersect(tsdap, tsext)  
     plot(y = treatmentsum$prop.alive, x = treatmentsum$day, 
          pch = treatmentsum$pch, col = treatmentsum$paint,
-         type = "n", main = paste("J =", ext[j], "days:", "K =", dap[k], 
-                                  "hrs", sep = " "), 
-         ylab = "Proportion Alive", xlab = "Days Since Exposure")
+         type = "n", main = as.character(paste("J =", ext[j], "hrs:", "K =", dap[k], 
+                                  "days", sep = " ")), 
+         ylab = "Proportion Alive", xlab = "Days Since Exposure", 
+         xaxt = 'n', yaxt = 'n')
+    udays <- c( 0, 7, 14, 21, 28)
+    axis( 2, at = c(0:5 / 5), las = 2,
+          labels = as.character(c(0:5 / 5)))
+    axis( 1, at = udays, labels = udays)
     treatments.tmp <- unique(treatmentsum$treatment[tsde])
     for(i in 1:length(treatments.tmp)){
       tr <- which(treatmentsum$treatment == treatments.tmp[i])
@@ -170,13 +178,14 @@ for(k in 1:length(dap)){
     }
   }
 }
+
 mtext(paste("Proportion of live bugs after 'J' hours of exposure and after",
             "'K' days since painting", sep=" "), side = 3, line = -1.5, 
       outer = TRUE, cex = 1.2)
 dev.off()
 
 #Create table with Proportion alive for each treatment at each day
-cdf<- cast(treatmentsum, treatment ~ day, value = "prop.alive")
+cdf <- cast(treatmentsum, treatment ~ day, value = "prop.alive")
 
 ###Plot each proption by day
 SummaryData<- summaryBy(DataMelt, alive ~ treatment, fun.aggregate = mean)
