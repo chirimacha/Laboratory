@@ -6,7 +6,8 @@
 ###============================================================================
 ##Install and load necessary packages
 #Install packages
-#install.packages(c("reshape","survival","tables", "doBy", "ggplot2", "plyr"))
+#install.packages(c("reshape","survival","tables", "doBy", "ggplot2", "plyr",
+#                "stargazer"))
 
 #load packages
 library(reshape) #Used to change data between short and long formats.
@@ -15,6 +16,7 @@ library(tables)
 library(doBy)#use summaryBy function
 library(ggplot2)
 library(plyr)
+library(stargazer)
 
 ##set up the working directory
 #PC for Dylan
@@ -99,12 +101,12 @@ treatmentsum$prop.kd <- treatmentsum$knockdown / treatmentsum$total
 treatmentsum$prop.uv <- treatmentsum$unviable / treatmentsum$total
 treatmentsum$prop.liv <- treatmentsum$living / treatmentsum$total
 
-dia <- which(treatmentsum$days.after.paint == 1)
-tresmes <- which(treatmentsum$days.after.paint == 90)
-seismes <- which(treatmentsum$days.after.paint == 180)
+dia <- which(treatmentsum$paint == "5A")
+tresmes <- which(treatmentsum$paint == "CO")
+seismes <- which(treatmentsum$paint == "CF")
 
 treatmentsum$pch <- treatmentsum$prop.alive * 0
-treatmentsum$pch[dia] <- 18
+treatmentsum$pch[dia] <- 15
 treatmentsum$pch[tresmes] <- 20 
 treatmentsum$pch[seismes] <- 17
 
@@ -147,20 +149,25 @@ treatmentsum$exp.time <- revalue(treatmentsum$exp.time, c("01H" = "1",
                                                           "03H" = "3", 
                                                           "06H" = "6",
                                                           "24H" = "24"))
-pdf("Bioassay_Graphs_Array.pdf")
+#pdf("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array.pdf", width = 6, 
+#    height = 9)
+jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array.jpeg", width = 6, 
+     height = 9, units = "in", res = 300)
 dap <- unique(treatmentsum$days.after.paint)
 dap <- dap[order(dap)]
 ext <- unique(treatmentsum$exp.time)
-par(mfrow = c(3,4)) #4 across 3 
-for(k in 1:length(dap)){
-  tsdap <- which(treatmentsum$days.after.paint == dap[k])
-  for(j in 1:length(ext)){
-    tsext <- which(treatmentsum$exp.time == ext[j])
+par(mfrow = c(4,3), oma = c(1,1,2.5,1)) #4 across 3 
+for(k in 1:length(ext)){
+  tsdap <- which(treatmentsum$exp.time == ext[k])
+  for(j in 1:length(dap)){
+    tsext <- which(treatmentsum$days.after.paint == dap[j])
     tsde <- intersect(tsdap, tsext)  
+    d <- "days"
+    if(dap[j] == 1){d <- "day"}
     plot(y = treatmentsum$prop.alive, x = treatmentsum$day, 
          pch = treatmentsum$pch, col = treatmentsum$paint,
-         type = "n", main = as.character(paste("J =", ext[j], "hrs:", "K =", dap[k], 
-                                  "days", sep = " ")), 
+         type = "n", main = as.character(paste("J =", ext[k], "hrs:", "K =", dap[j], 
+                                  d, sep = " ")), 
          ylab = "Proportion Alive", xlab = "Days Since Exposure", 
          xaxt = 'n', yaxt = 'n')
     udays <- c( 0, 7, 14, 21, 28)
@@ -171,23 +178,35 @@ for(k in 1:length(dap)){
     for(i in 1:length(treatments.tmp)){
       tr <- which(treatmentsum$treatment == treatments.tmp[i])
       temp <- treatmentsum[tr,]
-      points(y = temp$prop.liv, x = temp$day, pch = 20,
+      points(y = temp$prop.liv, x = temp$day, pch = temp$pch[1],
              col = temp$paint[1])
-      lines(y = temp$prop.liv, x = temp$day, pch = 20, 
+      lines(y = temp$prop.liv, x = temp$day, pch = temp$pch[1], 
             col = temp$paint[1])      
     }
   }
 }
 
-mtext(paste("Proportion of live bugs after 'J' hours of exposure and after",
-            "'K' days since painting", sep=" "), side = 3, line = -1.5, 
-      outer = TRUE, cex = 1.2)
+mtext("Proportion of live bugs after 'J' hours of exposure and", side = 3, 
+      line = 1, outer = TRUE, cex = 1.2)
+mtext("after 'K' days since painting", side = 3, line = -0.5, outer = TRUE, 
+      cex = 1.2)
+
 dev.off()
+
+#write.csv(treatmentsum, "DATA/treatmentsum.csv")
+stargazer(treatmentsum, summary = FALSE)
 
 #Create table with Proportion alive for each treatment at each day
 cdf <- cast(treatmentsum, treatment ~ day, value = "prop.alive")
+cdf$"2" <- NULL
+thirteen<- which(is.na(cdf$"13") == FALSE)
+cdf$"14"[thirteen] <- cdf$"13"[thirteen]
+cdf$"13" <- NULL
+cdf$"0" <- NULL
+names(cdf) <- c("Treatment","1 day","1 week", "2 weeks", "3 weeks", "4 weeks")
+missing<- which(is.na(cdf$"4 weeks") == TRUE)
+cdf$"4 weeks"[missing] <- "No Data"
 
-###Plot each proption by day
-SummaryData<- summaryBy(DataMelt, alive ~ treatment, fun.aggregate = mean)
-dcast(DataMelt, living~ day + ,)
+stargazer(cdf, summary = FALSE, type = "html", 
+          out = "TABLES_GRAPHS/Bioassay_Table.html" )
 

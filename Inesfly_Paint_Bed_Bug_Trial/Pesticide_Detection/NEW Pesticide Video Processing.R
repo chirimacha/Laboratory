@@ -984,130 +984,194 @@ CoAS4 <- mean(csCVR4$AvSpeed[control4])
 ############################## Plotting Averages ##############################
 ###CompVidRep2 (3 weeks post painting)
 #Instantaneous proportion of bugs on pesticide 
-#pdf("InstPropCvT_3Weeks.pdf")
-plot(x = c(0,1800), y = c(0.3,0.6), type ="n", col = 0, xlab = "Time(sec)",
-     ylab = "Proportion of Bugs on Pesticide Quadrants",
-     main = "Instantaneous Proportion of Bugs on Pesticide Over Time: 3 Weeks")
+pdf("TABLES_GRAPHS/PropBugTreatmentPerSec.pdf", height = 9, width= 3)
+#jpeg("TABLES_GRAPHS/PropBugTreatmentPerSec.jpeg", height = 9, width= 3, 
+#     units = "in", res = 300)
+par(mfrow = c(3, 1), oma = c(1,1,2,1))
+plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, xlab = "Time (seconds)",
+     ylab = "Proportion of Bugs", main = "1 Day", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+points(x = 1:1800, y = af.CompVidRep4, pch = 20, col = "red")
+points(x = 1:1800, y = af.control.CompVidRep4, pch = 20)
+abline(h = 0.5, lty = 2)
+
+
+plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, xlab = "Time (seconds)",
+     ylab = "Proportion of Bugs", main = "3 Weeks", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
 points(x = 1:1800, y = af.CompVidRep2, pch = 20, col = "red")
 points(x = 1:1800, y = af.control.CompVidRep2, pch = 20)
 abline(h = 0.5, lty = 2)
 #dev.off()
 
-#Running Average
-#pdf("RunAvgComp_3Weeks.pdf")
-plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
-     ylab = "Average Proportion of Bugs on Pesticide Quadrants",
-     main = "Running Average Proportion of Bugs on Pesticide: 3 Weeks")
-points(x = 1:1800, y = ma.CompVidRep2, pch = 20, col = "red")
-points(x = 1:1800, y = ma.control.CompVidRep2, pch = 20)
-abline(h = 0.5, lty = 2)
-#dev.off()
-
 ### CompVidRep3 (12 weeks post painting)
 #Instantaneous proportion
-ttl <- c("Instantaneous Proportion of Bugs on Pesticide Over Time: 12 Weeks")
+ttl <- c("12 Weeks")
 #pdf("InstPropCvT_12Weeks.pdf")
-plot(x = c(0,1800), y = c(0.3,0.6), type ="n", col = 0, xlab = "Time(sec)",
-     ylab = "Proportion of Bugs on Pesticide Quadrants",
-     main = ttl)
+plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, xlab = "Time (seconds)",
+     ylab = "Proportion of Bugs", main = ttl, xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
 points(x = 1:1800, y = af.CompVidRep3, pch = 20, col = "red")
 points(x = 1:1800, y = af.control.CompVidRep3, pch = 20)
 abline(h = 0.5, lty = 2)
-#dev.off()
 
-#Running Average
-#pdf("RunAvgComp_12Weeks.pdf")
-plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
-     ylab = "Average Proportion of Bugs on Pesticide Quadrants",
-     main = "Running Average Proportion of Bugs on Pesticide: 12 Weeks")
-points(x = 1:1800, y = ma.CompVidRep3, pch = 20, col = "red")
-points(x = 1:1800, y = ma.control.CompVidRep3, pch = 20)
-abline(h = 0.5, lty = 2)
-#dev.off()
+mtext("Proportion of Bugs on Treatment", side = 3, 
+      line = 0.3, outer = TRUE, cex = 1)
+mtext("Quadrants Every Second", side = 3, 
+      line = -1, outer = TRUE, cex = 1)
 
-### CompVidRep4 (1 day post painting)
-#Instantaneous proportion
-#pdf("InstPropCvT_1Day.pdf")
-plot(x = c(0,1800), y = c(0.3,0.6), type ="n", col = 0, xlab = "Time(sec)",
-     ylab = "Proportion of Bugs on Pesticide Quadrants",
-     main = "Instantaneous Proportion of Bugs on Pesticide Over Time: 1 Day")
-points(x = 1:1800, y = af.CompVidRep4, pch = 20, col = "red")
-points(x = 1:1800, y = af.control.CompVidRep4, pch = 20)
-abline(h = 0.5, lty = 2)
+dev.off()
 
-#Running Average
-#pdf("RunAvgComp_1Day.pdf")
-plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
-     ylab = "Average Proportion of Bugs on Pesticide Quadrants",
-     main = "Running Average Proportion of Bugs on Pesticide: 1 Day")
-points(x = 1:1800, y = ma.CompVidRep4, pch = 20, col = "red")
-points(x = 1:1800, y = ma.control.CompVidRep4, pch = 20)
-abline(h = 0.5, lty = 2)
-#dev.off()
+
+# #Running Average
+# #pdf("RunAvgComp_3Weeks.pdf")
+# plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
+#      ylab = "Average Proportion of Bugs on Pesticide Quadrants",
+#      main = "Running Average Proportion of Bugs on Pesticide: 3 Weeks")
+# points(x = 1:1800, y = ma.CompVidRep2, pch = 20, col = "red")
+# points(x = 1:1800, y = ma.control.CompVidRep2, pch = 20)
+# abline(h = 0.5, lty = 2)
+# #dev.off()
+# 
+# ### CompVidRep3 (12 weeks post painting)
+# #Instantaneous proportion
+# ttl <- c("Instantaneous Proportion of Bugs on Pesticide Over Time: 12 Weeks")
+# #pdf("InstPropCvT_12Weeks.pdf")
+# plot(x = c(0,1800), y = c(0, 1), type ="n", col = 0, xlab = "Time(sec)",
+#      ylab = "Proportion of Bugs on Pesticide Quadrants",
+#      main = ttl)
+# points(x = 1:1800, y = af.CompVidRep3, pch = 20, col = "red")
+# points(x = 1:1800, y = af.control.CompVidRep3, pch = 20)
+# abline(h = 0.5, lty = 2)
+# #dev.off()
+# 
+# #Running Average
+# #pdf("RunAvgComp_12Weeks.pdf")
+# plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
+#      ylab = "Average Proportion of Bugs on Pesticide Quadrants",
+#      main = "Running Average Proportion of Bugs on Pesticide: 12 Weeks")
+# points(x = 1:1800, y = ma.CompVidRep3, pch = 20, col = "red")
+# points(x = 1:1800, y = ma.control.CompVidRep3, pch = 20)
+# abline(h = 0.5, lty = 2)
+# #dev.off()
+# 
+# ### CompVidRep4 (1 day post painting)
+# #Instantaneous proportion
+# #pdf("InstPropCvT_1Day.pdf")
+# plot(x = c(0,1800), y = c(0.3,0.6), type ="n", col = 0, xlab = "Time(sec)",
+#      ylab = "Proportion of Bugs on Pesticide Quadrants",
+#      main = "Instantaneous Proportion of Bugs on Pesticide Over Time: 1 Day")
+# points(x = 1:1800, y = af.CompVidRep4, pch = 20, col = "red")
+# points(x = 1:1800, y = af.control.CompVidRep4, pch = 20)
+# abline(h = 0.5, lty = 2)
+# 
+# #Running Average
+# #pdf("RunAvgComp_1Day.pdf")
+# plot(x = c(0,1800), y = c(0,1), type ="n", col = 0, xlab = "Time(sec)",
+#      ylab = "Average Proportion of Bugs on Pesticide Quadrants",
+#      main = "Running Average Proportion of Bugs on Pesticide: 1 Day")
+# points(x = 1:1800, y = ma.CompVidRep4, pch = 20, col = "red")
+# points(x = 1:1800, y = ma.control.CompVidRep4, pch = 20)
+# abline(h = 0.5, lty = 2)
+# #dev.off()
 
 #######################Plot Individual Running Averages########################
-#pdf("IndRrunning_avg.pdf")
-# CompVidRep2
-plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
-     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
-     main = "CVR2: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Treatment)")
-filter <- which(ima.CVR2[,2] == 1)
-for(i in 1:length(CompVidRep2[filter,1])){
-  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], 
-        col = i, lty = 3)
-}#(ima.CompVidRep2[filter[i],2]+1)
-lines(x = 1:1800, y = ma.CompVidRep2, lty = 1, col = 2)
+#pdf("IndRrunning_avg.pdf", height = 9, width = 6)
+jpeg("IndRrunning_avg.jpeg", height = 9, width = 12, res = 300)
 
-plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
-     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
-     main = "CVR2: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Control)")
-filter <- which(ima.CVR2[,2] == 0)
-for(i in 1:length(CompVidRep2[filter,1])){
-  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], col = i, lty = 3)
-}
-lines(x = 1:1800, y = ma.control.CompVidRep2, lty = 1, col = 1)
-
-# CompVidRep3
-plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
-     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
-     main = "CVR3: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Treatment)")
-filter <- which(ima.CVR3[,2] == 1)
-for(i in 1:length(CompVidRep3[filter,1])){
-  lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], 
-        col = i, lty = 3)
-}#(ima.CompVidRep2[filter[i],2]+1)
-lines(x = 1:1800, y = ma.CompVidRep3, lty = 1, col = 2)
-
-plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
-     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
-     main = "CVR3: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Control)")
-filter <- which(ima.CVR3[,2] == 0)
-for(i in 1:length(CompVidRep3[filter,1])){
-  lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], col = i, lty = 3)
-}
-lines(x = 1:1800, y = ma.control.CompVidRep3, lty = 1, col = 1)
+par(mfrow = c(3, 2), oma = c(1,1,1,1))
 
 # CompVidRep4
-plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
-     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
-     main = "CVR4: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Treatment)")
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time",
+     main = "1 Day Exposed", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
 filter <- which(ima.CVR4[,2] == 1)
 for(i in 1:length(CompVidRep4[filter,1])){
   lines(x = 1:1800, y = ima.CVR4[filter[i], 3:1802], 
         col = i, lty = 3)
 }#(ima.CompVidRep2[filter[i],2]+1)
-lines(x = 1:1800, y = ma.CompVidRep4, lty = 1, col = 2)
+lines(x = 1:1800, y = ma.CompVidRep4, lty = 1, lwd = 1.5, col = 1)
 
-plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time(sec)",
-     ylab = "Avg. Prop. of Bugs on Pesticide Quadrants",
-     main = "CVR4: Avg. Prop. of bugs on Pesticide Quadrants (Indiv.) (Control)")
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time",
+     main = "1 Day Control", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
 filter <- which(ima.CVR4[,2] == 0)
 for(i in 1:length(CompVidRep4[filter,1])){
   lines(x = 1:1800, y = ima.CVR4[filter[i], 3:1802], col = i, lty = 3)
 }
-lines(x = 1:1800, y = ma.control.CompVidRep4, lty = 1, col = 1)
+lines(x = 1:1800, y = ma.control.CompVidRep4, lty = 1, lwd = 1.5, col = 1)
 
-#dev.off()
+# CompVidRep2
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time",
+     main = "3 Weeks Exposed", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR2[,2] == 1)
+for(i in 1:length(CompVidRep2[filter,1])){
+  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], 
+        col = i, lty = 3)
+}#(ima.CompVidRep2[filter[i],2]+1)
+lines(x = 1:1800, y = ma.CompVidRep2, lty = 1, lwd = 1.5, col = 1)
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time",
+     main = "3 Weeks Controls", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR2[,2] == 0)
+for(i in 1:length(CompVidRep2[filter,1])){
+  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], col = i, lty = 3)
+}
+lines(x = 1:1800, y = ma.control.CompVidRep2, lty = 1, lwd = 1.5, col = 1)
+
+# CompVidRep3
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time",
+     main = "12 Weeks Exposed", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR3[,2] == 1)
+for(i in 1:length(CompVidRep3[filter,1])){
+  lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], 
+        col = i, lty = 3)
+}#(ima.CompVidRep2[filter[i],2]+1)
+lines(x = 1:1800, y = ma.CompVidRep3, lty = 1, lwd = 1.5, col = 1)
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time",
+     main = "12 Weeks Control")
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR3[,2] == 0)
+for(i in 1:length(CompVidRep3[filter,1])){
+  lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], col = i, lty = 3)
+}
+lines(x = 1:1800, y = ma.control.CompVidRep3, lty = 1, lwd = 1.5, col = 1)
+
+
+mtext("Running Average of Proportion of Time that Individual ", side = 3, 
+      line = 0.3, outer = TRUE, cex = 1)
+mtext("Insects Spent on Treatment Quadrants", side = 3, 
+      line = -1, outer = TRUE, cex = 1)
+
+dev.off()
 
 ###############################Ind. Speed Graph################################
 PlotSpeed <- function(csTest, num){
