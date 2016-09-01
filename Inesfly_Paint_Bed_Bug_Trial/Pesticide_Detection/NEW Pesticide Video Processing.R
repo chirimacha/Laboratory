@@ -984,9 +984,9 @@ CoAS4 <- mean(csCVR4$AvSpeed[control4])
 ############################## Plotting Averages ##############################
 ###CompVidRep2 (3 weeks post painting)
 #Instantaneous proportion of bugs on pesticide 
-pdf("TABLES_GRAPHS/PropBugTreatmentPerSec.pdf", height = 9, width= 3)
-#jpeg("TABLES_GRAPHS/PropBugTreatmentPerSec.jpeg", height = 9, width= 3, 
-#     units = "in", res = 300)
+#pdf("TABLES_GRAPHS/PropBugTreatmentPerSec.pdf", height = 9, width= 3)
+jpeg("TABLES_GRAPHS/PropBugTreatmentPerSec.jpeg", height = 9, width= 3, 
+     units = "in", res = 800)
 par(mfrow = c(3, 1), oma = c(1,1,2,1))
 plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, xlab = "Time (seconds)",
      ylab = "Proportion of Bugs", main = "1 Day", xaxt = 'n', yaxt = 'n')
@@ -1027,7 +1027,6 @@ mtext("Quadrants Every Second", side = 3,
       line = -1, outer = TRUE, cex = 1)
 
 dev.off()
-
 
 # #Running Average
 # #pdf("RunAvgComp_3Weeks.pdf")
@@ -1082,14 +1081,20 @@ dev.off()
 # #dev.off()
 
 #######################Plot Individual Running Averages########################
-#pdf("IndRrunning_avg.pdf", height = 9, width = 6)
-jpeg("IndRrunning_avg.jpeg", height = 9, width = 12, res = 300)
+#pdf("TABLES_GRAPHS/IndRrunning_avg.pdf", height = 9, width = 6)
+jpeg("TABLES_GRAPHS/IndRrunning_avg.jpeg", height = 9, width = 6, res = 300, 
+     units = "in")
 
-par(mfrow = c(3, 2), oma = c(1,1,1,1))
+par(mfrow = c(3, 2), oma = c(1,1,2,1))
 
 # CompVidRep4
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time",
+     ylab = "Proppar(mfrow = c(3,2))
+PlotSpeed(csCVR4, 1)
+PlotSpeed(csCVR2, 90)
+PlotSpeed(csCVR3, 180)
+mtext(paste("Speed of Insects Between Each Frame", sep=" "), side = 3, line = -1.5, 
+      outer = TRUE, cex = 1.2)ortion of Time",
      main = "1 Day Exposed", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
@@ -1129,7 +1134,7 @@ lines(x = 1:1800, y = ma.CompVidRep2, lty = 1, lwd = 1.5, col = 1)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
      ylab = "Proportion of Time",
-     main = "3 Weeks Controls", xaxt = 'n', yaxt = 'n')
+     main = "3 Weeks Control", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -1155,7 +1160,7 @@ lines(x = 1:1800, y = ma.CompVidRep3, lty = 1, lwd = 1.5, col = 1)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
      ylab = "Proportion of Time",
-     main = "12 Weeks Control")
+     main = "12 Weeks Control", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -1167,9 +1172,9 @@ lines(x = 1:1800, y = ma.control.CompVidRep3, lty = 1, lwd = 1.5, col = 1)
 
 
 mtext("Running Average of Proportion of Time that Individual ", side = 3, 
-      line = 0.3, outer = TRUE, cex = 1)
+      line = 0.3, outer = TRUE, cex = 1.2)
 mtext("Insects Spent on Treatment Quadrants", side = 3, 
-      line = -1, outer = TRUE, cex = 1)
+      line = -1.2, outer = TRUE, cex = 1.2)
 
 dev.off()
 
@@ -1188,14 +1193,17 @@ PlotSpeed <- function(csTest, num){
     MeanSpeedCont[i] <- mean(csTest[ConFilt, i], na.rm = T)
   }
   if(num == 1){ 
-    d <- "day"
-  } else {d <- "days"}
-  mn.tile.t <- paste("Exposed insects", num, d, "after initial painting")
-  mn.tile.c <- paste("Control insects", num, d, "days after initial painting")
+    d <- "Day -"
+  } else {d <- "Weeks -"}
+  mn.tile.t <- paste(num, d, "Exposed")
+  mn.tile.c <- paste(num, d, "Control")
   #pdf("InstSpeed_3weeks")
   plot(x = c(1, 1800), y = c(0, 40), type = "n", 
      main = mn.tile.t, ylab = "Speed (pixels/sec)",
-     xlab = "Frame (sec)")
+     xlab = "Time (seconds)", xaxt = 'n', yaxt = 'n')
+  axis( 2, at = c(0:4 * 10), las = 2,
+        labels = as.character(c(0:4 * 10)))
+  axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
   for(i in 1:length(filter)){
     lines(x = 2:1800, y = csTest[ filter[i], 3:1801], 
           col = alpha(i, 0.5), lty = 3)
@@ -1204,21 +1212,26 @@ PlotSpeed <- function(csTest, num){
        col = 1, lty = 1)
   plot(x = c(1, 1800), y = c(0, 40), type = "n", 
        main = mn.tile.c, ylab = "Speed (pixels/sec)",
-       xlab = "Frame (sec)")
-  for(i in 1:length(ConFilt)){
-    lines(x = 2:1800, y = csTest[ ConFilt[i], 3:1801], 
-          col = alpha(i, 0.5), lty = 3)
+       xlab = "Time (seconds)", xaxt = 'n', yaxt = 'n')
+  axis( 2, at = c(0:4 * 10), las = 2,
+       labels = as.character(c(0:4 * 10)))
+  axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+    for(i in 1:length(ConFilt)){
+        lines(x = 2:1800, y = csTest[ ConFilt[i], 3:1801], 
+              col = alpha(i, 0.5), lty = 3)
   }
   lines(x = 2:1800, y = MeanSpeedCont[3:1801], 
         col = 1, lty = 1)
-  #dev.off()
 }
 
 #pdf(file = "SpeedPlots.pdf")
-par(mfrow = c(3,2))
+#pdf("TABLES_GRAPHS/SpeedPlots.pdf", height = 9, width = 6)
+jpeg("TABLES_GRAPHS/SpeedPlots.jpeg", height = 9, width = 6, res = 300, 
+     units = "in")
+par(mfrow = c(3,2), oma = c(1,1,2,1))
 PlotSpeed(csCVR4, 1)
-PlotSpeed(csCVR2, 90)
-PlotSpeed(csCVR3, 180)
-mtext(paste("Speed of Insects Between Each Frame", sep=" "), side = 3, line = -1.5, 
-      outer = TRUE, cex = 1.2)
-#dev.off()
+PlotSpeed(csCVR2, 3)
+PlotSpeed(csCVR3, 12)
+mtext(paste("Speed of Insects Between Each Observation", sep = " "), side = 3, line = 0, 
+            outer = TRUE, cex = 1.2)
+dev.off()
