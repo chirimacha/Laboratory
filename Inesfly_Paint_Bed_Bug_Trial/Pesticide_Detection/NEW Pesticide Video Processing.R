@@ -62,7 +62,12 @@ camera <- 2
 TrayPlace <- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
 
 #Bring in Videos
-for (i in 4:4) { 
+#videos are outside of GitHub due to space constraints.
+#set wd to video location
+vid.fold <- c("/Users/mzlevy/Desktop/Videos")
+setwd(vid.fold)
+#bring in videos
+for (i in 2:4) { 
   for (j in 1:6) {
     for (k in 1:2) {
       temp_name1 <- paste("vidR", i, "T", j, "C", k, sep = "")
@@ -71,7 +76,7 @@ for (i in 4:4) {
     }
   }
 }
-
+setwd(wd)
 
 #if using PC, run this loop instead of the one below
 for (i in 2:repetition) { 
@@ -515,7 +520,7 @@ CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
                      DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
 ###########
 ###Temp Read.csv
-#CompVidRep2 <- read.csv("CompVidRep2.csv")
+CompVidRep2 <- read.csv("CompVidRep2.csv")
 CompVidRep3 <- read.csv("CompVidRep3.csv")
 CompVidRep4 <- read.csv("CompVidRep4.csv")
 
@@ -756,6 +761,52 @@ resultMat <- function(CompVidRep) {
 # CompVidRep4 <- read.csv("CompVidRep4.csv")
 
 ###############################################################################
+################################ Plottting #################################### 
+####Tracks
+###Create functions that plot 
+#where d.frm is the compiled video data, lower is the lowest frame of interest
+#and upper is the highest frame of interest (0 - 500 for example)
+trackplot <- function(d.frm, lower, upper){
+  ##first need to plot corresponding frames for tracking
+  #to do,need to get rep, trial, and camera.
+  rep.v <- d.frm$rep[1]
+  staticFrame <- 1800
+  for (j in 1:trial) {
+    trial.v<- which(d.frm$trial == j)
+    for(k in 1:camera){
+      temp_name <- paste("End.FR", rep.v, "T", j, "C", k, sep = "")
+      vid_name <- paste("vidR", rep.v, "T", j, "C", k, sep = "")
+      assign(temp_name, getFrame(get(vid_name), staticFrame))
+      imshow(get(temp_name))
+      #pdf("example.pdf")
+      cam.v <- which(d.frm$camera == k)
+      up.lim <- which(d.frm$frame <= upper)
+      low.lim <- which(d.frm$frame >= lower)
+      limits <- intersect(up.lim, low.lim)
+      src <- intersect(trial.v, cam.v)
+      relv <- intersect(src, limits)
+      points(d.frm$x[relv], d.frm$y[relv],  
+             col = alpha(topo.colors(n=(upper-lower))[d.frm$frame[relv]],0.2))
+      #Now need to indicate which quadrants have pesticide
+      
+    #dev.off()
+    }
+  }
+}
+trackplot(CompVidRep2, 1, 50)
+  insect.num <- unique(d.frm$insect.id)
+  id.table <- cbind(1:length(insect.num), insect.num)
+  for(i in 1: length(insect.num)){
+      focal.i <- which(d.frm$insect.id == id.table$insect.num[i])
+      #now we have the insect
+  }
+  
+}
+
+##Last 5 Minutes
+
+
+
 ################################ Averageing ###################################
 ###Function to create plot for instantanious proportion on pesticide
 #Treatment
