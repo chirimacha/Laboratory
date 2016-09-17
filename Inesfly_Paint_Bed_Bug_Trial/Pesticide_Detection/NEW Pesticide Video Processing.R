@@ -770,14 +770,13 @@ trackplot <- function(d.frm, lower, upper){
   ##first need to plot corresponding frames for tracking
   #to do,need to get rep, trial, and camera.
   rep.v <- d.frm$rep[1]
-  staticFrame <- 1800
   for (j in 1:trial) {
     trial.v<- which(d.frm$trial == j)
     for(k in 1:camera){
       temp_name <- paste("End.FR", rep.v, "T", j, "C", k, sep = "")
       vid_name <- paste("vidR", rep.v, "T", j, "C", k, sep = "")
       Ctname<-paste("CoTbR", rep.v, "T", j, "C", k, sep = "")
-      assign(temp_name, getFrame(get(vid_name), staticFrame))
+      assign(temp_name, getFrame(get(vid_name), upper))
       imshow(get(temp_name))
       #pdf("example.pdf")
       cam.v <- which(d.frm$camera == k)
