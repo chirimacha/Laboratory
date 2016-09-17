@@ -776,6 +776,7 @@ trackplot <- function(d.frm, lower, upper){
     for(k in 1:camera){
       temp_name <- paste("End.FR", rep.v, "T", j, "C", k, sep = "")
       vid_name <- paste("vidR", rep.v, "T", j, "C", k, sep = "")
+      Ctname<-paste("CoTbR", rep.v, "T", j, "C", k, sep = "")
       assign(temp_name, getFrame(get(vid_name), staticFrame))
       imshow(get(temp_name))
       #pdf("example.pdf")
@@ -785,8 +786,12 @@ trackplot <- function(d.frm, lower, upper){
       limits <- intersect(up.lim, low.lim)
       src <- intersect(trial.v, cam.v)
       relv <- intersect(src, limits)
-      points(d.frm$x[relv], d.frm$y[relv],  
-             col = alpha(topo.colors(n=(upper-lower))[d.frm$frame[relv]],0.2))
+      points(d.frm$x[relv], d.frm$y[relv], pch = 20,
+             col = alpha(topo.colors(n=(upper-lower))[d.frm$frame[relv]], 0.2))
+      #scale for color gradient
+      points(x = ( (1:(upper-lower)/3)+175), y = (rep(((get(Ctname)$TPY[1])+10),
+                                                      times = (upper-lower))), 
+             col = alpha(topo.colors(n=(upper-lower)),0.2), pch = 20)
       #Now need to indicate which quadrants have pesticide
       
     #dev.off()
