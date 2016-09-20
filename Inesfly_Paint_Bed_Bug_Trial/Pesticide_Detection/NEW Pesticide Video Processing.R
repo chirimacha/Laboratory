@@ -770,8 +770,11 @@ trackplot <- function(d.frm, lower, upper){
   ##first need to plot corresponding frames for tracking
   #to do,need to get rep, trial, and camera.
   rep.v <- d.frm$rep[1]
+  rep.tp<- which(TrayPlace$Repetition == rep.v)
   for (j in 1:trial) {
     trial.v<- which(d.frm$trial == j)
+    trial.tp<- which(TrayPlace$Trial == j)
+    video.tp<- intersect(rep.tp, trial.tp)
     for(k in 1:camera){
       temp_name <- paste("End.FR", rep.v, "T", j, "C", k, sep = "")
       vid_name <- paste("vidR", rep.v, "T", j, "C", k, sep = "")
@@ -792,11 +795,42 @@ trackplot <- function(d.frm, lower, upper){
                                                       times = (upper-lower))), 
              col = alpha(topo.colors(n=(upper-lower)),0.2), pch = 20)
       #Now need to indicate which quadrants have pesticide
+      for(i in 1:6){
+        position.tp <- which(TrayPlace$Position == (i+(k-1)))
+        tray.ct <-which(get(Ctname)$Tray == i)
+        id.tp <- intersect(position.tp, video.tp)
+        if(TrayPlace$DishID[id.tp] <= 6){
+          if(TrayPlace$Orientation[id.tp] == 1){
+            points(x = (get(Ctname)$RPX[tray.ct])/2, 
+                   y = (get(Ctname)$TPY[tray.ct])/2,
+                   pch = "*")
+            points(x = (get(Ctname)$LPX[tray.ct])/2, 
+                   y = (get(Ctname)$BPY[tray.ct])/2,
+                   pch = "*")
+          }
+          if(TrayPlace$Orientation == 3){
+            points(x = (get(Ctname)$RPX[tray.ct])/2, 
+                   y = (get(Ctname)$TPY[tray.ct])/2,
+                   pch = "*", col = "red", ware)
+            points(x = (get(Ctname)$LPX[tray.ct])/2, 
+                   y = (get(Ctname)$BPY[tray.ct])/2,
+                   pch = "*")
+          }
+          else{points(x = (get(Ctname)$RPX[tray.ct])/2, 
+                      y = (get(Ctname)$BPY[tray.ct])/2,
+                      pch = "*")
+               points(x = (get(Ctname)$LPX[tray.ct])/2, 
+                      y = (get(Ctname)$TPY[tray.ct])/2,
+                      pch = "*")
+          }
+        }
+      }
       
     #dev.off()
     }
   }
 }
+
 trackplot(CompVidRep2, 1, 50)
   insect.num <- unique(d.frm$insect.id)
   id.table <- cbind(1:length(insect.num), insect.num)
