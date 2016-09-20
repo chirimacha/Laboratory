@@ -799,29 +799,39 @@ trackplot <- function(d.frm, lower, upper){
         position.tp <- which(TrayPlace$Position == (i+(k-1)))
         tray.ct <-which(get(Ctname)$Tray == i)
         id.tp <- intersect(position.tp, video.tp)
+        off <- 100
         if(TrayPlace$DishID[id.tp] <= 6){
           if(TrayPlace$Orientation[id.tp] == 1){
-            points(x = (get(Ctname)$RPX[tray.ct])/2, 
-                   y = (get(Ctname)$TPY[tray.ct])/2,
-                   pch = "*")
-            points(x = (get(Ctname)$LPX[tray.ct])/2, 
-                   y = (get(Ctname)$BPY[tray.ct])/2,
-                   pch = "*")
+            points(x = (get(Ctname)$RPX[tray.ct]) - off, 
+                   y = (get(Ctname)$TPY[tray.ct]) - off,
+                   pch = "*", col = "red")
+            points(x = (get(Ctname)$LPX[tray.ct]) + off, 
+                   y = (get(Ctname)$BPY[tray.ct]) + off,
+                   pch = "*", col = "red")
           }
-          if(TrayPlace$Orientation == 3){
-            points(x = (get(Ctname)$RPX[tray.ct])/2, 
-                   y = (get(Ctname)$TPY[tray.ct])/2,
-                   pch = "*", col = "red", ware)
-            points(x = (get(Ctname)$LPX[tray.ct])/2, 
-                   y = (get(Ctname)$BPY[tray.ct])/2,
-                   pch = "*")
+          if(TrayPlace$Orientation[id.tp] == 3){
+            points(x = (get(Ctname)$RPX[tray.ct]) - off, 
+                   y = (get(Ctname)$TPY[tray.ct]) - off,
+                   pch = "*", col = "red")
+            points(x = (get(Ctname)$LPX[tray.ct]) + off, 
+                   y = (get(Ctname)$BPY[tray.ct]) + off,
+                   pch = "*", col = "red")
           }
-          else{points(x = (get(Ctname)$RPX[tray.ct])/2, 
-                      y = (get(Ctname)$BPY[tray.ct])/2,
-                      pch = "*")
-               points(x = (get(Ctname)$LPX[tray.ct])/2, 
-                      y = (get(Ctname)$TPY[tray.ct])/2,
-                      pch = "*")
+          if(TrayPlace$Orientation[id.tp] == 2){
+            points(x = (get(Ctname)$RPX[tray.ct]) - off, 
+                      y = (get(Ctname)$BPY[tray.ct]) + off,
+                      pch = "*", col = "red")
+            points(x = (get(Ctname)$LPX[tray.ct]) + off, 
+                      y = (get(Ctname)$TPY[tray.ct]) - off,
+                      pch = "*", col = "red")
+          }
+          if(TrayPlace$Orientation[id.tp] == 4){
+            points(x = (get(Ctname)$RPX[tray.ct]) - off, 
+                   y = (get(Ctname)$BPY[tray.ct]) + off,
+                   pch = "*", col = "red")
+            points(x = (get(Ctname)$LPX[tray.ct]) + off, 
+                   y = (get(Ctname)$TPY[tray.ct]) - off,
+                   pch = "*", col = "red")
           }
         }
       }
@@ -831,7 +841,32 @@ trackplot <- function(d.frm, lower, upper){
   }
 }
 
-trackplot(CompVidRep2, 1, 50)
+#Run Function on First 5 min.
+pdf("TrackPlots/firstfive/TrackPlotR2")
+trackplot(CompVidRep2, 1, 300)
+dev.off()
+pdf("TrackPlots/firstfive/TrackPlotR3")
+trackplot(CompVidRep3, 1, 300)
+dev.off()
+pdf("TrackPlots/firstfive/TrackPlotR4")
+trackplot(CompVidRep4, 1, 300)
+dev.off()
+
+#Run Function on Last 5 min
+pdf("TrackPlots/lastfive/TrackPlotR2")
+trackplot(CompVidRep2, 1500, 1800)
+dev.off()
+pdf("TrackPlots/lastfive/TrackPlotR3")
+trackplot(CompVidRep3, 1500, 1800) #error says requested frame does not exist
+dev.off()
+pdf("TrackPlots/lastfive/TrackPlotR4")
+trackplot(CompVidRep4, 1500, 1800)
+dev.off()
+
+
+
+
+
   insect.num <- unique(d.frm$insect.id)
   id.table <- cbind(1:length(insect.num), insect.num)
   for(i in 1: length(insect.num)){
