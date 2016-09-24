@@ -771,27 +771,30 @@ trackplot <- function(d.frm, lower, upper){
   #to do,need to get rep, trial, and camera.
   rep.v <- d.frm$rep[1]
   rep.tp<- which(TrayPlace$Repetition == rep.v)
+  up.lim <- which(d.frm$frame <= upper)
+  low.lim <- which(d.frm$frame >= lower)
+  limits <- intersect(up.lim, low.lim)
   for (j in 1:trial) {
     trial.v<- which(d.frm$trial == j)
-    trial.tp<- which(TrayPlace$Trial == j)
-    video.tp<- intersect(rep.tp, trial.tp)
+    trial.tp <- which(TrayPlace$Trial == j)
+    video.tp <- intersect(rep.tp, trial.tp)
     for(k in 1:camera){
       temp_name <- paste("End.FR", rep.v, "T", j, "C", k, sep = "")
       vid_name <- paste("vidR", rep.v, "T", j, "C", k, sep = "")
       Ctname<-paste("CoTbR", rep.v, "T", j, "C", k, sep = "")
-      assign(temp_name, getFrame(get(vid_name), upper))
+      if(get(vid_name)$length < upper){
+        uppers <- get(vid_name)$length 
+      } else {uppers <- upper}
+      assign(temp_name, getFrame(get(vid_name), uppers))
       imshow(get(temp_name))
       #pdf("example.pdf")
       cam.v <- which(d.frm$camera == k)
-      up.lim <- which(d.frm$frame <= upper)
-      low.lim <- which(d.frm$frame >= lower)
-      limits <- intersect(up.lim, low.lim)
       src <- intersect(trial.v, cam.v)
       relv <- intersect(src, limits)
       points(d.frm$x[relv], d.frm$y[relv], pch = 20,
-             col = alpha(topo.colors(n=(upper-lower))[d.frm$frame[relv]], 0.2))
+             col = alpha(topo.colors(n=(upper-lower))[d.frm$frame[relv]-lower], 0.2))
       #scale for color gradient
-      points(x = ( (1:(upper-lower)/3)+175), y = (rep(((get(Ctname)$TPY[1])+10),
+      points(x = ( (1:(upper-lower)/3)+175), y = (rep(((get(Ctname)$TPY[1])+40),
                                                       times = (upper-lower))), 
              col = alpha(topo.colors(n=(upper-lower)),0.2), pch = 20)
       #Now need to indicate which quadrants have pesticide
@@ -842,24 +845,25 @@ trackplot <- function(d.frm, lower, upper){
 }
 
 #Run Function on First 5 min.
-pdf("TrackPlots/firstfive/TrackPlotR2")
+pdf("TrackPlots/firstfive/TrackPlotR2_fst")
 trackplot(CompVidRep2, 1, 300)
 dev.off()
-pdf("TrackPlots/firstfive/TrackPlotR3")
+pdf("TrackPlots/firstfive/TrackPlotR3_fst")
 trackplot(CompVidRep3, 1, 300)
 dev.off()
-pdf("TrackPlots/firstfive/TrackPlotR4")
+pdf("TrackPlots/firstfive/TrackPlotR4_fst")
 trackplot(CompVidRep4, 1, 300)
 dev.off()
 
 #Run Function on Last 5 min
-pdf("TrackPlots/lastfive/TrackPlotR2")
+pdf("TrackPlots/lastfive/TrackPlotR2_lfm")
 trackplot(CompVidRep2, 1500, 1800)
 dev.off()
-pdf("TrackPlots/lastfive/TrackPlotR3")
+pdf("TrackPlots/lastfive/TrackPlotR3_lfm")
 trackplot(CompVidRep3, 1500, 1800) #error says requested frame does not exist
 dev.off()
-pdf("TrackPlots/lastfive/TrackPlotR4")
+
+pdf("TrackPlots/lastfive/TrackPlotR4_lfm")
 trackplot(CompVidRep4, 1500, 1800)
 dev.off()
 
