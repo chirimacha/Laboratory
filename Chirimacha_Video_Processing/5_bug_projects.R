@@ -28,6 +28,7 @@ library(grid)
 library(tictoc)
 library(compiler)
 library(splancs)
+library(trackR)
 
 ## Simple Tracker
 pdiff <- function(a, b) {
@@ -172,25 +173,23 @@ tracks[1:pos, ]
 
 ##########################
 # Set Working Directory
-setwd("/Users/Justin/Desktop")
+setwd("/Users/Justin/Desktop/one_hour_video")
 # Bring in videos
 # Files are too large for Github - mp4 and avi can be found on Google Drive
 # https://drive.google.com/open?id=0BymPutRx4sc2Yjh3YXJXVXV6QzA
 
-###Reset the working directory
-setwd("/Users/Justin/Desktop/Levy_Research/Laboratory/Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection")
-
 ##########################
 # Create the background; serves as comparison or "bugless" control
-bg <- backgrounder(fifteenChiri, n=150, method="median", color= TRUE)
+bg <- backgrounder(test_two, n=150, method="median", color= FALSE)
 
 # Mask creation (must switch out video name)
+# Run imshow(getFrame(vid, 20)
 # Run "poly <- getpoly(quiet=FALSE)"
-maskCreation <- function(videoname) {
-poly.list <- vector('list', 854)
-for (i in 1:854) {
-  x <- rep(i, 480)
-  pts <- cbind(x, 480:1)
+maskCreation <- function(videoname, width, height) {
+poly.list <- vector('list', width)
+for (i in 1:width) {
+  x <- rep(i, height)
+  pts <- cbind(x, height:1)
   output <- inout(pts, poly, bound=NULL, quiet=TRUE)
   poly.list[[i]] <- output
 }
@@ -201,7 +200,7 @@ comb.output[false.vector] <- 0
 comb.output[true.vector] <- 1
 mask <- d2ddd(r2img(comb.output))
 imshow(blend(getFrame(videoname, 20), mask, "*"))
-# Make sure this is correct mask
+return(mask)
 }
 white.mat <- matrix(1, nrow = 480, ncol = 854)
 white.img <- r2img(white.mat)
@@ -229,3 +228,51 @@ showSingleLine <- function(video, tracksDF, num.track) {
     lines(x = c(tracksDF$x[insect]), y = c(tracksDF$y[insect]), col = i) 
   }
 }
+
+showUpToLines <- function(video, tracksDF, highTrack, frame) {
+  plot.new()
+  imshow(getFrame(video, frame))
+  for (i in 1:highTrack){
+    insect <- which(tracksDF$track == i)
+    x_insect = c(tracksDF$x[insect])
+    y_insect = c(tracksDF$y[insect])
+    lines(x = x_insect[1:frame], y = y_insect[1:frame], col = i) 
+  }
+}
+
+showUpToSingleLine <- function(video, tracksDF, num.track, frame) {
+  plot.new()
+  imshow(getFrame(video, frame))
+  for (i in num.track:num.track){
+    insect <- which(tracksDF$track == i) #maybe try to look within a frame
+    x_insect = c(tracksDF$x[insect])
+    y_insect = c(tracksDF$y[insect])
+    
+    # Note that below, the frame here is an approximation, as it is only
+    # the first, for example, 10,000 indices for x_insect, as with
+    # the video it shows the actual 10,000th frame
+    
+    # This is evident in: showUpToSingleLine(test_two, tracks, 1, 16851)
+    # with a print statement:
+    # print(length(x_insect))
+    print(length(x_insect))
+    lines(x = x_insect[1:frame], y = y_insect[1:frame], col = i) 
+  }
+}
+
+# Stitching
+testing2_tracksdup$track[testing2_tracksdup$track == 6] <- 1
+
+testing2_tracksdup$track[testing2_tracksdup$track == 11] <- 2
+
+testing2_tracksdup$track[testing2_tracksdup$track == 7] <- 4
+testing2_tracksdup$track[testing2_tracksdup$track == 8] <- 4
+testing2_tracksdup$track[testing2_tracksdup$track == 9] <- 4
+
+testing2_tracksdup$track[testing2_tracksdup$track == 10] <- 5
+testing2_tracksdup$track[testing2_tracksdup$track == 12] <- 5
+
+# Stitching second part
+testing_secondpart2tracks$track[testing_secondpart2tracks$track == 7] <- 2
+testing_secondpart2tracks$track[testing_secondpart2tracks$track == 8] <- 4
+
