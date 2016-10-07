@@ -6,23 +6,23 @@
 ###============================================================================
 ##Install and load necessary packages
 #Install packages
-#install.packages(c("reshape","survival","tables", "doBy", "ggplot2", "plyr",
-#                "stargazer"))
+#install.packages( c("reshape","survival","tables", "doBy", "ggplot2", "plyr",
+#                "stargazer" ))
 
 #load packages
 library(reshape) #Used to change data between short and long formats.
 library(survival) #for cox proportional hazaard
 library(tables)
-library(doBy)#use summaryBy function
+library(doBy) #use summaryBy function
 library(ggplot2)
 library(plyr)
 library(stargazer)
 
 ##set up the working directory
 #PC for Dylan
-#setwd("C:/Users/tradylan/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+setwd("C:/Users/dtracy198/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 #MAC for office
-setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 
 ###############################################################################
 ###bring in data
@@ -186,29 +186,31 @@ for(k in 1:length(ext)){
   }
 }
 
+#title
 mtext("Proportion of Alive Bugs", side = 3, line = 0, outer = TRUE, cex = 1.2)
-
-mtext("1 Day After Painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.18)
-mtext("90 days after painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.50)
-mtext("180 days after painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.84)
-mtext("Exposed 1 Hour", side = 2, line = -0.2, outer = T, at = 0.938, adj = 1, cex = 0.8)
-mtext("Exposed 3 Hours", side = 2, line = -0.2, outer =T, at = 0.69, adj = 1, cex = 0.8)
-mtext("Exposed 6 Hours", side = 2, line = -0.2, outer = T, at = 0.4392, adj = 1, cex = 0.8)
-mtext("Exposed 24 Hours", side = 2, line = -0.2, outer = T, at = 0.198, adj = 1, cex = 0.8)
-
-dev.off()
+#Top Headings
+mtext("1 Day After Painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.18) 
+mtext("90 days after painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.50) 
+mtext("180 days after painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.84) 
+#side headings
+mtext("Exposed 1 Hour", side = 2, line = -0.2, outer = T, at = 0.938, adj = 1, cex = 0.8) 
+mtext("Exposed 3 Hours", side = 2, line = -0.2, outer =T, at = 0.69, adj = 1, cex = 0.8) 
+mtext("Exposed 6 Hours", side = 2, line = -0.2, outer = T, at = 0.4392, adj = 1, cex = 0.8) 
+mtext("Exposed 24 Hours", side = 2, line = -0.2, outer = T, at = 0.198, adj = 1, cex = 0.8) 
+#turn off pdf or jpeg
+dev.off() 
 
 
 #same graph but flipped.
 
 #write.csv(treatmentsum, "DATA/treatmentsum.csv")
-stargazer(treatmentsum, summary = FALSE)
+stargazer(treatmentsum, summary = FALSE) 
 
 #Create table with Proportion alive for each treatment at each day
-cdf <- cast(treatmentsum, treatment ~ day, value = "prop.alive")
-cdf$"2" <- NULL
-thirteen<- which(is.na(cdf$"13") == FALSE)
-cdf$"14"[thirteen] <- cdf$"13"[thirteen]
+cdf <- cast(treatmentsum, treatment ~ day, value = "prop.alive") 
+cdf$"2" <- NULL 
+thirteen<- which(is.na(cdf$"13") == FALSE) 
+cdf$"14"[thirteen] <- cdf$"13"[thirteen] 
 cdf$"13" <- NULL
 cdf$"0" <- NULL
 names(cdf) <- c("Treatment","1 day","1 week", "2 weeks", "3 weeks", "4 weeks")
@@ -218,3 +220,60 @@ cdf$"4 weeks"[missing] <- "No Data"
 stargazer(cdf, summary = FALSE, type = "html", 
           out = "TABLES_GRAPHS/Bioassay_Table.html" )
 
+###############################################################################
+### To compare curves we need to do a log-rank test, which in R requiress us to
+##transform data into a Survival Object
+##This requires us to have a time (start of interval), time2(end of interval),
+## as well as the event we care about,ie, death. 
+
+#put status and interval together so they can be used in same function
+
+DataMelt$UID <- paste(DataMelt$INSECT, DataMelt$days.after.paint, sep="-")
+UID<-unique(DataMelt$UID)
+SurvTab<-data.frame(UID)
+
+fillTime <- function(UIDs){
+  indexs <- which(DataMelt$UID == UIDs)  
+  subtab <- DataMelt[indexs,]
+  if(sum(subtab$dead) < 1){
+    output<- max(subtab$day)
+  }
+  else{
+    deaths <- which(subtab$dead==1)
+    output<- min(subtab$day[deaths])
+  }
+ return(output) 
+}
+# 
+# fillTimeTwo <- function(UIDs){
+#   indexs <- which(DataMelt$UID == UIDs)  
+#   subtab <- DataMelt[indexs,]
+#   if(sum(subtab$dead) < 1){
+#     output<- max(subtab$day)
+#   }
+#   else{
+#     deaths <- which(subtab$dead==1)
+#     output<- min(subtab$day[deaths])
+#   }
+#   return(output) 
+# }
+
+fillStat <- function(UIDs){
+  indexs <- which(DataMelt$UID == UIDs)  
+  subtab <- DataMelt[indexs,]
+  if(sum(subtab$dead) < 1){
+    output <- 0
+  }
+  else{
+    output <- 1
+  }
+  return(output) 
+}
+
+SurvTab$Status <- sapply(SurvTab$UID, FUN = fillStat)
+SurvTab$Time <- sapply(SurvTab$UID, FUN = fillTime)
+
+#Now we have the data we can make the survival object
+SurvTab$Surv<- Surv(time = SurvTab$Time, event = SurvTab$Status)
+
+#However, now we don't have the data, we need to merge

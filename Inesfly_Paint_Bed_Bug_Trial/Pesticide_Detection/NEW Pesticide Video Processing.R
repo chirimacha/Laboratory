@@ -758,10 +758,9 @@ resultMat <- function(CompVidRep) {
 # write.csv( CompVidRep3, file = "CompVidRep3.csv")
 # write.csv( CompVidRep4, file = "CompVidRep4.csv")
 
-# CompVidRep2 <- read.csv("CompVidRep2.csv")
-# CompVidRep3 <- read.csv("CompVidRep3.csv")
-# CompVidRep4 <- read.csv("CompVidRep4.csv")
-
+CompVidRep2 <- read.csv("CompVidRep2.csv")
+CompVidRep3 <- read.csv("CompVidRep3.csv")
+CompVidRep4 <- read.csv("CompVidRep4.csv")
 ###############################################################################
 ################################ Plottting #################################### 
 ####Tracks
@@ -1212,20 +1211,20 @@ dev.off()
 
 #######################Plot Individual Running Averages########################
 #pdf("TABLES_GRAPHS/IndRrunning_avg.pdf", height = 9, width = 6)
-jpeg("TABLES_GRAPHS/IndRrunning_avg.jpeg", height = 9, width = 6, res = 300, 
-     units = "in")
+#jpeg("TABLES_GRAPHS/IndRrunning_avg.jpeg", height = 9, width = 6, res = 300, 
+#     units = "in")
 
 par(mfrow = c(3, 2), oma = c(1,1,2,1))
 
 # CompVidRep4
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proppar(mfrow = c(3,2))
+     ylab = "Proportion of Time on Pesticide")
 PlotSpeed(csCVR4, 1)
 PlotSpeed(csCVR2, 90)
 PlotSpeed(csCVR3, 180)
-mtext(paste("Speed of Insects Between Each Frame", sep=" "), side = 3, line = -1.5, 
-      outer = TRUE, cex = 1.2)ortion of Time",
-     main = "1 Day Exposed", xaxt = 'n', yaxt = 'n')
+mtext(paste("Speed of Insects Between Each Frame", sep=" "), side = 3, 
+      line = -1.5, outer = TRUE, cex = 1.2,main = "1 Day Exposed", xaxt = 'n', 
+      yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
