@@ -11,15 +11,15 @@
 # devtools::install_github("swarm-lab/videoplayR")
 # 
 # #install Other packages:
-# install.packages("dplyr")
-# install.packages("clue")
-# install.packages("shiny")
-# install.packages("splancs")
-# install.packages("tictoc")
-# install.packages("reshape2")
-# install.packages("vioplot")
-# install.packages("scales")
-# install.packages("tictoc")
+install.packages("dplyr")
+install.packages("clue")
+install.packages("shiny")
+install.packages("splancs")
+install.packages("tictoc")
+install.packages("reshape2")
+install.packages("vioplot")
+install.packages("scales")
+install.packages("tictoc")
 
 # Open Libraries
 library(videoplayR)
@@ -36,14 +36,16 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-# wd <- paste("/Users/dtrac/Documents/GitHub/Laboratory/",
-#             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
-# setwd(wd)
+wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
+setwd(wd)
+
 #setwd("/Users/Justin/Desktop/")
 # Lab computer
-wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-      "Pesticide_Detection", sep = "")
-setwd(wd)
+#wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+#      "Pesticide_Detection", sep = "")
+#setwd(wd)
+
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
 #                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
