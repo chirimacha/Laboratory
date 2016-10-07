@@ -242,7 +242,7 @@ fillTime <- function(UIDs){
     deaths <- which(subtab$dead==1)
     output<- min(subtab$day[deaths])
   }
- return(output) 
+  return(output) 
 }
 # 
 # fillTimeTwo <- function(UIDs){
@@ -276,4 +276,22 @@ SurvTab$Time <- sapply(SurvTab$UID, FUN = fillTime)
 #Now we have the data we can make the survival object
 SurvTab$Surv<- Surv(time = SurvTab$Time, event = SurvTab$Status)
 
-#However, now we don't have the data, we need to merge
+#However, now we don't have the factor level data
+#So find
+initial <- which(DataMelt$day == 1)
+init.data<- DataMelt[initial,]
+
+#Merge Surv data with factor data
+IndTab <- merge(SurvTab, init.data,by = "UID")
+
+###############################################################################
+###Now we can actually start analysis
+
+survdiff(IndTab$Surv ~ IndTab$paint+ IndTab$day)
+
+#but day is IV.
+
+
+survdiff(IndTab$Surv ~ IndTab$paint+ IndTab$day)
+
+
