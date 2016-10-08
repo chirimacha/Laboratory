@@ -21,7 +21,7 @@ library(stargazer)
 ##set up the working directory
 #PC for Dylan
 #setwd("C:/Users/tradylan/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
-#MAC for Mike
+#MAC for office
 setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 
 ###############################################################################
@@ -149,25 +149,25 @@ treatmentsum$exp.time <- revalue(treatmentsum$exp.time, c("01H" = "1",
                                                           "03H" = "3", 
                                                           "06H" = "6",
                                                           "24H" = "24"))
-#pdf("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array.pdf", width = 6, 
-#    height = 9)
-jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array.jpeg", width = 6, 
-     height = 9, units = "in", res = 300)
+pdf("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array.pdf", width = 6, 
+    height = 9)
+#jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array.jpeg", width = 6, 
+#     height = 9, units = "in", res = 300)
 dap <- unique(treatmentsum$days.after.paint)
 dap <- dap[order(dap)]
 ext <- unique(treatmentsum$exp.time)
-par(mfrow = c(4,3), oma = c(1,1,2.5,1)) #4 across 3 
+par(mfrow = c(4,3), oma = c(1,1,2,1)) #4 across 3 
 for(k in 1:length(ext)){
   tsdap <- which(treatmentsum$exp.time == ext[k])
   for(j in 1:length(dap)){
     tsext <- which(treatmentsum$days.after.paint == dap[j])
     tsde <- intersect(tsdap, tsext)  
-    d <- "days"
-    if(dap[j] == 1){d <- "day"}
+    #d <- "days"
+    #if(dap[j] == 1){d <- "day"}
     plot(y = treatmentsum$prop.alive, x = treatmentsum$day, 
          pch = treatmentsum$pch, col = treatmentsum$paint,
-         type = "n", main = as.character(paste("J =", ext[k], "hrs:", "K =", dap[j], 
-                                  d, sep = " ")), 
+         type = "n", #main = as.character(paste("J =", ext[k], "hrs:", "K =", dap[j], 
+                      #            d, sep = " ")), 
          ylab = "Proportion Alive", xlab = "Days Since Exposure", 
          xaxt = 'n', yaxt = 'n')
     udays <- c( 0, 7, 14, 21, 28)
@@ -186,12 +186,20 @@ for(k in 1:length(ext)){
   }
 }
 
-mtext("Proportion of live bugs after 'J' hours of exposure and", side = 3, 
-      line = 1, outer = TRUE, cex = 1.2)
-mtext("after 'K' days since painting", side = 3, line = -0.5, outer = TRUE, 
-      cex = 1.2)
+mtext("Proportion of Alive Bugs", side = 3, line = 0, outer = TRUE, cex = 1.2)
+
+mtext("1 Day After Painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.18)
+mtext("90 days after painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.50)
+mtext("180 days after painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.84)
+mtext("Exposed 1 Hour", side = 2, line = -0.2, outer = T, at = 0.938, adj = 1, cex = 0.8)
+mtext("Exposed 3 Hours", side = 2, line = -0.2, outer =T, at = 0.69, adj = 1, cex = 0.8)
+mtext("Exposed 6 Hours", side = 2, line = -0.2, outer = T, at = 0.4392, adj = 1, cex = 0.8)
+mtext("Exposed 24 Hours", side = 2, line = -0.2, outer = T, at = 0.198, adj = 1, cex = 0.8)
 
 dev.off()
+
+
+#same graph but flipped.
 
 #write.csv(treatmentsum, "DATA/treatmentsum.csv")
 stargazer(treatmentsum, summary = FALSE)
