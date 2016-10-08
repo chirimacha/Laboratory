@@ -244,19 +244,18 @@ fillTime <- function(UIDs){
   }
   return(output) 
 }
-# 
-# fillTimeTwo <- function(UIDs){
-#   indexs <- which(DataMelt$UID == UIDs)  
-#   subtab <- DataMelt[indexs,]
-#   if(sum(subtab$dead) < 1){
-#     output<- max(subtab$day)
-#   }
-#   else{
-#     deaths <- which(subtab$dead==1)
-#     output<- min(subtab$day[deaths])
-#   }
-#   return(output) 
-# }
+
+#Beginging of interval 
+fillTimeTwo <- function(UIDs){
+   indexs <- which(DataMelt$UID == UIDs)  
+   subtab <- DataMelt[indexs,]
+   livs <- which(subtab$dead == 0)
+   if(sum(subtab$dead) == length(subtab$days)){output <- 0}
+   else(
+   if(sum(subtab$dead) < 0){output <- 21}
+   else(output <- max(subtab$day[livs])))
+   return(output) 
+ }
 
 fillStat <- function(UIDs){
   indexs <- which(DataMelt$UID == UIDs)  
@@ -272,9 +271,13 @@ fillStat <- function(UIDs){
 
 SurvTab$Status <- sapply(SurvTab$UID, FUN = fillStat)
 SurvTab$Time <- sapply(SurvTab$UID, FUN = fillTime)
+SurvTab$strTime <- sapply(SurvTab$UID, FUN = fillTimeTwo)
 
+fillTimeTwo
+  
 #Now we have the data we can make the survival object
 SurvTab$Surv<- Surv(time = SurvTab$Time, event = SurvTab$Status)
+SurvTab$Surv2<- Surv(time = SurvTab$strTime, time2 = SurvTab$Time, event = SurvTab$Status)
 
 #However, now we don't have the factor level data
 #So find
@@ -287,11 +290,85 @@ IndTab <- merge(SurvTab, init.data,by = "UID")
 ###############################################################################
 ###Now we can actually start analysis
 
-survdiff(IndTab$Surv ~ IndTab$paint+ IndTab$day)
+survdiff(IndTab$Surv ~ IndTab$paint+ IndTab$days.after.paint +IndTab$exp.time)
 
 #but day is IV.
+#so make indicators for both variables for connections
+don <- which(IndTab$days.after.paint == 1)
+dni <- which(IndTab$days.after.paint == 90)
+doe <- which(IndTab$days.after.paint == 180)
 
+survdiff(IndTab$Surv[don] ~ IndTab$paint[don]+ IndTab$days.after.paint[don]
+         + IndTab$exp.time[don])
+survdiff(IndTab$Surv[dni] ~ IndTab$paint[dni]+ IndTab$days.after.paint[dni]
+         + IndTab$exp.time[dni])
+survdiff(IndTab$Surv[doe] ~ IndTab$paint[doe]+ IndTab$days.after.paint[doe]
+         + IndTab$exp.time[doe])
 
-survdiff(IndTab$Surv ~ IndTab$paint+ IndTab$day)
+###Our study isn't appropriately powered for the above analysis.
+##It should be powered to compare the curves between
+#5A and Control at each time point.
+#so create paint indicators
+ifa <- which(IndTab$paint == "5A")
+ico <- which(IndTab$paint == "CO")
+icf <- which(IndTab$paint == "CF")
 
+#create exposure time indicators
+oneh <- which(IndTab$exp.time == "01H")
+thrh <- which(IndTab$exp.time == "03H")
+sixh <- which(IndTab$exp.time == "06H")
+tweh <- which(IndTab$exp.time == "24H")
+
+##join indicators as appropriate
+#5A and Controls for comp
+ifc <- union(ifa, ico)
+icc <- union(icf, ico)
+
+#intersect paint and exposure
+fcon <- intersect(ifc, oneh)
+fcth <- intersect(ifc, thrh)
+fcsi <- intersect(ifc, sixh)
+fctw <- intersect(ifc, tweh)
+cctw <- intersect(icc, tweh)
+
+#interset above with days since paint.
+onfcon <- intersect(fcon, don)
+onfcth <- intersect(fcth, don)
+onfcsi <- intersect(fcsi, don)
+onfctw <- intersect(fctw, don)
+oncctw <- intersect(cctw, don)
+
+nifcon <- intersect(fcon, dni)
+nifcth <- intersect(fcth, dni)
+nifcsi <- intersect(fcsi, dni)
+nifctw <- intersect(fctw, dni)
+nicctw <- intersect(cctw, dni)
+
+oefcon <- intersect(fcon, doe)
+oefcth <- intersect(fcth, doe)
+oefcsi <- intersect(fcsi, doe)
+oefctw <- intersect(fctw, doe)
+oecctw <- intersect(cctw, doe)
+
+#I need to look into how to compare for 24hrs, 5A an Cf to con 
+#w/o comparing to each other.
+survdiff(IndTab$Surv[onfcon] ~ IndTab$paint[onfcon], rho = 1)
+survdiff(IndTab$Surv[onfcon] ~ IndTab$paint[onfcon], rho = 0)
+
+survdiff(IndTab$Surv[onfcth] ~ IndTab$paint[onfcth])
+survdiff(IndTab$Surv[onfcsi] ~ IndTab$paint[onfcsi])
+survdiff(IndTab$Surv[onfctw] ~ IndTab$paint[onfctw])
+survdiff(IndTab$Surv[oncctw] ~ IndTab$paint[oncctw])
+
+survdiff(IndTab$Surv[nifcon] ~ IndTab$paint[nifcon])
+survdiff(IndTab$Surv[nifcth] ~ IndTab$paint[nifcth])
+survdiff(IndTab$Surv[nifcsi] ~ IndTab$paint[nifcsi])
+survdiff(IndTab$Surv[nifctw] ~ IndTab$paint[nifctw])
+survdiff(IndTab$Surv[nicctw] ~ IndTab$paint[nicctw])
+
+survdiff(IndTab$Surv[oefcon] ~ IndTab$paint[oefcon])
+survdiff(IndTab$Surv[oefcth] ~ IndTab$paint[oefcth])
+survdiff(IndTab$Surv[oefcsi] ~ IndTab$paint[oefcsi])
+survdiff(IndTab$Surv[oefctw] ~ IndTab$paint[oefctw])
+survdiff(IndTab$Surv[oecctw] ~ IndTab$paint[oecctw])
 
