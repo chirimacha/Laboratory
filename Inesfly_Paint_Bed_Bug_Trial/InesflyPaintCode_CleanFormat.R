@@ -18,9 +18,9 @@ library(ggplot2)
 #Surface for Dylan
 #("C:/Users/tradylan/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 #Envy for Dylan
-#setwd("C:/Users/dtrac/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+setwd("C:/Users/dtracy198/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 #MAC for Mike
-setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 
 ###############################################################################
 ###bring in data
@@ -53,6 +53,35 @@ TEMPHUM<- read.csv("DATA/TempHumData.csv")
 ###Put data set names into a vector so they can be looped through
 datasets <- c("D1FSA","D1FSB", "D90FSA", "D90FSB", "D180FSA", "D180FSB")
 
+###investigate duplicate rows
+#found 06H-CO-4-04 error during analysis
+#error was a label issue
+D1FSA$INSECT <- as.character(D1FSA$INSECT)
+D1FSB$INSECT <- as.character(D1FSB$INSECT)
+
+D1FSA$INSECT[276] <-"06H-CO-4-04"
+D1FSB$INSECT[276] <-"06H-CO-4-04"
+
+D1FSA$INSECT <- as.factor(D1FSA$INSECT)
+D1FSB$INSECT <- as.factor(D1FSB$INSECT)
+
+#Check for duplicates
+CheckDupInsect<- function(raw.data){
+  insects <- unique(raw.data$INSECT)
+  dup <- 1:length(insects)*0
+  dup.insects <- data.frame(insects, dup)
+  for(i in 1:length(insects)){
+    indexes <- which(raw.data$INSECT == insects[i])
+    dup.insects$dup[i] <- length(indexes)
+  }
+  dups <- which(dup.insects$dup > 1)
+  output <- dup.insects[dups,]
+  output
+}
+
+CheckDupInsect(D1FSA)
+CheckDupInsect(D90FSA)
+CheckDupInsect(D180FSA)
 
 ###dimensions
 #remove any unused rows
@@ -606,7 +635,6 @@ D90FSA$X.2015.12.10[resurect2.2] <- "K"
 D90FSA$X.2015.12.16[resurect3.2] <- "K"
 D90FSA$X.2015.12.22[resurect4.2] <- "K"
 D90FSA$X.2015.12.30[resurect5.2] <- "K"
-D90FSA$X.2016.01.06[resurect6.2] <- "K"
 
 #180 Days
 dead1.3 <- which(D180FSA$X.2016.03.09 == "D")

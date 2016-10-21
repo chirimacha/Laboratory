@@ -276,8 +276,7 @@ fillTimeTwo <- function(UIDs){
    livs <- which(subtab$dead == 0)
    n <- length(subtab$day)
    if(sum(subtab$dead) <  n ) {
-     output <- max(subtab$day[livs])}
-     #<- sort(subtab$day, decreasing = FALSE)[length(livs)-1]}
+     output <- sort(subtab$day, decreasing = FALSE)[length(livs)-1]}
    if(sum(subtab$dead) == n){output <- 0}
    if(sum(subtab$dead) == 0){output <- sort(subtab$day, decreasing = FALSE)[n-1]}
    return(output) 
@@ -318,12 +317,23 @@ thirdtest <- function(UIDs){
   output <- length(indexs)
 }
 
+fourtest <- function(UIDs){
+  indexs <- which(rMelt$UID == UIDs)  
+  subtab <- rMelt[indexs,]
+  livs <- which(subtab$dead == 0)
+  n <- length(subtab$day)
+  output <- paste(n, length(livs), sep = "-")
+}
+
 SurvTab$Status <- sapply(SurvTab$UID, FUN = fillStat)
-SurvTab$Time <- sapply(SurvTab$UID, FUN = fillTime)
-SurvTab$strTime <- sapply(SurvTab$UID, FUN = fillTimeTwo)
+SurvTab$Time <- as.numeric(sapply(SurvTab$UID, FUN = fillTime))
+SurvTab$strTime <-sapply(SurvTab$UID, FUN = fillTimeTwo)
+
 SurvTab$Test1 <- sapply(SurvTab$UID, FUN = fillTime.test)
 SurvTab$Test2 <- sapply(SurvTab$UID, FUN = fillTimeTwo.test)
 SurvTab$Test3 <- sapply(SurvTab$UID, FUN = thirdtest)
+SurvTab$Test4 <- sapply(SurvTab$UID, FUN = fourtest)
+
 #Now we have the data we can make the survival object
 SurvTab$Surv <- Surv(time = SurvTab$Time, event = SurvTab$Status)
 SurvTab$Surv2 <- Surv(time = SurvTab$strTime, time2 = SurvTab$Time, 
