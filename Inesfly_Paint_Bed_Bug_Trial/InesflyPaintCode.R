@@ -149,8 +149,8 @@ treatmentsum$exp.time <- revalue(treatmentsum$exp.time, c("01H" = "1",
                                                           "03H" = "3", 
                                                           "06H" = "6",
                                                           "24H" = "24"))
-pdf("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array.pdf", width = 6, 
-    height = 9)
+#pdf("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array.pdf", width = 6, 
+#    height = 9)
 #jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array.jpeg", width = 6, 
 #     height = 9, units = "in", res = 300)
 dap <- unique(treatmentsum$days.after.paint)
@@ -198,13 +198,13 @@ mtext("Exposed 3 Hours", side = 2, line = -0.2, outer =T, at = 0.69, adj = 1, ce
 mtext("Exposed 6 Hours", side = 2, line = -0.2, outer = T, at = 0.4392, adj = 1, cex = 0.8) 
 mtext("Exposed 24 Hours", side = 2, line = -0.2, outer = T, at = 0.198, adj = 1, cex = 0.8) 
 #turn off pdf or jpeg
-dev.off() 
+#dev.off() 
 
 
 #same graph but flipped.
 
 #write.csv(treatmentsum, "DATA/treatmentsum.csv")
-stargazer(treatmentsum, summary = FALSE) 
+#stargazer(treatmentsum, summary = FALSE) 
 
 #Create table with Proportion alive for each treatment at each day
 cdf <- cast(treatmentsum, treatment ~ day, value = "prop.alive") 
@@ -217,8 +217,8 @@ names(cdf) <- c("Treatment","1 day","1 week", "2 weeks", "3 weeks", "4 weeks")
 missing<- which(is.na(cdf$"4 weeks") == TRUE)
 cdf$"4 weeks"[missing] <- "No Data"
 
-stargazer(cdf, summary = FALSE, type = "html", 
-          out = "TABLES_GRAPHS/Bioassay_Table.html" )
+#stargazer(cdf, summary = FALSE, type = "html", 
+#          out = "TABLES_GRAPHS/Bioassay_Table.html" )
 
 ###############################################################################
 ### To compare curves we need to do a log-rank test, which in R requiress us to
@@ -228,38 +228,82 @@ stargazer(cdf, summary = FALSE, type = "html",
 
 #put status and interval together so they can be used in same function
 
+#indexs are not being found
+
 DataMelt$UID <- paste(DataMelt$INSECT, DataMelt$days.after.paint, sep="-")
+DataMelt$day <- as.numeric(DataMelt$day)
+#Remove day 0 and 2, so that each data is the same.
+ceros <- which(DataMelt$day == 0)
+twos <- which(DataMelt$day == 2)
+xtra <- union(ceros, twos)
+rMelt <- DataMelt[-xtra,]
 UID<-unique(DataMelt$UID)
 SurvTab<-data.frame(UID)
 
 fillTime <- function(UIDs){
-  indexs <- which(DataMelt$UID == UIDs)  
-  subtab <- DataMelt[indexs,]
-  if(sum(subtab$dead) < 1){
+  indexs <- which(rMelt$UID == UIDs)  
+  if(length(indexs) == 0){print("index not found")}
+  subtab <- rMelt[indexs,]
+  if(sum(subtab$dead) == 0){
     output<- max(subtab$day)
   }
   else{
-    deaths <- which(subtab$dead==1)
-    output<- min(subtab$day[deaths])
+    deaths <- which(subtab$dead == 1)
+    output <- min(subtab$day[deaths])
+  }
+  return(output) 
+}
+
+fillTime.test <- function(UIDs){
+  indexs <- which(rMelt$UID == UIDs)  
+  if(length(indexs) == 0){print("index not found")}
+  subtab <- rMelt[indexs,]
+  if(sum(subtab$dead) == 0){
+    output<- 1
+  }
+  else{
+    deaths <- which(subtab$dead == 1)
+    output <- 2
   }
   return(output) 
 }
 
 #Beginging of interval 
 fillTimeTwo <- function(UIDs){
-   indexs <- which(DataMelt$UID == UIDs)  
-   subtab <- DataMelt[indexs,]
+  indexs <- which(rMelt$UID == UIDs)  
+  if(length(indexs) == 0){print("index not found")}
+  subtab <- rMelt[indexs,]
    livs <- which(subtab$dead == 0)
-   if(sum(subtab$dead) == length(subtab$days)){output <- 0}
-   else(
-   if(sum(subtab$dead) < 0){output <- 21}
-   else(output <- max(subtab$day[livs])))
+   n <- length(subtab$day)
+   if(sum(subtab$dead) <  n ) {
+     output <- max(subtab$day[livs])}
+     #<- sort(subtab$day, decreasing = FALSE)[length(livs)-1]}
+   if(sum(subtab$dead) == n){output <- 0}
+   if(sum(subtab$dead) == 0){output <- sort(subtab$day, decreasing = FALSE)[n-1]}
    return(output) 
  }
 
+fillTimeTwo.test <- function(UIDs){
+  indexs <- which(rMelt$UID == UIDs)  
+  if(length(indexs) == 0){print("index not found")}
+  subtab <- rMelt[indexs,]
+  livs <- which(subtab$dead == 0)
+  n <- length(subtab$day)
+  if(sum(subtab$dead) <  n ) {
+    output <- 1}
+  #<- sort(subtab$day, decreasing = FALSE)[length(livs)-1]}
+  if(sum(subtab$dead) == n){output <- 2}
+  if(sum(subtab$dead) == 0){output <- 3}
+  return(output) 
+}
+
+#interval is sometimes (0:2 not 0:1 or 1:2) It appears all 1's are there, but not 
+
+
 fillStat <- function(UIDs){
-  indexs <- which(DataMelt$UID == UIDs)  
-  subtab <- DataMelt[indexs,]
+  indexs <- which(rMelt$UID == UIDs)  
+  if(length(indexs) == 0){print("index not found")}
+  subtab <- rMelt[indexs,]
   if(sum(subtab$dead) < 1){
     output <- 0
   }
@@ -269,20 +313,35 @@ fillStat <- function(UIDs){
   return(output) 
 }
 
+thirdtest <- function(UIDs){
+  indexs <- which(rMelt$UID == UIDs)  
+  output <- length(indexs)
+}
+
 SurvTab$Status <- sapply(SurvTab$UID, FUN = fillStat)
 SurvTab$Time <- sapply(SurvTab$UID, FUN = fillTime)
 SurvTab$strTime <- sapply(SurvTab$UID, FUN = fillTimeTwo)
-
-fillTimeTwo
-  
+SurvTab$Test1 <- sapply(SurvTab$UID, FUN = fillTime.test)
+SurvTab$Test2 <- sapply(SurvTab$UID, FUN = fillTimeTwo.test)
+SurvTab$Test3 <- sapply(SurvTab$UID, FUN = thirdtest)
 #Now we have the data we can make the survival object
-SurvTab$Surv<- Surv(time = SurvTab$Time, event = SurvTab$Status)
-SurvTab$Surv2<- Surv(time = SurvTab$strTime, time2 = SurvTab$Time, event = SurvTab$Status)
+SurvTab$Surv <- Surv(time = SurvTab$Time, event = SurvTab$Status)
+SurvTab$Surv2 <- Surv(time = SurvTab$strTime, time2 = SurvTab$Time, 
+                      event = SurvTab$Status)
+
+naa <- which(is.na(SurvTab$Surv2)==TRUE)
+errortab<-SurvTab[naa,]
+View(errortab)
+prob<- which(errortab$Status == 0)
+probUID <- errortab$UID[prob]
+probData<-which(DataMelt$UID == probUID)
+View(DataMelt[probData,])
+#data is double entered.
 
 #However, now we don't have the factor level data
 #So find
 initial <- which(DataMelt$day == 1)
-init.data<- DataMelt[initial,]
+init.data <- DataMelt[initial,]
 
 #Merge Surv data with factor data
 IndTab <- merge(SurvTab, init.data,by = "UID")
