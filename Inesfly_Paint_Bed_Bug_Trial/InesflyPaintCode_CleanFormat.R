@@ -643,7 +643,7 @@ dead2.3 <- which(D180FSA$X.2016.03.15 == "D")
 livin3.3 <- which(D180FSA$X.2016.03.22 != "D")
 dead3.3 <- which(D180FSA$X.2016.03.22 == "D")
 livin4.3 <- which(D180FSA$X.2016.03.29 != "D")
-dead4.3 <- which(D180FSA$X.2016.04.05 == "D")
+dead4.3 <- which(D180FSA$X.2016.03.29 == "D")
 livin5.3 <- which(D180FSA$X.2016.04.05 != "D")
 
 resurect2.3 <- intersect(dead1.3, livin2.3)
@@ -651,7 +651,15 @@ resurect3.3 <- intersect(dead2.3, livin3.3)
 resurect4.3 <- intersect(dead3.3, livin4.3)
 resurect5.3 <- intersect(dead4.3, livin5.3)
 
-D180FSA$X.2016.03.09[resurect2.3] <- "K"
+#Did not catch "D, D, K" as it fixes it to "D, K, K"
+nerror.1 <- which(D180FSA$INSECT == "03H-5A-3-06")
+errorfix <- union(nerror.1, resurect2.3)
+
+nerror.2 <- which(D180FSA$INSECT == "01H-5A-3-10")
+
+#above analysis didn't catch because it is D,D,K,D,D
+
+D180FSA$X.2016.03.09[errorfix] <- "K"
 D180FSA$X.2016.03.15[resurect3.3] <- "K"
 D180FSA$X.2016.03.22[resurect4.3] <- "K"
 D180FSA$X.2016.03.29[resurect5.3] <- "K"
