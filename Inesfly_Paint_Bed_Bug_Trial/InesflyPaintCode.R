@@ -20,7 +20,7 @@ library(stargazer)
 
 ##set up the working directory
 #PC for Dylan
-setwd("C:/Users/dtracy198/Documents/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+setwd("C:/Users/dtracy198/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 #MAC for office
 #setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 
@@ -236,7 +236,10 @@ DataMelt$day <- as.numeric(DataMelt$day)
 ceros <- which(DataMelt$day == 0)
 twos <- which(DataMelt$day == 2)
 xtra <- union(ceros, twos)
-rMelt <- DataMelt[-xtra,]
+nodata<-which(DataMelt$status == "")
+rdc<- union(xtra,nodata)
+rMelt <- DataMelt[-rdc,]
+
 UID<-unique(DataMelt$UID)
 SurvTab<-data.frame(UID)
 
@@ -276,9 +279,10 @@ fillTimeTwo <- function(UIDs){
    livs <- which(subtab$dead == 0)
    n <- length(subtab$day)
    if(sum(subtab$dead) <  n ) {
-     output <- sort(subtab$day, decreasing = FALSE)[length(livs)-1]}
+     output <- max(subtab$day[livs])}
+     #<- sort(subtab$day, decreasing = FALSE)[length(livs)]}
    if(sum(subtab$dead) == n){output <- 0}
-   if(sum(subtab$dead) == 0){output <- sort(subtab$day, decreasing = FALSE)[n-1]}
+   if(sum(subtab$dead) == 0){output <- sort(c(subtab$day), decreasing = FALSE)[n-1]}
    return(output) 
  }
 
@@ -327,7 +331,7 @@ fourtest <- function(UIDs){
 
 SurvTab$Status <- sapply(SurvTab$UID, FUN = fillStat)
 SurvTab$Time <- as.numeric(sapply(SurvTab$UID, FUN = fillTime))
-SurvTab$strTime <-sapply(SurvTab$UID, FUN = fillTimeTwo)
+SurvTab$strTime <-as.numeric(sapply(SurvTab$UID, FUN = fillTimeTwo))
 
 SurvTab$Test1 <- sapply(SurvTab$UID, FUN = fillTime.test)
 SurvTab$Test2 <- sapply(SurvTab$UID, FUN = fillTimeTwo.test)
@@ -339,15 +343,24 @@ SurvTab$Surv <- Surv(time = SurvTab$Time, event = SurvTab$Status)
 SurvTab$Surv2 <- Surv(time = SurvTab$strTime, time2 = SurvTab$Time, 
                       event = SurvTab$Status)
 
+
+fst<-which(DataMelt$UID == DataMelt$UID[1])
+DataMelt[fst,]
+
 naa <- which(is.na(SurvTab$Surv2)==TRUE)
 errortab<-SurvTab[naa,]
 View(errortab)
-prob<- which(errortab$Status == 0)
-probUID <- errortab$UID[prob]
-probData<-which(DataMelt$UID == probUID)
-View(DataMelt[probData,])
-#data is double entered.
+probData1<-which(DataMelt$UID == errortab$UID[1])
+probData2<-which(DataMelt$UID == errortab$UID[2])
+probData2<-which(DataMelt$UID == errortab$UID[3])
 
+View(DataMelt[probData1,])
+View(DataMelt[probData2,])
+View(DataMelt[probData2,])
+
+
+#data is double entered.(fixed but I think I created two more issues in fixing that)
+#in 180 have two resurection issues 24H-CO-3-1-and 03H-5A-3-06
 #However, now we don't have the factor level data
 #So find
 initial <- which(DataMelt$day == 1)
