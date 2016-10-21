@@ -7,7 +7,10 @@
 ##Install and load necessary packages
 #Install packages
 #install.packages( c("reshape","survival","tables", "doBy", "ggplot2", "plyr",
-#                "stargazer" ))
+#                "stargazer", "interval" ))
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("Icens")
+#http://www.bioconductor.org/packages/release/bioc/html/Icens.html
 
 #load packages
 library(reshape) #Used to change data between short and long formats.
@@ -17,6 +20,7 @@ library(doBy) #use summaryBy function
 library(ggplot2)
 library(plyr)
 library(stargazer)
+library(interval)
 
 ##set up the working directory
 #PC for Dylan
@@ -341,28 +345,23 @@ SurvTab$Test4 <- sapply(SurvTab$UID, FUN = fourtest)
 #Now we have the data we can make the survival object
 SurvTab$Surv <- Surv(time = SurvTab$Time, event = SurvTab$Status)
 SurvTab$Surv2 <- Surv(time = SurvTab$strTime, time2 = SurvTab$Time, 
-                      event = SurvTab$Status)
+                      event = SurvTab$Status, type = "interval")
 
 
-fst<-which(DataMelt$UID == DataMelt$UID[1])
-DataMelt[fst,]
+# fst<-which(DataMelt$UID == DataMelt$UID[1])
+# DataMelt[fst,]
+# 
+# naa <- which(is.na(SurvTab$Surv2)==TRUE)
+# errortab<-SurvTab[naa,]
+# View(errortab)
+# probData1<-which(DataMelt$UID == errortab$UID[1])
+# probData2<-which(DataMelt$UID == errortab$UID[2])
+# probData2<-which(DataMelt$UID == errortab$UID[3])
+# 
+# View(DataMelt[probData1,])
+# View(DataMelt[probData2,])
+# View(DataMelt[probData2,])
 
-naa <- which(is.na(SurvTab$Surv2)==TRUE)
-errortab<-SurvTab[naa,]
-View(errortab)
-probData1<-which(DataMelt$UID == errortab$UID[1])
-probData2<-which(DataMelt$UID == errortab$UID[2])
-probData2<-which(DataMelt$UID == errortab$UID[3])
-
-View(DataMelt[probData1,])
-View(DataMelt[probData2,])
-View(DataMelt[probData2,])
-
-
-#data is double entered.(fixed but I think I created two more issues in fixing that)
-#in 180 have two resurection issues 24H-CO-3-1-and 03H-5A-3-06
-#However, now we don't have the factor level data
-#So find
 initial <- which(DataMelt$day == 1)
 init.data <- DataMelt[initial,]
 
@@ -371,21 +370,11 @@ IndTab <- merge(SurvTab, init.data,by = "UID")
 
 ###############################################################################
 ###Now we can actually start analysis
-
-survdiff(IndTab$Surv ~ IndTab$paint+ IndTab$days.after.paint +IndTab$exp.time)
-
 #but day is IV.
 #so make indicators for both variables for connections
 don <- which(IndTab$days.after.paint == 1)
 dni <- which(IndTab$days.after.paint == 90)
 doe <- which(IndTab$days.after.paint == 180)
-
-survdiff(IndTab$Surv[don] ~ IndTab$paint[don]+ IndTab$days.after.paint[don]
-         + IndTab$exp.time[don])
-survdiff(IndTab$Surv[dni] ~ IndTab$paint[dni]+ IndTab$days.after.paint[dni]
-         + IndTab$exp.time[dni])
-survdiff(IndTab$Surv[doe] ~ IndTab$paint[doe]+ IndTab$days.after.paint[doe]
-         + IndTab$exp.time[doe])
 
 ###Our study isn't appropriately powered for the above analysis.
 ##It should be powered to compare the curves between
@@ -434,23 +423,30 @@ oecctw <- intersect(cctw, doe)
 
 #I need to look into how to compare for 24hrs, 5A an Cf to con 
 #w/o comparing to each other.
-survdiff(IndTab$Surv[onfcon] ~ IndTab$paint[onfcon], rho = 1)
-survdiff(IndTab$Surv[onfcon] ~ IndTab$paint[onfcon], rho = 0)
+survdiff(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], rho = 1)
+survdiff(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], rho = 0)
+coxph(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon])
+ictest(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], scores = "logrank1")
 
-survdiff(IndTab$Surv[onfcth] ~ IndTab$paint[onfcth])
-survdiff(IndTab$Surv[onfcsi] ~ IndTab$paint[onfcsi])
-survdiff(IndTab$Surv[onfctw] ~ IndTab$paint[onfctw])
-survdiff(IndTab$Surv[oncctw] ~ IndTab$paint[oncctw])
+ictest(IndTab$Surv[onfcth] ~ IndTab$paint[onfcth], scores = "logrank1")
+ictest(IndTab$Surv[onfcsi] ~ IndTab$paint[onfcsi], scores = "logrank1")
+ictest(IndTab$Surv[onfctw] ~ IndTab$paint[onfctw], scores = "logrank1")
+#oncctw: One day, clorfenapyr, 24 hours exposure, 
+ictest(IndTab$Surv[oncctw] ~ IndTab$paint[oncctw], scores = "logrank1")
 
-survdiff(IndTab$Surv[nifcon] ~ IndTab$paint[nifcon])
-survdiff(IndTab$Surv[nifcth] ~ IndTab$paint[nifcth])
-survdiff(IndTab$Surv[nifcsi] ~ IndTab$paint[nifcsi])
-survdiff(IndTab$Surv[nifctw] ~ IndTab$paint[nifctw])
-survdiff(IndTab$Surv[nicctw] ~ IndTab$paint[nicctw])
+ictest(IndTab$Surv[nifcon] ~ IndTab$paint[nifcon], scores = "logrank1")
+ictest(IndTab$Surv[nifcth] ~ IndTab$paint[nifcth], scores = "logrank1")
+ictest(IndTab$Surv[nifcsi] ~ IndTab$paint[nifcsi], scores = "logrank1")
+ictest(IndTab$Surv[nifctw] ~ IndTab$paint[nifctw], scores = "logrank1")
+ictest(IndTab$Surv[nicctw] ~ IndTab$paint[nicctw], scores = "logrank1")
 
-survdiff(IndTab$Surv[oefcon] ~ IndTab$paint[oefcon])
-survdiff(IndTab$Surv[oefcth] ~ IndTab$paint[oefcth])
-survdiff(IndTab$Surv[oefcsi] ~ IndTab$paint[oefcsi])
-survdiff(IndTab$Surv[oefctw] ~ IndTab$paint[oefctw])
-survdiff(IndTab$Surv[oecctw] ~ IndTab$paint[oecctw])
+ictest(IndTab$Surv[oefcon] ~ IndTab$paint[oefcon], scores = "logrank1")
+ictest(IndTab$Surv[oefcth] ~ IndTab$paint[oefcth], scores = "logrank1")
+ictest(IndTab$Surv[oefcsi] ~ IndTab$paint[oefcsi], scores = "logrank1")
+ictest(IndTab$Surv[oefctw] ~ IndTab$paint[oefctw], scores = "logrank1")
+ictest(IndTab$Surv[oecctw] ~ IndTab$paint[oecctw], scores = "logrank1")
 
+#right censored data only?
+
+#Interval Censored
+ictest()
