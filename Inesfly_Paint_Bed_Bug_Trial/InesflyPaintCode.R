@@ -394,6 +394,7 @@ tweh <- which(IndTab$exp.time == "24H")
 #5A and Controls for comp
 ifc <- union(ifa, ico)
 icc <- union(icf, ico)
+iff <- union(ifa, icf)
 
 #intersect paint and exposure
 fcon <- intersect(ifc, oneh)
@@ -401,6 +402,7 @@ fcth <- intersect(ifc, thrh)
 fcsi <- intersect(ifc, sixh)
 fctw <- intersect(ifc, tweh)
 cctw <- intersect(icc, tweh)
+fftw <- intersect(iff, tweh)
 
 #interset above with days since paint.
 onfcon <- intersect(fcon, don)
@@ -408,18 +410,24 @@ onfcth <- intersect(fcth, don)
 onfcsi <- intersect(fcsi, don)
 onfctw <- intersect(fctw, don)
 oncctw <- intersect(cctw, don)
+onfftw <- intersect(fftw, don)
+
 
 nifcon <- intersect(fcon, dni)
 nifcth <- intersect(fcth, dni)
 nifcsi <- intersect(fcsi, dni)
 nifctw <- intersect(fctw, dni)
 nicctw <- intersect(cctw, dni)
+nifftw <- intersect(fftw, dni)
+
 
 oefcon <- intersect(fcon, doe)
 oefcth <- intersect(fcth, doe)
 oefcsi <- intersect(fcsi, doe)
 oefctw <- intersect(fctw, doe)
 oecctw <- intersect(cctw, doe)
+oefftw <- intersect(fftw, doe)
+
 
 #I need to look into how to compare for 24hrs, 5A an Cf to con 
 #w/o comparing to each other.
@@ -428,23 +436,60 @@ survdiff(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], rho = 0)
 coxph(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon])
 ictest(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], scores = "logrank1")
 
-ictest(IndTab$Surv[onfcth] ~ IndTab$paint[onfcth], scores = "logrank1")
-ictest(IndTab$Surv[onfcsi] ~ IndTab$paint[onfcsi], scores = "logrank1")
-ictest(IndTab$Surv[onfctw] ~ IndTab$paint[onfctw], scores = "logrank1")
+#Conventional Log-rank
+ictest(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], scores = "logrank1")
+ictest(IndTab$Surv2[onfcth] ~ IndTab$paint[onfcth], scores = "logrank1")
+ictest(IndTab$Surv2[onfcsi] ~ IndTab$paint[onfcsi], scores = "logrank1")
+ictest(IndTab$Surv2[onfctw] ~ IndTab$paint[onfctw], scores = "logrank1")
 #oncctw: One day, clorfenapyr, 24 hours exposure, 
-ictest(IndTab$Surv[oncctw] ~ IndTab$paint[oncctw], scores = "logrank1")
+ictest(IndTab$Surv2[oncctw] ~ IndTab$paint[oncctw], scores = "logrank1")
 
-ictest(IndTab$Surv[nifcon] ~ IndTab$paint[nifcon], scores = "logrank1")
-ictest(IndTab$Surv[nifcth] ~ IndTab$paint[nifcth], scores = "logrank1")
-ictest(IndTab$Surv[nifcsi] ~ IndTab$paint[nifcsi], scores = "logrank1")
-ictest(IndTab$Surv[nifctw] ~ IndTab$paint[nifctw], scores = "logrank1")
-ictest(IndTab$Surv[nicctw] ~ IndTab$paint[nicctw], scores = "logrank1")
+ictest(IndTab$Surv2[nifcon] ~ IndTab$paint[nifcon], scores = "logrank1")
+ictest(IndTab$Surv2[nifcth] ~ IndTab$paint[nifcth], scores = "logrank1")
+ictest(IndTab$Surv2[nifcsi] ~ IndTab$paint[nifcsi], scores = "logrank1")
+ictest(IndTab$Surv2[nifctw] ~ IndTab$paint[nifctw], scores = "logrank1")
+ictest(IndTab$Surv2[nicctw] ~ IndTab$paint[nicctw], scores = "logrank1")
 
-ictest(IndTab$Surv[oefcon] ~ IndTab$paint[oefcon], scores = "logrank1")
-ictest(IndTab$Surv[oefcth] ~ IndTab$paint[oefcth], scores = "logrank1")
-ictest(IndTab$Surv[oefcsi] ~ IndTab$paint[oefcsi], scores = "logrank1")
-ictest(IndTab$Surv[oefctw] ~ IndTab$paint[oefctw], scores = "logrank1")
-ictest(IndTab$Surv[oecctw] ~ IndTab$paint[oecctw], scores = "logrank1")
+ictest(IndTab$Surv2[oefcon] ~ IndTab$paint[oefcon], scores = "logrank1")
+ictest(IndTab$Surv2[oefcth] ~ IndTab$paint[oefcth], scores = "logrank1")
+ictest(IndTab$Surv2[oefcsi] ~ IndTab$paint[oefcsi], scores = "logrank1")
+ictest(IndTab$Surv2[oefctw] ~ IndTab$paint[oefctw], scores = "logrank1")
+ictest(IndTab$Surv2[oecctw] ~ IndTab$paint[oecctw], scores = "logrank1")
+
+#Now lets compare clorfenapry to 5A-IGR directly
+survdiff(IndTab$Surv2[onfftw] ~ IndTab$paint[onfftw], scores = "logrank1")
+survdiff(IndTab$Surv2[nifftw] ~ IndTab$paint[nifftw], scores = "logrank1")
+survdiff(IndTab$Surv2[oefftw] ~ IndTab$paint[oefftw], scores = "logrank1")
+
+
+
+
+#ON = "One day after painting", ni="90 days", "oe"=180 days, 
+#"fc"=5A IGR vs Control, "cc"=Clorfenapyr vs Control
+#on=1hour, th = 3hr, si= 6hr, tw=24 hours
+ictest(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], scores = "logrank1")
+ictest(IndTab$Surv2[onfcth] ~ IndTab$paint[onfcth], scores = "logrank1")
+ictest(IndTab$Surv2[onfcsi] ~ IndTab$paint[onfcsi], scores = "logrank1")
+ictest(IndTab$Surv2[onfctw] ~ IndTab$paint[onfctw], scores = "logrank1")
+#oncctw: One day, clorfenapyr, 24 hours exposure, 
+ictest(IndTab$Surv2[oncctw] ~ IndTab$paint[oncctw], scores = "logrank1")
+
+ictest(IndTab$Surv2[nifcon] ~ IndTab$paint[nifcon], scores = "logrank1")
+ictest(IndTab$Surv2[nifcth] ~ IndTab$paint[nifcth], scores = "logrank1")
+ictest(IndTab$Surv2[nifcsi] ~ IndTab$paint[nifcsi], scores = "logrank1")
+ictest(IndTab$Surv2[nifctw] ~ IndTab$paint[nifctw], scores = "logrank1")
+ictest(IndTab$Surv2[nicctw] ~ IndTab$paint[nicctw], scores = "logrank1")
+
+ictest(IndTab$Surv2[oefcon] ~ IndTab$paint[oefcon], scores = "logrank1")
+ictest(IndTab$Surv2[oefcth] ~ IndTab$paint[oefcth], scores = "logrank1")
+ictest(IndTab$Surv2[oefcsi] ~ IndTab$paint[oefcsi], scores = "logrank1")
+ictest(IndTab$Surv2[oefctw] ~ IndTab$paint[oefctw], scores = "logrank1")
+ictest(IndTab$Surv2[oecctw] ~ IndTab$paint[oecctw], scores = "logrank1")
+
+#Now lets compare clorfenapry to 5A-IGR directly
+ictest(IndTab$Surv2[onfftw] ~ IndTab$paint[onfftw], scores = "logrank1")
+ictest(IndTab$Surv2[nifftw] ~ IndTab$paint[nifftw], scores = "logrank1")
+ictest(IndTab$Surv2[oefftw] ~ IndTab$paint[oefftw], scores = "logrank1")
 
 #right censored data only?
 
