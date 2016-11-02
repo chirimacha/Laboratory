@@ -211,7 +211,7 @@ mtext("Exposed 24 Hours", side = 2, line = -0.2, outer = T, at = 0.198, adj = 1,
 #stargazer(treatmentsum, summary = FALSE) 
 
 #Create table with Proportion alive for each treatment at each day
-cdf <- cast(treatmentsum, treatment ~ day, value = "prop.alive") 
+cdf <- cast(treatmentsum, treatment ~ day, value = "prop.liv") 
 cdf$"2" <- NULL 
 thirteen<- which(is.na(cdf$"13") == FALSE) 
 cdf$"14"[thirteen] <- cdf$"13"[thirteen] 
@@ -222,8 +222,8 @@ missing<- which(is.na(cdf$"4 weeks") == TRUE)
 cdf$"4 weeks"[missing] <- "No Data"
 
 #stargazer(cdf, summary = FALSE, type = "html", 
-#          out = "TABLES_GRAPHS/Bioassay_Table.html" )
-
+#          out = "TABLES_GRAPHS/Bioassay_Table.htm
+write.csv(cdf,"cdf.csv")
 ###############################################################################
 ### To compare curves we need to do a log-rank test, which in R requiress us to
 ##transform data into a Survival Object
@@ -434,33 +434,32 @@ oefftw <- intersect(fftw, doe)
 survdiff(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], rho = 1)
 survdiff(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], rho = 0)
 coxph(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon])
-ictest(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], scores = "logrank1")
+ictest(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], rho = 0)
 
 #Conventional Log-rank
-ictest(IndTab$Surv2[onfcon] ~ IndTab$paint[onfcon], scores = "logrank1")
-ictest(IndTab$Surv2[onfcth] ~ IndTab$paint[onfcth], scores = "logrank1")
-ictest(IndTab$Surv2[onfcsi] ~ IndTab$paint[onfcsi], scores = "logrank1")
-ictest(IndTab$Surv2[onfctw] ~ IndTab$paint[onfctw], scores = "logrank1")
+survdiff(IndTab$Surv[onfcon] ~ IndTab$paint[onfcon], rho = 0)
+survdiff(IndTab$Surv[onfcth] ~ IndTab$paint[onfcth], rho = 0)
+survdiff(IndTab$Surv[onfcsi] ~ IndTab$paint[onfcsi], rho = 0)
+survdiff(IndTab$Surv[onfctw] ~ IndTab$paint[onfctw], rho = 0)
 #oncctw: One day, clorfenapyr, 24 hours exposure, 
-ictest(IndTab$Surv2[oncctw] ~ IndTab$paint[oncctw], scores = "logrank1")
+survdiff(IndTab$Surv[oncctw] ~ IndTab$paint[oncctw], rho = 0)
 
-ictest(IndTab$Surv2[nifcon] ~ IndTab$paint[nifcon], scores = "logrank1")
-ictest(IndTab$Surv2[nifcth] ~ IndTab$paint[nifcth], scores = "logrank1")
-ictest(IndTab$Surv2[nifcsi] ~ IndTab$paint[nifcsi], scores = "logrank1")
-ictest(IndTab$Surv2[nifctw] ~ IndTab$paint[nifctw], scores = "logrank1")
-ictest(IndTab$Surv2[nicctw] ~ IndTab$paint[nicctw], scores = "logrank1")
+survdiff(IndTab$Surv[nifcon] ~ IndTab$paint[nifcon], rho = 0)
+survdiff(IndTab$Surv[nifcth] ~ IndTab$paint[nifcth], rho = 0)
+survdiff(IndTab$Surv[nifcsi] ~ IndTab$paint[nifcsi], rho = 0)
+survdiff(IndTab$Surv[nifctw] ~ IndTab$paint[nifctw], rho = 0)
+survdiff(IndTab$Surv[nicctw] ~ IndTab$paint[nicctw], rho = 0)
 
-ictest(IndTab$Surv2[oefcon] ~ IndTab$paint[oefcon], scores = "logrank1")
-ictest(IndTab$Surv2[oefcth] ~ IndTab$paint[oefcth], scores = "logrank1")
-ictest(IndTab$Surv2[oefcsi] ~ IndTab$paint[oefcsi], scores = "logrank1")
-ictest(IndTab$Surv2[oefctw] ~ IndTab$paint[oefctw], scores = "logrank1")
-ictest(IndTab$Surv2[oecctw] ~ IndTab$paint[oecctw], scores = "logrank1")
+survdiff(IndTab$Surv[oefcon] ~ IndTab$paint[oefcon], rho = 0)
+survdiff(IndTab$Surv[oefcth] ~ IndTab$paint[oefcth], rho = 0)
+survdiff(IndTab$Surv[oefcsi] ~ IndTab$paint[oefcsi], rho = 0)
+survdiff(IndTab$Surv[oefctw] ~ IndTab$paint[oefctw], rho = 0)
+survdiff(IndTab$Surv[oecctw] ~ IndTab$paint[oecctw], rho = 0)
 
 #Now lets compare clorfenapry to 5A-IGR directly
-survdiff(IndTab$Surv2[onfftw] ~ IndTab$paint[onfftw], scores = "logrank1")
-survdiff(IndTab$Surv2[nifftw] ~ IndTab$paint[nifftw], scores = "logrank1")
-survdiff(IndTab$Surv2[oefftw] ~ IndTab$paint[oefftw], scores = "logrank1")
-
+survdiff(IndTab$Surv[onfftw] ~ IndTab$paint[onfftw], rho = 0)
+survdiff(IndTab$Surv[nifftw] ~ IndTab$paint[nifftw], rho = 0)
+survdiff(IndTab$Surv[oefftw] ~ IndTab$paint[oefftw], rho = 0)
 
 
 
