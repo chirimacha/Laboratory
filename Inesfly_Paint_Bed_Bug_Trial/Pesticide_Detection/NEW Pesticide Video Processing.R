@@ -51,24 +51,25 @@ setwd(wd)
 #                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
 
 ## Set number of repetitions, trials, cameras
-# WARNING: as of May 25, 2016 only using repetition 2 trials
-repetition <- 4
+repetition <- 4 #(max number, rep 1 not used)
 trial <- 6
 camera <- 2
 
 ### Bring in data: videos, coordinate tables (frames), TrayPlace
-# Repetition 1 recorded on 2016-04-21; repetition 2 recorded 2016-05-12
-# Repetition 3 and 4 were recorded on 2016-07-14
+# Repetition 1 recorded on 2016-04-21; repetition 2 recorded (3 weeks)
+# Repetition 3 and 4 were recorded on 2016-07-14(12 weeks and 1 day, respectively)
 
 # CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
 TrayPlace <- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
 
 #Bring in Videos
 #videos are outside of GitHub due to space constraints.
-#set wd to video location
+#set wd to local video location
 vid.fold <- c("/Users/mzlevy/Desktop/Videos")
-setwd(vid.fold)
+setwd(vid.fold) 
+
 #bring in videos
+#loop through i reps, j trials, and k cameras
 for (i in 2:4) { 
   for (j in 1:6) {
     for (k in 1:2) {
@@ -476,7 +477,7 @@ for (i in 2:repetition) {
                                     thresholda <- user_thresh,
                                     maxDistb <- user_max,
                                     cam <- k, rep <- i, trial <- j))
-      write.csv(temp_name, file = paste("DR", i, "T", j, "C", k, ".csv", 
+      #write.csv(temp_name, file = paste("DR", i, "T", j, "C", k, ".csv", 
                                         sep = ""))
       print(paste(temp_name,"....Completed!", sep = ""))
       toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
@@ -846,27 +847,27 @@ trackplot <- function(d.frm, lower, upper){
 }
 
 #Run Function on First 5 min.
-pdf("TrackPlots/firstfive/TrackPlotR2_fst")
+#pdf("TrackPlots/firstfive/TrackPlotR2_fst")
 trackplot(CompVidRep2, 1, 300)
-dev.off()
-pdf("TrackPlots/firstfive/TrackPlotR3_fst")
+#dev.off()
+#pdf("TrackPlots/firstfive/TrackPlotR3_fst")
 trackplot(CompVidRep3, 1, 300)
-dev.off()
-pdf("TrackPlots/firstfive/TrackPlotR4_fst")
+#dev.off()
+#pdf("TrackPlots/firstfive/TrackPlotR4_fst")
 trackplot(CompVidRep4, 1, 300)
-dev.off()
+#dev.off()
 
 #Run Function on Last 5 min
-pdf("TrackPlots/lastfive/TrackPlotR2_lfm")
+#pdf("TrackPlots/lastfive/TrackPlotR2_lfm")
 trackplot(CompVidRep2, 1500, 1800)
-dev.off()
-pdf("TrackPlots/lastfive/TrackPlotR3_lfm")
+#dev.off()
+#pdf("TrackPlots/lastfive/TrackPlotR3_lfm")
 trackplot(CompVidRep3, 1500, 1800) #error says requested frame does not exist
-dev.off()
+#dev.off()
 
-pdf("TrackPlots/lastfive/TrackPlotR4_lfm")
+#pdf("TrackPlots/lastfive/TrackPlotR4_lfm")
 trackplot(CompVidRep4, 1500, 1800)
-dev.off()
+#dev.off()
 
 
 
@@ -921,6 +922,32 @@ af.control <- function(d.f, length) {
 #Run the Function of Rep 2
 af.CompVidRep2 <- af(CompVidRep2, 1800)
 af.control.CompVidRep2 <- af.control(CompVidRep2, 1800)
+
+aCVR2SD<- sd(af.CompVidRep2)
+aCVR2SE<- aCVR2SD/sqrt(length(af.CompVidRep2))
+acCVR2SD<- sd(af.control.CompVidRep2)
+acCVR2SE<- acCVR2SD/sqrt(length(af.control.CompVidRep2))
+mean(af.control.CompVidRep2)
+acCVR2SD
+acCVR2SE
+
+acCVR3SD<- sd(af.control.CompVidRep3)
+acCVR3SE<- acCVR2SD/sqrt(length(af.control.CompVidRep3))
+mean(af.control.CompVidRep3)
+acCVR3SD
+acCVR3SE
+
+mean(af.CompVidRep2)
+aCVR2SD
+aCVR2SE
+
+#90 days
+t.test(af.CompVidRep2, af.control.CompVidRep2, "two.sided")
+#180 days
+t.test(af.CompVidRep3, af.control.CompVidRep3, "two.sided")
+#day 1
+t.test(af.CompVidRep4, af.control.CompVidRep4, "two.sided")
+
 
 #Run the Function of Rep 2
 af.CompVidRep3 <- af(CompVidRep3, 1800)
