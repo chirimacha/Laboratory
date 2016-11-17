@@ -36,15 +36,15 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
-             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
-setwd(wd)
+#wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+#             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
+#setwd(wd)
 
 #setwd("/Users/Justin/Desktop/")
 # Lab computer
-#wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-#      "Pesticide_Detection", sep = "")
-#setwd(wd)
+wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+      "Pesticide_Detection", sep = "")
+setwd(wd)
 
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
@@ -56,8 +56,8 @@ trial <- 6
 camera <- 2
 
 ### Bring in data: videos, coordinate tables (frames), TrayPlace
-# Repetition 1 recorded on 2016-04-21; repetition 2 recorded (3 weeks)
-# Repetition 3 and 4 were recorded on 2016-07-14(12 weeks and 1 day, respectively)
+# Repetition 1 recorded on 2016-04-21(not used); repetition 2 recorded (3 weeks)
+# Repetition 3 and 4 were recorded on 2016-07-14(12 weeks and 1 day, resp.)
 
 # CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
 TrayPlace <- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
@@ -80,37 +80,22 @@ for (i in 2:4) {
   }
 }
 setwd(wd)
-
-#if using PC, run this loop instead of the one below
+ 
+# Brings in Coordinate Tables
 for (i in 2:repetition) { 
   for (j in 1:trial) {
     for (k in 1:camera) {
-      temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
-      csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k, ".csv",
-                        sep = "")
+     temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
+      csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k,
+                        ".csv", sep = "")
       assign(temp_name2, read.csv(csv_name))
     }
   }
 }
 
-# assignments as TrayPlace
-# for (i in 2:repetition) { 
-#   for (j in 1:trial) {
-#     for (k in 1:camera) {
-#       temp_name1 <- paste("vidR", i, "T", j, "C", k, sep = "")
-#       video_name <- paste("Videos/R", i, "T", j, "C", k, ".mp4", sep = "")
-#       assign(temp_name1, readVid(video_name))
-#       
-#       temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
-#       csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k,
-#                         ".csv", sep = "")
-#       assign(temp_name2, read.csv(csv_name))
-#     }
-#   }
-# }
-
 ## Create background (this will take awhile, ~30-40 minutes)
 # WARNING: Do this step only once
+#originally loops together, but not efficient so divided into 3.
 for (i in 2:2) { 
   for (j in 1:trial) {
     for (k in 1:camera) {
@@ -146,52 +131,41 @@ for (i in 4:4) {
   }
 }
 
-## Get a frame from each video in order to find coordinates
-staticFrame = 5
-for (i in 2:repetition) { 
-  for (j in 1:trial) {
-    for (k in 1:camera) {
-      temp_name <- paste("FR", i, "T", j, "C", k, sep = "")
-      vid_name <- paste("vidR", i, "T", j, "C", k, sep = "")
-      assign(temp_name, getFrame(get(vid_name), staticFrame))
-    }
-  }
+### See MaskMatrixTablesRX.R in Cordinate_Tables folder to see how 
+#masks were created
+#the get point function was necessary and may be helpful for further analysis
+getpoint<-function(frame){
+  rto <- frame$dim[1]/frame$dim[2]
+  print(rto)
+  ht<-rto*6
+  quartz(width=6, height=ht)
+  imshow(frame)
+  a<-grid.locator(unit = "npc")
+  gcx<-as.numeric(a$x)
+  gcy<-as.numeric(a$y)
+  X <- ceiling(gcx*frame$dim[2])
+  Y <- ceiling(gcy*frame$dim[1])
+  imshow(frame)
+  points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
+  coord<-c(X,Y)
+  output=coord
 }
 
-# ##getpoint <- function(frame) { # Do not change Quartz size
-#   rto <- frame$dim[1]/frame$dim[2]
-#   print(rto)
-#   ht <- rto*6
-#   quartz(width=6, height=ht)
-#
-#   imshow(frame)
-#   a <- grid.locator(unit = "npc")
-#   gcx <- as.numeric(a$x)
-#   gcy <- as.numeric(a$y)
-#   X <- ceiling(gcx*frame$dim[2])
-#   Y <- ceiling(gcy*frame$dim[1])
-#   imshow(frame)
-#   points(x=c(X), y=c(Y), col="red", pch=19, cex = 0.1 )
-#   coord<-c(X,Y)
-#   output=coord
-#   }
-# # Repeat the above code to find points. Manually enter them in data frames.
-# tester <- getpoint(FR1T2C1)
-# tester
-
+#Function used to show which areas are shown with each mask
 visualize <- function(CD, frame){
   imshow(frame)
   for(i in 1:6){
     lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYT[i]), col=i) 
-    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]),col=i) 
-    lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-    lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]),col=i) 
-    lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]),col=i)
-    lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]),col=i)
+    lines(x = c(CD$MXR[i], CD$MXL[i]), y = c(CD$MYB[i], CD$MYB[i]), col=i) 
+    lines(x = c(CD$MXR[i], CD$MXR[i]), y = c(CD$MYT[i], CD$MYB[i]), col=i) 
+    lines(x = c(CD$MXL[i], CD$MXL[i]), y = c(CD$MYT[i], CD$MYB[i]), col=i) 
+    lines(x = c(CD$TPX[i], CD$BPX[i]), y = c(CD$TPY[i], CD$BPY[i]), col=i)
+    lines(x = c(CD$LPX[i], CD$RPX[i]), y = c(CD$LPY[i], CD$RPY[i]), col=i)
   }
 }
 
-## Simple Tracker (package not available for new R)
+## Simple Tracker (package not available on cran for new R (3.2.4+))
+#if older, simply run code below to line ~312. 
 pdiff <- function(a, b) { # helper function
   nr <- length(a)
   nc <- length(b)
