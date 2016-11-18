@@ -22,7 +22,7 @@ install.packages("scales")
 install.packages("tictoc")
 
 # Open Libraries
-library(videoplayR)
+#library(videoplayR)
 library(dplyr)
 library(clue)
 library(shiny)
@@ -36,15 +36,15 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-#wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
-#             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
-#setwd(wd)
+wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+            "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
+setwd(wd)
 
 #setwd("/Users/Justin/Desktop/")
 # Lab computer
-wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-      "Pesticide_Detection", sep = "")
-setwd(wd)
+# wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+#       "Pesticide_Detection", sep = "")
+# setwd(wd)
 
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
@@ -65,8 +65,8 @@ TrayPlace <- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant
 #Bring in Videos
 #videos are outside of GitHub due to space constraints.
 #set wd to local video location
-vid.fold <- c("/Users/mzlevy/Desktop/Videos")
-setwd(vid.fold) 
+# vid.fold <- c("/Users/mzlevy/Desktop/Videos")
+# setwd(vid.fold) 
 
 #bring in videos
 #loop through i reps, j trials, and k cameras
@@ -417,6 +417,7 @@ VidAnalysis <- function(video, bg, coordtab, thresholda,
     temp_maskBG <- paste("maskBG", k, sep = "")
     assign(temp_maskBG, blend(bg, get(paste("imask", k, sep = "")), "*"))
   }
+  
   # Run Coords helper function over the 6 dishes   
   # e.g. pdt1 = bugpos for tray 1, location, regardless of camera 1 or camera 2
   for (m in 1:6) {
@@ -501,6 +502,7 @@ CompVidRep2 <- read.csv("CompVidRep2.csv")
 CompVidRep3 <- read.csv("CompVidRep3.csv")
 CompVidRep4 <- read.csv("CompVidRep4.csv")
 
+#create a unicode by combining rep, trial, and position
 CompVidRep2$insect.id <- paste(CompVidRep2$rep, CompVidRep2$trial, 
                                CompVidRep2$position, sep = "-")
 CompVidRep3$insect.id <- paste(CompVidRep3$rep, CompVidRep3$trial,
@@ -702,6 +704,7 @@ CompiledData$Pesticide[intersect( PTrays, uno)] <- 1
 CompiledData$Pesticide[intersect( PTrays, tres)] <- 1
 
 CompiledData$Treat_Quad <- CompiledData$x * 0  
+#quadrants 1 and 3 have pesticide on them.
 CompiledData$Treat_Quad[union(uno, tres)] <- 1
 
 CompiledData$Result <- paste(CompiledData$PTray,
@@ -821,31 +824,27 @@ trackplot <- function(d.frm, lower, upper){
 }
 
 #Run Function on First 5 min.
-#pdf("TrackPlots/firstfive/TrackPlotR2_fst")
+#pdf("TrackPlots/firstfive/TrackPlotR2_fst.pdf")
 trackplot(CompVidRep2, 1, 300)
 #dev.off()
-#pdf("TrackPlots/firstfive/TrackPlotR3_fst")
+#pdf("TrackPlots/firstfive/TrackPlotR3_fst.pdf")
 trackplot(CompVidRep3, 1, 300)
 #dev.off()
-#pdf("TrackPlots/firstfive/TrackPlotR4_fst")
+#pdf("TrackPlots/firstfive/TrackPlotR4_fst.pdf")
 trackplot(CompVidRep4, 1, 300)
 #dev.off()
 
 #Run Function on Last 5 min
-#pdf("TrackPlots/lastfive/TrackPlotR2_lfm")
+#pdf("TrackPlots/lastfive/TrackPlotR2_lfm.pdf")
 trackplot(CompVidRep2, 1500, 1800)
 #dev.off()
-#pdf("TrackPlots/lastfive/TrackPlotR3_lfm")
+#pdf("TrackPlots/lastfive/TrackPlotR3_lfm.pdf")
 trackplot(CompVidRep3, 1500, 1800) #error says requested frame does not exist
 #dev.off()
 
-#pdf("TrackPlots/lastfive/TrackPlotR4_lfm")
+#pdf("TrackPlots/lastfive/TrackPlotR4_lfm.pdf")
 trackplot(CompVidRep4, 1500, 1800)
 #dev.off()
-
-
-
-
 
   insect.num <- unique(d.frm$insect.id)
   id.table <- cbind(1:length(insect.num), insect.num)
@@ -853,8 +852,7 @@ trackplot(CompVidRep4, 1500, 1800)
       focal.i <- which(d.frm$insect.id == id.table$insect.num[i])
       #now we have the insect
   }
-  
-}
+
 
 ##Last 5 Minutes
 
@@ -1365,3 +1363,8 @@ PlotSpeed(csCVR3, 12)
 mtext(paste("Speed of Insects Between Each Observation", sep = " "), side = 3, line = 0, 
             outer = TRUE, cex = 1.2)
 dev.off()
+
+####
+#Lets check some things. Look at R2T1
+wrongdots<- which(CompVidRep2$insect.id == "2-1-8")
+View(CompVidRep2[wrongdots,])
