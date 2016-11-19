@@ -780,9 +780,9 @@ resultMat <- function(CompVidRep) {
 ###DO NOT DELETE: Read.csv to bring in Data tables from computer without 
 ###data held as objects
 
-write.csv( CompVidRep2, file = "CompVidRep2.csv")
-write.csv( CompVidRep3, file = "CompVidRep3.csv")
-write.csv( CompVidRep4, file = "CompVidRep4.csv")
+# write.csv( CompVidRep2, file = "CompVidRep2.csv")
+# write.csv( CompVidRep3, file = "CompVidRep3.csv")
+# write.csv( CompVidRep4, file = "CompVidRep4.csv")
 
 CompVidRep2 <- read.csv("CompVidRep2.csv")
 CompVidRep3 <- read.csv("CompVidRep3.csv")
