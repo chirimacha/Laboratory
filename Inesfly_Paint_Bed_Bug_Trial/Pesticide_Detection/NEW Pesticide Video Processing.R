@@ -36,19 +36,19 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
-            "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
-setwd(wd)
-
-#setwd("/Users/Justin/Desktop/")
-# Lab computer
-# wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-#       "Pesticide_Detection", sep = "")
+# wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+#             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
 # setwd(wd)
+
+# Lab computer
+wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+      "Pesticide_Detection", sep = "")
+setwd(wd)
 
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
 #                "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection"))
+#setwd("/Users/Justin/Desktop/")
 
 ## Set number of repetitions, trials, cameras
 repetition <- 4 #(max number, rep 1 not used)
@@ -65,10 +65,10 @@ TrayPlace <- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant
 #Bring in Videos
 #videos are outside of GitHub due to space constraints.
 #set wd to local video location
-# vid.fold <- c("/Users/mzlevy/Desktop/Videos")
-# setwd(vid.fold) 
+vid.fold <- c("/Users/mzlevy/Desktop/Videos")
+setwd(vid.fold) 
 
-#bring in videos
+#bring in videos with loop
 #loop through i reps, j trials, and k cameras
 for (i in 2:4) { 
   for (j in 1:6) {
@@ -747,29 +747,45 @@ CompVidRep4 <- read.csv("CompVidRep4.csv")
 #and upper is the highest frame of interest (0 - 500 for example)
 trackplot <- function(d.frm, lower, upper){
   ##first need to plot corresponding frames for tracking
-  #to do,need to get rep, trial, and camera.
+  #First identify repetition. Should all be the same in df. so just take
+  #the first observations frame
   rep.v <- d.frm$rep[1]
+  #use this to find the corresponding repetition in Trayplace
   rep.tp<- which(TrayPlace$Repetition == rep.v)
+  #identify the frames to be used in this analysis
   up.lim <- which(d.frm$frame <= upper)
   low.lim <- which(d.frm$frame >= lower)
   limits <- intersect(up.lim, low.lim)
+  #Now move trial, looping through each (1-6)
   for (j in 1:trial) {
+    #find trial in d.frm
     trial.v<- which(d.frm$trial == j)
+    #find corresponding values in tray place
     trial.tp <- which(TrayPlace$Trial == j)
     video.tp <- intersect(rep.tp, trial.tp)
+    #now move to camera
     for(k in 1:camera){
+      #create temp_name for output
       temp_name <- paste("End.FR", rep.v, "T", j, "C", k, sep = "")
+      #find specific video
       vid_name <- paste("vidR", rep.v, "T", j, "C", k, sep = "")
+      #find specific coordinate table
       Ctname<-paste("CoTbR", rep.v, "T", j, "C", k, sep = "")
+      ##identify the last frame, either 1800 or frame closest to upper range
       if(get(vid_name)$length < upper){
         uppers <- get(vid_name)$length 
       } else {uppers <- upper}
       assign(temp_name, getFrame(get(vid_name), uppers))
+      #now plot last frame
       imshow(get(temp_name))
       #pdf("example.pdf")
+      #once again, find corresponding cameras in d.frm
       cam.v <- which(d.frm$camera == k)
+      #for our current trial
       src <- intersect(trial.v, cam.v)
+      #within our frame limits
       relv <- intersect(src, limits)
+      #plot points
       points(d.frm$x[relv], d.frm$y[relv], pch = 20,
              col = alpha(topo.colors(n=(upper-lower))[d.frm$frame[relv]-lower], 0.2))
       #scale for color gradient
@@ -778,7 +794,7 @@ trackplot <- function(d.frm, lower, upper){
              col = alpha(topo.colors(n=(upper-lower)),0.2), pch = 20)
       #Now need to indicate which quadrants have pesticide
       for(i in 1:6){
-        position.tp <- which(TrayPlace$Position == (i+(k-1)))
+        position.tp <- which(TrayPlace$Position == (i+6*(k-1)))
         tray.ct <-which(get(Ctname)$Tray == i)
         id.tp <- intersect(position.tp, video.tp)
         off <- 100
