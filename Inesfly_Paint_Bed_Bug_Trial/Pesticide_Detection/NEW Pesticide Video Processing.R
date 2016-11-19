@@ -22,7 +22,7 @@ install.packages("scales")
 install.packages("tictoc")
 
 # Open Libraries
-#library(videoplayR)
+library(videoplayR)
 library(dplyr)
 library(clue)
 library(shiny)
@@ -107,6 +107,8 @@ for (i in 2:repetition) {
 ## Create background (this will take awhile, ~30-40 minutes)
 # WARNING: Do this step only once
 #originally loops together, but not efficient so divided into 3.
+#bgR4T2C2 <- backgrounder(vidR4T2C2, n=1800, method = "median", color =FALSE)
+
 for (i in 2:2) { 
   for (j in 1:trial) {
     for (k in 1:camera) {
@@ -464,14 +466,22 @@ for (i in 2:repetition) {
                                     maxDistb <- user_max,
                                     cam <- k, rep <- i, trial <- j))
       #write.csv(temp_name, file = paste("DR", i, "T", j, "C", k, ".csv", 
-                                        sep = ""))
+         #sep = ""))
       print(paste(temp_name,"....Completed!", sep = ""))
       toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
     }
   }
 }
 
+#lets do Vid analysis for just the fixed video
+# DR4T2C2 <- VidAnalysis(video <- vidR4T2C2, bg <- bgR4T2C2, 
+#             coordtab <- CoTbR4T2C2, 
+#             thresholda <- user_thresh,
+#             maxDistb <- user_max,
+#             cam <- 2, rep <- 4, trial <- 2)
+#write.csv(DR4T2C2, file = "DR4T2C2.csv")
 ###
+
 # cnt_dup <- 0
 # for (i in (1:nrow(CompVidRep2))) {
 #   if (identical(CompVidRep2$id[i], 2)) {
@@ -484,20 +494,45 @@ for (i in 2:repetition) {
 #
 
 #If running from PC run these codes
+#rep2
 DR2T1C1 <- read.csv("Video_Data/Rep2/Rep2Trial1Cam1RawData.csv")
 DR2T1C2 <- read.csv("Video_Data/Rep2/Rep2Trial1Cam2RawData.csv")
 DR2T2C1 <- read.csv("Video_Data/Rep2/Rep2Trial2Cam1RawData.csv")
 DR2T2C2 <- read.csv("Video_Data/Rep2/Rep2Trial2Cam2RawData.csv")
 DR2T3C1 <- read.csv("Video_Data/Rep2/Rep2Trial3Cam1RawData.csv")
 DR2T3C2 <- read.csv("Video_Data/Rep2/Rep2Trial3Cam2RawData.csv")
-
 DR2T4C1 <- read.csv("Video_Data/Rep2/Rep2Trial4Cam1RawData.csv")
 DR2T4C2 <- read.csv("Video_Data/Rep2/Rep2Trial4Cam2RawData.csv")
 DR2T5C1 <- read.csv("Video_Data/Rep2/Rep2Trial5Cam1RawData.csv")
 DR2T5C2 <- read.csv("Video_Data/Rep2/Rep2Trial5Cam2RawData.csv")
 DR2T6C1 <- read.csv("Video_Data/Rep2/Rep2Trial6Cam1RawData.csv")
 DR2T6C2 <- read.csv("Video_Data/Rep2/Rep2Trial6Cam2RawData.csv")
-
+#rep3
+DR3T1C1 <- read.csv("Video_Data/Rep3/Rep3Trial1Cam1RawData.csv")
+DR3T1C2 <- read.csv("Video_Data/Rep3/Rep3Trial1Cam2RawData.csv")
+DR3T2C1 <- read.csv("Video_Data/Rep3/Rep3Trial2Cam1RawData.csv")
+DR3T2C2 <- read.csv("Video_Data/Rep3/Rep3Trial2Cam2RawData.csv")
+DR3T3C1 <- read.csv("Video_Data/Rep3/Rep3Trial3Cam1RawData.csv")
+DR3T3C2 <- read.csv("Video_Data/Rep3/Rep3Trial3Cam2RawData.csv")
+DR3T4C1 <- read.csv("Video_Data/Rep3/Rep3Trial4Cam1RawData.csv")
+DR3T4C2 <- read.csv("Video_Data/Rep3/Rep3Trial4Cam2RawData.csv")
+DR3T5C1 <- read.csv("Video_Data/Rep3/Rep3Trial5Cam1RawData.csv")
+DR3T5C2 <- read.csv("Video_Data/Rep3/Rep3Trial5Cam2RawData.csv")
+DR3T6C1 <- read.csv("Video_Data/Rep3/Rep3Trial6Cam1RawData.csv")
+DR3T6C2 <- read.csv("Video_Data/Rep3/Rep3Trial6Cam2RawData.csv")
+#rep4
+DR4T1C1 <- read.csv("Video_Data/Rep4/Rep4Trial1Cam1RawData.csv")
+DR4T1C2 <- read.csv("Video_Data/Rep4/Rep4Trial1Cam2RawData.csv")
+DR4T2C1 <- read.csv("Video_Data/Rep4/Rep4Trial2Cam1RawData.csv")
+DR4T2C2 <- read.csv("Video_Data/Rep4/Rep4Trial2Cam2RawData.csv")
+DR4T3C1 <- read.csv("Video_Data/Rep4/Rep4Trial3Cam1RawData.csv")
+DR4T3C2 <- read.csv("Video_Data/Rep4/Rep4Trial3Cam2RawData.csv")
+DR4T4C1 <- read.csv("Video_Data/Rep4/Rep4Trial4Cam1RawData.csv")
+DR4T4C2 <- read.csv("Video_Data/Rep4/Rep4Trial4Cam2RawData.csv")
+DR4T5C1 <- read.csv("Video_Data/Rep4/Rep4Trial5Cam1RawData.csv")
+DR4T5C2 <- read.csv("Video_Data/Rep4/Rep4Trial5Cam2RawData.csv")
+DR4T6C1 <- read.csv("Video_Data/Rep4/Rep4Trial6Cam1RawData.csv")
+DR4T6C2 <- read.csv("Video_Data/Rep4/Rep4Trial6Cam2RawData.csv")
 
 CompVidRep2 <- rbind(DR2T1C1, DR2T1C2, DR2T2C1, DR2T2C2, DR2T3C1, DR2T3C2,
                      DR2T4C1, DR2T4C2, DR2T5C1, DR2T5C2, DR2T6C1, DR2T6C2)
@@ -507,6 +542,8 @@ CompVidRep3 <- rbind(DR3T1C1, DR3T1C2, DR3T2C1, DR3T2C2, DR3T3C1, DR3T3C2,
 
 CompVidRep4 <- rbind(DR4T1C1, DR4T1C2, DR4T2C1, DR4T2C2, DR4T3C1, DR4T3C2,
                      DR4T4C1, DR4T4C2, DR4T5C1, DR4T5C2, DR4T6C1, DR4T6C2)
+
+
 ###########
 ###Temp Read.csv
 CompVidRep2 <- read.csv("CompVidRep2.csv")
@@ -743,9 +780,9 @@ resultMat <- function(CompVidRep) {
 ###DO NOT DELETE: Read.csv to bring in Data tables from computer without 
 ###data held as objects
 
-# write.csv( CompVidRep2, file = "CompVidRep2.csv")
-# write.csv( CompVidRep3, file = "CompVidRep3.csv")
-# write.csv( CompVidRep4, file = "CompVidRep4.csv")
+write.csv( CompVidRep2, file = "CompVidRep2.csv")
+write.csv( CompVidRep3, file = "CompVidRep3.csv")
+write.csv( CompVidRep4, file = "CompVidRep4.csv")
 
 CompVidRep2 <- read.csv("CompVidRep2.csv")
 CompVidRep3 <- read.csv("CompVidRep3.csv")
