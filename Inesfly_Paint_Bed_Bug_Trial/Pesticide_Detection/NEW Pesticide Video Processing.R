@@ -1384,3 +1384,8 @@ dev.off()
 #Lets check some things. Look at R2T1
 wrongdots<- which(CompVidRep2$insect.id == "2-1-8")
 View(CompVidRep2[wrongdots,])
+imshow(getFrame(vidR2T1C2, 1))
+imshow(getFrame(vidR2T1C2, 500))
+imshow(getFrame(vidR2T1C2, 1000))
+
+
