@@ -62,6 +62,17 @@ camera <- 2
 # CoTb = coordinate table; R1 = rep 1; T1 = trial 1; C1 = camera 1
 TrayPlace <- read.csv("TraysRep1y2y3y4.csv") # times, dates, humidity quadrant 
 
+#a couple errors were detected. Slight tint to paint allows us to see 
+#R2T2P2 and R3T3P9 orientation should be 1 or 3 have pesticide
+TrayPlace$tray.id <-paste(TrayPlace$Repetition, TrayPlace$Trial, 
+                          TrayPlace$Position, sep = "-")
+tpca <- which(TrayPlace$tray.id == "2-2-2")
+tpcb <- which(TrayPlace$tray.id == "3-3-9")
+TrayPlace$Orientation[tpca] <- 1 
+TrayPlace$Orientation[tpcb] <- 1
+
+#I suspect R4T4C2 and R4T6C2 to also possible be errors that we cannot validify
+
 #Bring in Videos
 #videos are outside of GitHub due to space constraints.
 #set wd to local video location
