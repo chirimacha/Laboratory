@@ -11,15 +11,15 @@
 # devtools::install_github("swarm-lab/videoplayR")
 # 
 # #install Other packages:
-install.packages("dplyr")
-install.packages("clue")
-install.packages("shiny")
-install.packages("splancs")
-install.packages("tictoc")
-install.packages("reshape2")
-install.packages("vioplot")
-install.packages("scales")
-install.packages("tictoc")
+# install.packages("dplyr")
+# install.packages("clue")
+# install.packages("shiny")
+# install.packages("splancs")
+# install.packages("tictoc")
+# install.packages("reshape2")
+# install.packages("vioplot")
+# install.packages("scales")
+# install.packages("tictoc")
 
 # Open Libraries
 library(videoplayR)
@@ -36,14 +36,14 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-# wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
-#             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
-# setwd(wd)
+wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+            "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
+setwd(wd)
 
 # Lab computer
-wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-      "Pesticide_Detection", sep = "")
-setwd(wd)
+# wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+#       "Pesticide_Detection", sep = "")
+# setwd(wd)
 
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
@@ -959,11 +959,23 @@ af.control <- function(d.f, length) {
 af.CompVidRep2 <- af(CompVidRep2, 1800)
 af.control.CompVidRep2 <- af.control(CompVidRep2, 1800)
 
+#Run the Function of Rep 3
+af.CompVidRep3 <- af(CompVidRep3, 1800)
+af.control.CompVidRep3 <- af.control(CompVidRep3, 1800)
+
+#Run the Function of Rep 4
+af.CompVidRep4 <- af(CompVidRep4, 1800)
+af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
+
+
+#look at results
 aCVR2SD<- sd(af.CompVidRep2)
 aCVR2SE<- aCVR2SD/sqrt(length(af.CompVidRep2))
 acCVR2SD<- sd(af.control.CompVidRep2)
 acCVR2SE<- acCVR2SD/sqrt(length(af.control.CompVidRep2))
 mean(af.control.CompVidRep2)
+mean(af.CompVidRep2)
+
 acCVR2SD
 acCVR2SE
 
@@ -983,15 +995,6 @@ t.test(af.CompVidRep2, af.control.CompVidRep2, "two.sided")
 t.test(af.CompVidRep3, af.control.CompVidRep3, "two.sided")
 #day 1
 t.test(af.CompVidRep4, af.control.CompVidRep4, "two.sided")
-
-
-#Run the Function of Rep 2
-af.CompVidRep3 <- af(CompVidRep3, 1800)
-af.control.CompVidRep3 <- af.control(CompVidRep3, 1800)
-
-#Run the Function of Rep 2
-af.CompVidRep4 <- af(CompVidRep4, 1800)
-af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
 
 ###Functions to make a running average of proportion of bugs on pesticide
 #Treatment
@@ -1116,26 +1119,26 @@ ClockSpeed <-function(df){
   return(my.df)
 }
 
-  insects <- unique(CompVidRep3$insect.id)
-  my.df <- data.frame(matrix(nrow = length(insects), 
-                             ncol = (max(CompVidRep3$frame)+1)))
-  my.df[,1] <- unique(CompVidRep3$insect.id)
-  insects <- unique(CompVidRep3$insect.id)
-  for(i in 1){
-    ins <- which(CompVidRep3$insect.id == insects[1])
-    rev_frames <- CompVidRep3$frame[ins]
-    my.df[i,2] <- CompVidRep3$PTray[min(ins)]
-    for(f in 2:length(rev_frames)){
-      frmn <- rev_frames[f]
-      pfrmn <-rev_frames[f-1]
-      p.cf <- which(CompVidRep3$frame == frmn)
-      p.pf <- which(CompVidRep3$frame == pfrmn)
-      cf <- intersect(p.cf, ins)
-      pf <- intersect(p.pf, ins)
-      my.df[i,f+1]<-sqrt((CompVidRep3$x[cf]-CompVidRep3$x[pf])^2 + 
-                        (CompVidRep3$y[cf]-CompVidRep3$y[pf])^2)/(frmn-pfrmn)
-    }
-  }
+  # insects <- unique(CompVidRep3$insect.id)
+  # my.df <- data.frame(matrix(nrow = length(insects), 
+  #                            ncol = (max(CompVidRep3$frame)+1)))
+  # my.df[,1] <- unique(CompVidRep3$insect.id)
+  # insects <- unique(CompVidRep3$insect.id)
+  # for(i in 1){
+  #   ins <- which(CompVidRep3$insect.id == insects[1])
+  #   rev_frames <- CompVidRep3$frame[ins]
+  #   my.df[i,2] <- CompVidRep3$PTray[min(ins)]
+  #   for(f in 2:length(rev_frames)){
+  #     frmn <- rev_frames[f]
+  #     pfrmn <-rev_frames[f-1]
+  #     p.cf <- which(CompVidRep3$frame == frmn)
+  #     p.pf <- which(CompVidRep3$frame == pfrmn)
+  #     cf <- intersect(p.cf, ins)
+  #     pf <- intersect(p.pf, ins)
+  #     my.df[i,f+1]<-sqrt((CompVidRep3$x[cf]-CompVidRep3$x[pf])^2 + 
+  #                       (CompVidRep3$y[cf]-CompVidRep3$y[pf])^2)/(frmn-pfrmn)
+  #   }
+  # }
 
 csCVR2<-ClockSpeed(CompVidRep2)
 csCVR3<-ClockSpeed(CompVidRep3)
