@@ -1179,9 +1179,9 @@ CoAS4 <- mean(csCVR4$AvSpeed[control4])
 ############################## Plotting Averages ##############################
 ###CompVidRep2 (3 weeks post painting)
 #Instantaneous proportion of bugs on pesticide 
-#pdf("Figures/PropBugTreatmentPerSec.pdf", height = 9, width= 3)
-jpeg("Figures/PropBugTreatmentPerSec.jpeg", height = 9, width= 3, 
-     units = "in", res = 800)
+pdf("Figures/PropBugTreatmentPerSec.pdf", height = 9, width= 3)
+# jpeg("Figures/PropBugTreatmentPerSec.jpeg", height = 9, width= 3, 
+#      units = "in", res = 800)
 par(mfrow = c(3, 1), oma = c(1,1,2,1))
 plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, xlab = "Time (seconds)",
      ylab = "Proportion of Bugs", main = "1 Day", xaxt = 'n', yaxt = 'n')
