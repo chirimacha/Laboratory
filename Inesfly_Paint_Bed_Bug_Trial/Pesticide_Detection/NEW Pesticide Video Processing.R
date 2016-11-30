@@ -1165,7 +1165,7 @@ control2 <- which(csCVR2[,2] == 0)
 control3 <- which(csCVR3[,2] == 0)
 control4 <- which(csCVR4[,2] == 0)
 
-ExAS2 <- mean(csCVR2$AvSpeed[exposed2])
+ExAS2 <- mean(csCVR2$AvSpeed[exposed2],)
 ExAS3 <- mean(csCVR3$AvSpeed[exposed3])
 ExAS4 <- mean(csCVR4$AvSpeed[exposed4])
 CoAS2 <- mean(csCVR2$AvSpeed[control2])
@@ -1179,8 +1179,8 @@ CoAS4 <- mean(csCVR4$AvSpeed[control4])
 ############################## Plotting Averages ##############################
 ###CompVidRep2 (3 weeks post painting)
 #Instantaneous proportion of bugs on pesticide 
-#pdf("TABLES_GRAPHS/PropBugTreatmentPerSec.pdf", height = 9, width= 3)
-jpeg("TABLES_GRAPHS/PropBugTreatmentPerSec.jpeg", height = 9, width= 3, 
+#pdf("Figures/PropBugTreatmentPerSec.pdf", height = 9, width= 3)
+jpeg("Figures/PropBugTreatmentPerSec.jpeg", height = 9, width= 3, 
      units = "in", res = 800)
 par(mfrow = c(3, 1), oma = c(1,1,2,1))
 plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, xlab = "Time (seconds)",
@@ -1276,21 +1276,16 @@ dev.off()
 # #dev.off()
 
 #######################Plot Individual Running Averages########################
-#pdf("TABLES_GRAPHS/IndRrunning_avg.pdf", height = 9, width = 6)
-#jpeg("TABLES_GRAPHS/IndRrunning_avg.jpeg", height = 9, width = 6, res = 300, 
+pdf("Figures/IndRrunning_avg.pdf", height = 9, width = 6)
+#jpeg("Figures/IndRrunning_avg.jpeg", height = 9, width = 6, res = 300, 
 #     units = "in")
 
 par(mfrow = c(3, 2), oma = c(1,1,2,1))
 
 # CompVidRep4
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time on Pesticide")
-PlotSpeed(csCVR4, 1)
-PlotSpeed(csCVR2, 90)
-PlotSpeed(csCVR3, 180)
-mtext(paste("Speed of Insects Between Each Frame", sep=" "), side = 3, 
-      line = -1.5, outer = TRUE, cex = 1.2,main = "1 Day Exposed", xaxt = 'n', 
-      yaxt = 'n')
+     ylab = "Proportion of Time on Pesticide", 
+     main = "1 Day Exposed", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -1302,7 +1297,7 @@ for(i in 1:length(CompVidRep4[filter,1])){
 lines(x = 1:1800, y = ma.CompVidRep4, lty = 1, lwd = 1.5, col = 1)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time",
+     ylab = "Proportion of Time on Pesticide",
      main = "1 Day Control", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
@@ -1315,7 +1310,7 @@ lines(x = 1:1800, y = ma.control.CompVidRep4, lty = 1, lwd = 1.5, col = 1)
 
 # CompVidRep2
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time",
+     ylab = "Proportion of Time on Pesticide",
      main = "3 Weeks Exposed", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
@@ -1328,7 +1323,7 @@ for(i in 1:length(CompVidRep2[filter,1])){
 lines(x = 1:1800, y = ma.CompVidRep2, lty = 1, lwd = 1.5, col = 1)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time",
+     ylab = "Proportion of Time on Pesticide",
      main = "3 Weeks Control", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
@@ -1341,7 +1336,7 @@ lines(x = 1:1800, y = ma.control.CompVidRep2, lty = 1, lwd = 1.5, col = 1)
 
 # CompVidRep3
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time",
+     ylab = "Proportion of Time on Pesticide",
      main = "12 Weeks Exposed", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
@@ -1354,7 +1349,7 @@ for(i in 1:length(CompVidRep3[filter,1])){
 lines(x = 1:1800, y = ma.CompVidRep3, lty = 1, lwd = 1.5, col = 1)
 
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time",
+     ylab = "Proportion of Time on Pesticide",
      main = "12 Weeks Control", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
@@ -1420,9 +1415,9 @@ PlotSpeed <- function(csTest, num){
 }
 
 #pdf(file = "SpeedPlots.pdf")
-#pdf("TABLES_GRAPHS/SpeedPlots.pdf", height = 9, width = 6)
-jpeg("TABLES_GRAPHS/SpeedPlots.jpeg", height = 9, width = 6, res = 300, 
-     units = "in")
+pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
+#jpeg("Figures/SpeedPlots.jpeg", height = 9, width = 6, res = 300, 
+ #    units = "in")
 par(mfrow = c(3,2), oma = c(1,1,2,1))
 PlotSpeed(csCVR4, 1)
 PlotSpeed(csCVR2, 3)
