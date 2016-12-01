@@ -36,14 +36,14 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
-            "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
-setwd(wd)
+# wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+#             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
+# setwd(wd)
 
 # Lab computer
-# wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-#       "Pesticide_Detection", sep = "")
-# setwd(wd)
+wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+      "Pesticide_Detection", sep = "")
+setwd(wd)
 
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
@@ -794,6 +794,7 @@ CompVidRep4 <- read.csv("CompVidRep4.csv")
 #where d.frm is the compiled video data, lower is the lowest frame of interest
 #and upper is the highest frame of interest (0 - 500 for example)
 trackplot <- function(d.frm, lower, upper){
+  par(mfrow = c(3, 2))
   ##first need to plot corresponding frames for tracking
   #First identify repetition. Should all be the same in df. so just take
   #the first observations frame
@@ -888,39 +889,46 @@ trackplot <- function(d.frm, lower, upper){
 }
 
 #Run Function on First 5 min.
-#pdf("TrackPlots/firstfive/TrackPlotR2_fst.pdf")
+#pdf("TrackPlots/firstfive/TrackPlotR2_fst.pdf", height = 9, width= 3)
+jpeg("TrackPlots/firstfive/TrackPlotR2_fst.jpeg", height = 9, width= 3, 
+      units = "in", res = 800)
 trackplot(CompVidRep2, 1, 300)
-#dev.off()
-#pdf("TrackPlots/firstfive/TrackPlotR3_fst.pdf")
+dev.off()
+#pdf("TrackPlots/firstfive/TrackPlotR3_fst.pdf", height = 9, width= 3)
+jpeg("TrackPlots/firstfive/TrackPlotR3_fst.jpeg", height = 9, width= 3, 
+      units = "in", res = 800)
 trackplot(CompVidRep3, 1, 300)
-#dev.off()
-#pdf("TrackPlots/firstfive/TrackPlotR4_fst.pdf")
+dev.off()
+#pdf("TrackPlots/firstfive/TrackPlotR4_fst.pdf", height = 9, width= 3)
+jpeg("TrackPlots/firstfive/TrackPlotR4_fst.jpeg", height = 9, width= 3, 
+      units = "in", res = 800)
 trackplot(CompVidRep4, 1, 300)
-#dev.off()
+dev.off()
 
 #Run Function on Last 5 min
-#pdf("TrackPlots/lastfive/TrackPlotR2_lfm.pdf")
+#pdf("TrackPlots/lastfive/TrackPlotR2_lfm.pdf", height = 9, width= 3)
+jpeg("TrackPlots/firstfive/TrackPlotR2_lfm.jpeg", height = 9, width= 3, 
+      units = "in", res = 800)
 trackplot(CompVidRep2, 1500, 1800)
-#dev.off()
-#pdf("TrackPlots/lastfive/TrackPlotR3_lfm.pdf")
+dev.off()
+pdf("TrackPlots/lastfive/TrackPlotR3_lfm.pdf", height = 9, width= 3)
+jpeg("TrackPlots/firstfive/TrackPlotR3_lfm.jpeg", height = 9, width= 3, 
+      units = "in", res = 800)
 trackplot(CompVidRep3, 1500, 1800) #error says requested frame does not exist
-#dev.off()
+dev.off()
 
-#pdf("TrackPlots/lastfive/TrackPlotR4_lfm.pdf")
+#pdf("TrackPlots/lastfive/TrackPlotR4_lfm.pdf", height = 9, width= 3)
+jpeg("TrackPlots/firstfive/TrackPlotR4_lfm.jpeg", height = 9, width= 3, 
+      units = "in", res = 800)
 trackplot(CompVidRep4, 1500, 1800)
-#dev.off()
+dev.off()
 
-  insect.num <- unique(d.frm$insect.id)
-  id.table <- cbind(1:length(insect.num), insect.num)
-  for(i in 1: length(insect.num)){
-      focal.i <- which(d.frm$insect.id == id.table$insect.num[i])
-      #now we have the insect
-  }
-
-
-##Last 5 Minutes
-
-
+#   insect.num <- unique(d.frm$insect.id)
+#   id.table <- cbind(1:length(insect.num), insect.num)
+#   for(i in 1: length(insect.num)){
+#       focal.i <- which(d.frm$insect.id == id.table$insect.num[i])
+#       #now we have the insect
+#   }
 
 ################################ Averageing ###################################
 ###Function to create plot for instantanious proportion on pesticide
