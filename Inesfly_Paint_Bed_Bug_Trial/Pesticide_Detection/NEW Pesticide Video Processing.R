@@ -20,7 +20,6 @@
 # install.packages("vioplot")
 # install.packages("scales")
 # install.packages("tictoc")
-install.packages("gganimate")
 
 # Open Libraries
 library(videoplayR)
@@ -37,14 +36,14 @@ library(tictoc)
 
 ## Set Working Directory
 #Dylan's PC
-# wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
-#             "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
-# setwd(wd)
+wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+            "Inesfly_Paint_Bed_Bug_Trial/Pesticide_Detection", sep = "")
+setwd(wd)
 
 # Lab computer
-wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-      "Pesticide_Detection", sep = "")
-setwd(wd)
+#wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+#      "Pesticide_Detection", sep = "")
+#setwd(wd)
 
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
@@ -935,8 +934,8 @@ dev.off()
 #   }
 ########################### Video Visualization ###############################
 ###Consider creating a function to watch a video of
-# CompVidRep3$video<-paste(CompVidRep3$rep, CompVidRep3$trial, CompVidRep3$camera,
-#                          sep = "")
+# CompVidRep3$video<-paste(CompVidRep3$rep, CompVidRep3$trial, 
+#                          CompVidRep3$camera, sep = "")
 # rvid <- which(CompVidRep3$video == 361)
 # quartz()
 # for(i in 1600:1800){
@@ -1454,11 +1453,42 @@ mtext(paste("Speed of Insects Between Each Observation", sep = " "), side = 3, l
 dev.off()
 
 ####
-#Lets check some things. Look at R2T1
-wrongdots<- which(CompVidRep2$insect.id == "2-1-8")
-View(CompVidRep2[wrongdots,])
-imshow(getFrame(vidR2T1C2, 1))
-imshow(getFrame(vidR2T1C2, 500))
-imshow(getFrame(vidR2T1C2, 1000))
 
+###############################Latency to Change################################
+#For this, we need insect id, the initial placement(on treatment quad)
+#if on pesticide tray
+#as well as time of change, and censor if no change.
 
+findLatency <- function(cvr){
+  #first create output for each variable needed
+  insects <- unique(cvr$insect.id)
+  LatencyTab  <- data.frame(insects)
+  LatencyTab$init.cond <- (1:length(insects))*NA  
+  LatencyTab$exposed <- (1:length(insects))*NA
+  LatencyTab$trans_latency <- (1:length(insects))*0
+  LatencyTab$censor <- (1:length(insects))*NA #where 1 is censored for now
+  
+  for(i in 1:length(insects)){
+   cvri <- which(cvr$insect.id == LatencyTab$insects[i]) 
+   ff <- which(cvr$frame == min(cvr$frame[cvri]))
+   i.obv <- intersect(ff, cvri)
+   LatencyTab$init.cond[i]<- cvr$Treat_Quad[i.obv]
+   LatencyTab$exposed[i] <- cvr$PTray[i.obv]
+   all.dif.cond <- which(cvr$Treat_Quad != LatencyTab$init.cond[i])
+   in.dif.cond<- intersect(all.dif.cond, cvri)
+   print(in.dif.cond)
+   if(length(in.dif.cond) > 0){
+     LatencyTab$trans_latency[i]<- min(cvr$frame[in.dif.cond])
+     LatencyTab$censor[i] <- 0
+   }
+   if(length(in.dif.cond) == 0){
+     LatencyTab$trans_latency[i]<- max(cvr$frame[cvri])
+     LatencyTab$censor[i] <- 1
+   }
+  }
+  return(LatencyTab)
+}
+
+LatencyTab2 <- findLatency(CompVidRep2)
+LatencyTab3 <- findLatency(CompVidRep3)
+LatencyTab4 <- findLatency(CompVidRep4)
