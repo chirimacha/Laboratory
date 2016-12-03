@@ -20,6 +20,7 @@
 # install.packages("vioplot")
 # install.packages("scales")
 # install.packages("tictoc")
+install.packages("gganimate")
 
 # Open Libraries
 library(videoplayR)
@@ -797,7 +798,7 @@ CompVidRep4 <- read.csv("CompVidRep4.csv")
 #where d.frm is the compiled video data, lower is the lowest frame of interest
 #and upper is the highest frame of interest (0 - 500 for example)
 trackplot <- function(d.frm, lower, upper){
-  par(mfrow = c(3, 2))
+  #par(mfrow = c(3, 2))
   ##first need to plot corresponding frames for tracking
   #First identify repetition. Should all be the same in df. so just take
   #the first observations frame
@@ -817,7 +818,7 @@ trackplot <- function(d.frm, lower, upper){
     video.tp <- intersect(rep.tp, trial.tp)
     #now move to camera
     for(k in 1:camera){
-      #create temp_name for output
+      #create temp_name for specific frame
       temp_name <- paste("End.FR", rep.v, "T", j, "C", k, sep = "")
       #find specific video
       vid_name <- paste("vidR", rep.v, "T", j, "C", k, sep = "")
@@ -827,8 +828,8 @@ trackplot <- function(d.frm, lower, upper){
       if(get(vid_name)$length < upper){
         uppers <- get(vid_name)$length 
       } else {uppers <- upper}
-      assign(temp_name, getFrame(get(vid_name), uppers))
-      #now plot last frame
+      #now use the last frame to generate background
+      assign(temp_name, getFrame(get(vid_name), uppers-1))
       imshow(get(temp_name))
       #pdf("example.pdf")
       #once again, find corresponding cameras in d.frm
@@ -892,7 +893,7 @@ trackplot <- function(d.frm, lower, upper){
 }
 
 #Run Function on First 5 min.
-pdf("TrackPlots/firstfive/TrackPlotR2_fst.pdf")
+pdf("TrackPlots/firstfive/TrackPlotR2_fst_height.pdf")
 #jpeg("TrackPlots/firstfive/TrackPlotR2_fst.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 trackplot(CompVidRep2, 1, 300)
@@ -921,7 +922,7 @@ trackplot(CompVidRep3, 1500, 1800) #error says requested frame does not exist
 dev.off()
 
 pdf("TrackPlots/lastfive/TrackPlotR4_lfm.pdf")
-#jpeg("TrackPlots/firstfive/TrackPlotR4_lfm.jpeg", height = 9, width= 3, 
+#jpeg("TrackPlots/lastfive/TrackPlotR4_lfm.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 trackplot(CompVidRep4, 1500, 1800)
 dev.off()
@@ -932,6 +933,21 @@ dev.off()
 #       focal.i <- which(d.frm$insect.id == id.table$insect.num[i])
 #       #now we have the insect
 #   }
+########################### Video Visualization ###############################
+###Consider creating a function to watch a video of
+# CompVidRep3$video<-paste(CompVidRep3$rep, CompVidRep3$trial, CompVidRep3$camera,
+#                          sep = "")
+# rvid <- which(CompVidRep3$video == 361)
+# quartz()
+# for(i in 1600:1800){
+# 
+# imshow(getFrame(vidR3T6C1, i))
+# rfr <- which(CompVidRep3$frame == i)
+# #rins <- which(CompVidRep3$trayn == 2)
+# #rim <- intersect(rfr, rins)
+# relvt <- intersect(rfr, rvid)
+# points(CompVidRep3$x[relvt], CompVidRep3$y[relvt], col= "red")
+# }
 
 ################################ Averageing ###################################
 ###Function to create plot for instantanious proportion on pesticide
