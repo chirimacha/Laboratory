@@ -646,71 +646,64 @@ DupCorrect <- function(df){
   return(df)
 }
 
-# #Identify duplicates (id>1)
-# dups.t <- which(CompVidRep4$id > 1)
-# twos.t <- which(CompVidRep4$id == 2)
-# #identify the frames with duplicates
-# d.fr.t <- CompVidRep4$frame[dups.t]
-# ud.fr.t <- unique(d.fr.t)
-# ud.fr.t <- ud.fr.t[order(unique(ud.fr.t))]
-# 
-# 
-# remnant <- which(CompVidRep2$frame == 1104)
-# prev <- which(CompVidRep2$frame == 1103)
-# #vprev <- which(CompVidRep2$frame == 1501)
-# dos.test <- which(CompVidRep2$insect.id == "2-3-2")
-# now <- intersect(dos.test, remnant)          
-# pri <- intersect(dos.test, prev) 
-# #vpri <- intersect(dos.test, prev) 
-# View(CompVidRep2a[now,])
-# View(CompVidRep2a[pri,])
-# #View(CompVidRep2a[vpri,])
-
-
-#still 1 observation creating two warnings.
+#Run duplication correction over CompVidReps
 CompVidRep2 <- DupCorrect(CompVidRep2) 
-
 CompVidRep3 <- DupCorrect(CompVidRep3) 
 CompVidRep4 <- DupCorrect(CompVidRep4) #only this works?
 
-#save as csv
+##save as csv  
+#this is not the final version, writing may be helpful
+#if transitioning between PC and Mac
 #write.csv( CompVidRep2, file = "CompVidRep2.csv")
 #write.csv( CompVidRep3, file = "CompVidRep3.csv")
 #write.csv( CompVidRep4, file = "CompVidRep4.csv")
 
+###Function to create quadrants from video 
+##and then align with pesticide data.
 addOrientation <- function(CompiledData) {
   ## Finding quadrants
   # a = vertical
   # b = horizontal
+  #pred 1 determines if insect is above or below line 1
+  #pred 2 determines if insect is to the right or left of verticle line
   belowa <- which((CompiledData$y) <  (CompiledData$pred1))
   abovea <- which((CompiledData$y) >= (CompiledData$pred1))
   belowb <- which((CompiledData$y) <  (CompiledData$pred2))
   aboveb <- which((CompiledData$y) >= (CompiledData$pred2))
 
+#identify if the verticle line is positive or negative slow  
 NegSlope <- which(CompiledData$TPX <  CompiledData$BPX )
 PosSlope <- which(CompiledData$TPX >= CompiledData$BPX )
 
-# Determine Quadrants change depending on slope of vertical line
+####Determine Quadrants change depending on slope of vertical line
 # In cases of positive slopes
-
 # Instead of counter-clockwise numbering of quadrants (from the perspective
 # of the video, not considering pesticide), quadrants were labeled clockwise
-# starting form the top right as 1
+# starting from the top right as 1. 
+
+#so first create blank output column
 CompiledData$quad <- CompiledData$x * 0
+#The positive slopes will be assigned as below
 CompiledData$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
 CompiledData$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 2
 CompiledData$quad[intersect( PosSlope, (intersect(abovea,belowb)))] <- 3
 CompiledData$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 4
-
+#When the slope of b is negative, assign as below.
 CompiledData$quad[intersect( NegSlope, (intersect(abovea,aboveb)))] <- 1
 CompiledData$quad[intersect( NegSlope, (intersect(abovea,belowb)))] <- 2
 CompiledData$quad[intersect( NegSlope, (intersect(belowa,belowb)))] <- 3
 CompiledData$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 4
 
+### Create function that determines which quadrants have pesticide
 
-# Create function that determines which quadrants have pesticide
+###create blank columns to get data from TrayPlace
+#PQuad is the "paint" quadrant based on how the petridishes were painted.
+#Quadrants 1 and 3 have pesticide on them for the treatment dishes.
 CompiledData$PQuad <- CompiledData$x * 0
+#DishID is the assigned number of the petri dish 
+#dishes 1-6 have pesticide on them
 CompiledData$DishID <- CompiledData$x * 0
+#Orientation denotes which PQuad is in the video's quadrant 1.
 CompiledData$Orientation <- CompiledData$x * 0
 
 #Table to determine the painted quadrants given orientation
@@ -720,7 +713,7 @@ three <- c(3,2,1,4)
 four  <- c(4,3,2,1)
 OTab  <- data.frame(one, two, three, four)
 
-# Input data from TrayPlace into CompVidRep2
+# Input data from TrayPlace into CompiledData
 for (i in 1:nrow(CompiledData)) {
   # r, t and p are the INDICES within TrayPlace
   # by themselves, r, t and p are vectors but we then find the intersection
@@ -732,52 +725,62 @@ for (i in 1:nrow(CompiledData)) {
   
   CompiledData$DishID[i] <- TrayPlace$DishID[id]
   CompiledData$Orientation[i] <- TrayPlace$Orientation[id]
-  
   # Setting up orientations
   CompiledData$PQuad[i] <- OTab[CompiledData$quad[i], 
                                 CompiledData$Orientation[i]]
 }
 
-uno <- which(CompiledData$PQuad == 1)  
-dos <- which(CompiledData$PQuad == 2)  
-tres <- which(CompiledData$PQuad == 3)  
-cuatro <- which(CompiledData$PQuad == 4)  
+#identify observations from eqch quadrant
+uno    <- which(CompiledData$PQuad == 1)  
+dos    <- which(CompiledData$PQuad == 2)  
+tres   <- which(CompiledData$PQuad == 3)  
+cuatro <- which(CompiledData$PQuad == 4) 
+#identify which Dishes are <= 6 (have pesticide)
 PTrays <- which(CompiledData$DishID <= 6)
 
+#create variable indicating yes or no if tray has pesticide
 CompiledData$PTray <- CompiledData$PQuad * 0
 CompiledData$PTray[PTrays] <- 1
 
+#create variable inidicating yes or no if bug is on pesticide
 CompiledData$Pesticide <- CompiledData$x * 0
+#quadrants 1 and 3 have pesticide
 CompiledData$Pesticide[intersect( PTrays, uno)] <- 1
 CompiledData$Pesticide[intersect( PTrays, tres)] <- 1
 
+#for comparison's sake between controls and treated, 
+#need to indicate all insects on quadrants 1 and 3. 
 CompiledData$Treat_Quad <- CompiledData$x * 0  
 #quadrants 1 and 3 have pesticide on them.
 CompiledData$Treat_Quad[union(uno, tres)] <- 1
 
+#paste results to create factor data of results.
 CompiledData$Result <- paste(CompiledData$PTray,
                              CompiledData$Treat_Quad, sep="-")
 
 return(CompiledData)
 }
 
+#Run addOrientation over CompVidRep data
 CompVidRep2<- addOrientation(CompVidRep2)
 CompVidRep3<- addOrientation(CompVidRep3)
 CompVidRep4<- addOrientation(CompVidRep4)
 
-resultMat <- function(CompVidRep) {
-  CN <- length(which(CompVidRep$Result == "0-0"))
-  CP <- length(which(CompVidRep$Result == "0-1"))
-  TN <- length(which(CompVidRep$Result == "1-0"))
-  TP <- length(which(CompVidRep$Result == "1-1"))
-  
-  Result_Mat <- matrix(data = c(CN,CP,TN,TP), nrow = 2, ncol = 2,  
-                       byrow = FALSE)
-  return(Result_Mat)
-}
+#contingency table interesting, but not helpful
+#data is not independent
+# resultMat <- function(CompVidRep) {
+#   CN <- length(which(CompVidRep$Result == "0-0"))
+#   CP <- length(which(CompVidRep$Result == "0-1"))
+#   TN <- length(which(CompVidRep$Result == "1-0"))
+#   TP <- length(which(CompVidRep$Result == "1-1"))
+#   
+#   Result_Mat <- matrix(data = c(CN,CP,TN,TP), nrow = 2, ncol = 2,  
+#                        byrow = FALSE)
+#   return(Result_Mat)
+# }
 
 ###############################################################################
-###DO NOT DELETE: Read.csv to bring in Data tables from computer without 
+###DO NOT DELETE: Read.csv to bring in Data tables from non-MAC
 ###data held as objects
 
 # write.csv( CompVidRep2, file = "CompVidRep2.csv")
@@ -789,8 +792,8 @@ CompVidRep3 <- read.csv("CompVidRep3.csv")
 CompVidRep4 <- read.csv("CompVidRep4.csv")
 ###############################################################################
 ################################ Plottting #################################### 
-####Tracks
-###Create functions that plot 
+####Plot the indivdiual tracks of each insect.
+###Create functions that plots track 
 #where d.frm is the compiled video data, lower is the lowest frame of interest
 #and upper is the highest frame of interest (0 - 500 for example)
 trackplot <- function(d.frm, lower, upper){
@@ -889,39 +892,39 @@ trackplot <- function(d.frm, lower, upper){
 }
 
 #Run Function on First 5 min.
-#pdf("TrackPlots/firstfive/TrackPlotR2_fst.pdf")
-jpeg("TrackPlots/firstfive/TrackPlotR2_fst.jpeg", height = 9, width= 3, 
-      units = "in", res = 800)
+pdf("TrackPlots/firstfive/TrackPlotR2_fst.pdf")
+#jpeg("TrackPlots/firstfive/TrackPlotR2_fst.jpeg", height = 9, width= 3, 
+#      units = "in", res = 800)
 trackplot(CompVidRep2, 1, 300)
 dev.off()
-#pdf("TrackPlots/firstfive/TrackPlotR3_fst.pdf")
-jpeg("TrackPlots/firstfive/TrackPlotR3_fst.jpeg", height = 9, width= 3, 
-      units = "in", res = 800)
+pdf("TrackPlots/firstfive/TrackPlotR3_fst.pdf")
+#jpeg("TrackPlots/firstfive/TrackPlotR3_fst.jpeg", height = 9, width= 3, 
+#      units = "in", res = 800)
 trackplot(CompVidRep3, 1, 300)
 dev.off()
-#pdf("TrackPlots/firstfive/TrackPlotR4_fst.pdf")
-jpeg("TrackPlots/firstfive/TrackPlotR4_fst.jpeg", height = 9, width= 3, 
-      units = "in", res = 800)
+pdf("TrackPlots/firstfive/TrackPlotR4_fst.pdf")
+#jpeg("TrackPlots/firstfive/TrackPlotR4_fst.jpeg", height = 9, width= 3, 
+#      units = "in", res = 800)
 trackplot(CompVidRep4, 1, 300)
-#dev.off()
+dev.off()
 
 #Run Function on Last 5 min
-#pdf("TrackPlots/lastfive/TrackPlotR2_lfm.pdf")
-jpeg("TrackPlots/lastfive/TrackPlotR2_lfm.jpeg", height = 9, width= 3, 
-      units = "in", res = 800)
+pdf("TrackPlots/lastfive/TrackPlotR2_lfm.pdf")
+#jpeg("TrackPlots/lastfive/TrackPlotR2_lfm.jpeg", height = 9, width= 3, 
+#      units = "in", res = 800)
 trackplot(CompVidRep2, 1500, 1800)
 dev.off()
 pdf("TrackPlots/lastfive/TrackPlotR3_lfm.pdf")
-jpeg("TrackPlots/lastfive/TrackPlotR3_lfm.jpeg", height = 9, width= 3, 
-      units = "in", res = 800)
+#jpeg("TrackPlots/lastfive/TrackPlotR3_lfm.jpeg", height = 9, width= 3, 
+#      units = "in", res = 800)
 trackplot(CompVidRep3, 1500, 1800) #error says requested frame does not exist
 dev.off()
 
-#pdf("TrackPlots/lastfive/TrackPlotR4_lfm.pdf")
-jpeg("TrackPlots/firstfive/TrackPlotR4_lfm.jpeg", height = 9, width= 3, 
-      units = "in", res = 800)
+pdf("TrackPlots/lastfive/TrackPlotR4_lfm.pdf")
+#jpeg("TrackPlots/firstfive/TrackPlotR4_lfm.jpeg", height = 9, width= 3, 
+#      units = "in", res = 800)
 trackplot(CompVidRep4, 1500, 1800)
-#dev.off()
+dev.off()
 
 #   insect.num <- unique(d.frm$insect.id)
 #   id.table <- cbind(1:length(insect.num), insect.num)
