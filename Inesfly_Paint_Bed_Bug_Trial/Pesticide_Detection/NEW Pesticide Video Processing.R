@@ -903,16 +903,16 @@ dev.off()
 jpeg("TrackPlots/firstfive/TrackPlotR4_fst.jpeg", height = 9, width= 3, 
       units = "in", res = 800)
 trackplot(CompVidRep4, 1, 300)
-dev.off()
+#dev.off()
 
 #Run Function on Last 5 min
 #pdf("TrackPlots/lastfive/TrackPlotR2_lfm.pdf")
-jpeg("TrackPlots/firstfive/TrackPlotR2_lfm.jpeg", height = 9, width= 3, 
+jpeg("TrackPlots/lastfive/TrackPlotR2_lfm.jpeg", height = 9, width= 3, 
       units = "in", res = 800)
 trackplot(CompVidRep2, 1500, 1800)
 dev.off()
 pdf("TrackPlots/lastfive/TrackPlotR3_lfm.pdf")
-jpeg("TrackPlots/firstfive/TrackPlotR3_lfm.jpeg", height = 9, width= 3, 
+jpeg("TrackPlots/lastfive/TrackPlotR3_lfm.jpeg", height = 9, width= 3, 
       units = "in", res = 800)
 trackplot(CompVidRep3, 1500, 1800) #error says requested frame does not exist
 dev.off()
@@ -921,7 +921,7 @@ dev.off()
 jpeg("TrackPlots/firstfive/TrackPlotR4_lfm.jpeg", height = 9, width= 3, 
       units = "in", res = 800)
 trackplot(CompVidRep4, 1500, 1800)
-dev.off()
+#dev.off()
 
 #   insect.num <- unique(d.frm$insect.id)
 #   id.table <- cbind(1:length(insect.num), insect.num)
