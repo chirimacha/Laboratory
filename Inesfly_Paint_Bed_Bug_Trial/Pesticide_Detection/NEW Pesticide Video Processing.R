@@ -33,6 +33,7 @@ library(reshape2)
 library(vioplot)
 library(scales)
 library(tictoc)
+library(survival)
 
 ## Set Working Directory
 #Dylan's PC
@@ -70,8 +71,6 @@ tpca <- which(TrayPlace$tray.id == "2-2-2")
 tpcb <- which(TrayPlace$tray.id == "3-3-9")
 TrayPlace$Orientation[tpca] <- 1 
 TrayPlace$Orientation[tpcb] <- 1
-
-#I suspect R4T4C2 and R4T6C2 to also possible be errors that we cannot validify
 
 #Bring in Videos
 #videos are outside of GitHub due to space constraints.
@@ -995,32 +994,54 @@ af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
 
 
 #look at results
-aCVR2SD<- sd(af.CompVidRep2)
-aCVR2SE<- aCVR2SD/sqrt(length(af.CompVidRep2))
-acCVR2SD<- sd(af.control.CompVidRep2)
-acCVR2SE<- acCVR2SD/sqrt(length(af.control.CompVidRep2))
-mean(af.control.CompVidRep2)
-mean(af.CompVidRep2)
+aCVR2SD <- sd(af.CompVidRep2)
+aCVR2SE <- aCVR2SD/sqrt(length(af.CompVidRep2))
+acCVR2SD <- sd(af.control.CompVidRep2)
+acCVR2SE <- acCVR2SD/sqrt(length(af.control.CompVidRep2))
+acCVR2m <- mean(af.control.CompVidRep2)
+aCVR2m <- mean(af.CompVidRep2)
+aCVR2LCI <- aCVR2m - (1.96*aCVR2SE)
+aCVR2UCI <- aCVR2m + (1.96*aCVR2SE)
+acCVR2LCI <- acCVR2m - (1.96*acCVR2SE)
+acCVR2UCI <- acCVR2m + (1.96*acCVR2SE)
 
-acCVR2SD
-acCVR2SE
+aCVR3SD <- sd(af.CompVidRep3)
+aCVR3SE <- aCVR3SD/sqrt(length(af.CompVidRep3))
+acCVR3SD <- sd(af.control.CompVidRep3)
+acCVR3SE <- acCVR3SD/sqrt(length(af.control.CompVidRep3))
+acCVR3m <- mean(af.control.CompVidRep3)
+aCVR3m <- mean(af.CompVidRep3)
+aCV3LCI <- aCVR3m - (1.96*aCVR3SE)
+aCV3UCI <- aCVR3m + (1.96*aCVR3SE)
+acCV3LCI <- acCVR3m - (1.96*acCVR3SE)
+acCV3UCI <- acCVR3m + (1.96*acCVR3SE)
 
-acCVR3SD<- sd(af.control.CompVidRep3)
-acCVR3SE<- acCVR2SD/sqrt(length(af.control.CompVidRep3))
-mean(af.control.CompVidRep3)
-acCVR3SD
-acCVR3SE
+aCVR4SD <- sd(af.CompVidRep4)
+aCVR4SE <- aCVR4SD/sqrt(length(af.CompVidRep4))
+acCVR4SD <- sd(af.control.CompVidRep4)
+acCVR4SE <- acCVR4SD/sqrt(length(af.control.CompVidRep4))
+acCVR4m <- mean(af.control.CompVidRep4)
+aCVR4m <- mean(af.CompVidRep4)
+aCV4LCI <- aCVR4m - (1.96*aCVR4SE)
+aCV4UCI <- aCVR4m + (1.96*aCVR4SE)
+acCV4LCI <- acCVR4m - (1.96*acCVR4SE)
+acCV4UCI <- acCVR4m + (1.96*acCVR4SE)
+Repetition <- c("1 Day", "3 Weeks", "12 Weeks")
 
-mean(af.CompVidRep2)
-aCVR2SD
-aCVR2SE
+hist(af.CompVidRep4, breaks = 20)
+kurtosis(af.CompVidRep4)
 
-#90 days
+#3 weeks
 t.test(af.CompVidRep2, af.control.CompVidRep2, "two.sided")
-#180 days
+wilcox.test(af.CompVidRep2, af.control.CompVidRep2)
+#12 days
 t.test(af.CompVidRep3, af.control.CompVidRep3, "two.sided")
+wilcox.test(af.CompVidRep3, af.control.CompVidRep3)
+
 #day 1
 t.test(af.CompVidRep4, af.control.CompVidRep4, "two.sided")
+wilcox.test(af.CompVidRep4, af.control.CompVidRep4)
+
 
 ###Functions to make a running average of proportion of bugs on pesticide
 #Treatment
@@ -1466,7 +1487,7 @@ findLatency <- function(cvr){
   LatencyTab$init.cond <- (1:length(insects))*NA  
   LatencyTab$exposed <- (1:length(insects))*NA
   LatencyTab$trans_latency <- (1:length(insects))*0
-  LatencyTab$censor <- (1:length(insects))*NA #where 1 is censored for now
+  LatencyTab$event <- (1:length(insects))*NA 
   
   for(i in 1:length(insects)){
    cvri <- which(cvr$insect.id == LatencyTab$insects[i]) 
@@ -1476,14 +1497,13 @@ findLatency <- function(cvr){
    LatencyTab$exposed[i] <- cvr$PTray[i.obv]
    all.dif.cond <- which(cvr$Treat_Quad != LatencyTab$init.cond[i])
    in.dif.cond<- intersect(all.dif.cond, cvri)
-   print(in.dif.cond)
    if(length(in.dif.cond) > 0){
      LatencyTab$trans_latency[i]<- min(cvr$frame[in.dif.cond])
-     LatencyTab$censor[i] <- 0
+     LatencyTab$event[i] <- 1
    }
    if(length(in.dif.cond) == 0){
      LatencyTab$trans_latency[i]<- max(cvr$frame[cvri])
-     LatencyTab$censor[i] <- 1
+     LatencyTab$event[i] <- 0
    }
   }
   return(LatencyTab)
@@ -1492,3 +1512,24 @@ findLatency <- function(cvr){
 LatencyTab2 <- findLatency(CompVidRep2)
 LatencyTab3 <- findLatency(CompVidRep3)
 LatencyTab4 <- findLatency(CompVidRep4)
+
+###Now analyze
+LSwitch<- function(LatencyTab){
+onpest <- which(LatencyTab$init.cond == 1)
+LatencyTab$init.cond[onpest] <- "YES"
+Lcont <- table(LatencyTab$init.cond, LatencyTab$exposed)
+print(Lcont)
+chsqtL<- chisq.test(Lcont)
+print(chsqtL)
+LatencyTab$Surv <- Surv(time = as.numeric(LatencyTab$trans_latency), 
+                         event = as.numeric(LatencyTab$event))
+modelout<- with(LatencyTab, coxph(Surv ~ exposed * init.cond))
+return(modelout)   
+}
+
+hist(LatencyTab2)
+LSwitch(LatencyTab2)
+LSwitch(LatencyTab3)
+LSwitch(LatencyTab4)
+
+hist()

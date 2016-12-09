@@ -706,5 +706,7 @@ survdiff(IndTab$Surv[onfcon] ~ IndTab$paint[onfcon]+ cluster(IndTab$TreatQuad[on
 
 stargazer(coxm, type ="html", out = "cox_model.html")
 
-
+###Create citations in r for mendeley
+#capture.output(utils:::print.bibentry(citation("base"), style = "Bibtex"),
+#               file = "endnote_import.bib")
 
