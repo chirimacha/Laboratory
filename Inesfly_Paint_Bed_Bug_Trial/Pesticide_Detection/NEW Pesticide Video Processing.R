@@ -42,9 +42,9 @@ wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
 setwd(wd)
 
 # Lab computer
-#wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-#      "Pesticide_Detection", sep = "")
-#setwd(wd)
+wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+      "Pesticide_Detection", sep = "")
+setwd(wd)
 
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
