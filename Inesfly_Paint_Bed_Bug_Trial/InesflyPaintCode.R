@@ -140,11 +140,11 @@ for(i in 1:length(treatments)){
   tr <- which(treatmentsum$treatment == treatments[i])
   temp <- treatmentsum[tr,]
   points(y = temp$prop.alive, x = temp$day, 
-        pch = temp$pch[1], col = temp$paint[1]   
+         pch = temp$pch[1], col = temp$paint[1]   
   )
   lines(y = temp$prop.alive, x = temp$day, 
         col = temp$paint[1], lty = temp$lty[1]    
-       )
+  )
 }
 
 ###################################An Array####################################
@@ -171,7 +171,7 @@ for(k in 1:length(ext)){
     plot(y = treatmentsum$prop.alive, x = treatmentsum$day, 
          pch = treatmentsum$pch, col = treatmentsum$paint,
          type = "n", #main = as.character(paste("J =", ext[k], "hrs:", "K =", dap[j], 
-                      #            d, sep = " ")), 
+         #            d, sep = " ")), 
          ylab = "Proportion Alive", xlab = "Days Since Exposure", 
          xaxt = 'n', yaxt = 'n')
     udays <- c( 0, 7, 14, 21, 28)
@@ -233,12 +233,12 @@ DataMelt$TreatQuad <- paste(DataMelt$quad, DataMelt$treatment, sep = "-")
 
 #Lets summarize the data by treatquad
 quadsum<-summaryBy(alive+dead+knockdown+unviable+living ~ TreatQuad + treatment + day 
-                        + paint + days.after.paint + exp.time,
-                        data = DataMelt, FUN=sum, na.rm=TRUE,
-                        keep.names=TRUE)
+                   + paint + days.after.paint + exp.time,
+                   data = DataMelt, FUN=sum, na.rm=TRUE,
+                   keep.names=TRUE)
 
 quadsum$total <- (quadsum$alive + quadsum$dead 
-                       + quadsum$knockdown)
+                  + quadsum$knockdown)
 
 ##Remove rows with 0 in total (some moved pre-maturely to jars)
 no.obs <- which(quadsum$total == 0)
@@ -338,11 +338,11 @@ for(i in 1:length(quads)){
 ###################################An Array####################################
 #Plot Prop Proportion living (alive+knockdown)
 quadsum$exp.time <- revalue(quadsum$exp.time, c("01H" = "1", 
-                                                     "03H" = "3", 
-                                                     "06H" = "6",
-                                                     "24H" = "24"))
+                                                "03H" = "3", 
+                                                "06H" = "6",
+                                                "24H" = "24"))
 #pdf("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.pdf", width = 6, 
-    height = 9)
+height = 9)
 #jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.jpeg", width = 6, 
 #     height = 9, units = "in", res = 300)
 dap <- unique(quadsum$days.after.paint)
@@ -449,15 +449,15 @@ fillTimeTwo <- function(UIDs){
   indexs <- which(rMelt$UID == UIDs)  
   if(length(indexs) == 0){print("index not found")}
   subtab <- rMelt[indexs,]
-   livs <- which(subtab$dead == 0)
-   n <- length(subtab$day)
-   if(sum(subtab$dead) <  n ) {
-     output <- max(subtab$day[livs])}
-     #<- sort(subtab$day, decreasing = FALSE)[length(livs)]}
-   if(sum(subtab$dead) == n){output <- 0}
-   if(sum(subtab$dead) == 0){output <- sort(c(subtab$day), decreasing = FALSE)[n-1]}
-   return(output) 
- }
+  livs <- which(subtab$dead == 0)
+  n <- length(subtab$day)
+  if(sum(subtab$dead) <  n ) {
+    output <- max(subtab$day[livs])}
+  #<- sort(subtab$day, decreasing = FALSE)[length(livs)]}
+  if(sum(subtab$dead) == n){output <- 0}
+  if(sum(subtab$dead) == 0){output <- sort(c(subtab$day), decreasing = FALSE)[n-1]}
+  return(output) 
+}
 
 fillTimeTwo.test <- function(UIDs){
   indexs <- which(rMelt$UID == UIDs)  
@@ -708,5 +708,5 @@ stargazer(coxm, type ="html", out = "cox_model.html")
 
 ###Create citations in r for mendeley
 capture.output(utils:::print.bibentry(citation("videoplayR"), style = "Bibtex"),
-              file = "endnote_import.bib")
+               file = "endnote_import.bib")
 

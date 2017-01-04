@@ -43,7 +43,7 @@ setwd(wd)
 
 # Lab computer
 wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-      "Pesticide_Detection", sep = "")
+            "Pesticide_Detection", sep = "")
 setwd(wd)
 
 #Justin's Computer
@@ -90,12 +90,12 @@ for (i in 2:4) {
   }
 }
 setwd(wd)
- 
+
 # Brings in Coordinate Tables
 for (i in 2:repetition) { 
   for (j in 1:trial) {
     for (k in 1:camera) {
-     temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
+      temp_name2 <- paste("CoTbR", i, "T", j, "C", k, sep = "")
       csv_name <- paste("Coordinate_Tables/CoTbR", i, "T", j, "C", k,
                         ".csv", sep = "")
       assign(temp_name2, read.csv(csv_name))
@@ -287,41 +287,41 @@ pipeline <- function(video, begin, end, background, mask = NULL,
     tmp <- getFrame(video, i) %>%
       ddd2d() %>%
       blend(background, ., "-") %>%
-{if (is.null(mask)) . else blend(., mask, "*")} %>%
-  thresholding(threshold, "binary") %>%
-  blobDetector() %>%
-  dplyr::filter(area >= minSize) %>%
-  dplyr::mutate(frame = i, track = NA) %>%
-{if (length(.$x) > 0)
-  trackR::simpleTracker(., past, lookBack = lookBack, maxDist = maxDist)
- else . }
-
-nRows <- nrow(tmp)
-if (nRows > 0) {
-  if ((pos + nRows) > n) {
-    tracks[(n + 1):(2 * n + nRows), ] <- 0
-    n <- nrow(tracks)
+      {if (is.null(mask)) . else blend(., mask, "*")} %>%
+      thresholding(threshold, "binary") %>%
+      blobDetector() %>%
+      dplyr::filter(area >= minSize) %>%
+      dplyr::mutate(frame = i, track = NA) %>%
+      {if (length(.$x) > 0)
+        trackR::simpleTracker(., past, lookBack = lookBack, maxDist = maxDist)
+        else . }
+    
+    nRows <- nrow(tmp)
+    if (nRows > 0) {
+      if ((pos + nRows) > n) {
+        tracks[(n + 1):(2 * n + nRows), ] <- 0
+        n <- nrow(tracks)
+      }
+      tracks[(pos + 1):(pos + nRows), ] <- tmp
+      pos <- pos + nRows
+    }
+    
+    if (progress) {
+      new <- floor(100 * (i - begin + 1) / nFrames)
+      if (new > old) {
+        newTime <- Sys.time()
+        fps <- (i - oldFrame + 1) / as.numeric(difftime(newTime, oldTime,
+                                                        unit = "secs"))
+        old <- new
+        oldFrame <- i
+        oldTime <- newTime
+        pb$set(value = old / 100, detail = paste0(old, "% - ",
+                                                  round(fps, digits = 2), "fps"))
+      }
+    }
   }
-  tracks[(pos + 1):(pos + nRows), ] <- tmp
-  pos <- pos + nRows
-}
-
-if (progress) {
-  new <- floor(100 * (i - begin + 1) / nFrames)
-  if (new > old) {
-    newTime <- Sys.time()
-    fps <- (i - oldFrame + 1) / as.numeric(difftime(newTime, oldTime,
-                                                    unit = "secs"))
-    old <- new
-    oldFrame <- i
-    oldTime <- newTime
-    pb$set(value = old / 100, detail = paste0(old, "% - ",
-                                              round(fps, digits = 2), "fps"))
-  }
-}
-  }
-
-tracks[1:pos, ]
+  
+  tracks[1:pos, ]
 }
 
 # Coords helper function finds which quadrant 
@@ -332,7 +332,7 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
   } else {
     fr <- 1800
   }
-   #   fr <- 200
+  #   fr <- 200
   
   # Looks at each video frame and finds the coordinates of each blob
   bugpos <- data.frame()
@@ -396,7 +396,7 @@ Coords <- function(video, imask, maskBG, coordtaba, tn, threshold, maxDista) {
 # VidAnalysis takes in the video and coordinate table to output the coordinates
 # of the insect in each frame for all 6 bugs.
 VidAnalysis <- function(video, bg, coordtab, thresholda,
-                      maxDistb, cam, rep, trial) {
+                        maxDistb, cam, rep, trial) {
   # Creates black masks over each petri dish, giving black rectangle
   for (i in 1:6) {
     temp_mat <- paste("mat", i, sep = "")
@@ -465,7 +465,7 @@ for (i in 2:repetition) {
                                     maxDistb <- user_max,
                                     cam <- k, rep <- i, trial <- j))
       #write.csv(temp_name, file = paste("DR", i, "T", j, "C", k, ".csv", 
-         #sep = ""))
+      #sep = ""))
       print(paste(temp_name,"....Completed!", sep = ""))
       toc(log = FALSE, quiet = FALSE, func.toc = toc.outmsg)
     }
@@ -669,95 +669,95 @@ addOrientation <- function(CompiledData) {
   abovea <- which((CompiledData$y) >= (CompiledData$pred1))
   belowb <- which((CompiledData$y) <  (CompiledData$pred2))
   aboveb <- which((CompiledData$y) >= (CompiledData$pred2))
-
-#identify if the verticle line is positive or negative slow  
-NegSlope <- which(CompiledData$TPX <  CompiledData$BPX )
-PosSlope <- which(CompiledData$TPX >= CompiledData$BPX )
-
-####Determine Quadrants change depending on slope of vertical line
-# In cases of positive slopes
-# Instead of counter-clockwise numbering of quadrants (from the perspective
-# of the video, not considering pesticide), quadrants were labeled clockwise
-# starting from the top right as 1. 
-
-#so first create blank output column
-CompiledData$quad <- CompiledData$x * 0
-#The positive slopes will be assigned as below
-CompiledData$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
-CompiledData$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 2
-CompiledData$quad[intersect( PosSlope, (intersect(abovea,belowb)))] <- 3
-CompiledData$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 4
-#When the slope of b is negative, assign as below.
-CompiledData$quad[intersect( NegSlope, (intersect(abovea,aboveb)))] <- 1
-CompiledData$quad[intersect( NegSlope, (intersect(abovea,belowb)))] <- 2
-CompiledData$quad[intersect( NegSlope, (intersect(belowa,belowb)))] <- 3
-CompiledData$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 4
-
-### Create function that determines which quadrants have pesticide
-
-###create blank columns to get data from TrayPlace
-#PQuad is the "paint" quadrant based on how the petridishes were painted.
-#Quadrants 1 and 3 have pesticide on them for the treatment dishes.
-CompiledData$PQuad <- CompiledData$x * 0
-#DishID is the assigned number of the petri dish 
-#dishes 1-6 have pesticide on them
-CompiledData$DishID <- CompiledData$x * 0
-#Orientation denotes which PQuad is in the video's quadrant 1.
-CompiledData$Orientation <- CompiledData$x * 0
-
-#Table to determine the painted quadrants given orientation
-one   <- c(1,4,3,2)
-two   <- c(2,1,4,3)
-three <- c(3,2,1,4)
-four  <- c(4,3,2,1)
-OTab  <- data.frame(one, two, three, four)
-
-# Input data from TrayPlace into CompiledData
-for (i in 1:nrow(CompiledData)) {
-  # r, t and p are the INDICES within TrayPlace
-  # by themselves, r, t and p are vectors but we then find the intersection
-  # of all three to arrive at the id
-  r <- which(TrayPlace$Repetition == CompiledData$rep[i]) 
-  t <- which(TrayPlace$Trial == CompiledData$trial[i])
-  p <- which(TrayPlace$Position == CompiledData$position[i])
-  id <- intersect(p, intersect(r, t))
   
-  CompiledData$DishID[i] <- TrayPlace$DishID[id]
-  CompiledData$Orientation[i] <- TrayPlace$Orientation[id]
-  # Setting up orientations
-  CompiledData$PQuad[i] <- OTab[CompiledData$quad[i], 
-                                CompiledData$Orientation[i]]
-}
-
-#identify observations from eqch quadrant
-uno    <- which(CompiledData$PQuad == 1)  
-dos    <- which(CompiledData$PQuad == 2)  
-tres   <- which(CompiledData$PQuad == 3)  
-cuatro <- which(CompiledData$PQuad == 4) 
-#identify which Dishes are <= 6 (have pesticide)
-PTrays <- which(CompiledData$DishID <= 6)
-
-#create variable indicating yes or no if tray has pesticide
-CompiledData$PTray <- CompiledData$PQuad * 0
-CompiledData$PTray[PTrays] <- 1
-
-#create variable inidicating yes or no if bug is on pesticide
-CompiledData$Pesticide <- CompiledData$x * 0
-#quadrants 1 and 3 have pesticide
-CompiledData$Pesticide[intersect( PTrays, uno)] <- 1
-CompiledData$Pesticide[intersect( PTrays, tres)] <- 1
-
-#for comparison's sake between controls and treated, 
-#need to indicate all insects on quadrants 1 and 3. 
-CompiledData$Treat_Quad <- CompiledData$x * 0  
-#quadrants 1 and 3 have pesticide on them.
-CompiledData$Treat_Quad[union(uno, tres)] <- 1
-
-#paste results to create factor data of results.
-CompiledData$Result <- paste(CompiledData$PTray,
-                             CompiledData$Treat_Quad, sep="-")
-
-return(CompiledData)
+  #identify if the verticle line is positive or negative slow  
+  NegSlope <- which(CompiledData$TPX <  CompiledData$BPX )
+  PosSlope <- which(CompiledData$TPX >= CompiledData$BPX )
+  
+  ####Determine Quadrants change depending on slope of vertical line
+  # In cases of positive slopes
+  # Instead of counter-clockwise numbering of quadrants (from the perspective
+  # of the video, not considering pesticide), quadrants were labeled clockwise
+  # starting from the top right as 1. 
+  
+  #so first create blank output column
+  CompiledData$quad <- CompiledData$x * 0
+  #The positive slopes will be assigned as below
+  CompiledData$quad[intersect( PosSlope, (intersect(belowa,aboveb)))] <- 1
+  CompiledData$quad[intersect( PosSlope, (intersect(belowa,belowb)))] <- 2
+  CompiledData$quad[intersect( PosSlope, (intersect(abovea,belowb)))] <- 3
+  CompiledData$quad[intersect( PosSlope, (intersect(abovea,aboveb)))] <- 4
+  #When the slope of b is negative, assign as below.
+  CompiledData$quad[intersect( NegSlope, (intersect(abovea,aboveb)))] <- 1
+  CompiledData$quad[intersect( NegSlope, (intersect(abovea,belowb)))] <- 2
+  CompiledData$quad[intersect( NegSlope, (intersect(belowa,belowb)))] <- 3
+  CompiledData$quad[intersect( NegSlope, (intersect(belowa,aboveb)))] <- 4
+  
+  ### Create function that determines which quadrants have pesticide
+  
+  ###create blank columns to get data from TrayPlace
+  #PQuad is the "paint" quadrant based on how the petridishes were painted.
+  #Quadrants 1 and 3 have pesticide on them for the treatment dishes.
+  CompiledData$PQuad <- CompiledData$x * 0
+  #DishID is the assigned number of the petri dish 
+  #dishes 1-6 have pesticide on them
+  CompiledData$DishID <- CompiledData$x * 0
+  #Orientation denotes which PQuad is in the video's quadrant 1.
+  CompiledData$Orientation <- CompiledData$x * 0
+  
+  #Table to determine the painted quadrants given orientation
+  one   <- c(1,4,3,2)
+  two   <- c(2,1,4,3)
+  three <- c(3,2,1,4)
+  four  <- c(4,3,2,1)
+  OTab  <- data.frame(one, two, three, four)
+  
+  # Input data from TrayPlace into CompiledData
+  for (i in 1:nrow(CompiledData)) {
+    # r, t and p are the INDICES within TrayPlace
+    # by themselves, r, t and p are vectors but we then find the intersection
+    # of all three to arrive at the id
+    r <- which(TrayPlace$Repetition == CompiledData$rep[i]) 
+    t <- which(TrayPlace$Trial == CompiledData$trial[i])
+    p <- which(TrayPlace$Position == CompiledData$position[i])
+    id <- intersect(p, intersect(r, t))
+    
+    CompiledData$DishID[i] <- TrayPlace$DishID[id]
+    CompiledData$Orientation[i] <- TrayPlace$Orientation[id]
+    # Setting up orientations
+    CompiledData$PQuad[i] <- OTab[CompiledData$quad[i], 
+                                  CompiledData$Orientation[i]]
+  }
+  
+  #identify observations from eqch quadrant
+  uno    <- which(CompiledData$PQuad == 1)  
+  dos    <- which(CompiledData$PQuad == 2)  
+  tres   <- which(CompiledData$PQuad == 3)  
+  cuatro <- which(CompiledData$PQuad == 4) 
+  #identify which Dishes are <= 6 (have pesticide)
+  PTrays <- which(CompiledData$DishID <= 6)
+  
+  #create variable indicating yes or no if tray has pesticide
+  CompiledData$PTray <- CompiledData$PQuad * 0
+  CompiledData$PTray[PTrays] <- 1
+  
+  #create variable inidicating yes or no if bug is on pesticide
+  CompiledData$Pesticide <- CompiledData$x * 0
+  #quadrants 1 and 3 have pesticide
+  CompiledData$Pesticide[intersect( PTrays, uno)] <- 1
+  CompiledData$Pesticide[intersect( PTrays, tres)] <- 1
+  
+  #for comparison's sake between controls and treated, 
+  #need to indicate all insects on quadrants 1 and 3. 
+  CompiledData$Treat_Quad <- CompiledData$x * 0  
+  #quadrants 1 and 3 have pesticide on them.
+  CompiledData$Treat_Quad[union(uno, tres)] <- 1
+  
+  #paste results to create factor data of results.
+  CompiledData$Result <- paste(CompiledData$PTray,
+                               CompiledData$Treat_Quad, sep="-")
+  
+  return(CompiledData)
 }
 
 #Run addOrientation over CompVidRep data
@@ -868,11 +868,11 @@ trackplot <- function(d.frm, lower, upper){
           }
           if(TrayPlace$Orientation[id.tp] == 2){
             points(x = (get(Ctname)$RPX[tray.ct]) - off, 
-                      y = (get(Ctname)$BPY[tray.ct]) + off,
-                      pch = "*", col = "red")
+                   y = (get(Ctname)$BPY[tray.ct]) + off,
+                   pch = "*", col = "red")
             points(x = (get(Ctname)$LPX[tray.ct]) + off, 
-                      y = (get(Ctname)$TPY[tray.ct]) - off,
-                      pch = "*", col = "red")
+                   y = (get(Ctname)$TPY[tray.ct]) - off,
+                   pch = "*", col = "red")
           }
           if(TrayPlace$Orientation[id.tp] == 4){
             points(x = (get(Ctname)$RPX[tray.ct]) - off, 
@@ -885,7 +885,7 @@ trackplot <- function(d.frm, lower, upper){
         }
       }
       
-    #dev.off()
+      #dev.off()
     }
   }
 }
@@ -1160,32 +1160,32 @@ ClockSpeed <-function(df){
       p.pf <- which(df$frame == pfrmn)
       cf <- intersect(p.cf, ins)
       pf <- intersect(p.pf, ins)
-    my.df[i,f+1]<-sqrt((df$x[cf]-df$x[pf])^2+(df$y[cf]-df$y[pf])^2)/(frmn-pfrmn)
+      my.df[i,f+1]<-sqrt((df$x[cf]-df$x[pf])^2+(df$y[cf]-df$y[pf])^2)/(frmn-pfrmn)
     }
   }
   return(my.df)
 }
 
-  # insects <- unique(CompVidRep3$insect.id)
-  # my.df <- data.frame(matrix(nrow = length(insects), 
-  #                            ncol = (max(CompVidRep3$frame)+1)))
-  # my.df[,1] <- unique(CompVidRep3$insect.id)
-  # insects <- unique(CompVidRep3$insect.id)
-  # for(i in 1){
-  #   ins <- which(CompVidRep3$insect.id == insects[1])
-  #   rev_frames <- CompVidRep3$frame[ins]
-  #   my.df[i,2] <- CompVidRep3$PTray[min(ins)]
-  #   for(f in 2:length(rev_frames)){
-  #     frmn <- rev_frames[f]
-  #     pfrmn <-rev_frames[f-1]
-  #     p.cf <- which(CompVidRep3$frame == frmn)
-  #     p.pf <- which(CompVidRep3$frame == pfrmn)
-  #     cf <- intersect(p.cf, ins)
-  #     pf <- intersect(p.pf, ins)
-  #     my.df[i,f+1]<-sqrt((CompVidRep3$x[cf]-CompVidRep3$x[pf])^2 + 
-  #                       (CompVidRep3$y[cf]-CompVidRep3$y[pf])^2)/(frmn-pfrmn)
-  #   }
-  # }
+# insects <- unique(CompVidRep3$insect.id)
+# my.df <- data.frame(matrix(nrow = length(insects), 
+#                            ncol = (max(CompVidRep3$frame)+1)))
+# my.df[,1] <- unique(CompVidRep3$insect.id)
+# insects <- unique(CompVidRep3$insect.id)
+# for(i in 1){
+#   ins <- which(CompVidRep3$insect.id == insects[1])
+#   rev_frames <- CompVidRep3$frame[ins]
+#   my.df[i,2] <- CompVidRep3$PTray[min(ins)]
+#   for(f in 2:length(rev_frames)){
+#     frmn <- rev_frames[f]
+#     pfrmn <-rev_frames[f-1]
+#     p.cf <- which(CompVidRep3$frame == frmn)
+#     p.pf <- which(CompVidRep3$frame == pfrmn)
+#     cf <- intersect(p.cf, ins)
+#     pf <- intersect(p.pf, ins)
+#     my.df[i,f+1]<-sqrt((CompVidRep3$x[cf]-CompVidRep3$x[pf])^2 + 
+#                       (CompVidRep3$y[cf]-CompVidRep3$y[pf])^2)/(frmn-pfrmn)
+#   }
+# }
 
 csCVR2<-ClockSpeed(CompVidRep2)
 csCVR3<-ClockSpeed(CompVidRep3)
@@ -1323,10 +1323,15 @@ dev.off()
 # #dev.off()
 
 #######################Plot Individual Running Averages########################
-pdf("Figures/IndRrunning_avg.pdf", height = 9, width = 6)
+#pdf("Figures/IndRrunning_avg.pdf", height = 9, width = 6)
 #jpeg("Figures/IndRrunning_avg.jpeg", height = 9, width = 6, res = 300, 
 #     units = "in")
-
+<<<<<<< HEAD
+tiff("Figures/IndRrunning_avg.tiff", height = 9, width = 6, res = 1081, 
+     units = "in")
+=======
+  
+  >>>>>>> parent of 36061c3... Create Figures in Tiff and increase resolution
 par(mfrow = c(3, 2), oma = c(1,1,2,1))
 
 # CompVidRep4
@@ -1436,8 +1441,8 @@ PlotSpeed <- function(csTest, num){
   mn.tile.c <- paste(num, d, "Control")
   #pdf("InstSpeed_3weeks")
   plot(x = c(1, 1800), y = c(0, 40), type = "n", 
-     main = mn.tile.t, ylab = "Speed (pixels/sec)",
-     xlab = "Time (seconds)", xaxt = 'n', yaxt = 'n')
+       main = mn.tile.t, ylab = "Speed (pixels/sec)",
+       xlab = "Time (seconds)", xaxt = 'n', yaxt = 'n')
   axis( 2, at = c(0:4 * 10), las = 2,
         labels = as.character(c(0:4 * 10)))
   axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -1446,31 +1451,36 @@ PlotSpeed <- function(csTest, num){
           col = alpha(i, 0.5), lty = 3)
   }
   lines(x = 2:1800, y = MeanSpeedPest[3:1801], 
-       col = 1, lty = 1)
+        col = 1, lty = 1)
   plot(x = c(1, 1800), y = c(0, 40), type = "n", 
        main = mn.tile.c, ylab = "Speed (pixels/sec)",
        xlab = "Time (seconds)", xaxt = 'n', yaxt = 'n')
   axis( 2, at = c(0:4 * 10), las = 2,
-       labels = as.character(c(0:4 * 10)))
+        labels = as.character(c(0:4 * 10)))
   axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
-    for(i in 1:length(ConFilt)){
-        lines(x = 2:1800, y = csTest[ ConFilt[i], 3:1801], 
-              col = alpha(i, 0.5), lty = 3)
+  for(i in 1:length(ConFilt)){
+    lines(x = 2:1800, y = csTest[ ConFilt[i], 3:1801], 
+          col = alpha(i, 0.5), lty = 3)
   }
   lines(x = 2:1800, y = MeanSpeedCont[3:1801], 
         col = 1, lty = 1)
 }
 
 #pdf(file = "SpeedPlots.pdf")
-pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
+<<<<<<< HEAD
+#pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
+tiff("Figures/SpeedPlots.tiff", width = 9, height = 6, units = "in", res = 1081)
+=======
+  pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
+>>>>>>> parent of 36061c3... Create Figures in Tiff and increase resolution
 #jpeg("Figures/SpeedPlots.jpeg", height = 9, width = 6, res = 300, 
- #    units = "in")
+#    units = "in")
 par(mfrow = c(3,2), oma = c(1,1,2,1))
 PlotSpeed(csCVR4, 1)
 PlotSpeed(csCVR2, 3)
 PlotSpeed(csCVR3, 12)
 mtext(paste("Speed of Insects Between Each Observation", sep = " "), side = 3, line = 0, 
-            outer = TRUE, cex = 1.2)
+      outer = TRUE, cex = 1.2)
 dev.off()
 
 ####
@@ -1490,21 +1500,21 @@ findLatency <- function(cvr){
   LatencyTab$event <- (1:length(insects))*NA 
   
   for(i in 1:length(insects)){
-   cvri <- which(cvr$insect.id == LatencyTab$insects[i]) 
-   ff <- which(cvr$frame == min(cvr$frame[cvri]))
-   i.obv <- intersect(ff, cvri)
-   LatencyTab$init.cond[i]<- cvr$Treat_Quad[i.obv]
-   LatencyTab$exposed[i] <- cvr$PTray[i.obv]
-   all.dif.cond <- which(cvr$Treat_Quad != LatencyTab$init.cond[i])
-   in.dif.cond<- intersect(all.dif.cond, cvri)
-   if(length(in.dif.cond) > 0){
-     LatencyTab$trans_latency[i]<- min(cvr$frame[in.dif.cond])
-     LatencyTab$event[i] <- 1
-   }
-   if(length(in.dif.cond) == 0){
-     LatencyTab$trans_latency[i]<- max(cvr$frame[cvri])
-     LatencyTab$event[i] <- 0
-   }
+    cvri <- which(cvr$insect.id == LatencyTab$insects[i]) 
+    ff <- which(cvr$frame == min(cvr$frame[cvri]))
+    i.obv <- intersect(ff, cvri)
+    LatencyTab$init.cond[i]<- cvr$Treat_Quad[i.obv]
+    LatencyTab$exposed[i] <- cvr$PTray[i.obv]
+    all.dif.cond <- which(cvr$Treat_Quad != LatencyTab$init.cond[i])
+    in.dif.cond<- intersect(all.dif.cond, cvri)
+    if(length(in.dif.cond) > 0){
+      LatencyTab$trans_latency[i]<- min(cvr$frame[in.dif.cond])
+      LatencyTab$event[i] <- 1
+    }
+    if(length(in.dif.cond) == 0){
+      LatencyTab$trans_latency[i]<- max(cvr$frame[cvri])
+      LatencyTab$event[i] <- 0
+    }
   }
   return(LatencyTab)
 }
@@ -1515,16 +1525,16 @@ LatencyTab4 <- findLatency(CompVidRep4)
 
 ###Now analyze
 LSwitch<- function(LatencyTab){
-onpest <- which(LatencyTab$init.cond == 1)
-LatencyTab$init.cond[onpest] <- "YES"
-Lcont <- table(LatencyTab$init.cond, LatencyTab$exposed)
-print(Lcont)
-chsqtL<- chisq.test(Lcont)
-print(chsqtL)
-LatencyTab$Surv <- Surv(time = as.numeric(LatencyTab$trans_latency), 
-                         event = as.numeric(LatencyTab$event))
-modelout<- with(LatencyTab, coxph(Surv ~ exposed * init.cond))
-return(modelout)   
+  onpest <- which(LatencyTab$init.cond == 1)
+  LatencyTab$init.cond[onpest] <- "YES"
+  Lcont <- table(LatencyTab$init.cond, LatencyTab$exposed)
+  print(Lcont)
+  chsqtL<- chisq.test(Lcont)
+  print(chsqtL)
+  LatencyTab$Surv <- Surv(time = as.numeric(LatencyTab$trans_latency), 
+                          event = as.numeric(LatencyTab$event))
+  modelout<- with(LatencyTab, coxph(Surv ~ exposed * init.cond))
+  return(modelout)   
 }
 
 hist(LatencyTab2)
