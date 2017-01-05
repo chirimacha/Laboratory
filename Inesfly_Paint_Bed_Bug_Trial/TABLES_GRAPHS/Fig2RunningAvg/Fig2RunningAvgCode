@@ -1,0 +1,107 @@
+#Fig2RunningAvg
+#running individual averages
+ima.CVR2 <- read.csv("ima_CVR2.csv")
+ima.CVR3 <- read.csv("ima_CVR3.csv")
+ima.CVR4 <- read.csv("ima_CVR4.csv")
+
+#running group average
+ma.CompVidRep2 <- read.csv("ma_CompVidRep2.csv")
+ma.contol.CompVidRep2 <- read.csv("ma_control_CompVidRep2.csv")
+ma.CompVidRep3 <- read.csv("ma_CompVidRep3.csv")
+ma.contol.CompVidRep3 <- read.csv("ma_control_CompVidRep3.csv")
+ma.CompVidRep4 <- read.csv("ma_CompVidRep4.csv")
+ma.contol.CompVidRep4 <- read.csv("ma_control_CompVidRep4.csv")
+
+#######################Plot Individual Running Averages########################
+#pdf("Figures/IndRrunning_avg.pdf", height = 9, width = 6)
+#jpeg("Figures/IndRrunning_avg.jpeg", height = 9, width = 6, res = 300, 
+#     units = "in")
+tiff("Figures/IndRrunning_avg.tiff", height = 9, width = 6, res = 1081, 
+     units = "in")
+par(mfrow = c(3, 2), oma = c(1,1,2,1))
+
+# CompVidRep4
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time on Pesticide", 
+     main = "1 Day Exposed", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR4[,2] == 1)
+for(i in 1:length(CompVidRep4[filter,1])){
+  lines(x = 1:1800, y = ima.CVR4[filter[i], 3:1802], 
+        col = i, lty = 3)
+}#(ima.CompVidRep2[filter[i],2]+1)
+lines(x = 1:1800, y = ma.CompVidRep4, lty = 1, lwd = 1.5, col = 1)
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time on Pesticide",
+     main = "1 Day Control", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR4[,2] == 0)
+for(i in 1:length(CompVidRep4[filter,1])){
+  lines(x = 1:1800, y = ima.CVR4[filter[i], 3:1802], col = i, lty = 3)
+}
+lines(x = 1:1800, y = ma.control.CompVidRep4, lty = 1, lwd = 1.5, col = 1)
+
+# CompVidRep2
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time on Pesticide",
+     main = "3 Weeks Exposed", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR2[,2] == 1)
+for(i in 1:length(CompVidRep2[filter,1])){
+  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], 
+        col = i, lty = 3)
+}#(ima.CompVidRep2[filter[i],2]+1)
+lines(x = 1:1800, y = ma.CompVidRep2, lty = 1, lwd = 1.5, col = 1)
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time on Pesticide",
+     main = "3 Weeks Control", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR2[,2] == 0)
+for(i in 1:length(CompVidRep2[filter,1])){
+  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], col = i, lty = 3)
+}
+lines(x = 1:1800, y = ma.control.CompVidRep2, lty = 1, lwd = 1.5, col = 1)
+
+# CompVidRep3
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time on Pesticide",
+     main = "12 Weeks Exposed", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR3[,2] == 1)
+for(i in 1:length(CompVidRep3[filter,1])){
+  lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], 
+        col = i, lty = 3)
+}#(ima.CompVidRep2[filter[i],2]+1)
+lines(x = 1:1800, y = ma.CompVidRep3, lty = 1, lwd = 1.5, col = 1)
+
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of Time on Pesticide",
+     main = "12 Weeks Control", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR3[,2] == 0)
+for(i in 1:length(CompVidRep3[filter,1])){
+  lines(x = 1:1800, y = ima.CVR3[filter[i], 3:1802], col = i, lty = 3)
+}
+lines(x = 1:1800, y = ma.control.CompVidRep3, lty = 1, lwd = 1.5, col = 1)
+
+
+mtext("Running Average of Proportion of Time that Individual ", side = 3, 
+      line = 0.3, outer = TRUE, cex = 1.2)
+mtext("Insects Spent on Treatment Quadrants", side = 3, 
+      line = -1.2, outer = TRUE, cex = 1.2)
+
+dev.off()

@@ -20,7 +20,6 @@ library(doBy) #use summaryBy function
 library(ggplot2)
 library(plyr)
 library(stargazer)
-library(interval)
 
 ##set up the working directory
 #PC for Dylan
@@ -341,10 +340,11 @@ quadsum$exp.time <- revalue(quadsum$exp.time, c("01H" = "1",
                                                 "03H" = "3", 
                                                 "06H" = "6",
                                                 "24H" = "24"))
+write.csv(quadsum, "TABLES_GRAPHS/Fig1SurvivalArrayWQuads/quadsum")
 #pdf("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.pdf", width = 6, 
-height = 9)
-#jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.jpeg", width = 6, 
-#     height = 9, units = "in", res = 300)
+#height = 9)
+jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.jpeg", width = 6, 
+     height = 9, units = "in", res = 300)
 dap <- unique(quadsum$days.after.paint)
 dap <- dap[order(dap)]
 ext <- unique(quadsum$exp.time)
@@ -390,7 +390,11 @@ mtext("Exposed 3 Hours", side = 2, line = -0.2, outer =T, at = 0.69, adj = 1, ce
 mtext("Exposed 6 Hours", side = 2, line = -0.2, outer = T, at = 0.4392, adj = 1, cex = 0.8) 
 mtext("Exposed 24 Hours", side = 2, line = -0.2, outer = T, at = 0.198, adj = 1, cex = 0.8) 
 #turn off pdf or jpeg
-#dev.off() 
+par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+legend(x = "bottom", legend = c("Control","5A-IGR", "Chlorfenapyr"), col = c(1,2,3), 
+      pch = c(20, 15, 17), lty = 1, cex = 1, horiz= TRUE)
+dev.off() 
 
 ###############################################################################
 

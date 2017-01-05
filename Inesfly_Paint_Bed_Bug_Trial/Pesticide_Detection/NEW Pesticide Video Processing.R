@@ -1090,6 +1090,7 @@ ma.control <- function(d.f, length) {
 }
 
 #Run Function over Rep 2
+
 ma.CompVidRep2 <- ma(CompVidRep2, 1800)
 ma.control.CompVidRep2 <- ma.control(CompVidRep2, 1800)
 
@@ -1101,6 +1102,18 @@ ma.control.CompVidRep3 <- ma.control(CompVidRep3, 1800)
 ma.CompVidRep4 <- ma(CompVidRep4, 1800)
 ma.control.CompVidRep4 <- ma.control(CompVidRep4, 1800)
 
+fgTwoWD <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+             "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS/",
+             "Fig2RunningAvg", sep = "")
+
+#setwd(fgTwoOWD)
+write.csv( ma.CompVidRep2, "ma_CompVidRep2.csv")
+write.csv( ma.control.CompVidRep2, "ma_control_CompVidRep2.csv")
+write.csv( ma.CompVidRep3, "ma_CompVidRep3.csv")
+write.csv( ma.control.CompVidRep3, "ma_control_CompVidRep3.csv")
+write.csv( ma.CompVidRep4, "ma_CompVidRep4.csv")
+write.csv( ma.control.CompVidRep4, "ma_control_CompVidRep4.csv")
+#setwd(WD)
 ###############################################################################
 #### Running Average for Individual Insects ####
 #make an insect identifier
@@ -1136,10 +1149,12 @@ ima.CVR2 <- ima(CompVidRep2, 1800)
 ima.CVR3 <- ima(CompVidRep3, 1800)
 ima.CVR4 <- ima(CompVidRep4, 1800)
 
+setwd("fgTwoWD")
+write.csv(ima.CVR2,"ima_CVR2.csv")
+write.csv(ima.CVR3,"ima_CVR3.csv")
+write.csv(ima.CVR4,"ima_CVR4.csv")
 
-
-###############################################################################
-#### Buckets ####
+setwd("WD")
 
 ###############################################################################
 #### Instantaneous Speed ####
@@ -1191,6 +1206,16 @@ csCVR2<-ClockSpeed(CompVidRep2)
 csCVR3<-ClockSpeed(CompVidRep3)
 csCVR4<-ClockSpeed(CompVidRep4)
 
+fgThreeWD <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+                 "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS/",
+                 "Fig3Speed", sep = "")
+
+setwd(fgThreeWD)
+write.csv(csCVR2, "csCVR2.csv")
+write.csv(csCVR3, "csCVR3.csv")
+write.csv(csCVR4, "csCVR4.csv")
+setwd(WD)
+
 #insect average speed
 InsectAvSpeed <- function(csCVR){
   csCVR$AvSpeed <- csCVR4[,3]*0
@@ -1212,13 +1237,21 @@ control2 <- which(csCVR2[,2] == 0)
 control3 <- which(csCVR3[,2] == 0)
 control4 <- which(csCVR4[,2] == 0)
 
-ExAS2 <- mean(csCVR2$AvSpeed[exposed2],)
+ExAS2 <- mean(csCVR2$AvSpeed[exposed2])
 ExAS3 <- mean(csCVR3$AvSpeed[exposed3])
 ExAS4 <- mean(csCVR4$AvSpeed[exposed4])
 CoAS2 <- mean(csCVR2$AvSpeed[control2])
 CoAS3 <- mean(csCVR3$AvSpeed[control3])
 CoAS4 <- mean(csCVR4$AvSpeed[control4])
 
+setwd()
+write.csv(ExAS2,"ExAS2.csv")
+write.csv(ExAS3,"ExAS3.csv")
+write.csv(ExAS4,"ExAS4.csv")
+write.csv(CoAS2,"CoAS2.csv")
+write.csv(CoAS3,"CoAS3.csv")
+write.csv(CoAS4,"CoAS4.csv")
+setwd()
 ###############################################################################
 #### Average Speed within Bins ####
 
@@ -1326,12 +1359,8 @@ dev.off()
 #pdf("Figures/IndRrunning_avg.pdf", height = 9, width = 6)
 #jpeg("Figures/IndRrunning_avg.jpeg", height = 9, width = 6, res = 300, 
 #     units = "in")
-<<<<<<< HEAD
 tiff("Figures/IndRrunning_avg.tiff", height = 9, width = 6, res = 1081, 
      units = "in")
-=======
-  
-  >>>>>>> parent of 36061c3... Create Figures in Tiff and increase resolution
 par(mfrow = c(3, 2), oma = c(1,1,2,1))
 
 # CompVidRep4
@@ -1467,12 +1496,8 @@ PlotSpeed <- function(csTest, num){
 }
 
 #pdf(file = "SpeedPlots.pdf")
-<<<<<<< HEAD
 #pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
 tiff("Figures/SpeedPlots.tiff", width = 9, height = 6, units = "in", res = 1081)
-=======
-  pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
->>>>>>> parent of 36061c3... Create Figures in Tiff and increase resolution
 #jpeg("Figures/SpeedPlots.jpeg", height = 9, width = 6, res = 300, 
 #    units = "in")
 par(mfrow = c(3,2), oma = c(1,1,2,1))
