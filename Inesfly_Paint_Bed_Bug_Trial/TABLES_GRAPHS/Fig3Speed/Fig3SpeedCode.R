@@ -1,15 +1,28 @@
-#Fig3Speed
-read.csv("csCVR2.csv")
-read.csv("csCVR3.csv")
-read.csv("csCVR4.csv")
+###Code to create Fig3Speed
 
-read.csv("ExAS2.csv")
-read.csv("ExAS3.csv")
-read.csv("ExAS4.csv")
-read.csv("CoAS2.csv")
-read.csv("CoAS3.csv")
-read.csv("CoAS4.csv")
+##make two working directory paths
+#One containing the data
+inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+              "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS",
+              "/Fig3Speed", sep = "")
+#A second for the location the file is saved. (image may be too large for git)
+outwd <- ("/Users/dtracy198/Documents")
 
+#bring in data for individual insects
+csCVR2 <- read.csv("csCVR2.csv")
+csCVR3 <- read.csv("csCVR3.csv")
+csCVR4 <- read.csv("csCVR4.csv")
+
+#bring in data for average for the exposed
+ExAS2 <- read.csv("ExAS2.csv")
+ExAS3 <- read.csv("ExAS3.csv")
+ExAS4 <- read.csv("ExAS4.csv")
+#average data for the controls
+CoAS2 <- read.csv("CoAS2.csv")
+CoAS3 <- read.csv("CoAS3.csv")
+CoAS4 <- read.csv("CoAS4.csv")
+
+#create function that plots the speed of indivudal insects
 PlotSpeed <- function(csTest, num){
   filter <- which(csTest[,2] == 1)
   ConFilt <- which(csTest[,2] == 0)
@@ -54,17 +67,26 @@ PlotSpeed <- function(csTest, num){
   lines(x = 2:1800, y = MeanSpeedCont[3:1801], 
         col = 1, lty = 1)
 }
-
+ 
+##select file type
 #pdf(file = "SpeedPlots.pdf")
 #pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
 tiff("Figures/SpeedPlots.tiff", width = 9, height = 6, units = "in", res = 1081)
 #pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
 #jpeg("Figures/SpeedPlots.jpeg", height = 9, width = 6, res = 300, 
 #    units = "in")
+
+#set parameters
 par(mfrow = c(3,2), oma = c(1,1,2,1))
+
+#plot graphs
 PlotSpeed(csCVR4, 1)
 PlotSpeed(csCVR2, 3)
 PlotSpeed(csCVR3, 12)
-mtext(paste("Speed of Insects Between Each Observation", sep = " "), side = 3, line = 0, 
+
+#add titl
+mtext(paste("Speed of Insects Each Observation", sep = " "), side = 3, line = 0, 
       outer = TRUE, cex = 1.2)
+
+#turn of plotting device
 dev.off()
