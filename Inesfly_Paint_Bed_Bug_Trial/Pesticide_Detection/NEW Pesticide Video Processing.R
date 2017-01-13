@@ -42,9 +42,9 @@ wd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
 setwd(wd)
 
 # Lab computer
-wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
-            "Pesticide_Detection", sep = "")
-setwd(wd)
+#wd <- paste("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial/",
+#            "Pesticide_Detection", sep = "")
+#setwd(wd)
 
 #Justin's Computer
 # setwd(file.path("/Users/Justin/Desktop/Levy_Research/Laboratory/",
@@ -1107,13 +1107,14 @@ fgTwoWD <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
              "Fig2RunningAvg", sep = "")
 
 setwd(fgTwoWD)
-write.csv( ma.CompVidRep2, "ma_CompVidRep2.csv")
-write.csv( ma.control.CompVidRep2, "ma_control_CompVidRep2.csv")
-write.csv( ma.CompVidRep3, "ma_CompVidRep3.csv")
-write.csv( ma.control.CompVidRep3, "ma_control_CompVidRep3.csv")
-write.csv( ma.CompVidRep4, "ma_CompVidRep4.csv")
-write.csv( ma.control.CompVidRep4, "ma_control_CompVidRep4.csv")
+#write.csv( ma.CompVidRep2, "ma_CompVidRep2.csv")
+#write.csv( ma.control.CompVidRep2, "ma_control_CompVidRep2.csv")
+#write.csv( ma.CompVidRep3, "ma_CompVidRep3.csv")
+#write.csv( ma.control.CompVidRep3, "ma_control_CompVidRep3.csv")
+#write.csv( ma.CompVidRep4, "ma_CompVidRep4.csv")
+#write.csv( ma.control.CompVidRep4, "ma_control_CompVidRep4.csv")
 setwd(wd)
+
 ###############################################################################
 #### Running Average for Individual Insects ####
 #make an insect identifier
@@ -1149,12 +1150,11 @@ ima.CVR2 <- ima(CompVidRep2, 1800)
 ima.CVR3 <- ima(CompVidRep3, 1800)
 ima.CVR4 <- ima(CompVidRep4, 1800)
 
-setwd(fgTwoWD)
-write.csv(ima.CVR2,"ima_CVR2.csv")
-write.csv(ima.CVR3,"ima_CVR3.csv")
-write.csv(ima.CVR4,"ima_CVR4.csv")
-
-setwd(wd)
+#setwd(fgTwoWD)
+#write.csv(ima.CVR2,"ima_CVR2.csv")
+#write.csv(ima.CVR3,"ima_CVR3.csv")
+#write.csv(ima.CVR4,"ima_CVR4.csv")
+#setwd(wd)
 
 ###############################################################################
 #### Instantaneous Speed ####
@@ -1210,15 +1210,10 @@ fgThreeWD <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
                  "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS/",
                  "Fig3Speed", sep = "")
 
-setwd(fgThreeWD)
-write.csv(csCVR2, "csCVR2.csv")
-write.csv(csCVR3, "csCVR3.csv")
-write.csv(csCVR4, "csCVR4.csv")
-setwd(wd)
-
 #insect average speed
 InsectAvSpeed <- function(csCVR){
-  csCVR$AvSpeed <- csCVR4[,3]*0
+  #make a new column
+  csCVR$AvSpeed <- csCVR4[,3]*0 
   a <- apply(csCVR[,3:1801], 1:2, as.numeric)
   means<- function(x){mean(x, na.rm = TRUE)}
   b  <- apply(a, 1, means)
@@ -1229,6 +1224,12 @@ InsectAvSpeed <- function(csCVR){
 csCVR2 <- InsectAvSpeed(csCVR2)
 csCVR3 <- InsectAvSpeed(csCVR3)
 csCVR4 <- InsectAvSpeed(csCVR4)
+
+setwd(fgThreeWD)
+#write.csv(csCVR2, "csCVR2.csv")
+#write.csv(csCVR3, "csCVR3.csv")
+#write.csv(csCVR4, "csCVR4.csv")
+setwd(wd)
 
 exposed2 <- which(csCVR2[,2] == 1)
 exposed3 <- which(csCVR3[,2] == 1)
@@ -1244,14 +1245,14 @@ CoAS2 <- mean(csCVR2$AvSpeed[control2])
 CoAS3 <- mean(csCVR3$AvSpeed[control3])
 CoAS4 <- mean(csCVR4$AvSpeed[control4])
 
-setwd()
+setwd(fgThreeWD)
 write.csv(ExAS2,"ExAS2.csv")
 write.csv(ExAS3,"ExAS3.csv")
 write.csv(ExAS4,"ExAS4.csv")
 write.csv(CoAS2,"CoAS2.csv")
 write.csv(CoAS3,"CoAS3.csv")
 write.csv(CoAS4,"CoAS4.csv")
-setwd()
+setwd(wd)
 ###############################################################################
 #### Average Speed within Bins ####
 
