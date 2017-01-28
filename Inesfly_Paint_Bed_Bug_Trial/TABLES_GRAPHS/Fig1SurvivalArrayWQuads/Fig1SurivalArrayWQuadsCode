@@ -1,9 +1,22 @@
-#pdf("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.pdf", width = 6, 
-#height = 9)
-jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.jpeg", width = 6, 
-     height = 9, units = "in", res = 300)
-tiff("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.jpeg", width = 6, 
-     height = 9, units = "in", res = 300)
+###Code to create Fig1SurvivalArrayWQuads
+
+##make two working directory paths
+#One containing the data
+inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+              "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS",
+              "/Fig1SurvivalArrayWQuads", sep = "")
+#A second for the location the file is saved. (image may be too large for git)
+outwd <- ("/Users/dtracy198/Documents")
+
+setwd(inwd)
+
+###Bring in the data
+read.csv("quadsum.csv")
+
+#jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.jpeg", width = 6, 
+#     height = 9, units = "in", res = 300)
+#tiff("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.jpeg", width = 6, 
+#     height = 9, units = "in", res = 300)
 dap <- unique(quadsum$days.after.paint)
 dap <- dap[order(dap)]
 ext <- unique(quadsum$exp.time)
@@ -17,7 +30,7 @@ for(k in 1:length(ext)){
     #if(dap[j] == 1){d <- "day"}
     plot(y = quadsum$prop.alive, x = quadsum$day, 
          pch = quadsum$pch, col = quadsum$paint,
-         type = "n", #main = as.character(paste("J =", ext[k], "hrs:", "K =", dap[j], 
+         type = "n", #main = as.character(paste("J =", tsext[k], "hrs:", "K =", dap[j], 
          #            d, sep = " ")), 
          ylab = "Proportion Alive", xlab = "Days Since Exposure", 
          xaxt = 'n', yaxt = 'n')
@@ -29,10 +42,10 @@ for(k in 1:length(ext)){
     for(i in 1:length(quads.tmp)){
       tr <- which(quadsum$TreatQuad == quads.tmp[i])
       temp <- quadsum[tr,]
-      points(y = temp$prop.liv, x = temp$day, pch = temp$pch[1],
-             col = temp$paint[1])
+      #points(y = temp$prop.liv, x = temp$day, pch = temp$pch[1],
+       #      col = gray.colors(temp$paint[1]))
       lines(y = temp$prop.liv, x = temp$day, pch = temp$pch[1], 
-            col = temp$paint[1])      
+            col = gray.colors(temp$paint[1]), ltyp = temp$paint[1])      
     }
   }
 }
@@ -53,4 +66,4 @@ par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
 plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
 legend(x = "bottom", legend = c("Control","5A-IGR", "Chlorfenapyr"), col = c(1,2,3), 
       pch = c(20, 15, 17), lty = 1, cex = 1, horiz= TRUE)
-dev.off() 
+#dev.off() 

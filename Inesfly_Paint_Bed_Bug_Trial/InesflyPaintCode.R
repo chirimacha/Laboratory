@@ -340,7 +340,7 @@ quadsum$exp.time <- revalue(quadsum$exp.time, c("01H" = "1",
                                                 "03H" = "3", 
                                                 "06H" = "6",
                                                 "24H" = "24"))
-write.csv(quadsum, "TABLES_GRAPHS/Fig1SurvivalArrayWQuads/quadsum")
+#write.csv(quadsum, "TABLES_GRAPHS/Fig1SurvivalArrayWQuads/quadsum.csv")
 #pdf("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.pdf", width = 6, 
 #height = 9)
 jpeg("TABLES_GRAPHS/Bioassay_Array/Bioassay_Graphs_Array_Quads.jpeg", width = 6, 
