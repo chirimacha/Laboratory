@@ -20,6 +20,7 @@
 # install.packages("vioplot")
 # install.packages("scales")
 # install.packages("tictoc")
+# install.packages("moments")
 
 # Open Libraries
 library(videoplayR)
@@ -34,6 +35,7 @@ library(vioplot)
 library(scales)
 library(tictoc)
 library(survival)
+library(moments)
 
 ## Set Working Directory
 #Dylan's PC
@@ -891,39 +893,42 @@ trackplot <- function(d.frm, lower, upper){
 }
 
 #Run Function on First 5 min.
-pdf("TrackPlots/firstfive/TrackPlotR2_fst_height.pdf")
+#pdf("TrackPlots/firstfive/TrackPlotR2_fst_height.pdf")
 #jpeg("TrackPlots/firstfive/TrackPlotR2_fst.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 trackplot(CompVidRep2, 1, 300)
-dev.off()
-pdf("TrackPlots/firstfive/TrackPlotR3_fst.pdf")
+#dev.off()
+
+#pdf("TrackPlots/firstfive/TrackPlotR3_fst.pdf")
 #jpeg("TrackPlots/firstfive/TrackPlotR3_fst.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 trackplot(CompVidRep3, 1, 300)
-dev.off()
-pdf("TrackPlots/firstfive/TrackPlotR4_fst.pdf")
+#dev.off()
+
+#pdf("TrackPlots/firstfive/TrackPlotR4_fst.pdf")
 #jpeg("TrackPlots/firstfive/TrackPlotR4_fst.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 trackplot(CompVidRep4, 1, 300)
-dev.off()
+#dev.off()
 
 #Run Function on Last 5 min
-pdf("TrackPlots/lastfive/TrackPlotR2_lfm.pdf")
+#pdf("TrackPlots/lastfive/TrackPlotR2_lfm.pdf")
 #jpeg("TrackPlots/lastfive/TrackPlotR2_lfm.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 trackplot(CompVidRep2, 1500, 1800)
-dev.off()
-pdf("TrackPlots/lastfive/TrackPlotR3_lfm.pdf")
+#dev.off()
+
+#pdf("TrackPlots/lastfive/TrackPlotR3_lfm.pdf")
 #jpeg("TrackPlots/lastfive/TrackPlotR3_lfm.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 trackplot(CompVidRep3, 1500, 1800) #error says requested frame does not exist
-dev.off()
+#dev.off()
 
-pdf("TrackPlots/lastfive/TrackPlotR4_lfm.pdf")
+#pdf("TrackPlots/lastfive/TrackPlotR4_lfm.pdf")
 #jpeg("TrackPlots/lastfive/TrackPlotR4_lfm.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 trackplot(CompVidRep4, 1500, 1800)
-dev.off()
+#dev.off()
 
 #   insect.num <- unique(d.frm$insect.id)
 #   id.table <- cbind(1:length(insect.num), insect.num)
@@ -1156,6 +1161,92 @@ ima.CVR4 <- ima(CompVidRep4, 1800)
 #write.csv(ima.CVR4,"ima_CVR4.csv")
 #setwd(wd)
 
+insect.prop.time.3w <- ima.CVR2$X1802
+insect.prop.time.12w<- ima.CVR3$X1802
+insect.prop.time.1d<- ima.CVR4$X1802
+
+ipt.trt.3w <- which(ima.CVR2$X2 == 1)
+ipt.cnt.3w <- which(ima.CVR2$X2 == 0)
+ipt.trt.12w <- which(ima.CVR3$X2 == 1)
+ipt.cnt.12w <- which(ima.CVR3$X2 == 0)
+ipt.trt.1d <- which(ima.CVR4$X2 == 1)
+ipt.cnt.1d <- which(ima.CVR4$X2 == 0)
+
+ipt.trt.3w.sd <- sd(insect.prop.time.3w[ipt.trt.3w])
+ipt.trt.3w.se <- ipt.trt.3w.sd /sqrt(length(ipt.trt.3w))
+ipt.cnt.3w.sd <- sd(insect.prop.time.3w[ipt.cnt.3w])
+ipt.cnt.3w.se <- ipt.cnt.3w.sd /sqrt(length(ipt.cnt.3w))
+ipt.trt.3w.mn <- mean(insect.prop.time.3w[ipt.trt.3w])
+ipt.cnt.3w.mn <- mean(insect.prop.time.3w[ipt.cnt.3w])
+
+ipt.trt.3w.lci <- ipt.trt.3w.mn - (1.96*ipt.trt.3w.se)
+ipt.trt.3w.uci <- ipt.trt.3w.mn + (1.96*ipt.trt.3w.se)
+ipt.cnt.3w.lci <- ipt.cnt.3w.mn - (1.96*ipt.cnt.3w.se)
+ipt.cnt.3w.uci <- ipt.cnt.3w.mn + (1.96*ipt.cnt.3w.se)
+
+ipt.trt.12w.sd <- sd(insect.prop.time.12w[ipt.trt.12w])
+ipt.trt.12w.se <- ipt.trt.12w.sd /sqrt(length(ipt.trt.12w))
+ipt.cnt.12w.sd <- sd(insect.prop.time.12w[ipt.cnt.12w])
+ipt.cnt.12w.se <- ipt.cnt.12w.sd /sqrt(length(ipt.cnt.12w))
+ipt.trt.12w.mn <- mean(insect.prop.time.12w[ipt.trt.12w])
+ipt.cnt.12w.mn <- mean(insect.prop.time.12w[ipt.cnt.12w])
+
+ipt.trt.12w.lci <- ipt.trt.12w.mn - (1.96*ipt.trt.12w.se)
+ipt.trt.12w.uci <- ipt.trt.12w.mn + (1.96*ipt.trt.12w.se)
+ipt.cnt.12w.lci <- ipt.cnt.12w.mn - (1.96*ipt.cnt.12w.se)
+ipt.cnt.12w.uci <- ipt.cnt.12w.mn + (1.96*ipt.cnt.12w.se)
+
+ipt.trt.1d.sd <- sd(insect.prop.time.1d[ipt.trt.1d])
+ipt.trt.1d.se <- ipt.trt.1d.sd /sqrt(length(ipt.trt.1d))
+ipt.cnt.1d.sd <- sd(insect.prop.time.1d[ipt.cnt.1d])
+ipt.cnt.1d.se <- ipt.cnt.1d.sd /sqrt(length(ipt.cnt.1d))
+ipt.trt.1d.mn <- mean(insect.prop.time.1d[ipt.trt.1d])
+ipt.cnt.1d.mn <- mean(insect.prop.time.1d[ipt.cnt.1d])
+
+ipt.trt.1d.lci <- ipt.trt.1d.mn - (1.96*ipt.trt.1d.se)
+ipt.trt.1d.uci <- ipt.trt.1d.mn + (1.96*ipt.trt.1d.se)
+ipt.cnt.1d.lci <- ipt.cnt.1d.mn - (1.96*ipt.cnt.1d.se)
+ipt.cnt.1d.uci <- ipt.cnt.1d.mn + (1.96*ipt.cnt.1d.se)
+
+#before running tests, check for normality
+hist(insect.prop.time.3w[ipt.cnt.3w], breaks = 10)
+kurtosis(insect.prop.time.3w[ipt.cnt.3w])
+skewness(insect.prop.time.3w[ipt.cnt.3w])
+
+kurtosis(insect.prop.time.3w[ipt.trt.3w])
+skewness(insect.prop.time.3w[ipt.trt.3w])
+
+jpeg("hist_3week_controls.jpeg")
+hist(insect.prop.time.3w[ipt.cnt.3w], breaks = 10)
+dev.off()
+
+jpeg("hist_3week_treatment.jpeg")
+hist(insect.prop.time.3w[ipt.trt.3w], breaks = 10)
+dev.off()
+
+
+ima.id2<- as.factor(ima.CVR2$X2)
+ima.id3<- as.factor(ima.CVR3$X2)
+ima.id4<- as.factor(ima.CVR4$X2)
+
+#data doesn't look normal and kurtosis is high, so use non-parametric test
+#3 weeks
+#wilcox.test(insect.prop.time.3w[ipt.trt.3w], insect.prop.time.3w[ipt.cnt.3w], 
+#            paired = FALSE, conf.int = TRUE)
+wilcox_test(ima.CVR2$X1802~ima.id2, 
+           ties.method = "average-scores")
+skew(insect.prop.time.3w[ipt.trt.3w])
+#12 days
+#wilcox.test(insect.prop.time.12w[ipt.trt.12w], insect.prop.time.12w[ipt.cnt.12w])
+wilcox_test(ima.CVR3$X1802~ima.id3, 
+            ties.method = "average-scores")
+#day 1
+#wilcox.test(insect.prop.time.1d[ipt.trt.1d], insect.prop.time.1d[ipt.cnt.1d])
+wilcox_test(ima.CVR4$X1802~ima.id4, 
+            ties.method = "average-scores")
+
+
+
 ###############################################################################
 #### Instantaneous Speed ####
 #lets look at speed (distance traveled from previous frame)
@@ -1260,7 +1351,7 @@ setwd(wd)
 ############################## Plotting Averages ##############################
 ###CompVidRep2 (3 weeks post painting)
 #Instantaneous proportion of bugs on pesticide 
-pdf("Figures/PropBugTreatmentPerSec.pdf", height = 9, width= 3)
+#pdf("Figures/PropBugTreatmentPerSec.pdf", height = 9, width= 3)
 # jpeg("Figures/PropBugTreatmentPerSec.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 par(mfrow = c(3, 1), oma = c(1,1,2,1))
