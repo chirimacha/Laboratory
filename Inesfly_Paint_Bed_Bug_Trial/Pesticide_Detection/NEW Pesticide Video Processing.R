@@ -952,102 +952,6 @@ trackplot(CompVidRep4, 1500, 1800)
 # points(CompVidRep3$x[relvt], CompVidRep3$y[relvt], col= "red")
 # }
 
-################################ Averageing ###################################
-###Function to create plot for instantanious proportion on pesticide
-#Treatment
-af <- function(d.f, length) {
-  my.list <- vector('list', length)
-  for (i in 1:length) {
-    frame.num <- which(d.f$frame == i)
-    one.zero <- which(d.f$Result == "1-0")
-    one.one <- which(d.f$Result == "1-1")
-    treatment.fr <- intersect(frame.num, union(one.zero, one.one))
-    pesticide.fr <- intersect(frame.num, one.one)
-    my.list[[i]] <- length(pesticide.fr)/length(treatment.fr)
-  }
-  final.df <- do.call('rbind', my.list)
-  return(final.df)
-}
-
-# Control
-af.control <- function(d.f, length) {
-  my.list <- vector('list', length)
-  for (i in 1:length) {
-    frame.num <- which(d.f$frame == i)
-    zero.zero <- which(d.f$Result == "0-0")
-    zero.one <- which(d.f$Result == "0-1")
-    control.fr <- intersect(frame.num, union(zero.zero, zero.one))
-    pesticide.fr <- intersect(frame.num, zero.one)
-    
-    my.list[[i]] <- length(pesticide.fr)/length(control.fr)
-  }
-  final.df <- do.call('rbind', my.list)
-  return(final.df) 
-}
-
-#Run the Function of Rep 2
-af.CompVidRep2 <- af(CompVidRep2, 1800)
-af.control.CompVidRep2 <- af.control(CompVidRep2, 1800)
-
-#Run the Function of Rep 3
-af.CompVidRep3 <- af(CompVidRep3, 1800)
-af.control.CompVidRep3 <- af.control(CompVidRep3, 1800)
-
-#Run the Function of Rep 4
-af.CompVidRep4 <- af(CompVidRep4, 1800)
-af.control.CompVidRep4 <- af.control(CompVidRep4, 1800)
-
-
-#look at results
-aCVR2SD <- sd(af.CompVidRep2)
-aCVR2SE <- aCVR2SD/sqrt(length(af.CompVidRep2))
-acCVR2SD <- sd(af.control.CompVidRep2)
-acCVR2SE <- acCVR2SD/sqrt(length(af.control.CompVidRep2))
-acCVR2m <- mean(af.control.CompVidRep2)
-aCVR2m <- mean(af.CompVidRep2)
-aCVR2LCI <- aCVR2m - (1.96*aCVR2SE)
-aCVR2UCI <- aCVR2m + (1.96*aCVR2SE)
-acCVR2LCI <- acCVR2m - (1.96*acCVR2SE)
-acCVR2UCI <- acCVR2m + (1.96*acCVR2SE)
-
-aCVR3SD <- sd(af.CompVidRep3)
-aCVR3SE <- aCVR3SD/sqrt(length(af.CompVidRep3))
-acCVR3SD <- sd(af.control.CompVidRep3)
-acCVR3SE <- acCVR3SD/sqrt(length(af.control.CompVidRep3))
-acCVR3m <- mean(af.control.CompVidRep3)
-aCVR3m <- mean(af.CompVidRep3)
-aCV3LCI <- aCVR3m - (1.96*aCVR3SE)
-aCV3UCI <- aCVR3m + (1.96*aCVR3SE)
-acCV3LCI <- acCVR3m - (1.96*acCVR3SE)
-acCV3UCI <- acCVR3m + (1.96*acCVR3SE)
-
-aCVR4SD <- sd(af.CompVidRep4)
-aCVR4SE <- aCVR4SD/sqrt(length(af.CompVidRep4))
-acCVR4SD <- sd(af.control.CompVidRep4)
-acCVR4SE <- acCVR4SD/sqrt(length(af.control.CompVidRep4))
-acCVR4m <- mean(af.control.CompVidRep4)
-aCVR4m <- mean(af.CompVidRep4)
-aCV4LCI <- aCVR4m - (1.96*aCVR4SE)
-aCV4UCI <- aCVR4m + (1.96*aCVR4SE)
-acCV4LCI <- acCVR4m - (1.96*acCVR4SE)
-acCV4UCI <- acCVR4m + (1.96*acCVR4SE)
-Repetition <- c("1 Day", "3 Weeks", "12 Weeks")
-
-hist(af.CompVidRep4, breaks = 20)
-kurtosis(af.CompVidRep4)
-
-#3 weeks
-t.test(af.CompVidRep2, af.control.CompVidRep2, "two.sided")
-wilcox.test(af.CompVidRep2, af.control.CompVidRep2)
-#12 days
-t.test(af.CompVidRep3, af.control.CompVidRep3, "two.sided")
-wilcox.test(af.CompVidRep3, af.control.CompVidRep3)
-
-#day 1
-t.test(af.CompVidRep4, af.control.CompVidRep4, "two.sided")
-wilcox.test(af.CompVidRep4, af.control.CompVidRep4)
-
-
 ###Functions to make a running average of proportion of bugs on pesticide
 #Treatment
 ma <- function(d.f, length) {
@@ -1245,8 +1149,6 @@ wilcox_test(ima.CVR3$X1802~ima.id3,
 wilcox_test(ima.CVR4$X1802~ima.id4, 
             ties.method = "average-scores")
 
-
-
 ###############################################################################
 #### Instantaneous Speed ####
 #lets look at speed (distance traveled from previous frame)
@@ -1266,9 +1168,12 @@ ClockSpeed <-function(df){
       p.pf <- which(df$frame == pfrmn)
       cf <- intersect(p.cf, ins)
       pf <- intersect(p.pf, ins)
-      my.df[i,f+1]<-sqrt((df$x[cf]-df$x[pf])^2+(df$y[cf]-df$y[pf])^2)/(frmn-pfrmn)
+      asqr <- (df$x[cf]-df$x[pf])^2
+      bsqr <- (df$y[cf]-df$y[pf])^2
+      csqr <- asqr+bsqr
+      my.df[i,f+1]<-sqrt(dfx+dfy)/(frmn-pfrmn)
     }
-  }
+  
   return(my.df)
 }
 
@@ -1344,8 +1249,6 @@ write.csv(CoAS2,"CoAS2.csv")
 write.csv(CoAS3,"CoAS3.csv")
 write.csv(CoAS4,"CoAS4.csv")
 setwd(wd)
-###############################################################################
-#### Average Speed within Bins ####
 
 ###############################################################################
 ############################## Plotting Averages ##############################
@@ -1355,8 +1258,9 @@ setwd(wd)
 # jpeg("Figures/PropBugTreatmentPerSec.jpeg", height = 9, width= 3, 
 #      units = "in", res = 800)
 par(mfrow = c(3, 1), oma = c(1,1,2,1))
-plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, xlab = "Time (seconds)",
-     ylab = "Proportion of Bugs", main = "1 Day", xaxt = 'n', yaxt = 'n')
+plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, 
+     xlab = "Time (seconds)", ylab = "Proportion of Bugs", main = "1 Day",
+     xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -1365,8 +1269,9 @@ points(x = 1:1800, y = af.control.CompVidRep4, pch = 20)
 abline(h = 0.5, lty = 2)
 
 
-plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, xlab = "Time (seconds)",
-     ylab = "Proportion of Bugs", main = "3 Weeks", xaxt = 'n', yaxt = 'n')
+plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, 
+     xlab = "Time (seconds)", ylab = "Proportion of Bugs", main = "3 Weeks",
+     xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -1379,8 +1284,9 @@ abline(h = 0.5, lty = 2)
 #Instantaneous proportion
 ttl <- c("12 Weeks")
 #pdf("InstPropCvT_12Weeks.pdf")
-plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, xlab = "Time (seconds)",
-     ylab = "Proportion of Bugs", main = ttl, xaxt = 'n', yaxt = 'n')
+plot(x = c(0,1800), y = c(0.15, 0.85), type ="n", col = 0, 
+     xlab = "Time (seconds)", ylab = "Proportion of Bugs", main = ttl, 
+     xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
