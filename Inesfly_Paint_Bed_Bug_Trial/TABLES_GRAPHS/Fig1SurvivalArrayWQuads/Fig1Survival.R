@@ -72,49 +72,49 @@ legend(x = "bottom", legend = c("Control","5A-IGR", "Chlorfenapyr", "5A v CO", "
        col = c(gray(0.5), gray(0), gray(0.25)), pch = c(16, 15, 17, 93, 125, 41), lty = c(2,1,3,0,0,0), 
        cex = 1, horiz= TRUE)
 
-mtext("***", side = 3, line = -8.7, outer = T, at= .327, cex = .8)
-mtext("]", side = 3, line = -9.1, outer = T, at= 0.305, cex = 2.9, 
-      col = grey(0))
-mtext("***", side = 3, line = -22.5, outer = T, at= .325, cex = .9)
-mtext("]", side = 3, line = -22.5, outer = T, at= 0.31, cex = 1.9, 
-      col = grey(0))
-mtext("***", side = 3, line = -37.25, outer = T, at= .325, cex = .9)
-mtext("]", side = 3, line = -37.25, outer = T, at= 0.31, cex = 2.75, 
-      col = grey(0))
-mtext("***", side = 3, line = -37.25, outer = T, at= .325, cex = .9)
-mtext("]", side = 3, line = -52.1, outer = T, at= 0.31, cex = 3.1, 
-      col = grey(0))
-mtext("***", side = 3, line = -52.1, outer = T, at= .326, cex = .9)
-mtext("}", side = 3, line = -52, outer = T, at= 0.31, cex = 2.5, 
-      col = grey(0.4))
-mtext("***", side = 3, line = -37.25, outer = T, at= .325, cex = .9, 
-      col = grey(0.4))
-mtext(")", side = 3, line = -52, outer = T, at= 0.31, cex = 2.5, 
-      col = grey(0.6))
-mtext("***", side = 3, line = -37.25, outer = T, at= .325, cex = .9, 
-      col = grey(0.6))
-
-mtext("***", side = 3, line = -8.5, outer = T, at= .64, cex = .9)
-mtext("]", side = 3, line = -8.5, outer = T, at= 0.635, cex = 1.9, col = grey(0))
-mtext("***", side = 3, line = -22.5, outer = T, at= .64, cex = .9)
-mtext("]", side = 3, line = -22.5, outer = T, at= 0.635, cex = 1.9, col = grey(0))
-mtext("***", side = 3, line = -37.25, outer = T, at= .64, cex = .9)
-mtext("]", side = 3, line = -37.25, outer = T, at= 0.635, cex = 2.75, col = grey(0))
-mtext("***", side = 3, line = -52, outer = T, at= .64, cex = .9)
-mtext("]", side = 3, line = -52, outer = T, at= 0.635, cex = 2.5, col = grey(0))
-mtext("}", side = 3, line = -52, outer = T, at= 0.635, cex = 2.5, col = grey(0.4))
-mtext(")", side = 3, line = -52, outer = T, at= 0.635, cex = 2.5, col = grey(0.6))
-
-mtext("***", side = 3, line = -8.5, outer = T, at= .96, cex = .9)
-mtext("]", side = 3, line = -8.5, outer = T, at= 0.955, cex = 1.9, col = grey(0))
-mtext("***", side = 3, line = -22.5, outer = T, at= .96, cex = .9)
-mtext("]", side = 3, line = -22.5, outer = T, at= 0.955, cex = 1.9, col = grey(0))
-mtext("***", side = 3, line = -37.25, outer = T, at= .96, cex = .9)
-mtext("]", side = 3, line = -37.25, outer = T, at= 0.955, cex = 2.75, col = grey(0))
-mtext("***", side = 3, line = -52, outer = T, at= .96, cex = .9)
-mtext("]", side = 3, line = -52, outer = T, at= 0.955, cex = 2.5, col = grey(0))
-mtext("}", side = 3, line = -52, outer = T, at= 0.955, cex = 2.5, col = grey(0.4))
-mtext(")", side = 3, line = -52, outer = T, at= 0.955, cex = 2.5, col = grey(0.6))
+# mtext("***", side = 3, line = -8.7, outer = T, at= .327, cex = .8)
+# mtext("]", side = 3, line = -9.1, outer = T, at= 0.305, cex = 2.9, 
+#       col = grey(0))
+# mtext("***", side = 3, line = -22.5, outer = T, at= .325, cex = .9)
+# mtext("]", side = 3, line = -22.5, outer = T, at= 0.31, cex = 1.9, 
+#       col = grey(0))
+# mtext("***", side = 3, line = -37.25, outer = T, at= .325, cex = .9)
+# mtext("]", side = 3, line = -37.25, outer = T, at= 0.31, cex = 2.75, 
+#       col = grey(0))
+# mtext("***", side = 3, line = -37.25, outer = T, at= .325, cex = .9)
+# mtext("]", side = 3, line = -52.1, outer = T, at= 0.31, cex = 3.1, 
+#       col = grey(0))
+# mtext("***", side = 3, line = -52.1, outer = T, at= .326, cex = .9)
+# mtext("}", side = 3, line = -52, outer = T, at= 0.31, cex = 2.5, 
+#       col = grey(0.4))
+# mtext("***", side = 3, line = -37.25, outer = T, at= .325, cex = .9, 
+#       col = grey(0.4))
+# mtext(")", side = 3, line = -52, outer = T, at= 0.31, cex = 2.5, 
+#       col = grey(0.6))
+# mtext("***", side = 3, line = -37.25, outer = T, at= .325, cex = .9, 
+#       col = grey(0.6))
+# 
+# mtext("***", side = 3, line = -8.5, outer = T, at= .64, cex = .9)
+# mtext("]", side = 3, line = -8.5, outer = T, at= 0.635, cex = 1.9, col = grey(0))
+# mtext("***", side = 3, line = -22.5, outer = T, at= .64, cex = .9)
+# mtext("]", side = 3, line = -22.5, outer = T, at= 0.635, cex = 1.9, col = grey(0))
+# mtext("***", side = 3, line = -37.25, outer = T, at= .64, cex = .9)
+# mtext("]", side = 3, line = -37.25, outer = T, at= 0.635, cex = 2.75, col = grey(0))
+# mtext("***", side = 3, line = -52, outer = T, at= .64, cex = .9)
+# mtext("]", side = 3, line = -52, outer = T, at= 0.635, cex = 2.5, col = grey(0))
+# mtext("}", side = 3, line = -52, outer = T, at= 0.635, cex = 2.5, col = grey(0.4))
+# mtext(")", side = 3, line = -52, outer = T, at= 0.635, cex = 2.5, col = grey(0.6))
+# 
+# mtext("***", side = 3, line = -8.5, outer = T, at= .96, cex = .9)
+# mtext("]", side = 3, line = -8.5, outer = T, at= 0.955, cex = 1.9, col = grey(0))
+# mtext("***", side = 3, line = -22.5, outer = T, at= .96, cex = .9)
+# mtext("]", side = 3, line = -22.5, outer = T, at= 0.955, cex = 1.9, col = grey(0))
+# mtext("***", side = 3, line = -37.25, outer = T, at= .96, cex = .9)
+# mtext("]", side = 3, line = -37.25, outer = T, at= 0.955, cex = 2.75, col = grey(0))
+# mtext("***", side = 3, line = -52, outer = T, at= .96, cex = .9)
+# mtext("]", side = 3, line = -52, outer = T, at= 0.955, cex = 2.5, col = grey(0))
+# mtext("}", side = 3, line = -52, outer = T, at= 0.955, cex = 2.5, col = grey(0.4))
+# mtext(")", side = 3, line = -52, outer = T, at= 0.955, cex = 2.5, col = grey(0.5))
 
 #mtext("***", side = 3, line = -50, outer = T, at= 0.5)
 #mtext("***", side = 3, line = -50, outer = T, at= 0.5)
