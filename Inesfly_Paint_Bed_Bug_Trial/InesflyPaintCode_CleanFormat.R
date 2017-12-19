@@ -1,13 +1,11 @@
 ###This code cleans up the data for the bed bug inesfly paint study
-## Review Read me at ____
 
 ###############################################################################
 ###GENERAL SET UP###
 ###============================================================================
 ##Install and load necessary packages
-#Install packages
 #install.packages(c("reshape","survival","tables", "doBy", "ggplot2"))
-#
+
 #load packages
 library(reshape) #Used to change data between short and long formats.
 library(tables)
@@ -20,10 +18,13 @@ library(ggplot2)
 #Envy for Dylan
 setwd("C:/Users/dtracy198/Documents/GitHub/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
 #MAC for Mike
-#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")
+#setwd("/Users/mzlevy/Laboratory/Inesfly_Paint_Bed_Bug_Trial")##Orignal Excel Document on Dropbox at 
+##https://www.dropbox.com/s/2e1cibn7vls22cq/InesflyPilotData4_10_Updated_LM%20%281%29.xlsx?dl=0
+##or ~Dropbox\Inesfly Paint for Bed Bugs\Data Entry\InesflyPilotData4_10_Updated_LM (1)
+##data was saved as CSV then moved to repository.
 
 ###############################################################################
-###bring in data
+###bring in survival data
 ###============================================================================
 
 ##Orignal Excel Document on Dropbox at 
@@ -52,6 +53,9 @@ TEMPHUM<- read.csv("DATA/TempHumData.csv")
 
 ###Put data set names into a vector so they can be looped through
 datasets <- c("D1FSA","D1FSB", "D90FSA", "D90FSB", "D180FSA", "D180FSB")
+
+###############################################################################
+#BEGIN MACRO CORRECTIONS (COLUMNS AND ROWS)
 
 ###investigate duplicate rows
 #found 06H-CO-4-04 error during analysis
@@ -120,25 +124,28 @@ names(D1FSB)[dsp] <- "Days.Post.Painting"
 xrm<-which(names(get(datasets[2]))=="X")
 D1FSB<-D1FSB[,-xrm]
 
-#################################################################
-###Now that the big each have the right dimensions, lets check individual values
+###############################################################################
+###Now that the datasets each have the right dims, lets check individual values
+
+###GO THROUGH EACH VAR 
 
 ###Lets check Stage_start
+#MAKE VARS ALL CHARACTER TYPE
 D1FSA$STAGE_START<-as.character(D1FSA$STAGE_START)
 D1FSB$STAGE_START<-as.character(D1FSB$STAGE_START)
 D180FSA$STAGE_START<-as.character(D180FSA$STAGE_START)
 D180FSB$STAGE_START<-as.character(D180FSB$STAGE_START)
 
+#SEE WHICH ARE NOT EQAUL
 errors1<-which(D1FSA$STAGE_START != D1FSB$STAGE_START)
 errors2<-which(D90FSA$STAGE_START != D90FSB$STAGE_START)
 errors3<-which(D180FSA$STAGE_START != D180FSB$STAGE_START)
 
-###an AM. is introduced #error 3 below
+###an "AM." is introduced #error 3 below
 pe<-which(D1FSB$STAGE_START=="AM.")
 D1FSB$STAGE_START[pe]<-"AM"
 
 ###lets take a look at the error data
-
 D1stageError<-data.frame(D1FSA$INSECT[errors1], D1FSA$STAGE_START[errors1], D1FSB$STAGE_START[errors1], 
                          D1FSA$STAGE_END[errors1], D1FSB$STAGE_END[errors1], D1FSA$NOTES[errors1], D1FSB$NOTES[errors1])
 
@@ -331,7 +338,7 @@ eerrors3a<-which(D180FSA$STAGE_END != D180FSB$STAGE_END)
 
 ##############################################################################
 ###Now to clean up the Living Status data
-##D1FS
+##D1FS at each date
 inderrors1_1<-which(D1FSA$X2015.09.11 != D1FSB$X2015.09.11)
 inderrors2_1<-which(D1FSA$X2015.09.12 != D1FSB$X2015.09.12)
 inderrors3_1<-which(D1FSA$X2015.09.13 != D1FSB$X2015.09.13)
@@ -342,6 +349,7 @@ inderrors7_1<-which(D1FSA$X2015.10.09 != D1FSB$X2015.10.09)
 
 
 ##9/11 errors 
+##ERRORS VERIFIED BY LOOKING AT ORIGNAL LAB NOTEBOOK 
 #1 error  
 error<-rbind(D1FSA[inderrors1_1,], D1FSB[inderrors1_1,])
 #K should be A
@@ -527,6 +535,8 @@ inderrors2_180a <- which(D180FSA$X.2016.03.15. != D180FSB$X.2016.03.15.)#3 (81)
 inderrors3_180a <- which(D180FSA$X.2016.03.22. != D180FSB$X.2016.03.22.)#81,127
 inderrors4_180a <- which(D180FSA$X.2016.03.29. != D180FSB$X.2016.03.29.)#1(311)
 inderrors5_180a <- which(D180FSA$X.2016.04.05. != D180FSB$X.2016.04.05.)#1  
+
+
 ###############################################################################
 ### Extract and Clean Individual Data and then Merge
 ###============================================================================
@@ -536,6 +546,7 @@ names(D1FSA)[12] <- "days.after.paint"
 names(D90FSA)[10] <- "days.after.paint"
 names(D180FSA)[10] <- "days.after.paint"
 
+#CREATE FUNCTION TO SPLIT UNICODE INTO SEPERATE PIECES OF IDENTIFYING INFO
 SplitUnicode <- function(df) {
 df$INSECT <- as.character(df$INSECT)
 df$exp.time <- substr(df$INSECT, 1, 3)
@@ -551,7 +562,8 @@ D1FSA <- SplitUnicode(D1FSA)
 D90FSA <- SplitUnicode(D90FSA)
 D180FSA <- SplitUnicode(D180FSA)
 
-###Last cleaning checks
+#########################################################33#################W##
+###IF BELIEVED TO BE DEAD THEN DETERMINED TO KNOCKDOWN OR ALIVE AT PREVIOUS OBS
 ##If dead resurect 
 #1 day
 dead1.1 <- which(D1FSA$X2015.09.11 == "D")
@@ -584,7 +596,8 @@ D1FSA$X2015.09.25[resurect6.1] <- "K"
 last <- length(D1FSA$X2015.10.02[resurect7.1])
 D1FSA$X2015.10.02[resurect7.1[last]] <- "K"
 
-#
+#RERUN CODE UNTIL NO OBSERVED RESURRECTIONS
+
 #1 day
 dead1.1 <- which(D1FSA$X2015.09.11 == "D")
 livin2.1 <- which(D1FSA$X2015.09.12 != "D")
@@ -651,7 +664,7 @@ resurect3.3 <- intersect(dead2.3, livin3.3)
 resurect4.3 <- intersect(dead3.3, livin4.3)
 resurect5.3 <- intersect(dead4.3, livin5.3)
 
-#Did not catch "D, D, K" as it fixes it to "D, K, K"
+#Did not catch "D,D,K" as it fixes it to "D,K,K"(IMPORTANT TO RUN MULT TIMES)
 nerror.1 <- which(D180FSA$INSECT == "03H-5A-3-06")
 errorfix <- union(nerror.1, resurect2.3)
 
@@ -691,23 +704,6 @@ escaped.6 <- which(D180FSA$X2016.04.05 == "")
 #which(D1FSA == "")
 
 ###############################################################################
-#See if we can infer missing date from Jar Data
-# #Identify missing
-# missing.jars <- which(D1FSA$X2015.10.09 == "")
-# #assume if dead still dead
-# dead.still.dead <- which(D1FSA$X2015.10.02 == "D")
-# dd <- intersect(missing.jars, dead.still.dead)
-# D1FSA$X2015.10.09[dd] <- "D"
-# 
-# #all remaining AF's survived to jar check on 10/16
-# not.dead <- which(D1FSA$X2015.10.02 != "D")
-# female <- which(D1FSA$STAGE_END == "AF")
-# livin.f <- intersect(not.dead, female)
-# liv.fm.miss <- intersect(livin.f, missing.jars)
-# 
-# length(liv.fm.miss)
-
-######################
 #In order to get to cox test, reshape the data.
 D1.melt <- melt(D1FSA, id=c("INSECT", "STAGE_START", "STAGE_END", "NOTES", 
                          "paint", "days.after.paint", "quad", "exposure", 
@@ -720,14 +716,7 @@ D90.melt <- melt(D90FSA, id=c("INSECT", "STAGE_START", "STAGE_END", "NOTES",
 D180.melt <- melt(D180FSA, id=c("INSECT", "STAGE_START", "STAGE_END", "NOTES", 
                             "paint", "days.after.paint", "quad", "exposure", 
                             "treatment", "exp.time"))
-
-#as.character(substr(D90.melt$variable, 2,2))
-#as.character(substr(D180.melt$variable, 2,2))
-
-
-#View(D90.melt$variable)
-
-#as.character(substr(D180.melt$variable, 1,1))
+#REMOVE "." TO MAKE DATA STANDARD 
 D90.melt$variable <- gsub("X.", "X", D90.melt$variable)
 D180.melt$variable <- gsub("X.", "X", D180.melt$variable)
 
@@ -748,9 +737,8 @@ names(dtf)[chngname] <- "date"
 chval<-which(names(dtf)=="value")
 names(dtf)[chval] <- "status"
 
-#==============================================================================
 ###Now that we have the data in a usable table, lets split the status into binary
-#find 
+#create id for each status
 alive <- which(dtf$status== "A")
 knockdown <- which(dtf$status=="K")
 dead <- which(dtf$status=="D")
@@ -760,6 +748,7 @@ living <- c(alive, knockdown)
 #create blank columns for each status.
 num <- as.numeric(dtf$quad)*0
 dtf$alive <- num
+#add 1 for those that are alive
 dtf$alive[alive] <- 1
 dtf$knockdown <- num
 dtf$knockdown[knockdown] <- 1
@@ -772,10 +761,12 @@ dtf$living[living] <- 1
 return(dtf)
 }
 
+#RUN MakeBinary Function over each data set. 
 D1.melt <- MakeBinary(D1.melt)
 D90.melt <- MakeBinary(D90.melt)
 D180.melt <- MakeBinary(D180.melt)
 
+#Make a date variable and days since exposure(day 0)
 MakeJulianDate <- function(Data){
   Data$date <- as.Date(Data$date)
   Data$julian <- julian(Data$date)
@@ -786,18 +777,14 @@ MakeJulianDate <- function(Data){
   return(Data)
 }
 
+#RUN DATE FUNCTION. 
 D1.melt <- MakeJulianDate(D1.melt)
 D90.melt <- MakeJulianDate(D90.melt)
 D180.melt <- MakeJulianDate(D180.melt)
 
+###############################################################################
+###MERGE DATA
 DataMelt<- rbind(D1.melt, D90.melt, D180.melt)
 
-#write.csv(D1.melt, file = "DATA/D1_melt.csv")
-#write.csv(D90.melt, file = "DATA/D90_melt.csv")
-#write.csv(D180.melt, file = "DATA/D180_melt.csv")
-write.csv(DataMelt, file = "DATA/DataMelt.csv")
-#=============================================================================+
-
-#also add back collective data to 1H-5A 2015-09-2015
-
-#==============================================================================
+##EXPORT CLEAN SURVIVAL DATA. 
+#write.csv(DataMelt, file = "DATA/DataMelt.csv")
