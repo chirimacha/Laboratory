@@ -6,8 +6,8 @@
 ###============================================================================
 ##Install and load necessary packages
 #Install packages
-#install.packages( c("reshape","survival","tables", "doBy", "ggplot2", "plyr",
-#                "stargazer", "interval" ))
+install.packages( c("reshape","survival","tables", "doBy", "plyr",
+                "stargazer", "interval" ))
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("Icens")
 #http://www.bioconductor.org/packages/release/bioc/html/Icens.html
@@ -17,7 +17,6 @@ library(reshape) #Used to change data between short and long formats.
 library(survival) #for cox proportional hazaard
 library(tables)
 library(doBy) #use summaryBy function
-library(ggplot2)
 library(plyr)
 library(stargazer)
 
@@ -56,17 +55,22 @@ TEMPHUM<- read.csv("DATA/InesflyTempHum.csv")
 ###============================================================================
 #Proportions of bugs alive at each date
 ###============================================================================
-#reshape/summaryBy to see the proportion of bugs at each and each treatment
+###reshape/summaryBy to see the proportion of bugs at each and each treatment
+#First make treatment a factor variable. 
 DataMelt$treatment <- as.factor(DataMelt$treatment)
+#The use sammary by function to reshape the data so there is one row per 
+#observation (1 insect per day observed)
 treatmentsum<-summaryBy(alive+dead+knockdown+unviable+living ~ treatment + day 
                         + paint + days.after.paint + exp.time,
                         data = DataMelt, FUN=sum, na.rm=TRUE,
                         keep.names=TRUE)
-
+#Then create total colum that should be one if any observation is recorded.
 treatmentsum$total <- (treatmentsum$alive + treatmentsum$dead 
                        + treatmentsum$knockdown)
 
-###Remove rows with 0 in total (taken as placed into microcentrofuge tubes)
+###THOUGH WE REMOVED MOST ERRORS, WE NEED TO FORMATT THE DATA STILL 
+
+###Remove rows with 0 in total (no recorded observation-)
 ###All bugs were alive when exposed to pesticide.  
 #add/replace a column that shows everything at alive at day 0, before treatment
 treatments <- unique(treatmentsum$treatment)
@@ -632,7 +636,6 @@ survdiff(IndTab$Surv[oecctw] ~ IndTab$paint[oecctw], rho = 0)
 survdiff(IndTab$Surv[onfftw] ~ IndTab$paint[onfftw], rho = 0)
 survdiff(IndTab$Surv[nifftw] ~ IndTab$paint[nifftw], rho = 0)
 survdiff(IndTab$Surv[oefftw] ~ IndTab$paint[oefftw], rho = 0)
-
 
 
 #ON = "One day after painting", ni="90 days", "oe"=180 days, 
