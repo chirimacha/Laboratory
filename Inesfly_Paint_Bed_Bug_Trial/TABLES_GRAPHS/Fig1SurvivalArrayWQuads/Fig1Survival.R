@@ -15,23 +15,34 @@ quadsum <- read.csv("quadsum.csv")
 twenties<- which(quadsum$pch == 20)
 quadsum$pch[twenties] <- 16
 
+##Select file type and dimensions in inches
 #jpeg("Bioassay_Graphs_Array_Quads.jpg", width = 6, height = 9, units = "in",
-     #res = 300 )
-tiff("Bioassay_Graphs_Array_Quads.tiff", width = 6, 
-     height = 9, units = "in", res = 300)
+    #res = 300 )
+#tiff("Bioassay_Graphs_Array_Quads.tiff", width = 6, 
+#    height = 9, units = "in", res = 300)
 #dev.new(height = 9, width = 6,noRStudioGD = TRUE)
 
+#create indicator for loop through each "days after paiting" treatment
+#(1, 180, 90)
 dap <- unique(quadsum$days.after.paint)
+#put them in order (1, 90, 180)
 dap <- dap[order(dap)]
+#create indicator for exposure time (1,3, 6, 24 hours) for loop
 ext <- unique(quadsum$exp.time)
-par(mfrow = c(4,3), oma = c(1,1,2,1)) #4 across 3 
+#set graphing parameters to have a grid that is 3 across 4 down)
+par(mfrow = c(4,3), oma = c(1,1,2,1)) 
+
+#Loop through exposure times
 for(k in 1:length(ext)){
+  #select all values data with same time
   tsdap <- which(quadsum$exp.time == ext[k])
+  #then loop through all days after painting
   for(j in 1:length(dap)){
+    #select the data all the data with that value of days after painting
     tsext <- which(quadsum$days.after.paint == dap[j])
+    #find the data that share the same days after painting and exposure time
     tsde <- intersect(tsdap, tsext)  
-    #d <- "days"
-    #if(dap[j] == 1){d <- "day"}
+    #generate the individual plot for the corresponding time.
     plot(y = quadsum$prop.alive, x = quadsum$day, 
          pch = quadsum$pch, col = quadsum$paint,
          type = "n", #main = as.character(paste("J =", ext[k], "hrs:", "K =", dap[j], 
@@ -119,4 +130,4 @@ legend(x = "bottom", legend = c("Control","5A-IGR", "Chlorfenapyr", "5A v CO", "
 #mtext("***", side = 3, line = -50, outer = T, at= 0.5)
 #mtext("***", side = 3, line = -50, outer = T, at= 0.5)
 
-dev.off()
+#dev.off()
