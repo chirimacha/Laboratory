@@ -8,6 +8,13 @@ inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
 #A second for the location the file is saved. (image may be too large for git)
 outwd <- ("/Users/dtracy198/Documents")
 
+#set working directory
+setwd(inwd)
+
+#packages
+#install.packages("scales") #allows for 
+library(scales)
+
 #bring in data for individual insects
 csCVR2 <- read.csv("csCVR2.csv")
 csCVR3 <- read.csv("csCVR3.csv")
@@ -22,10 +29,12 @@ CoAS2 <- read.csv("CoAS2.csv")
 CoAS3 <- read.csv("CoAS3.csv")
 CoAS4 <- read.csv("CoAS4.csv")
 
+setwd(outwd)
+
 #create function that plots the speed of indivudal insects
 PlotSpeed <- function(csTest, num){
-  filter <- which(csTest[,2] == 1)
-  ConFilt <- which(csTest[,2] == 0)
+  filter <- which(csTest[,3] == 1)
+  ConFilt <- which(csTest[,3] == 0)
   MeanSpeedPest <- csTest[1,]
   MeanSpeedCont <- csTest[1,]
   MeanSpeedPest[1] <- "MeanSpeedPest"
@@ -39,8 +48,8 @@ PlotSpeed <- function(csTest, num){
   if(num == 1){ 
     d <- "Day -"
   } else {d <- "Weeks -"}
-  mn.tile.t <- paste(num, d, "Exposed")
-  mn.tile.c <- paste(num, d, "Control")
+  mn.tile.t <- paste(num, d, "Partially Treated Plates")
+  mn.tile.c <- paste(num, d, "Control Plates")
   #pdf("InstSpeed_3weeks")
   plot(x = c(1, 1800), y = c(0, 40), type = "n", 
        main = mn.tile.t, ylab = "Speed (pixels/sec)",
@@ -71,10 +80,10 @@ PlotSpeed <- function(csTest, num){
 ##select file type
 #pdf(file = "SpeedPlots.pdf")
 #pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
-tiff("Figures/SpeedPlots.tiff", width = 9, height = 6, units = "in", res = 1081)
+#tiff("Figures/SpeedPlots.tiff", width = 9, height = 6, units = "in", res = 1081)
 #pdf("Figures/SpeedPlots.pdf", height = 9, width = 6)
-#jpeg("Figures/SpeedPlots.jpeg", height = 9, width = 6, res = 300, 
-#    units = "in")
+jpeg("SpeedPlots.jpeg", height = 9, width = 6, res = 300, 
+    units = "in")
 
 #set parameters
 par(mfrow = c(3,2), oma = c(1,1,2,1))
@@ -90,3 +99,4 @@ mtext(paste("Speed of Insects Each Observation", sep = " "), side = 3, line = 0,
 
 #turn of plotting device
 dev.off()
+
