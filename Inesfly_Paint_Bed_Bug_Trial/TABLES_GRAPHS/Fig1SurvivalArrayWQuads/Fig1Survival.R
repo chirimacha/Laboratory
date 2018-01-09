@@ -2,11 +2,25 @@
 
 ##make two working directory paths
 #One containing the data
+
+#this code makes it simple for anyone to use the code by placing it in their home directory
+homeDir <- path.expand('~')
+inwd<-paste(homeDir,"/Laboratory/Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS/Fig1SurvivalArrayWQuads", sep="")
+
+
 inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
               "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS",
               "/Fig1SurvivalArrayWQuads", sep = "")
+
+
+
 #A second for the location the file is saved. (image may be too large for git)
+
+outwd<-paste(homeDir,"/Documents", sep="")
 outwd <- ("/Users/dtracy198/Documents")
+
+
+
 
 setwd(inwd)
 
@@ -66,7 +80,7 @@ for(k in 1:length(ext)){
 }
 
 #title
-mtext("Proportion of Alive Bugs", side = 3, line = 0, outer = TRUE, cex = 1.2)
+#mtext("Proportion of Alive Bugs", side = 3, line = 0, outer = TRUE, cex = 1.2)
 #Top Headings
 mtext("1 Day After Painting", side = 3, line = -2 , outer = TRUE, cex=0.8, at = 0.18) 
 mtext("90 days after painting", side = 3, line = -2 , outer = TRUE, cex=0.8, at = 0.50) 
