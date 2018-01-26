@@ -1,0 +1,5 @@
+  track total_distance_traveled_(pixels)
+1     1                         59431.89
+2     2                         91474.56
+3     3                         76573.28
+4     4                         60516.05
