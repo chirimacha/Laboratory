@@ -19,9 +19,6 @@ inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
 outwd<-paste(homeDir,"/Documents", sep="")
 outwd <- ("/Users/dtracy198/Documents")
 
-
-
-
 setwd(inwd)
 
 ###Bring in the data
@@ -29,6 +26,7 @@ quadsum <- read.csv("quadsum.csv")
 twenties<- which(quadsum$pch == 20)
 quadsum$pch[twenties] <- 16
 
+setwd(outwd)
 ##Select file type and dimensions in inches
 #jpeg("Bioassay_Graphs_Array_Quads.jpg", width = 6, height = 9, units = "in",
     #res = 300 )
