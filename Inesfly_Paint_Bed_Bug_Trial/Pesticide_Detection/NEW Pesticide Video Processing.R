@@ -8,19 +8,20 @@
 #   install.packages("devtools")
 # }
 #
-# devtools::install_github("swarm-lab/videoplayR")
+devtools::install_github("swarm-lab/videoplayR")
 # 
 # #install Other packages:
-# install.packages("dplyr")
-# install.packages("clue")
-# install.packages("shiny")
-# install.packages("splancs")
-# install.packages("tictoc")
-# install.packages("reshape2")
-# install.packages("vioplot")
-# install.packages("scales")
-# install.packages("tictoc")
-# install.packages("moments")
+ install.packages("dplyr")
+ install.packages("coin")
+ install.packages("clue")
+ install.packages("shiny")
+ install.packages("splancs")
+ install.packages("tictoc")
+ install.packages("reshape2")
+ install.packages("vioplot")
+ install.packages("scales")
+ install.packages("tictoc")
+ install.packages("moments")
 
 # Open Libraries
 library(videoplayR)
@@ -36,6 +37,7 @@ library(scales)
 library(tictoc)
 library(survival)
 library(moments)
+library(coin)
 
 ## Set Working Directory
 #Dylan's PC
@@ -1171,9 +1173,9 @@ ClockSpeed <-function(df){
       asqr <- (df$x[cf]-df$x[pf])^2
       bsqr <- (df$y[cf]-df$y[pf])^2
       csqr <- asqr+bsqr
-      my.df[i,f+1]<-sqrt(dfx+dfy)/(frmn-pfrmn)
+      my.df[i,f+1]<-sqrt(csqr)/(frmn-pfrmn)
     }
-  
+  }
   return(my.df)
 }
 
@@ -1207,19 +1209,44 @@ fgThreeWD <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
                  "Fig3Speed", sep = "")
 
 #insect average speed
-InsectAvSpeed <- function(csCVR){
+InsectAvSpeed <- function(csCVR,begin, endtime){
   #make a new column
-  csCVR$AvSpeed <- csCVR4[,3]*0 
-  a <- apply(csCVR[,3:1801], 1:2, as.numeric)
+  csCVR$AvSpeed <- csCVR[,3]*0 
+  #create a filler data set (1:2 means fn applied over both column and rows)
+  a <- apply(csCVR[,(3+begin):(endtime+1)], 1:2, as.numeric)
+  #note that csCVR goes from 03-1801, 1st frame is cut. need to review why second is cut.
   means<- function(x){mean(x, na.rm = TRUE)}
   b  <- apply(a, 1, means)
   csCVR$AvSpeed <- b
   return(csCVR)
 }
 
-csCVR2 <- InsectAvSpeed(csCVR2)
-csCVR3 <- InsectAvSpeed(csCVR3)
-csCVR4 <- InsectAvSpeed(csCVR4)
+#total (for graphing purposes cscVR2t is the same as csCVR in figures)
+csCVR2t <- InsectAvSpeed(csCVR2, 0, 1800)
+#begining
+csCVR2b <- InsectAvSpeed(csCVR2, 60, 180)
+#end
+csCVR2e <- InsectAvSpeed(csCVR2, 1680, 1740)
+
+csCVR3t <- InsectAvSpeed(csCVR3, 0, 1800)
+#begining
+csCVR3b <- InsectAvSpeed(csCVR3, 60, 180)
+#end
+csCVR3e <- InsectAvSpeed(csCVR3, 1680, 1740)
+
+csCVR4t <- InsectAvSpeed(csCVR4, 0, 1800)
+#begining
+csCVR4b <- InsectAvSpeed(csCVR4, 60, 180)
+#end
+csCVR4e <- InsectAvSpeed(csCVR4, 1680, 1740)
+
+
+
+
+#csCVR3 <- InsectAvSpeed(csCVR3)
+#csCVR4 <- InsectAvSpeed(csCVR4)
+
+
 
 setwd(fgThreeWD)
 #write.csv(csCVR2, "csCVR2.csv")
@@ -1234,20 +1261,78 @@ control2 <- which(csCVR2[,2] == 0)
 control3 <- which(csCVR3[,2] == 0)
 control4 <- which(csCVR4[,2] == 0)
 
-ExAS2 <- mean(csCVR2$AvSpeed[exposed2])
-ExAS3 <- mean(csCVR3$AvSpeed[exposed3])
-ExAS4 <- mean(csCVR4$AvSpeed[exposed4])
-CoAS2 <- mean(csCVR2$AvSpeed[control2])
-CoAS3 <- mean(csCVR3$AvSpeed[control3])
-CoAS4 <- mean(csCVR4$AvSpeed[control4])
+#wilcox-test ;
+#need to make factor for test 
+csCVR2t[,2]<-as.factor(csCVR2t[,2])
+csCVR2b[,2]<-as.factor(csCVR2b[,2])
+csCVR2e[,2]<-as.factor(csCVR2e[,2])
+csCVR3t[,2]<-as.factor(csCVR3t[,2])
+csCVR3b[,2]<-as.factor(csCVR3b[,2])
+csCVR3e[,2]<-as.factor(csCVR3e[,2])
+csCVR4t[,2]<-as.factor(csCVR4t[,2])
+csCVR4b[,2]<-as.factor(csCVR4b[,2])
+csCVR4e[,2]<-as.factor(csCVR4e[,2])
+
+summary(csCVR2t$AvSpeed[exposed2])
+summary(csCVR2t$AvSpeed[control2])
+summary(csCVR2b$AvSpeed[exposed2])
+summary(csCVR2b$AvSpeed[control2])
+summary(csCVR2e$AvSpeed[exposed2])
+summary(csCVR2e$AvSpeed[control2])
+
+
+summary(csCVR3t$AvSpeed[exposed3])
+summary(csCVR3t$AvSpeed[control3])
+summary(csCVR3b$AvSpeed[exposed3])
+summary(csCVR3b$AvSpeed[control3])
+summary(csCVR3e$AvSpeed[exposed3])
+summary(csCVR3e$AvSpeed[control3])
+
+summary(csCVR4t$AvSpeed[exposed4])
+summary(csCVR4t$AvSpeed[control4])
+summary(csCVR4b$AvSpeed[exposed4])
+summary(csCVR4b$AvSpeed[control4])
+summary(csCVR4e$AvSpeed[exposed4])
+summary(csCVR4e$AvSpeed[control4])
+
+
+#run the test
+wilcox_test(csCVR2t$AvSpeed~csCVR2t[,2], 
+            ties.method = "average-scores")
+wilcox_test(csCVR2b$AvSpeed~csCVR2b[,2], 
+            ties.method = "average-scores")
+wilcox_test(csCVR2e$AvSpeed~csCVR2e[,2], 
+            ties.method = "average-scores")
+
+wilcox_test(csCVR3t$AvSpeed~csCVR3t[,2], 
+            ties.method = "average-scores")
+wilcox_test(csCVR3b$AvSpeed~csCVR3b[,2], 
+            ties.method = "average-scores")
+wilcox_test(csCVR3e$AvSpeed~csCVR3e[,2], 
+            ties.method = "average-scores")
+
+wilcox_test(csCVR4t$AvSpeed~csCVR4t[,2], 
+            ties.method = "average-scores")
+wilcox_test(csCVR4b$AvSpeed~csCVR4b[,2], 
+            ties.method = "average-scores")
+wilcox_test(csCVR4e$AvSpeed~csCVR4e[,2], 
+            ties.method = "average-scores")
+
+
+# ExAS2 <- mean(csCVR2$AvSpeed[exposed2])
+# ExAS3 <- mean(csCVR3$AvSpeed[exposed3])
+# ExAS4 <- mean(csCVR4$AvSpeed[exposed4])
+# CoAS2 <- mean(csCVR2$AvSpeed[control2])
+# CoAS3 <- mean(csCVR3$AvSpeed[control3])
+# CoAS4 <- mean(csCVR4$AvSpeed[control4])
 
 setwd(fgThreeWD)
-write.csv(ExAS2,"ExAS2.csv")
-write.csv(ExAS3,"ExAS3.csv")
-write.csv(ExAS4,"ExAS4.csv")
-write.csv(CoAS2,"CoAS2.csv")
-write.csv(CoAS3,"CoAS3.csv")
-write.csv(CoAS4,"CoAS4.csv")
+# write.csv(ExAS2,"ExAS2.csv")
+# write.csv(ExAS3,"ExAS3.csv")
+# write.csv(ExAS4,"ExAS4.csv")
+# write.csv(CoAS2,"CoAS2.csv")
+# write.csv(CoAS3,"CoAS3.csv")
+# write.csv(CoAS4,"CoAS4.csv")
 setwd(wd)
 
 ###############################################################################
