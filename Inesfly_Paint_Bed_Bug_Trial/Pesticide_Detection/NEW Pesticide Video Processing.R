@@ -22,6 +22,7 @@ devtools::install_github("swarm-lab/videoplayR")
  install.packages("scales")
  install.packages("tictoc")
  install.packages("moments")
+ install.packages("doBy")
 
 # Open Libraries
 library(videoplayR)
@@ -38,6 +39,7 @@ library(tictoc)
 library(survival)
 library(moments)
 library(coin)
+library(doBy)
 
 ## Set Working Directory
 #Dylan's PC
@@ -1151,6 +1153,103 @@ wilcox_test(ima.CVR3$X1802~ima.id3,
 wilcox_test(ima.CVR4$X1802~ima.id4, 
             ties.method = "average-scores")
 
+
+###ALSO FOR DIFFERENT SEGMENTS OF TIME 
+##
+segavg <- function(d.f, starting, ending) {
+  #identify each insect
+  insects <- unique(d.f$insect.id)
+  #data frame to fill
+  my.df <- data.frame(matrix(nrow = length(insects), ncol = 3))
+  my.df[,1] <- unique(d.f$insect.id)
+  #identify which quadrants have pesticide and which do not
+  zero <- which(d.f$Treat_Quad == 0)
+  one <- which(d.f$Treat_Quad == 1)
+  #loop through each insect 
+  for(j in 1:length(unique(d.f$insect.id))){
+     #pesticide.fr.past <- 0
+     #treatment.fr.past <- 0
+   #which frames correspond to this insect 
+   insect.fr <- which(d.f$insect.id == unique(d.f$insect.id)[j])
+   #create column for tray type in new data set (1=partially treated plate)
+   my.df[j,2] <- d.f$PTray[insect.fr[1]]
+   #get total observations ...prob reducnant to make denom...but maybe removes na's?
+   denom <- intersect(union(zero, one), insect.fr)
+   #get pesticide only observations
+   neum <- intersect(one, insect.fr)
+   #get videos within set frame range. 
+   begining<-which(d.f$frame >= starting)
+   stopping <-which(d.f$frame <= ending)
+   framerange <-intersect(begining, stopping)
+   totquads<-intersect(denom, framerange)
+   pestquads <-intersect(neum, framerange)
+   my.df[j,3]<-length(pestquads)/length(totquads)
+  }
+  return(my.df)
+}
+
+#60-180
+beginprops2 <- segavg(CompVidRep2,60,180)
+beginprops3 <- segavg(CompVidRep3,60,180)
+beginprops4 <- segavg(CompVidRep4,60,180)
+#1680-1740 
+endinprops2 <- segavg(CompVidRep2,1680,1740)
+endinprops3 <- segavg(CompVidRep3,1680,1740)
+endinprops4 <- segavg(CompVidRep4,1680,1740)
+
+#so manual coding it. Subset
+exposedpest2<- which(beginprops2$X2=="1")
+notexppest2 <- which(beginprops2$X2=="0") 
+exposedpest3<- which(beginprops3$X2=="1")
+notexppest3 <- which(beginprops3$X2=="0") 
+exposedpest4<- which(beginprops4$X2=="1")
+notexppest4 <- which(beginprops4$X2=="0") 
+
+eexposedpest2<- which(endinprops2$X2=="1")
+enotexppest2 <- which(endinprops2$X2=="0") 
+eexposedpest3<- which(endinprops3$X2=="1")
+enotexppest3 <- which(endinprops3$X2=="0") 
+eexposedpest4<- which(endinprops4$X2=="1")
+enotexppest4 <- which(endinprops4$X2=="0") 
+
+#sumarize
+summary(beginprops2$X3[exposedpest2])
+summary(beginprops2$X3[notexppest2])
+summary(beginprops3$X3[exposedpest3])
+summary(beginprops3$X3[notexppest3])
+summary(beginprops4$X3[exposedpest4])
+summary(beginprops4$X3[notexppest4])
+
+summary(endinprops2$X3[eexposedpest2])
+summary(endinprops2$X3[enotexppest2])
+summary(endinprops3$X3[eexposedpest3])
+summary(endinprops3$X3[enotexppest3])
+summary(endinprops4$X3[eexposedpest4])
+summary(endinprops4$X3[enotexppest4])
+
+###Wilcox test
+#first need X2 as factor
+beginprops2$X2<-as.factor(beginprops2$X2)
+beginprops3$X2<-as.factor(beginprops3$X2)
+beginprops4$X2<-as.factor(beginprops4$X2)
+endinprops2$X2<-as.factor(endinprops2$X2)
+endinprops3$X2<-as.factor(endinprops3$X2)
+endinprops4$X2<-as.factor(endinprops4$X2)
+
+#wilcox test
+wilcox_test(beginprops2$X3~beginprops2$X2, 
+            ties.method = "average-scores")
+wilcox_test(beginprops3$X3~beginprops3$X2, 
+            ties.method = "average-scores")
+wilcox_test(beginprops4$X3~beginprops4$X2, 
+            ties.method = "average-scores")
+wilcox_test(endinprops2$X3~endinprops2$X2, 
+            ties.method = "average-scores")
+wilcox_test(endinprops3$X3~endinprops3$X2, 
+            ties.method = "average-scores")
+wilcox_test(endinprops4$X3~endinprops4$X2, 
+            ties.method = "average-scores")
+
 ###############################################################################
 #### Instantaneous Speed ####
 #lets look at speed (distance traveled from previous frame)
@@ -1317,6 +1416,9 @@ wilcox_test(csCVR4b$AvSpeed~csCVR4b[,2],
             ties.method = "average-scores")
 wilcox_test(csCVR4e$AvSpeed~csCVR4e[,2], 
             ties.method = "average-scores")
+
+
+###Segment Averages
 
 
 # ExAS2 <- mean(csCVR2$AvSpeed[exposed2])
