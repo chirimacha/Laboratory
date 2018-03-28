@@ -7,6 +7,11 @@ inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
 #A second for the location the file is saved. (image may be too large for git)
 outwd <- ("/Users/dtracy198/Documents")
 
+###FOR OTHERS DEPENDING ON YOUR HOME DIRECTORY SETTINGS
+homeDir <- path.expand('~')
+inwd<-paste(homeDir,"/Laboratory/Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS/Fig2RunningAvg", sep="")
+outwd<-paste(homeDir,"/Documents", sep="")
+
 #set the working director to bring in data
 setwd(inwd)
 
