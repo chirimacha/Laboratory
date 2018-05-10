@@ -28,8 +28,8 @@ quadsum$pch[twenties] <- 16
 
 setwd(outwd)
 ##Select file type and dimensions in inches
-#jpeg("Bioassay_Graphs_Array_Quads.jpg", width = 6, height = 9, units = "in",
-    #res = 300 )
+jpeg("Bioassay_Graphs_Array_Quads.jpg", width = 6, height = 9, units = "in",
+    res = 300 )
 #tiff("Bioassay_Graphs_Array_Quads.tiff", width = 6, 
 #    height = 9, units = "in", res = 300)
 #dev.new(height = 9, width = 6,noRStudioGD = TRUE)
@@ -80,7 +80,7 @@ for(k in 1:length(ext)){
 #title
 #mtext("Proportion of Alive Bugs", side = 3, line = 0, outer = TRUE, cex = 1.2)
 #Top Headings
-mtext("1 Day After Painting", side = 3, line = -2 , outer = TRUE, cex=0.8, at = 0.18) 
+mtext("1 day After Painting", side = 3, line = -2 , outer = TRUE, cex=0.8, at = 0.18) 
 mtext("90 days after painting", side = 3, line = -2 , outer = TRUE, cex=0.8, at = 0.50) 
 mtext("180 days after painting", side = 3, line =-2 , outer = TRUE, cex=0.8, at = 0.84) 
 #side headings
@@ -91,8 +91,8 @@ mtext("Exposed 24 Hours", side = 2, line = -0.2, outer = T, at = 0.198, adj = 1,
 #turn off pdf or jpeg
 par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
 plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
-legend(x = "bottom", legend = c("Control","5A-IGR", "Chlorfenapyr", "5A v CO", "5A v CF", "CF v CO"),
-       col = c(gray(0.5), gray(0), gray(0.25)), pch = c(16, 15, 17, 93, 125, 41), lty = c(2,1,3,0,0,0), 
+legend(x = "bottom", legend = c("Control","5A-IGR", "Chlorfenapyr"),
+       col = c(gray(0.5), gray(0), gray(0.25)), pch = c(16, 15, 17), lty = c(2,1,3), 
        cex = 1, horiz= TRUE)
 
 # mtext("***", side = 3, line = -8.7, outer = T, at= .327, cex = .8)
@@ -142,4 +142,4 @@ legend(x = "bottom", legend = c("Control","5A-IGR", "Chlorfenapyr", "5A v CO", "
 #mtext("***", side = 3, line = -50, outer = T, at= 0.5)
 #mtext("***", side = 3, line = -50, outer = T, at= 0.5)
 
-#dev.off()
+dev.off()
