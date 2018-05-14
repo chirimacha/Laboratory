@@ -4,20 +4,20 @@
 #One containing the data
 
 #this code makes it simple for anyone to use the code by placing it in their home directory
-#homeDir <- path.expand('~')
-#inwd<-paste(homeDir,"/Laboratory/Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS/Fig1SurvivalArrayWQuads", sep="")
+homeDir <- path.expand('~')
+inwd<-paste(homeDir,"/Laboratory/Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS/Fig1SurvivalArrayWQuads", sep="")
 
 
-#inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
-#              "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS",
- #             "/Fig1SurvivalArrayWQuads", sep = "")
+inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+              "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS",
+              "/Fig1SurvivalArrayWQuads", sep = "")
 
 
 
 #A second for the location the file is saved. (image may be too large for git)
 
-#outwd<-paste(homeDir,"/Documents", sep="")
-#outwd <- ("/Users/dtracy198/Documents")
+outwd<-paste(homeDir,"/Documents", sep="")
+outwd <- ("/Users/dtracy198/Documents")
 
 setwd(inwd)
 
@@ -30,7 +30,7 @@ setwd(outwd)
 
 ##Select file type and dimensions in inches
 jpeg("Bioassay_Graphs_Array_Quads.jpg", width = 6, height = 9, units = "in",
-     res = 300 )
+    res = 300 )
 #tiff("Bioassay_Graphs_Array_Quads.tiff", width = 6, 
 #    height = 9, units = "in", res = 300)
 #dev.new(height = 9, width = 6,noRStudioGD = TRUE)
