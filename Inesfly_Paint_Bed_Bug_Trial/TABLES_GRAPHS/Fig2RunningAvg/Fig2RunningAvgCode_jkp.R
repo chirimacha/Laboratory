@@ -1,16 +1,21 @@
 ###Code to createFig2RunningAvg
 ##create two working directory paths
 #One containing the data
-inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
-              "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS","/Fig2RunningAvg",
-              sep = "")
+#inwd <- paste("/Users/dtracy198/Documents/GitHub/Laboratory/",
+ #             "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS","/Fig2RunningAvg",
+  #            sep = "")
 #A second for the location the file is saved. (image may be too large for git)
-outwd <- ("/Users/dtracy198/Documents")
+outwd <- ("/Users/jeniferpeterson/Desktop")
+
+inwd <- paste("/Users/jeniferpeterson/Desktop/Laboratory/",
+             "Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS","/Fig2RunningAvg",
+            sep = "")
+#A second for the location 
 
 ###FOR OTHERS DEPENDING ON YOUR HOME DIRECTORY SETTINGS
 #homeDir <- path.expand('~')
 #inwd<-paste(homeDir,"/Laboratory/Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS/Fig2RunningAvg", sep="")
-#outwd<-paste(homeDir,"/Documents", sep="")
+#outwd<-paste(homeDir,"/Laboratory/Inesfly_Paint_Bed_Bug_Trial/TABLES_GRAPHS/Fig2RunningAvg", sep="")
 
 #set the working director to bring in data
 setwd(inwd)
@@ -46,8 +51,8 @@ par(mfrow = c(3, 2), oma = c(1,1,2,1))
 ### Plot CompVidRep4 data (1 day)
 #create blank plot for exposed insects
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time on Quadrants 1 and 3", 
-     main = "1 Day - Partially Treated Plates", xaxt = 'n', yaxt = 'n')
+     ylab = "Proportion of Time in Q1 and Q3", 
+     main = "1 Day - Insecticide group", xaxt = 'n', yaxt = 'n')
 #create axis
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
@@ -63,10 +68,22 @@ for(i in 1:length(filter)){
 lines(x = 1:1800, y = ma.CompVidRep4[,2], lty = 1, lwd = 1.5, col = 1)
 
 ##plot controls
-#plot new blank plot
+### CompVidRep2 (3 Weeks)
+#plot for exposed insects
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time on Quadrants 1 and 3",
-     main = "1 Day - Control Plates", xaxt = 'n', yaxt = 'n')
+     ylab = "Proportion of Time in Q1 and Q3",
+     main = "3 Weeks - Insecticide group", xaxt = 'n', yaxt = 'n')
+axis( 2, at = c(0:5 / 5), las = 2,
+      labels = as.character(c(0:5 / 5)))
+axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
+filter <- which(ima.CVR2[,3] == 1)
+for(i in 1:length(filter)){
+  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], 
+        col = i, lty = 3)
+}#(ima.Com#plot new blank plot
+plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
+     ylab = "Proportion of time in Q1 and 3",
+     main = "1 Day - Control group", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -76,25 +93,13 @@ for(i in 1:length(filter)){
 }
 lines(x = 1:1800, y = ma.control.CompVidRep4[,2], lty = 1, lwd = 1.5, col = 1)
 
-### CompVidRep2 (3 Weeks)
-#plot for exposed insects
-plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time on Quadrants 1 and 3",
-     main = "3 Weeks - Partially Treated Plates", xaxt = 'n', yaxt = 'n')
-axis( 2, at = c(0:5 / 5), las = 2,
-      labels = as.character(c(0:5 / 5)))
-axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
-filter <- which(ima.CVR2[,3] == 1)
-for(i in 1:length(filter)){
-  lines(x = 1:1800, y = ima.CVR2[filter[i], 3:1802], 
-        col = i, lty = 3)
-}#(ima.CompVidRep2[filter[i],2]+1)
+pVidRep2[filter[i],2]+1
 lines(x = 1:1800, y = ma.CompVidRep2[,2], lty = 1, lwd = 1.5, col = 1)
 
 #plot for control insects
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time on Quadrants 1 and 3",
-     main = "3 Weeks - Control Plates", xaxt = 'n', yaxt = 'n')
+     ylab = "Proportion of time in Q1 and Q3",
+     main = "3 Weeks - Control group", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -107,8 +112,8 @@ lines(x = 1:1800, y = ma.control.CompVidRep2[,2], lty = 1, lwd = 1.5, col = 1)
 ### CompVidRep3 (12 Weeks)
 ##plot exposed
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time on Quadrants 1 and 3",
-     main = "12 Weeks - Partially Treated Plates", xaxt = 'n', yaxt = 'n')
+     ylab = "Proportion of Time in Q1 and Q3",
+     main = "12 Weeks - Insecticide group", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -121,8 +126,8 @@ lines(x = 1:1800, y = ma.CompVidRep3[,2], lty = 1, lwd = 1.5, col = 1)
 
 ##plot control
 plot(x = c(1, 1800), y = c(0, 1), type = "n", xlab = "Time (seconds)",
-     ylab = "Proportion of Time on Quadrants 1 and 3",
-     main = "12 Weeks - Control Plates", xaxt = 'n', yaxt = 'n')
+     ylab = "Proportion of time in Q1 and Q3",
+     main = "12 Weeks - Control group", xaxt = 'n', yaxt = 'n')
 axis( 2, at = c(0:5 / 5), las = 2,
       labels = as.character(c(0:5 / 5)))
 axis( 1, at = c(0:3 * 600), labels = as.character(c(0:3 * 600)))
@@ -133,9 +138,9 @@ for(i in 1:length(filter)){
 lines(x = 1:1800, y = ma.control.CompVidRep3[,2], lty = 1, lwd = 1.5, col = 1)
 
 ##Add title
-mtext("Running Average of Proportion of Time that Individual ", side = 3, 
-      line = 0.3, outer = TRUE, cex = 1.2)
-mtext("Insects Spent on Quadrants 1 and 3", side = 3, 
-      line = -1.2, outer = TRUE, cex = 1.2)
+#mtext("Running Average of Proportion of Time that Individual ", side = 3, 
+#      line = 0.3, outer = TRUE, cex = 1.2)
+#mtext("Insects Spent on Quadrants 1 and 3", side = 3, 
+#      line = -1.2, outer = TRUE, cex = 1.2)
 #save file type
 dev.off()
