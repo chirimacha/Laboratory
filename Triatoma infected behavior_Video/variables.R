@@ -1,7 +1,7 @@
 #################################################################
 # Code to Compare total distance, time and speed of chirimachas 
 #infected and non infected 1,2 and 3 hours
-#written by Justin Sheen and Renzo Salazar abr 2018
+#written by Justin Sheen and Renzo Salazar may 2018
 #################################################################
 
 ### R packages being used:
@@ -39,9 +39,10 @@ library("ggpmisc")
 
 # set working directory
 #setwd("D:/LABORATORIO/ENSAYOS/JUSTIN/fixed videos/all csv")
-setwd("~/Laboratory/Triatoma infected behavior_Video")
+setwd("~/GITHUB/Laboratory/Triatoma infected behavior_Video")
 getwd()
 # load csv files
+################ csv hora 1 #######################
 d1c1 <- read.csv("DAY1_CAM1_1HR.csv")
 d1c2 <- read.csv("DAY1_CAM2_1HR.csv")
 d1c3 <- read.csv("DAY1_CAM3_1HR.csv")
@@ -74,6 +75,23 @@ d8c1 <- read.csv("DAY8_CAM1_1HR.csv")
 d8c2 <- read.csv("DAY8_CAM2_1HR.csv")
 d8c3 <- read.csv("DAY8_CAM3_1HR.csv")
 d8c4 <- read.csv("DAY8_CAM4_1HR.csv")
+################ csv hora 2 #######################
+d1c1.2 <- read.csv("DAY1_CAM1_2HR.csv")
+d1c2.2 <- read.csv("DAY1_CAM2_2HR.csv")
+d1c3.2 <- read.csv("DAY1_CAM3_2HR.csv")
+d1c4.2 <- read.csv("DAY1_CAM4_2HR.csv")
+d2c1.2 <- read.csv("DAY2_CAM1_2HR.csv")
+d2c2.2 <- read.csv("DAY2_CAM2_2HR.csv")
+d2c3.2 <- read.csv("DAY2_CAM3_2HR.csv")
+d2c4.2 <- read.csv("DAY2_CAM4_2HR.csv")
+d3c1.2 <- read.csv("DAY3_CAM1_2HR.csv")
+d3c2.2 <- read.csv("DAY3_CAM2_2HR.csv")
+d3c3.2 <- read.csv("DAY3_CAM3_2HR.csv")
+d3c4.2 <- read.csv("DAY3_CAM4_2HR.csv")
+d4c1.2 <- read.csv("DAY4_CAM1_2HR.csv")
+d4c2.2 <- read.csv("DAY4_CAM2_2HR.csv")
+d4c3.2 <- read.csv("DAY4_CAM3_2HR.csv")
+d4c4.2 <- read.csv("DAY4_CAM4_2HR.csv")
 d5c1.2 <- read.csv("DAY5_CAM1_2HR.csv")
 d5c2.2 <- read.csv("DAY5_CAM2_2HR.csv")
 d5c3.2 <- read.csv("DAY5_CAM3_2HR.csv")
@@ -88,6 +106,23 @@ d7c4.2 <- read.csv("DAY7_CAM4_2HR.csv")
 d8c1.2 <- read.csv("DAY8_CAM1_2HR.csv")
 d8c3.2 <- read.csv("DAY8_CAM3_2HR.csv")
 d8c4.2 <- read.csv("DAY8_CAM4_2HR.csv")
+################# csv's hour 3####################
+d1c1.3 <- read.csv("DAY1_CAM1_3HR.csv")
+d1c2.3 <- read.csv("DAY1_CAM2_3HR.csv")
+d1c3.3 <- read.csv("DAY1_CAM3_3HR.csv")
+d1c4.3 <- read.csv("DAY1_CAM4_3HR.csv")
+d2c1.3 <- read.csv("DAY2_CAM1_3HR.csv")
+d2c2.3 <- read.csv("DAY2_CAM2_3HR.csv")
+d2c3.3 <- read.csv("DAY2_CAM3_3HR.csv")
+d2c4.3 <- read.csv("DAY2_CAM4_3HR.csv")
+d3c1.3 <- read.csv("DAY3_CAM1_3HR.csv")
+d3c2.3 <- read.csv("DAY3_CAM2_3HR.csv")
+d3c3.3 <- read.csv("DAY3_CAM3_3HR.csv")
+d3c4.3 <- read.csv("DAY3_CAM4_3HR.csv")
+d4c1.3 <- read.csv("DAY4_CAM1_3HR.csv")
+d4c2.3 <- read.csv("DAY4_CAM2_3HR.csv")
+d4c3.3 <- read.csv("DAY4_CAM3_3HR.csv")
+d4c4.3 <- read.csv("DAY4_CAM4_3HR.csv")
 d5c1.3 <- read.csv("DAY5_CAM1_3HR.csv")
 d5c2.3 <- read.csv("DAY5_CAM2_3HR.csv")
 d5c3.3 <- read.csv("DAY5_CAM3_3HR.csv")
@@ -105,13 +140,6 @@ d8c4.3 <- read.csv("DAY8_CAM4_3HR.csv")
 
 
 
-#################################################
-# formula to get total distance and time moving
-# (Justin formula)
-#################################################
-#getVariables<-function(dfc){
- # df<-dfc
-  #db<-dfc
   #################################################
   # formula to get total distance by hour and bug
   # (Justin formula)
@@ -222,12 +250,6 @@ TimeMoving <- function(db) {
   
   # split into data frames for each of the chirimachas
   bug1 <- db[which(db$track == 1),]
-  # if (nrow(bugOne) == 0) {
-  #  bugOne <- data.frame(matrix(ncol = 2, nrow = 1))
-  # colnames(bugOne) <- c("track", "frame")
-  #  bugOne$track <- 1
-  #  bugOne$frame <- 0
-  # }
   bug2 <- db[which(db$track == 2),]
   bug3 <- db[which(db$track == 3),]
   bug4 <- db[which(db$track == 4),]
@@ -254,19 +276,11 @@ TimeMoving <- function(db) {
   
   return(toReturntime)
 }
-  # return a merge data table
- # database<- as.data.frame(cbind(toReturntime,toReturn))
- # return(database)
-#}
-#d1.1<-getVariables(d1c1)
-#d1.1
+
 ############################
 # Analysis hour ONE
 ############################
 d1.1<-as.data.frame(list(getTotalDistance(d1c1),TimeMoving(d1c1)))
-#d1.1<-as.data.frame(sapply(d1c1,list(getTotalDistance,TimeMoving)))
-#d1.1<-TimeMoving(d1c1)
-#d1.1<-getVariables(d1c1)
 d1.2<-as.data.frame(list(getTotalDistance(d1c2),TimeMoving(d1c2)))
 d1.3<-as.data.frame(list(getTotalDistance(d1c3),TimeMoving(d1c3)))
 d1.4<-as.data.frame(list(getTotalDistance(d1c4),TimeMoving(d1c4)))
@@ -328,36 +342,22 @@ df1["infection.status"]<-infection
 #####################################
 # Analysis hour TWO
 #####################################
-#d5.1.2<-getTotalDistance(d5c1.2)
-#d5.2.2<-getTotalDistance(d5c2.2)
-#d5.3.2<-getTotalDistance(d5c3.2)
-#d5.4.2<-getTotalDistance(d5c4.2)
-#d6.1.2<-getTotalDistance(d6c1.2)
-#d6.2.2<-getTotalDistance(d6c2.2)
-#d6.3.2<-getTotalDistance(d6c3.2)
-#d7.1.2<-getTotalDistance(d7c1.2)
-#d7.2.2<-getTotalDistance(d7c2.2)
-#d7.3.2<-getTotalDistance(d7c3.2)
-#d7.4.2<-getTotalDistance(d7c4.2)
-#d8.1.2<-getTotalDistance(d8c1.2)
-#d8.3.2<-getTotalDistance(d8c3.2)
-#d8.4.2<-getTotalDistance(d8c4.2)
-
-#d1.2<-as.data.frame(list(getTotalDistance(d1c2),TimeMoving(d1c2)))
-#d1.3<-as.data.frame(list(getTotalDistance(d1c3),TimeMoving(d1c3)))
-#d1.4<-as.data.frame(list(getTotalDistance(d1c4),TimeMoving(d1c4)))
-#d2.1<-as.data.frame(list(getTotalDistance(d2c1),TimeMoving(d2c1)))
-#d2.2<-as.data.frame(list(getTotalDistance(d2c2),TimeMoving(d2c2)))
-#d2.3<-as.data.frame(list(getTotalDistance(d2c3),TimeMoving(d2c3)))
-#d2.4<-as.data.frame(list(getTotalDistance(d2c4),TimeMoving(d2c4)))
-#d3.1<-as.data.frame(list(getTotalDistance(d3c1),TimeMoving(d3c1)))
-#d3.2<-as.data.frame(list(getTotalDistance(d3c2),TimeMoving(d3c2)))
-#d3.3<-as.data.frame(list(getTotalDistance(d3c3),TimeMoving(d3c3)))
-#d3.4<-as.data.frame(list(getTotalDistance(d3c4),TimeMoving(d3c4)))
-#d4.1<-as.data.frame(list(getTotalDistance(d4c1),TimeMoving(d4c1)))
-#d4.2<-as.data.frame(list(getTotalDistance(d4c2),TimeMoving(d4c2)))
-#d4.3<-as.data.frame(list(getTotalDistance(d4c3),TimeMoving(d4c3)))
-#d4.4<-as.data.frame(list(getTotalDistance(d4c4),TimeMoving(d4c4)))
+d1.1.2<-as.data.frame(list(getTotalDistance(d1c1.2),TimeMoving(d1c1.2)))
+d1.2.2<-as.data.frame(list(getTotalDistance(d1c2.2),TimeMoving(d1c2.2)))
+d1.3.2<-as.data.frame(list(getTotalDistance(d1c3.2),TimeMoving(d1c3.2)))
+d1.4.2<-as.data.frame(list(getTotalDistance(d1c4.2),TimeMoving(d1c4.2)))
+d2.1.2<-as.data.frame(list(getTotalDistance(d2c1.2),TimeMoving(d2c1.2)))
+d2.2.2<-as.data.frame(list(getTotalDistance(d2c2.2),TimeMoving(d2c2.2)))
+d2.3.2<-as.data.frame(list(getTotalDistance(d2c3.2),TimeMoving(d2c3.2)))
+d2.4.2<-as.data.frame(list(getTotalDistance(d2c4.2),TimeMoving(d2c4.2)))
+d3.1.2<-as.data.frame(list(getTotalDistance(d3c1.2),TimeMoving(d3c1.2)))
+d3.2.2<-as.data.frame(list(getTotalDistance(d3c2.2),TimeMoving(d3c2.2)))
+d3.3.2<-as.data.frame(list(getTotalDistance(d3c3.2),TimeMoving(d3c3.2)))
+d3.4.2<-as.data.frame(list(getTotalDistance(d3c4.2),TimeMoving(d3c4.2)))
+d4.1.2<-as.data.frame(list(getTotalDistance(d4c1.2),TimeMoving(d4c1.2)))
+d4.2.2<-as.data.frame(list(getTotalDistance(d4c2.2),TimeMoving(d4c2.2)))
+d4.3.2<-as.data.frame(list(getTotalDistance(d4c3.2),TimeMoving(d4c3.2)))
+d4.4.2<-as.data.frame(list(getTotalDistance(d4c4.2),TimeMoving(d4c4.2)))
 d5.1.2<-as.data.frame(list(getTotalDistance(d5c1.2),TimeMoving(d5c1.2)))
 d5.2.2<-as.data.frame(list(getTotalDistance(d5c2.2),TimeMoving(d5c2.2)))
 d5.3.2<-as.data.frame(list(getTotalDistance(d5c3.2),TimeMoving(d5c3.2)))
@@ -365,35 +365,43 @@ d5.4.2<-as.data.frame(list(getTotalDistance(d5c4.2),TimeMoving(d5c4.2)))
 d6.1.2<-as.data.frame(list(getTotalDistance(d6c1.2),TimeMoving(d6c1.2)))
 d6.2.2<-as.data.frame(list(getTotalDistance(d6c2.2),TimeMoving(d6c2.2)))
 d6.3.2<-as.data.frame(list(getTotalDistance(d6c3.2),TimeMoving(d6c3.2)))
-#d6.4<-as.data.frame(list(getTotalDistance(d6c4),TimeMoving(d6c4)))
+#d6.4 ==>there is no video
 d7.1.2<-as.data.frame(list(getTotalDistance(d7c1.2),TimeMoving(d7c1.2)))
 d7.2.2<-as.data.frame(list(getTotalDistance(d7c2.2),TimeMoving(d7c2.2)))
 d7.3.2<-as.data.frame(list(getTotalDistance(d7c3.2),TimeMoving(d7c3.2)))
 d7.4.2<-as.data.frame(list(getTotalDistance(d7c4.2),TimeMoving(d7c4.2)))
 d8.1.2<-as.data.frame(list(getTotalDistance(d8c1.2),TimeMoving(d8c1.2)))
-#d8.2<-as.data.frame(list(getTotalDistance(d8c2),TimeMoving(d8c2)))
+#d8.2 ==> there is no video
 d8.3.2<-as.data.frame(list(getTotalDistance(d8c3.2),TimeMoving(d8c3.2)))
 d8.4.2<-as.data.frame(list(getTotalDistance(d8c4.2),TimeMoving(d8c4.2)))
 
 
 # create reference columns
-day2<-c(rep("day 5",16),rep("day 6",12),rep("day 7",16),rep("day 8",12))
 
-camera2<-c(rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),rep("cam 4",4),
+day2<-c(rep("day 1",16),rep("day 2",16),rep("day 3",16),rep("day 4",16),
+       rep("day 5",16),rep("day 6",12),rep("day 7",16),rep("day 8",12))
+camera2<-c(rep(c(rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),rep("cam 4",4)),4),
+          rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),rep("cam 4",4),
           rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),
           rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),rep("cam 4",4),
           rep("cam 1",4), rep("cam 3",4),rep("cam 4",4))
-
-arena2<-c(rep("arena 17",4), rep("arena 18",4), rep("arena 19",4),rep("arena 20",4),
-         rep("arena 21",4), rep("arena 22",4), rep("arena 23",4),rep("arena 24",4),
+arena2<-c(rep("arena 1",4), rep("arena 2",4), rep("arena 3",4),rep("arena 4",4),
+         rep("arena 5",4), rep("arena 6",4), rep("arena 7",4),rep("arena 8",4),
+         rep("arena 9",4), rep("arena 10",4), rep("arena 11",4),rep("arena 12",4),
+         rep("arena 13",4), rep("arena 14",4), rep("arena 15",4),rep("arena 16",4),
+         rep("arena 17",4), rep("arena 18",4), rep("arena 19",4),rep("arena 20",4),
+         rep("arena 21",4), rep("arena 22",4), rep("arena 23",4),#rep("arena 24",4),
          rep("arena 25",4), rep("arena 26",4), rep("arena 27",4),rep("arena 28",4),
-         rep("arena 29",4), rep("arena 30",4))
+         rep("arena 29",4), #rep("arena 30",4), 
+         rep("arena 31",4),rep("arena 32",4))
 
-infection2<-c(rep(c("infected","infected","control","control"),14))
+infection2<-c(rep(c("infected","infected","control","control"),30))
 
 # Built a dataframe hour2
-df2<-data.frame(rbind(d5.1.2,d5.2.2,d5.3.2,d5.4.2,d6.1.2,d6.2.2,d6.3.2,
-                     d7.1.2,d7.2.2,d7.3.2,d7.4.2,d8.1.2,d8.3.2,d8.4.2))
+df2<-data.frame(rbind(d1.1.2,d1.2.2,d1.3.2,d1.4.2,d2.1.2,d2.2.2,d2.3.2,d2.4.2,
+                      d3.1.2,d3.2.2,d3.3.2,d3.4.2,d4.1.2,d4.2.2,d4.3.2,d4.4.2,
+                      d5.1.2,d5.2.2,d5.3.2,d5.4.2,d6.1.2,d6.2.2,d6.3.2,
+                      d7.1.2,d7.2.2,d7.3.2,d7.4.2,d8.1.2,d8.3.2,d8.4.2))
 dim(df2)
 df2["day"]<-day2
 df2["camera"]<-camera2
@@ -403,36 +411,22 @@ df2["infection.status"]<-infection2
 ###########################
 # Analysis hour THREE
 ###########################
-#d5.1.3<-getTotalDistance(d5c1.3)
-#d5.2.3<-getTotalDistance(d5c2.3)
-#d5.3.3<-getTotalDistance(d5c3.3)
-#d5.4.3<-getTotalDistance(d5c4.3)
-#d6.1.3<-getTotalDistance(d6c1.3)
-#d6.2.3<-getTotalDistance(d6c2.3)
-#d6.3.3<-getTotalDistance(d6c3.3)
-#d7.1.3<-getTotalDistance(d7c1.3)
-#d7.2.3<-getTotalDistance(d7c2.3)
-#d7.3.3<-getTotalDistance(d7c3.3)
-#d7.4.3<-getTotalDistance(d7c4.3)
-#d8.1.3<-getTotalDistance(d8c1.3)
-#d8.3.3<-getTotalDistance(d8c3.3)
-#d8.4.3<-getTotalDistance(d8c4.3)
-
-#d1.2<-as.data.frame(list(getTotalDistance(d1c2),TimeMoving(d1c2)))
-#d1.3<-as.data.frame(list(getTotalDistance(d1c3),TimeMoving(d1c3)))
-#d1.4<-as.data.frame(list(getTotalDistance(d1c4),TimeMoving(d1c4)))
-#d2.1<-as.data.frame(list(getTotalDistance(d2c1),TimeMoving(d2c1)))
-#d2.2<-as.data.frame(list(getTotalDistance(d2c2),TimeMoving(d2c2)))
-#d2.3<-as.data.frame(list(getTotalDistance(d2c3),TimeMoving(d2c3)))
-#d2.4<-as.data.frame(list(getTotalDistance(d2c4),TimeMoving(d2c4)))
-#d3.1<-as.data.frame(list(getTotalDistance(d3c1),TimeMoving(d3c1)))
-#d3.2<-as.data.frame(list(getTotalDistance(d3c2),TimeMoving(d3c2)))
-#d3.3<-as.data.frame(list(getTotalDistance(d3c3),TimeMoving(d3c3)))
-#d3.4<-as.data.frame(list(getTotalDistance(d3c4),TimeMoving(d3c4)))
-#d4.1<-as.data.frame(list(getTotalDistance(d4c1),TimeMoving(d4c1)))
-#d4.2<-as.data.frame(list(getTotalDistance(d4c2),TimeMoving(d4c2)))
-#d4.3<-as.data.frame(list(getTotalDistance(d4c3),TimeMoving(d4c3)))
-#d4.4<-as.data.frame(list(getTotalDistance(d4c4),TimeMoving(d4c4)))
+d1.1.3<-as.data.frame(list(getTotalDistance(d1c1.3),TimeMoving(d1c1.3)))
+d1.2.3<-as.data.frame(list(getTotalDistance(d1c2.3),TimeMoving(d1c2.3)))
+d1.3.3<-as.data.frame(list(getTotalDistance(d1c3.3),TimeMoving(d1c3.3)))
+d1.4.3<-as.data.frame(list(getTotalDistance(d1c4.3),TimeMoving(d1c4.3)))
+d2.1.3<-as.data.frame(list(getTotalDistance(d2c1.3),TimeMoving(d2c1.3)))
+d2.2.3<-as.data.frame(list(getTotalDistance(d2c2.3),TimeMoving(d2c2.3)))
+d2.3.3<-as.data.frame(list(getTotalDistance(d2c3.3),TimeMoving(d2c3.3)))
+d2.4.3<-as.data.frame(list(getTotalDistance(d2c4.3),TimeMoving(d2c4.3)))
+d3.1.3<-as.data.frame(list(getTotalDistance(d3c1.3),TimeMoving(d3c1.3)))
+d3.2.3<-as.data.frame(list(getTotalDistance(d3c2.3),TimeMoving(d3c2.3)))
+d3.3.3<-as.data.frame(list(getTotalDistance(d3c3.3),TimeMoving(d3c3.3)))
+d3.4.3<-as.data.frame(list(getTotalDistance(d3c4.3),TimeMoving(d3c4.3)))
+d4.1.3<-as.data.frame(list(getTotalDistance(d4c1.3),TimeMoving(d4c1.3)))
+d4.2.3<-as.data.frame(list(getTotalDistance(d4c2.3),TimeMoving(d4c2.3)))
+d4.3.3<-as.data.frame(list(getTotalDistance(d4c3.3),TimeMoving(d4c3.3)))
+d4.4.3<-as.data.frame(list(getTotalDistance(d4c4.3),TimeMoving(d4c4.3)))
 d5.1.3<-as.data.frame(list(getTotalDistance(d5c1.3),TimeMoving(d5c1.3)))
 d5.2.3<-as.data.frame(list(getTotalDistance(d5c2.3),TimeMoving(d5c2.3)))
 d5.3.3<-as.data.frame(list(getTotalDistance(d5c3.3),TimeMoving(d5c3.3)))
@@ -440,34 +434,41 @@ d5.4.3<-as.data.frame(list(getTotalDistance(d5c4.3),TimeMoving(d5c4.3)))
 d6.1.3<-as.data.frame(list(getTotalDistance(d6c1.3),TimeMoving(d6c1.3)))
 d6.2.3<-as.data.frame(list(getTotalDistance(d6c2.3),TimeMoving(d6c2.3)))
 d6.3.3<-as.data.frame(list(getTotalDistance(d6c3.3),TimeMoving(d6c3.3)))
-#d6.4<-as.data.frame(list(getTotalDistance(d6c4),TimeMoving(d6c4)))
+#d6.4.3 ==> there is no video
 d7.1.3<-as.data.frame(list(getTotalDistance(d7c1.3),TimeMoving(d7c1.3)))
 d7.2.3<-as.data.frame(list(getTotalDistance(d7c2.3),TimeMoving(d7c2.3)))
 d7.3.3<-as.data.frame(list(getTotalDistance(d7c3.3),TimeMoving(d7c3.3)))
 d7.4.3<-as.data.frame(list(getTotalDistance(d7c4.3),TimeMoving(d7c4.3)))
 d8.1.3<-as.data.frame(list(getTotalDistance(d8c1.3),TimeMoving(d8c1.3)))
-#d8.2<-as.data.frame(list(getTotalDistance(d8c2),TimeMoving(d8c2)))
+#d8.2.3 ==> there is no video
 d8.3.3<-as.data.frame(list(getTotalDistance(d8c3.3),TimeMoving(d8c3.3)))
 d8.4.3<-as.data.frame(list(getTotalDistance(d8c4.3),TimeMoving(d8c4.3)))
 
 # create reference columns
-day3<-c(rep("day 5",16),rep("day 6",12),rep("day 7",16),rep("day 8",12))
+day3<-c(rep("day 1",16),rep("day 2",16),rep("day 3",16),rep("day 4",16),
+        rep("day 5",16),rep("day 6",12),rep("day 7",16),rep("day 8",12))
+camera3<-c(rep(c(rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),rep("cam 4",4)),4),
+           rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),rep("cam 4",4),
+           rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),
+           rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),rep("cam 4",4),
+           rep("cam 1",4), rep("cam 3",4),rep("cam 4",4))
+arena3<-c(rep("arena 1",4), rep("arena 2",4), rep("arena 3",4),rep("arena 4",4),
+          rep("arena 5",4), rep("arena 6",4), rep("arena 7",4),rep("arena 8",4),
+          rep("arena 9",4), rep("arena 10",4), rep("arena 11",4),rep("arena 12",4),
+          rep("arena 13",4), rep("arena 14",4), rep("arena 15",4),rep("arena 16",4),
+          rep("arena 17",4), rep("arena 18",4), rep("arena 19",4),rep("arena 20",4),
+          rep("arena 21",4), rep("arena 22",4), rep("arena 23",4),#rep("arena 24",4),
+          rep("arena 25",4), rep("arena 26",4), rep("arena 27",4),rep("arena 28",4),
+          rep("arena 29",4), #rep("arena 30",4), 
+          rep("arena 31",4),rep("arena 32",4))
 
-camera3<-c(rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),rep("cam 4",4),
-          rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),
-          rep("cam 1",4), rep("cam 2",4), rep("cam 3",4),rep("cam 4",4),
-          rep("cam 1",4), rep("cam 3",4),rep("cam 4",4))
-
-arena3<-c(rep("arena 17",4), rep("arena 18",4), rep("arena 19",4),rep("arena 20",4),
-         rep("arena 21",4), rep("arena 22",4), rep("arena 23",4),rep("arena 24",4),
-         rep("arena 25",4), rep("arena 26",4), rep("arena 27",4),rep("arena 28",4),
-         rep("arena 29",4), rep("arena 30",4))
-
-infection3<-c(rep(c("infected","infected","control","control"),14))
+infection3<-c(rep(c("infected","infected","control","control"),30))
 
 # Built a dataframe hour 3
-df3<-data.frame(rbind(d5.1.3,d5.2.3,d5.3.3,d5.4.3,d6.1.3,d6.2.3,d6.3.3,
-                     d7.1.3,d7.2.3,d7.3.3,d7.4.3,d8.1.3,d8.3.3,d8.4.3))
+df3<-data.frame(rbind(d1.1.3,d1.2.3,d1.3.3,d1.4.3,d2.1.3,d2.2.3,d2.3.3,d2.4.3,
+                      d3.1.3,d3.2.3,d3.3.3,d3.4.3,d4.1.3,d4.2.3,d4.3.3,d4.4.3,
+                      d5.1.3,d5.2.3,d5.3.3,d5.4.3,d6.1.3,d6.2.3,d6.3.3,
+                      d7.1.3,d7.2.3,d7.3.3,d7.4.3,d8.1.3,d8.3.3,d8.4.3))
 dim(df3)
 df3["day"]<-day3
 df3["camera"]<-camera3
@@ -531,10 +532,9 @@ p1<-ggplot(df,aes(x=infection.status, y=tot.distance.cm, fill=infection.status))
         axis.ticks.x=element_blank())
 p1
 
-# plot by day and hour (just days 5,6,7 and 8)
-dfn<-df[65:nrow(df),]
+# plot by day and hour (all days)
 
-p2<-ggplot(dfn,aes(x=infection.status, y=tot.distance.cm, fill=infection.status))+
+p2<-ggplot(df,aes(x=infection.status, y=tot.distance.cm, fill=infection.status))+
   geom_boxplot(width=.5, alpha=0.4)+
   #geom_violin(width=.7, alpha=0.4)+
   stat_summary(fun.y=mean, geom="point", shape=c(8), size=c(3),color=c("black"), position=position_dodge(0.8))+
@@ -598,7 +598,7 @@ pt1<-ggplot(df,aes(x=infection.status, y=minutes.moving, fill=infection.status))
 pt1
 
 # plot by day and hour (just days 5,6,7 and 8)
-pt2<-ggplot(dfn,aes(x=infection.status, y=minutes.moving, fill=infection.status))+
+pt2<-ggplot(df,aes(x=infection.status, y=minutes.moving, fill=infection.status))+
   geom_boxplot(width=.5, alpha=0.4)+
   #geom_violin(width=.7, alpha=0.4)+
   stat_summary(fun.y=mean, geom="point", shape=c(8), size=c(3),color=c("black"), position=position_dodge(0.8))+
@@ -663,7 +663,7 @@ ps1<-ggplot(df,aes(x=infection.status, y=speed.cmxsec, fill=infection.status))+
 ps1
 
 # plot by day and hour (just days 5,6,7 and 8)
-ps2<-ggplot(dfn,aes(x=infection.status, y=speed.cmxsec, fill=infection.status))+
+ps2<-ggplot(df,aes(x=infection.status, y=speed.cmxsec, fill=infection.status))+
   geom_boxplot(width=.5, alpha=0.4)+
   #geom_violin(width=.7, alpha=0.4)+
   stat_summary(fun.y=mean, geom="point", shape=c(8), size=c(3),color=c("black"), position=position_dodge(0.8))+
@@ -685,16 +685,16 @@ ps2
 
 ##############################################
 #get pdf file
-pdf(file = "videos analysis.pdf", width=6,height=4,paper='special')#, paper="A4r",)
+pdf(file = "video analysis II.pdf", width=6,height=4,paper='special')#, paper="A4r",)
 p
 p1
-p2
+#p2
 pt
 pt1
-pt2
+#pt2
 ps
 ps1
-ps2
+#ps2
 
 dev.off()
 
