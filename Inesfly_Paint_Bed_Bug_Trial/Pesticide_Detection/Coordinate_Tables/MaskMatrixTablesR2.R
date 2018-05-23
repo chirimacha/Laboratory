@@ -41,18 +41,18 @@ for (i in 2) {
 
 #FRAMES
 #Repetition 2 Frame 5
-FR2T1C1 <- getFrame(R2T1C1, 5)
-FR2T1C2 <- getFrame(R2T1C2, 5)
-FR2T2C1 <- getFrame(R2T2C1, 5)
-FR2T2C2 <- getFrame(R2T2C2, 5)
-FR2T3C1 <- getFrame(R2T3C1, 5)
-FR2T3C2 <- getFrame(R2T3C2, 5)
-FR2T4C1 <- getFrame(R2T4C1, 5)
-FR2T4C2 <- getFrame(R2T4C2, 5)
-FR2T5C1 <- getFrame(R2T5C1, 5)
-FR2T5C2 <- getFrame(R2T5C2, 5)
-FR2T6C1 <- getFrame(R2T6C1, 5)
-FR2T6C2 <- getFrame(R2T6C2, 5)
+FR2T1C1 <- getFrame(vidR2T1C1, 5)
+FR2T1C2 <- getFrame(vidR2T1C2, 5)
+FR2T2C1 <- getFrame(vidR2T2C1, 5)
+FR2T2C2 <- getFrame(vidR2T2C2, 5)
+FR2T3C1 <- getFrame(vidR2T3C1, 5)
+FR2T3C2 <- getFrame(vidR2T3C2, 5)
+FR2T4C1 <- getFrame(vidR2T4C1, 5)
+FR2T4C2 <- getFrame(vidR2T4C2, 5)
+FR2T5C1 <- getFrame(vidR2T5C1, 5)
+FR2T5C2 <- getFrame(vidR2T5C2, 5)
+FR2T6C1 <- getFrame(vidR2T6C1, 5)
+FR2T6C2 <- getFrame(vidR2T6C2, 5)
 
 
 
@@ -121,6 +121,9 @@ names(CoTbR2T1C2)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "T
 visualize(frame = FR2T1C2, CD=CoTbR2T1C2)
 ###############################################################################
 #R2T2C1
+tester<-getpoint(FR2T2C1)
+tester
+
 #RECORD THE POINTS GATHERED
 Tray<-c(1,2,3,4,5,6)
 cMXL <-c(173,374,568,173,374,568)
@@ -129,10 +132,10 @@ cMYT <-c(468,468,468,271,271,271)
 cMYB <-c(271,271,271,101,101,101)
 cTPX <-c(283,471,683,284,467,672)
 cTPY <-c(457,455,444,257,260,254)
-cBPX <-c(290,468,667,286,463,658)
+cBPX <-c(290,468,667,286,463,655)
 cBPY <-c(294,287,283,111,109,108)
-cLPX <-c(206,391,596,210,391,159)
-cLPY <-c(369,367,365,187,190,187)
+cLPX <-c(206,391,596,210,391,586)
+cLPY <-c(369,367,365,187,190,188)
 cRPX <-c(360,549,757,354,542,745)
 cRPY <-c(373,368,359,184,185,178)
 #c(,,,,,)
@@ -143,7 +146,7 @@ CoTbR2T2C1<-data.frame(Tray, cMXL, cMXR, cMYT, cMYB, cBPX, cBPY, cTPX, cTPY,
 #rename so that colums can be found in function
 names(CoTbR2T2C1)<-c("Tray", "MXL", "MXR", "MYT", "MYB", "BPX", "BPY", "TPX", "TPY", 
                      "RPX", "RPY", "LPX", "LPY")
-#write.csv(CoTbR2T2C1, "Coordinate_Tables/CoTbR2T2C1.csv")
+write.csv(CoTbR2T2C1, "Coordinate_Tables/CoTbR2T2C1.csv")
 visualize(frame = FR2T2C1, CD=CoTbR2T2C1)
 
 
