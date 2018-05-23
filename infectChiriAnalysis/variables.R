@@ -53,7 +53,7 @@ library("splancs")
 # Set working directory
 # setwd("D:/LABORATORIO/ENSAYOS/JUSTIN/fixed videos/all csv")
 #setwd("~/GITHUB/Laboratory/Triatoma infected behavior_Video")
-#setwd("~/GITHUB/Laboratory/Triatoma infected behavior_Video")
+setwd("~/Desktop/Laboratory/Triatoma infected behavior_Video")
 getwd()
 
 # Load CSV files
@@ -164,13 +164,26 @@ d8c4.3 <- read.csv("DAY8_CAM4_3HR.csv")
 
 #===================================================================================
 # Part II: Load the following two functions which we are going to use to get data for analysis
-#  IIa. Test that all polygons have been created correctly
+#  IIa. Test that all polygons have been created correctly and get polygons
 #  IIb. Total distance traveled by hour by the bugs
 #  IIc. In an open area: total distance AND total distance traveled by hour by the bugs (two results)
 #===================================================================================
 #===================================================================================
-# Part IIa: Test that all polygons have been created correctly
+# Part IIa: Test that all polygons have been created correctly and get polygons
 #===================================================================================
+
+setwd("~/Desktop/Laboratory/infectChiriAnalysis")
+polygons <- read.table("polygons.csv")
+polygons[,1] <- as.character(polygons[,1])
+polygons <- polygons[2:129,]
+uniqueUsers <- unique(polygons[,1])
+
+for (i in 1:length(uniqueUsers)) {
+  indices <- which(polygons$V1 == uniqueUsers[i])
+  maskInfo <- polygons[,2:3]
+  maskInfo <- maskInfo[indices,]
+  assign(uniqueUsers[i], maskInfo)
+}
 
 #===================================================================================
 # Part IIb: Total distance traveled by hour by the bugs
@@ -414,7 +427,7 @@ TimeMoving <- function(df, inputPoly) {
   
   #add columns to time in minutes (divide between 29.9 frames) and / 60 seconds
   toReturn["minutes.moving"]<-round(((toReturn[,2]/29.9)/60)*8,digits=1)
-  toReturn["minutes.staying"]<-round((((max(toReturn[,2])-toReturntime[,2])/29.9)/60)*8,digits = 1)
+  toReturn["minutes.staying"]<-round((((max(toReturn[,2])-toReturn[,2])/29.9)/60)*8,digits = 1)
   
   return(toReturn)
 }
@@ -433,38 +446,38 @@ TimeMoving <- function(df, inputPoly) {
 #===================================================================================
 # Part IIIa. Analysis hour one
 #===================================================================================
-d1.1<-as.data.frame(list(getTotalDistance(d1c1),TimeMoving(d1c1)))
-d1.2<-as.data.frame(list(getTotalDistance(d1c2),TimeMoving(d1c2)))
-d1.3<-as.data.frame(list(getTotalDistance(d1c3),TimeMoving(d1c3)))
-d1.4<-as.data.frame(list(getTotalDistance(d1c4),TimeMoving(d1c4)))
-d2.1<-as.data.frame(list(getTotalDistance(d2c1),TimeMoving(d2c1)))
-d2.2<-as.data.frame(list(getTotalDistance(d2c2),TimeMoving(d2c2)))
-d2.3<-as.data.frame(list(getTotalDistance(d2c3),TimeMoving(d2c3)))
-d2.4<-as.data.frame(list(getTotalDistance(d2c4),TimeMoving(d2c4)))
-d3.1<-as.data.frame(list(getTotalDistance(d3c1),TimeMoving(d3c1)))
-d3.2<-as.data.frame(list(getTotalDistance(d3c2),TimeMoving(d3c2)))
-d3.3<-as.data.frame(list(getTotalDistance(d3c3),TimeMoving(d3c3)))
-d3.4<-as.data.frame(list(getTotalDistance(d3c4),TimeMoving(d3c4)))
-d4.1<-as.data.frame(list(getTotalDistance(d4c1),TimeMoving(d4c1)))
-d4.2<-as.data.frame(list(getTotalDistance(d4c2),TimeMoving(d4c2)))
-d4.3<-as.data.frame(list(getTotalDistance(d4c3),TimeMoving(d4c3)))
-d4.4<-as.data.frame(list(getTotalDistance(d4c4),TimeMoving(d4c4)))
-d5.1<-as.data.frame(list(getTotalDistance(d5c1),TimeMoving(d5c1)))
-d5.2<-as.data.frame(list(getTotalDistance(d5c2),TimeMoving(d5c2)))
-d5.3<-as.data.frame(list(getTotalDistance(d5c3),TimeMoving(d5c3)))
-d5.4<-as.data.frame(list(getTotalDistance(d5c4),TimeMoving(d5c4)))
-d6.1<-as.data.frame(list(getTotalDistance(d6c1),TimeMoving(d6c1)))
-d6.2<-as.data.frame(list(getTotalDistance(d6c2),TimeMoving(d6c2)))
-d6.3<-as.data.frame(list(getTotalDistance(d6c3),TimeMoving(d6c3)))
-d6.4<-as.data.frame(list(getTotalDistance(d6c4),TimeMoving(d6c4)))
-d7.1<-as.data.frame(list(getTotalDistance(d7c1),TimeMoving(d7c1)))
-d7.2<-as.data.frame(list(getTotalDistance(d7c2),TimeMoving(d7c2)))
-d7.3<-as.data.frame(list(getTotalDistance(d7c3),TimeMoving(d7c3)))
-d7.4<-as.data.frame(list(getTotalDistance(d7c4),TimeMoving(d7c4)))
-d8.1<-as.data.frame(list(getTotalDistance(d8c1),TimeMoving(d8c1)))
-d8.2<-as.data.frame(list(getTotalDistance(d8c2),TimeMoving(d8c2)))
-d8.3<-as.data.frame(list(getTotalDistance(d8c3),TimeMoving(d8c3)))
-d8.4<-as.data.frame(list(getTotalDistance(d8c4),TimeMoving(d8c4)))
+d1.1<-as.data.frame(list(getTotalDistance(d1c1),TimeMoving(d1c1, POLYDAY1CAM1)))
+d1.2<-as.data.frame(list(getTotalDistance(d1c2),TimeMoving(d1c2, POLYDAY1CAM2)))
+d1.3<-as.data.frame(list(getTotalDistance(d1c3),TimeMoving(d1c3, POLYDAY1CAM3)))
+d1.4<-as.data.frame(list(getTotalDistance(d1c4),TimeMoving(d1c4, POLYDAY1CAM4)))
+d2.1<-as.data.frame(list(getTotalDistance(d2c1),TimeMoving(d2c1, POLYDAY2CAM1)))
+d2.2<-as.data.frame(list(getTotalDistance(d2c2),TimeMoving(d2c2, POLYDAY2CAM2)))
+d2.3<-as.data.frame(list(getTotalDistance(d2c3),TimeMoving(d2c3, POLYDAY2CAM3)))
+d2.4<-as.data.frame(list(getTotalDistance(d2c4),TimeMoving(d2c4, POLYDAY2CAM4)))
+d3.1<-as.data.frame(list(getTotalDistance(d3c1),TimeMoving(d3c1, POLYDAY3CAM1)))
+d3.2<-as.data.frame(list(getTotalDistance(d3c2),TimeMoving(d3c2, POLYDAY3CAM2)))
+d3.3<-as.data.frame(list(getTotalDistance(d3c3),TimeMoving(d3c3, POLYDAY3CAM3)))
+d3.4<-as.data.frame(list(getTotalDistance(d3c4),TimeMoving(d3c4, POLYDAY3CAM4)))
+d4.1<-as.data.frame(list(getTotalDistance(d4c1),TimeMoving(d4c1, POLYDAY4CAM1)))
+d4.2<-as.data.frame(list(getTotalDistance(d4c2),TimeMoving(d4c2, POLYDAY4CAM2)))
+d4.3<-as.data.frame(list(getTotalDistance(d4c3),TimeMoving(d4c3, POLYDAY4CAM3)))
+d4.4<-as.data.frame(list(getTotalDistance(d4c4),TimeMoving(d4c4, POLYDAY4CAM4)))
+d5.1<-as.data.frame(list(getTotalDistance(d5c1),TimeMoving(d5c1, POLYDAY5CAM1)))
+d5.2<-as.data.frame(list(getTotalDistance(d5c2),TimeMoving(d5c2, POLYDAY5CAM2)))
+d5.3<-as.data.frame(list(getTotalDistance(d5c3),TimeMoving(d5c3, POLYDAY5CAM3)))
+d5.4<-as.data.frame(list(getTotalDistance(d5c4),TimeMoving(d5c4, POLYDAY5CAM4)))
+d6.1<-as.data.frame(list(getTotalDistance(d6c1),TimeMoving(d6c1, POLYDAY6CAM1)))
+d6.2<-as.data.frame(list(getTotalDistance(d6c2),TimeMoving(d6c2, POLYDAY6CAM2)))
+d6.3<-as.data.frame(list(getTotalDistance(d6c3),TimeMoving(d6c3, POLYDAY6CAM3)))
+d6.4<-as.data.frame(list(getTotalDistance(d6c4),TimeMoving(d6c4, POLYDAY6CAM4)))
+d7.1<-as.data.frame(list(getTotalDistance(d7c1),TimeMoving(d7c1, POLYDAY7CAM1)))
+d7.2<-as.data.frame(list(getTotalDistance(d7c2),TimeMoving(d7c2, POLYDAY7CAM2)))
+d7.3<-as.data.frame(list(getTotalDistance(d7c3),TimeMoving(d7c3, POLYDAY7CAM3)))
+d7.4<-as.data.frame(list(getTotalDistance(d7c4),TimeMoving(d7c4, POLYDAY7CAM4)))
+d8.1<-as.data.frame(list(getTotalDistance(d8c1),TimeMoving(d8c1, POLYDAY8CAM1)))
+d8.2<-as.data.frame(list(getTotalDistance(d8c2),TimeMoving(d8c2, POLYDAY8CAM2)))
+d8.3<-as.data.frame(list(getTotalDistance(d8c3),TimeMoving(d8c3, POLYDAY8CAM3)))
+d8.4<-as.data.frame(list(getTotalDistance(d8c4),TimeMoving(d8c4, POLYDAY8CAM4)))
 
 # create reference columns
 day<-c(rep("day 1",16),rep("day 2",16),rep("day 3",16),rep("day 4",16),
@@ -495,38 +508,38 @@ df1["infection.status"]<-infection
 #===================================================================================
 # Part IIIb. Analysis hour two
 #===================================================================================
-d1.1.2<-as.data.frame(list(getTotalDistance(d1c1.2),TimeMoving(d1c1.2)))
-d1.2.2<-as.data.frame(list(getTotalDistance(d1c2.2),TimeMoving(d1c2.2)))
-d1.3.2<-as.data.frame(list(getTotalDistance(d1c3.2),TimeMoving(d1c3.2)))
-d1.4.2<-as.data.frame(list(getTotalDistance(d1c4.2),TimeMoving(d1c4.2)))
-d2.1.2<-as.data.frame(list(getTotalDistance(d2c1.2),TimeMoving(d2c1.2)))
-d2.2.2<-as.data.frame(list(getTotalDistance(d2c2.2),TimeMoving(d2c2.2)))
-d2.3.2<-as.data.frame(list(getTotalDistance(d2c3.2),TimeMoving(d2c3.2)))
-d2.4.2<-as.data.frame(list(getTotalDistance(d2c4.2),TimeMoving(d2c4.2)))
-d3.1.2<-as.data.frame(list(getTotalDistance(d3c1.2),TimeMoving(d3c1.2)))
-d3.2.2<-as.data.frame(list(getTotalDistance(d3c2.2),TimeMoving(d3c2.2)))
-d3.3.2<-as.data.frame(list(getTotalDistance(d3c3.2),TimeMoving(d3c3.2)))
-d3.4.2<-as.data.frame(list(getTotalDistance(d3c4.2),TimeMoving(d3c4.2)))
-d4.1.2<-as.data.frame(list(getTotalDistance(d4c1.2),TimeMoving(d4c1.2)))
-d4.2.2<-as.data.frame(list(getTotalDistance(d4c2.2),TimeMoving(d4c2.2)))
-d4.3.2<-as.data.frame(list(getTotalDistance(d4c3.2),TimeMoving(d4c3.2)))
-d4.4.2<-as.data.frame(list(getTotalDistance(d4c4.2),TimeMoving(d4c4.2)))
-d5.1.2<-as.data.frame(list(getTotalDistance(d5c1.2),TimeMoving(d5c1.2)))
-d5.2.2<-as.data.frame(list(getTotalDistance(d5c2.2),TimeMoving(d5c2.2)))
-d5.3.2<-as.data.frame(list(getTotalDistance(d5c3.2),TimeMoving(d5c3.2)))
-d5.4.2<-as.data.frame(list(getTotalDistance(d5c4.2),TimeMoving(d5c4.2)))
-d6.1.2<-as.data.frame(list(getTotalDistance(d6c1.2),TimeMoving(d6c1.2)))
-d6.2.2<-as.data.frame(list(getTotalDistance(d6c2.2),TimeMoving(d6c2.2)))
-d6.3.2<-as.data.frame(list(getTotalDistance(d6c3.2),TimeMoving(d6c3.2)))
+d1.1.2<-as.data.frame(list(getTotalDistance(d1c1.2),TimeMoving(d1c1.2, POLYDAY1CAM1)))
+d1.2.2<-as.data.frame(list(getTotalDistance(d1c2.2),TimeMoving(d1c2.2, POLYDAY1CAM2)))
+d1.3.2<-as.data.frame(list(getTotalDistance(d1c3.2),TimeMoving(d1c3.2, POLYDAY1CAM3)))
+d1.4.2<-as.data.frame(list(getTotalDistance(d1c4.2),TimeMoving(d1c4.2, POLYDAY1CAM4)))
+d2.1.2<-as.data.frame(list(getTotalDistance(d2c1.2),TimeMoving(d2c1.2, POLYDAY2CAM1)))
+d2.2.2<-as.data.frame(list(getTotalDistance(d2c2.2),TimeMoving(d2c2.2, POLYDAY2CAM2)))
+d2.3.2<-as.data.frame(list(getTotalDistance(d2c3.2),TimeMoving(d2c3.2, POLYDAY2CAM3)))
+d2.4.2<-as.data.frame(list(getTotalDistance(d2c4.2),TimeMoving(d2c4.2, POLYDAY2CAM4)))
+d3.1.2<-as.data.frame(list(getTotalDistance(d3c1.2),TimeMoving(d3c1.2, POLYDAY3CAM1)))
+d3.2.2<-as.data.frame(list(getTotalDistance(d3c2.2),TimeMoving(d3c2.2, POLYDAY3CAM2)))
+d3.3.2<-as.data.frame(list(getTotalDistance(d3c3.2),TimeMoving(d3c3.2, POLYDAY3CAM3)))
+d3.4.2<-as.data.frame(list(getTotalDistance(d3c4.2),TimeMoving(d3c4.2, POLYDAY3CAM4)))
+d4.1.2<-as.data.frame(list(getTotalDistance(d4c1.2),TimeMoving(d4c1.2, POLYDAY4CAM1)))
+d4.2.2<-as.data.frame(list(getTotalDistance(d4c2.2),TimeMoving(d4c2.2, POLYDAY4CAM2)))
+d4.3.2<-as.data.frame(list(getTotalDistance(d4c3.2),TimeMoving(d4c3.2, POLYDAY4CAM3)))
+d4.4.2<-as.data.frame(list(getTotalDistance(d4c4.2),TimeMoving(d4c4.2, POLYDAY4CAM4)))
+d5.1.2<-as.data.frame(list(getTotalDistance(d5c1.2),TimeMoving(d5c1.2, POLYDAY5CAM1)))
+d5.2.2<-as.data.frame(list(getTotalDistance(d5c2.2),TimeMoving(d5c2.2, POLYDAY5CAM2)))
+d5.3.2<-as.data.frame(list(getTotalDistance(d5c3.2),TimeMoving(d5c3.2, POLYDAY5CAM3)))
+d5.4.2<-as.data.frame(list(getTotalDistance(d5c4.2),TimeMoving(d5c4.2, POLYDAY5CAM4)))
+d6.1.2<-as.data.frame(list(getTotalDistance(d6c1.2),TimeMoving(d6c1.2, POLYDAY6CAM1)))
+d6.2.2<-as.data.frame(list(getTotalDistance(d6c2.2),TimeMoving(d6c2.2, POLYDAY6CAM2)))
+d6.3.2<-as.data.frame(list(getTotalDistance(d6c3.2),TimeMoving(d6c3.2, POLYDAY6CAM3)))
 #d6.4 ==>there is no video
-d7.1.2<-as.data.frame(list(getTotalDistance(d7c1.2),TimeMoving(d7c1.2)))
-d7.2.2<-as.data.frame(list(getTotalDistance(d7c2.2),TimeMoving(d7c2.2)))
-d7.3.2<-as.data.frame(list(getTotalDistance(d7c3.2),TimeMoving(d7c3.2)))
-d7.4.2<-as.data.frame(list(getTotalDistance(d7c4.2),TimeMoving(d7c4.2)))
-d8.1.2<-as.data.frame(list(getTotalDistance(d8c1.2),TimeMoving(d8c1.2)))
+d7.1.2<-as.data.frame(list(getTotalDistance(d7c1.2),TimeMoving(d7c1.2, POLYDAY7CAM1)))
+d7.2.2<-as.data.frame(list(getTotalDistance(d7c2.2),TimeMoving(d7c2.2, POLYDAY7CAM2)))
+d7.3.2<-as.data.frame(list(getTotalDistance(d7c3.2),TimeMoving(d7c3.2, POLYDAY7CAM3)))
+d7.4.2<-as.data.frame(list(getTotalDistance(d7c4.2),TimeMoving(d7c4.2, POLYDAY7CAM4)))
+d8.1.2<-as.data.frame(list(getTotalDistance(d8c1.2),TimeMoving(d8c1.2, POLYDAY8CAM1)))
 #d8.2 ==> there is no video
-d8.3.2<-as.data.frame(list(getTotalDistance(d8c3.2),TimeMoving(d8c3.2)))
-d8.4.2<-as.data.frame(list(getTotalDistance(d8c4.2),TimeMoving(d8c4.2)))
+d8.3.2<-as.data.frame(list(getTotalDistance(d8c3.2),TimeMoving(d8c3.2, POLYDAY8CAM3)))
+d8.4.2<-as.data.frame(list(getTotalDistance(d8c4.2),TimeMoving(d8c4.2, POLYDAY8CAM4)))
 
 
 # create reference columns
@@ -564,38 +577,38 @@ df2["infection.status"]<-infection2
 #===================================================================================
 # Part IIIc. Analysis hour three
 #===================================================================================
-d1.1.3<-as.data.frame(list(getTotalDistance(d1c1.3),TimeMoving(d1c1.3)))
-d1.2.3<-as.data.frame(list(getTotalDistance(d1c2.3),TimeMoving(d1c2.3)))
-d1.3.3<-as.data.frame(list(getTotalDistance(d1c3.3),TimeMoving(d1c3.3)))
-d1.4.3<-as.data.frame(list(getTotalDistance(d1c4.3),TimeMoving(d1c4.3)))
-d2.1.3<-as.data.frame(list(getTotalDistance(d2c1.3),TimeMoving(d2c1.3)))
-d2.2.3<-as.data.frame(list(getTotalDistance(d2c2.3),TimeMoving(d2c2.3)))
-d2.3.3<-as.data.frame(list(getTotalDistance(d2c3.3),TimeMoving(d2c3.3)))
-d2.4.3<-as.data.frame(list(getTotalDistance(d2c4.3),TimeMoving(d2c4.3)))
-d3.1.3<-as.data.frame(list(getTotalDistance(d3c1.3),TimeMoving(d3c1.3)))
-d3.2.3<-as.data.frame(list(getTotalDistance(d3c2.3),TimeMoving(d3c2.3)))
-d3.3.3<-as.data.frame(list(getTotalDistance(d3c3.3),TimeMoving(d3c3.3)))
-d3.4.3<-as.data.frame(list(getTotalDistance(d3c4.3),TimeMoving(d3c4.3)))
-d4.1.3<-as.data.frame(list(getTotalDistance(d4c1.3),TimeMoving(d4c1.3)))
-d4.2.3<-as.data.frame(list(getTotalDistance(d4c2.3),TimeMoving(d4c2.3)))
-d4.3.3<-as.data.frame(list(getTotalDistance(d4c3.3),TimeMoving(d4c3.3)))
-d4.4.3<-as.data.frame(list(getTotalDistance(d4c4.3),TimeMoving(d4c4.3)))
-d5.1.3<-as.data.frame(list(getTotalDistance(d5c1.3),TimeMoving(d5c1.3)))
-d5.2.3<-as.data.frame(list(getTotalDistance(d5c2.3),TimeMoving(d5c2.3)))
-d5.3.3<-as.data.frame(list(getTotalDistance(d5c3.3),TimeMoving(d5c3.3)))
-d5.4.3<-as.data.frame(list(getTotalDistance(d5c4.3),TimeMoving(d5c4.3)))
-d6.1.3<-as.data.frame(list(getTotalDistance(d6c1.3),TimeMoving(d6c1.3)))
-d6.2.3<-as.data.frame(list(getTotalDistance(d6c2.3),TimeMoving(d6c2.3)))
-d6.3.3<-as.data.frame(list(getTotalDistance(d6c3.3),TimeMoving(d6c3.3)))
+d1.1.3<-as.data.frame(list(getTotalDistance(d1c1.3),TimeMoving(d1c1.3, POLYDAY1CAM1)))
+d1.2.3<-as.data.frame(list(getTotalDistance(d1c2.3),TimeMoving(d1c2.3, POLYDAY1CAM2)))
+d1.3.3<-as.data.frame(list(getTotalDistance(d1c3.3),TimeMoving(d1c3.3, POLYDAY1CAM3)))
+d1.4.3<-as.data.frame(list(getTotalDistance(d1c4.3),TimeMoving(d1c4.3, POLYDAY1CAM4)))
+d2.1.3<-as.data.frame(list(getTotalDistance(d2c1.3),TimeMoving(d2c1.3, POLYDAY2CAM1)))
+d2.2.3<-as.data.frame(list(getTotalDistance(d2c2.3),TimeMoving(d2c2.3, POLYDAY2CAM2)))
+d2.3.3<-as.data.frame(list(getTotalDistance(d2c3.3),TimeMoving(d2c3.3, POLYDAY2CAM3)))
+d2.4.3<-as.data.frame(list(getTotalDistance(d2c4.3),TimeMoving(d2c4.3, POLYDAY2CAM4)))
+d3.1.3<-as.data.frame(list(getTotalDistance(d3c1.3),TimeMoving(d3c1.3, POLYDAY3CAM1)))
+d3.2.3<-as.data.frame(list(getTotalDistance(d3c2.3),TimeMoving(d3c2.3, POLYDAY3CAM2)))
+d3.3.3<-as.data.frame(list(getTotalDistance(d3c3.3),TimeMoving(d3c3.3, POLYDAY3CAM3)))
+d3.4.3<-as.data.frame(list(getTotalDistance(d3c4.3),TimeMoving(d3c4.3, POLYDAY3CAM4)))
+d4.1.3<-as.data.frame(list(getTotalDistance(d4c1.3),TimeMoving(d4c1.3, POLYDAY4CAM1)))
+d4.2.3<-as.data.frame(list(getTotalDistance(d4c2.3),TimeMoving(d4c2.3, POLYDAY4CAM2)))
+d4.3.3<-as.data.frame(list(getTotalDistance(d4c3.3),TimeMoving(d4c3.3, POLYDAY4CAM3)))
+d4.4.3<-as.data.frame(list(getTotalDistance(d4c4.3),TimeMoving(d4c4.3, POLYDAY4CAM4)))
+d5.1.3<-as.data.frame(list(getTotalDistance(d5c1.3),TimeMoving(d5c1.3, POLYDAY5CAM1)))
+d5.2.3<-as.data.frame(list(getTotalDistance(d5c2.3),TimeMoving(d5c2.3, POLYDAY5CAM2)))
+d5.3.3<-as.data.frame(list(getTotalDistance(d5c3.3),TimeMoving(d5c3.3, POLYDAY5CAM3)))
+d5.4.3<-as.data.frame(list(getTotalDistance(d5c4.3),TimeMoving(d5c4.3, POLYDAY5CAM4)))
+d6.1.3<-as.data.frame(list(getTotalDistance(d6c1.3),TimeMoving(d6c1.3, POLYDAY6CAM1)))
+d6.2.3<-as.data.frame(list(getTotalDistance(d6c2.3),TimeMoving(d6c2.3, POLYDAY6CAM2)))
+d6.3.3<-as.data.frame(list(getTotalDistance(d6c3.3),TimeMoving(d6c3.3, POLYDAY6CAM3)))
 #d6.4.3 ==> there is no video
-d7.1.3<-as.data.frame(list(getTotalDistance(d7c1.3),TimeMoving(d7c1.3)))
-d7.2.3<-as.data.frame(list(getTotalDistance(d7c2.3),TimeMoving(d7c2.3)))
-d7.3.3<-as.data.frame(list(getTotalDistance(d7c3.3),TimeMoving(d7c3.3)))
-d7.4.3<-as.data.frame(list(getTotalDistance(d7c4.3),TimeMoving(d7c4.3)))
-d8.1.3<-as.data.frame(list(getTotalDistance(d8c1.3),TimeMoving(d8c1.3)))
+d7.1.3<-as.data.frame(list(getTotalDistance(d7c1.3),TimeMoving(d7c1.3, POLYDAY7CAM1)))
+d7.2.3<-as.data.frame(list(getTotalDistance(d7c2.3),TimeMoving(d7c2.3, POLYDAY7CAM2)))
+d7.3.3<-as.data.frame(list(getTotalDistance(d7c3.3),TimeMoving(d7c3.3, POLYDAY7CAM3)))
+d7.4.3<-as.data.frame(list(getTotalDistance(d7c4.3),TimeMoving(d7c4.3, POLYDAY7CAM4)))
+d8.1.3<-as.data.frame(list(getTotalDistance(d8c1.3),TimeMoving(d8c1.3, POLYDAY8CAM1)))
 #d8.2.3 ==> there is no video
-d8.3.3<-as.data.frame(list(getTotalDistance(d8c3.3),TimeMoving(d8c3.3)))
-d8.4.3<-as.data.frame(list(getTotalDistance(d8c4.3),TimeMoving(d8c4.3)))
+d8.3.3<-as.data.frame(list(getTotalDistance(d8c3.3),TimeMoving(d8c3.3, POLYDAY8CAM3)))
+d8.4.3<-as.data.frame(list(getTotalDistance(d8c4.3),TimeMoving(d8c4.3, POLYDAY8CAM4)))
 
 # create reference columns
 day3<-c(rep("day 1",16),rep("day 2",16),rep("day 3",16),rep("day 4",16),
