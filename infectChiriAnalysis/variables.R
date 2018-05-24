@@ -648,15 +648,34 @@ df<-data.frame(rbind(df1, df2, df3))
 df["hour"]<-c(rep("hour 1",nrow(df1)),rep("hour 2",nrow(df2)),rep("hour 3",nrow(df3)))
 colnames(df)
 df <- df[,c(7,8,11,9,10,1:6)]
-df["speed.cmxmin"] <- round(df$tot.distance.cm / df$minutes.moving, digits = 1)
-df["tot.distance.m"] <- df$tot.distance.cm / 100
-df["seconds.moving"] <- df$frames / 29.9 * 8
-df["speed.mxsec"] <- round(df$tot.distance.m / df$seconds.moving, digits = 2)
-df["speed.cmxsec"] <- round(df$tot.distance.cm / df$seconds.moving, digits = 2)
 
+df["tot.distance.cm"] <- round(df$total_distance_traveled_pixels * 0.02645833, 2)
+df["speed.cmxmin"] <- round(df$tot.distance.cm / df$minutes.moving, digits = 1)
+df$speed.cmxmin <- ifelse(is.nan(df$speed.cmxmin), 0, df$speed.cmxmin)
+df["tot.distance.m"] <- df$tot.distance.cm / 100
+df["seconds.moving"] <- df$time_spent_in_open / 29.9 * 8
+df["speed.mxsec"] <- round(df$tot.distance.m / df$seconds.moving, digits = 2)
+df$speed.mxsec <- ifelse(is.nan(df$speed.mxsec), 0, df$speed.mxsec)
+df["speed.cmxsec"] <- round(df$tot.distance.cm / df$seconds.moving, digits = 2)
+df$speed.cmxsec <- ifelse(is.nan(df$speed.cmxsec), 0, df$speed.cmxsec)
+
+# write all of the files
+output_direc <- "~/Desktop/Laboratory/infectChiriAnalysis"
+# hour 1
+filename <- file.path(output_direc, paste("hour1.csv", sep=""))
+write.table(df1, filename, row.names = F)
+# hour 2
+filename <- file.path(output_direc, paste("hour2.csv", sep=""))
+write.table(df2, filename, row.names = F)
+# hour 3
+filename <- file.path(output_direc, paste("hour3.csv", sep=""))
+write.table(df3, filename, row.names = F)
+# main data frame
+filename <- file.path(output_direc, paste("rawData.csv", sep=""))
+write.table(df, filename, row.names = F)
 
 #===================================================================================
-# Part IIIe. Plot total distance
+# Part IIIf. Plot total distance
 #===================================================================================
 p<-ggplot(df,aes(x=infection.status, y=tot.distance.cm, fill=infection.status))+
   geom_boxplot(width=.5, alpha=0.4)+
